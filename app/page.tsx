@@ -1,7 +1,14 @@
+import { Suspense } from "react";
 import { ListingGrid } from "@/components/listing/ListingGrid";
 import { ListingFilters } from "@/components/listing/ListingFilters";
 
 type SearchParams = { category?: string; brand?: string; minPrice?: string; maxPrice?: string };
+
+function FiltersFallback() {
+  return (
+    <div className="flex flex-wrap gap-4 mb-6 p-4 rounded-xl bg-white/60 border border-par-3-punch/20 animate-pulse h-[72px]" />
+  );
+}
 
 export default function HomePage({
   searchParams,
@@ -18,7 +25,9 @@ export default function HomePage({
           Browse verified listings from UK sellers. Secure payment, no fuss.
         </p>
       </div>
-      <ListingFilters />
+      <Suspense fallback={<FiltersFallback />}>
+        <ListingFilters />
+      </Suspense>
       <ListingGrid searchParams={searchParams} />
     </div>
   );
