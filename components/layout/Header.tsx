@@ -23,10 +23,10 @@ export function Header() {
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 shrink-0">
           <Image
-            src="/logo-text.svg"
+            src="/logo-text.png"
             alt="Teevo"
-            width={120}
-            height={36}
+            width={140}
+            height={44}
             className="h-9 w-auto"
             priority
           />
