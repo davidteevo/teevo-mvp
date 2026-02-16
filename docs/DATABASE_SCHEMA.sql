@@ -8,7 +8,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE IF NOT EXISTS public.users (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT NOT NULL,
-  role TEXT NOT NULL DEFAULT 'buyer' CHECK (role IN ('buyer', 'seller', 'admin')),
+  "role" TEXT NOT NULL DEFAULT 'buyer' CHECK ("role" IN ('buyer', 'seller', 'admin')),
   stripe_account_id TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -30,10 +30,10 @@ CREATE TABLE IF NOT EXISTS public.listings (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_listings_status ON public.listings(status);
-CREATE INDEX idx_listings_user_id ON public.listings(user_id);
-CREATE INDEX idx_listings_category ON public.listings(category);
-CREATE INDEX idx_listings_created_at ON public.listings(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_listings_status ON public.listings(status);
+CREATE INDEX IF NOT EXISTS idx_listings_user_id ON public.listings(user_id);
+CREATE INDEX IF NOT EXISTS idx_listings_category ON public.listings(category);
+CREATE INDEX IF NOT EXISTS idx_listings_created_at ON public.listings(created_at DESC);
 
 -- Listing images (3–6 per listing)
 CREATE TABLE IF NOT EXISTS public.listing_images (
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS public.listing_images (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_listing_images_listing_id ON public.listing_images(listing_id);
+CREATE INDEX IF NOT EXISTS idx_listing_images_listing_id ON public.listing_images(listing_id);
 
 -- Transactions
 CREATE TABLE IF NOT EXISTS public.transactions (
@@ -62,10 +62,10 @@ CREATE TABLE IF NOT EXISTS public.transactions (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_transactions_buyer ON public.transactions(buyer_id);
-CREATE INDEX idx_transactions_seller ON public.transactions(seller_id);
-CREATE INDEX idx_transactions_listing ON public.transactions(listing_id);
-CREATE INDEX idx_transactions_status ON public.transactions(status);
+CREATE INDEX IF NOT EXISTS idx_transactions_buyer ON public.transactions(buyer_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_seller ON public.transactions(seller_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_listing ON public.transactions(listing_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_status ON public.transactions(status);
 
 -- Admin intervention log (optional)
 CREATE TABLE IF NOT EXISTS public.admin_actions (
