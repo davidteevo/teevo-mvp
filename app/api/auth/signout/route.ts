@@ -6,7 +6,7 @@ const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN || undefined;
 /**
  * GET /api/auth/signout
  * Server-side sign out: clears Supabase auth cookies and redirects to /.
- * Use this as the redirect target after client signOut so cookies are reliably removed.
+ * Explicitly clears all sb-* cookies to work around Supabase/SSR cookie persistence issues.
  */
 export async function GET(request: NextRequest) {
   const url = new URL("/", request.url);
@@ -31,6 +31,22 @@ export async function GET(request: NextRequest) {
   );
 
   await supabase.auth.signOut({ scope: "local" });
+
+  // Manually clear any Supabase auth cookies (sb-*) that may have survived
+  const clearOptions: Record<string, unknown> = {
+    path: "/",
+    maxAge: 0,
+    expires: new Date(0),
+  };
+  if (cookieDomain) {
+    clearOptions.domain = cookieDomain;
+  }
+  const allCookies = request.cookies.getAll();
+  for (const { name } of allCookies) {
+    if (name.startsWith("sb-")) {
+      response.cookies.set(name, "", clearOptions);
+    }
+  }
 
   return response;
 }
