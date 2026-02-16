@@ -28,7 +28,7 @@ export default async function AdminLayout({
   return (
     <div className="min-h-screen bg-off-white-pique">
       <div className="max-w-5xl mx-auto px-4 py-6">
-        <nav className="flex gap-4 mb-6 border-b border-par-3-punch/20 pb-4">
+        <nav className="flex flex-wrap gap-4 mb-6 border-b border-par-3-punch/20 pb-4">
           <Link href="/admin" className="text-mowing-green font-medium hover:underline">
             Overview
           </Link>
@@ -37,6 +37,9 @@ export default async function AdminLayout({
           </Link>
           <Link href="/admin/transactions" className="text-mowing-green font-medium hover:underline">
             Transactions
+          </Link>
+          <Link href="/admin/users" className="text-mowing-green font-medium hover:underline">
+            Users
           </Link>
         </nav>
         {children}

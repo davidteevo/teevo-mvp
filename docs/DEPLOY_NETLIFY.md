@@ -72,7 +72,8 @@ Add the same variables you use in `.env.local`:
 | `STRIPE_SECRET_KEY` | Stripe secret key | `sk_live_...` or `sk_test_...` |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key | `pk_live_...` or `pk_test_...` |
 | `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret for **this** Netlify URL | `whsec_...` |
-| `NEXT_PUBLIC_APP_URL` | Full URL of your app | `https://teevo-mvp.netlify.app` or `https://app.teevo.com` |
+| `NEXT_PUBLIC_APP_URL` | Full URL of your main app | `https://app.teevohq.com` or `https://teevo-mvp.netlify.app` |
+| `NEXT_PUBLIC_ADMIN_DOMAIN` | (Optional) Admin-only domain; see [Admin domain](#admin-domain-adminteevohqcom) | `admin.teevohq.com` |
 
 - **Scopes:** enable these for **Production** (and optionally **Branch deploys** if you use previews).
 - **Sensitive:** mark secret keys as “Sensitive” so they’re hidden in the UI.
@@ -127,6 +128,31 @@ Save. This lets login/signup and Google OAuth redirect back to your Netlify site
 1. **Deploys** → **Trigger deploy** → **Deploy site** (or push a commit).
 2. When the build finishes, open your site URL.
 3. Test: sign up, create a listing, (as admin) approve it, connect Stripe, and run a test payment. Check **Stripe** → **Webhooks** for the endpoint’s event log and any failures.
+
+---
+
+## Admin domain (admin.teevohq.com)
+
+You can serve the admin area on a separate domain so admins use `https://admin.teevohq.com` and always land on the admin dashboard.
+
+**How it works:** The same Netlify site is used for both the main app and the admin domain. When a request comes to `admin.teevohq.com`, the app redirects `/` to `/admin` and redirects any non-admin path (e.g. `/sell`, `/listing/123`) to your main site URL so only admin routes are used on that host.
+
+**Steps:**
+
+1. **Add the domain in Netlify**  
+   Site settings → **Domain management** → **Add custom domain** (or **Add domain alias**). Enter `admin.teevohq.com` and follow Netlify’s instructions (e.g. add a CNAME for `admin` to your Netlify site). Wait for DNS and SSL.
+
+2. **Set environment variables** (same site, so same env):  
+   - `NEXT_PUBLIC_APP_URL` = your main site URL (e.g. `https://app.teevohq.com`).  
+   - `NEXT_PUBLIC_ADMIN_DOMAIN` = `admin.teevohq.com`  
+
+   Trigger a new deploy after changing env vars.
+
+3. **Supabase (optional)**  
+   If admins will log in via the admin domain, add to **Redirect URLs**:  
+   `https://admin.teevohq.com/auth/callback` and `https://admin.teevohq.com/**`
+
+After this, visiting `https://admin.teevohq.com` redirects to `https://admin.teevohq.com/admin`. Visiting `https://admin.teevohq.com/sell` redirects to `https://app.teevohq.com/sell`.
 
 ---
 

@@ -16,11 +16,11 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Teevo – UK Golf Equipment Marketplace",
+  title: "Teevo | The Smarter Golf Gear Marketplace",
   description: "Buy and sell golf equipment in the UK. Verified listings, secure payment.",
   icons: {
-    icon: "/logo-icon.png",
-    apple: "/logo-icon.png",
+    icon: "/favicon.png",
+    apple: "/favicon.png",
   },
 };
 
