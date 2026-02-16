@@ -24,6 +24,11 @@ export interface User {
   email: string;
   role: UserRole;
   stripe_account_id: string | null;
+  avatar_path: string | null;
+  display_name: string | null;
+  location: string | null;
+  handicap: number | null;
+  handed: "left" | "right" | null;
   created_at: string;
   updated_at: string;
 }

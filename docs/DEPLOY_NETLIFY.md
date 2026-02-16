@@ -74,6 +74,7 @@ Add the same variables you use in `.env.local`:
 | `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret for **this** Netlify URL | `whsec_...` |
 | `NEXT_PUBLIC_APP_URL` | Full URL of your main app | `https://app.teevohq.com` or `https://teevo-mvp.netlify.app` |
 | `NEXT_PUBLIC_ADMIN_DOMAIN` | (Optional) Admin-only domain; see [Admin domain](#admin-domain-adminteevohqcom) | `admin.teevohq.com` |
+| `NEXT_PUBLIC_COOKIE_DOMAIN` | (Optional) Shared auth cookie domain so app + admin stay logged in; use when using admin subdomain | `.teevohq.com` |
 
 - **Scopes:** enable these for **Production** (and optionally **Branch deploys** if you use previews).
 - **Sensitive:** mark secret keys as “Sensitive” so they’re hidden in the UI.
@@ -107,6 +108,8 @@ Add the same variables you use in `.env.local`:
    - `https://app.teevo.com/**`
 
 Save. This lets login/signup and Google OAuth redirect back to your Netlify site.
+
+**For local development:** Add to Redirect URLs: `http://localhost:3000/auth/callback` and `http://localhost:3000/**`. Use a copy of `.env.example` as `.env.local` with your Supabase and Stripe keys; set `NEXT_PUBLIC_APP_URL=http://localhost:3000`. Then `npm run dev` and open http://localhost:3000 and http://localhost:3000/admin.
 
 ---
 
@@ -145,6 +148,7 @@ You can serve the admin area on a separate domain so admins use `https://admin.t
 2. **Set environment variables** (same site, so same env):  
    - `NEXT_PUBLIC_APP_URL` = your main site URL (e.g. `https://app.teevohq.com`).  
    - `NEXT_PUBLIC_ADMIN_DOMAIN` = `admin.teevohq.com`  
+   - `NEXT_PUBLIC_COOKIE_DOMAIN` = `.teevohq.com` (so the auth cookie is shared: logging in on app or admin keeps you logged in on both).
 
    Trigger a new deploy after changing env vars.
 
@@ -153,6 +157,17 @@ You can serve the admin area on a separate domain so admins use `https://admin.t
    `https://admin.teevohq.com/auth/callback` and `https://admin.teevohq.com/**`
 
 After this, visiting `https://admin.teevohq.com` redirects to `https://admin.teevohq.com/admin`. Visiting `https://admin.teevohq.com/sell` redirects to `https://app.teevohq.com/sell`.
+
+### If Netlify redirects admin → app (alias redirects to primary)
+
+Netlify can redirect domain aliases to the primary domain. To serve the same site on both `app.teevohq.com` and `admin.teevohq.com` without either redirecting to the other, use a **dummy primary domain**:
+
+1. In **Domain management**, add a third domain that will act only as primary (e.g. `placeholder.teevohq.com` or your Netlify subdomain like `ephemeral-zabaione-cd0545.netlify.app`).
+2. Set that domain as **primary** (Options → **Set as primary domain**).
+3. Ensure **app.teevohq.com** and **admin.teevohq.com** are both **domain aliases** (not primary).
+4. Netlify’s automatic redirect from alias → primary then no longer forces traffic between your real domains; each alias is served as-is.
+
+If you use a placeholder subdomain (e.g. `placeholder.teevohq.com`), it does not need to be reachable in DNS; it only needs to be set as primary in Netlify. Alternatively, use your existing `*.netlify.app` subdomain as primary so both custom domains remain aliases.
 
 ---
 

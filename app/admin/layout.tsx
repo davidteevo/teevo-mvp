@@ -20,9 +20,19 @@ export default async function AdminLayout({
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
-  const { data: profile } = await admin.from("users").select("role").eq("id", user.id).single();
+  let { data: profile } = await admin.from("users").select("role").eq("id", user.id).single();
+  // If no profile row (e.g. auth callback didn't run), create one so we don't redirect forever
+  if (!profile) {
+    await admin.from("users").insert({
+      id: user.id,
+      email: user.email ?? "",
+      role: "buyer",
+      updated_at: new Date().toISOString(),
+    });
+    profile = (await admin.from("users").select("role").eq("id", user.id).single()).data ?? null;
+  }
   if (profile?.role !== "admin") {
-    redirect("/");
+    redirect("/login?redirect=/admin");
   }
 
   return (
@@ -34,6 +44,9 @@ export default async function AdminLayout({
           </Link>
           <Link href="/admin/listings" className="text-mowing-green font-medium hover:underline">
             Pending listings
+          </Link>
+          <Link href="/admin/listings/all" className="text-mowing-green font-medium hover:underline">
+            All listings
           </Link>
           <Link href="/admin/transactions" className="text-mowing-green font-medium hover:underline">
             Transactions

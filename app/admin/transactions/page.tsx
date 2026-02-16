@@ -43,6 +43,7 @@ export default function AdminTransactionsPage() {
           <option value="shipped">Shipped</option>
           <option value="complete">Complete</option>
           <option value="refunded">Refunded</option>
+          <option value="dispute">Dispute</option>
         </select>
       </div>
       <div className="mt-6 rounded-xl border border-par-3-punch/20 bg-white overflow-hidden">

@@ -1,13 +1,8 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
 import { getListingById } from "@/lib/listings";
-import { VerifiedBadge } from "@/components/trust/VerifiedBadge";
+import { calcOrderBreakdown, formatPence } from "@/lib/pricing";
 import { BuyButton } from "./BuyButton";
-
-function formatPrice(pence: number) {
-  return `£${(pence / 100).toFixed(2)}`;
-}
+import { ListingImageGallery } from "./ListingImageGallery";
 
 export default async function ListingPage({
   params,
@@ -33,43 +28,16 @@ export default async function ListingPage({
     (img: { storage_path: string }) =>
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listings/${img.storage_path}`
   );
-  const firstImageUrl = imagePaths[0] ?? "/placeholder-listing.svg";
+  const imageUrls =
+    imagePaths.length > 0 ? imagePaths : ["/placeholder-listing.svg"];
+  const { itemPence, authenticityPence, shippingPence, totalPence } =
+    calcOrderBreakdown(listing.price);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-4">
-          <div className="aspect-square relative rounded-xl overflow-hidden bg-mowing-green/5">
-            <Image
-              src={firstImageUrl}
-              alt={listing.model}
-              fill
-              className="object-cover"
-              priority
-              unoptimized={imagePaths.length > 0}
-            />
-            <div className="absolute top-3 left-3">
-              <VerifiedBadge />
-            </div>
-          </div>
-          {imagePaths.length > 1 && (
-            <div className="grid grid-cols-4 gap-2">
-              {imagePaths.slice(0, 4).map((url: string, i: number) => (
-                <div
-                  key={i}
-                  className="aspect-square relative rounded-lg overflow-hidden bg-mowing-green/5"
-                >
-                  <Image
-                    src={url}
-                    alt=""
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
-                </div>
-              ))}
-            </div>
-          )}
+          <ListingImageGallery imageUrls={imageUrls} alt={listing.model} />
         </div>
 
         <div>
@@ -81,8 +49,15 @@ export default async function ListingPage({
           </h1>
           <p className="text-mowing-green/80 mt-2">{listing.condition}</p>
           <p className="mt-4 text-3xl font-bold text-mowing-green">
-            {formatPrice(listing.price)}
+            {formatPence(itemPence)}
           </p>
+          <div className="mt-2 space-y-0.5 text-mowing-green/80 text-[15px]">
+            <p>{formatPence(authenticityPence)} Authenticity &amp; Protection</p>
+            <p>est. {formatPence(shippingPence)} shipping</p>
+            <p className="text-mowing-green font-medium pt-1">
+              Total estimated: {formatPence(totalPence)}
+            </p>
+          </div>
 
           <div className="mt-6 flex flex-wrap gap-3">
             <span className="inline-flex items-center rounded-full bg-par-3-punch/20 text-mowing-green px-3 py-1 text-xs font-medium">
@@ -103,7 +78,7 @@ export default async function ListingPage({
           )}
 
           <div className="mt-8">
-            <BuyButton listingId={listing.id} price={listing.price} />
+            <BuyButton listingId={listing.id} price={listing.price} totalPence={totalPence} />
           </div>
         </div>
       </div>

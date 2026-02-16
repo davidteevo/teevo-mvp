@@ -51,6 +51,9 @@ The column is quoted as `"condition"` in the schema because it’s a reserved wo
 **Optional – restrict who can upload:**  
 By default, the app uses the **service role** key to upload (server-side), so uploads are not tied to storage policies. If you want to lock down uploads via RLS-style policies later, you can add a policy that allows authenticated users to upload only to paths that match their `user_id`, but for the MVP the service-role upload in the API is enough.
 
+**Profile photos (avatars):**  
+Create a second bucket for user profile pictures: **Storage** → **New bucket** → **Name:** `avatars` → **Public bucket:** ON → **Create bucket**. The app stores avatar paths in `public.users.avatar_path`.
+
 ---
 
 ### 1.4 Configure Authentication
@@ -195,7 +198,9 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 3. **Endpoint URL:** `https://your-domain.com/api/webhooks/stripe` (must be HTTPS).
 4. **Events to send:** select:
    - `checkout.session.completed`
+   - `charge.dispute.created`
    - `charge.refunded`
+   - `refund.updated`
 5. Click **Add endpoint**. Stripe will show a **Signing secret** (starts with `whsec_`).
 6. In your production environment (e.g. Vercel env vars), set:
 

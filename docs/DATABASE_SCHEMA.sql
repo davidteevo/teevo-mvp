@@ -10,6 +10,11 @@ CREATE TABLE IF NOT EXISTS public.users (
   email TEXT NOT NULL,
   "role" TEXT NOT NULL DEFAULT 'buyer' CHECK ("role" IN ('buyer', 'seller', 'admin')),
   stripe_account_id TEXT,
+  avatar_path TEXT,
+  display_name TEXT,
+  location TEXT,
+  handicap INT CHECK (handicap IS NULL OR (handicap >= 0 AND handicap <= 54)),
+  handed TEXT CHECK (handed IS NULL OR handed IN ('left', 'right')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -26,6 +31,7 @@ CREATE TABLE IF NOT EXISTS public.listings (
   price INTEGER NOT NULL CHECK (price > 0), -- pence
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'verified', 'rejected', 'sold')),
   flagged BOOLEAN NOT NULL DEFAULT FALSE,
+  admin_feedback TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -46,16 +52,20 @@ CREATE TABLE IF NOT EXISTS public.listing_images (
 
 CREATE INDEX IF NOT EXISTS idx_listing_images_listing_id ON public.listing_images(listing_id);
 
--- Transactions
+-- Transactions (order state: paid → label_created → shipped → delivered → completed; release window then payout)
 CREATE TABLE IF NOT EXISTS public.transactions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   listing_id UUID NOT NULL REFERENCES public.listings(id),
   buyer_id UUID NOT NULL REFERENCES public.users(id),
   seller_id UUID NOT NULL REFERENCES public.users(id),
   stripe_payment_id TEXT,
+  stripe_checkout_session_id TEXT,
   stripe_transfer_id TEXT,
-  amount INTEGER NOT NULL, -- pence
+  amount INTEGER NOT NULL, -- pence (total charged)
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'shipped', 'complete', 'refunded', 'dispute')),
+  order_state TEXT NOT NULL DEFAULT 'paid' CHECK (order_state IN ('paid', 'label_created', 'shipped', 'delivered', 'completed')),
+  buyer_postcode TEXT,
+  shipping_option TEXT,
   shipped_at TIMESTAMPTZ,
   completed_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -149,3 +159,21 @@ CREATE TRIGGER on_transaction_created
 
 -- Trigger: sync users from auth (optional; or use Supabase Auth hook)
 -- If using Supabase Auth, you may create user row on signup via trigger or API.
+
+-- Migration: add admin_feedback to existing listings table (run if table already existed)
+-- ALTER TABLE public.listings ADD COLUMN IF NOT EXISTS admin_feedback TEXT;
+
+-- Migration: add profile fields to users (run if table already existed)
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS avatar_path TEXT;
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS display_name TEXT;
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS location TEXT;
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS handicap INT;
+-- ALTER TABLE public.users ADD CONSTRAINT users_handicap_range CHECK (handicap IS NULL OR (handicap >= 0 AND handicap <= 54));
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS handed TEXT;
+-- ALTER TABLE public.users ADD CONSTRAINT users_handed_check CHECK (handed IS NULL OR handed IN ('left', 'right'));
+
+-- Migration: Stripe checkout + order state (run if transactions already existed)
+-- ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS buyer_postcode TEXT;
+-- ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS shipping_option TEXT;
+-- ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS stripe_checkout_session_id TEXT;
+-- ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS order_state TEXT NOT NULL DEFAULT 'paid' CHECK (order_state IN ('paid', 'label_created', 'shipped', 'delivered', 'completed'));

@@ -1,6 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN || undefined;
+
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
   const supabase = createServerClient(
@@ -17,6 +19,7 @@ export async function updateSession(request: NextRequest) {
           );
         },
       },
+      ...(cookieDomain ? { cookieOptions: { domain: cookieDomain } } : {}),
     }
   );
   await supabase.auth.getUser();

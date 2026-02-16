@@ -22,6 +22,16 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+// Suppress AbortError from showing as unhandled runtime error (e.g. when navigating away during auth)
+if (typeof window !== "undefined") {
+  window.addEventListener("unhandledrejection", (event) => {
+    const e = event.reason;
+    if ((e as Error)?.name === "AbortError" || (e instanceof Error && e.message?.includes("aborted"))) {
+      event.preventDefault();
+    }
+  });
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [profile, setProfile] = useState<AppUser | null>(null);
@@ -29,17 +39,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
 
   const fetchProfile = useCallback(async (userId: string) => {
-    const { data } = await supabase
-      .from("users")
-      .select("*")
-      .eq("id", userId)
-      .single();
-    setProfile(data as AppUser | null);
+    try {
+      const { data } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", userId)
+        .single();
+      setProfile(data as AppUser | null);
+    } catch (e) {
+      if ((e as Error)?.name !== "AbortError") throw e;
+    }
   }, [supabase]);
 
   const refreshProfile = useCallback(async () => {
-    const { data: { user: u } } = await supabase.auth.getUser();
-    if (u) await fetchProfile(u.id);
+    try {
+      const { data: { user: u } } = await supabase.auth.getUser();
+      if (u) await fetchProfile(u.id);
+    } catch (e) {
+      if ((e as Error)?.name !== "AbortError") throw e;
+    }
   }, [supabase, fetchProfile]);
 
   useEffect(() => {
@@ -48,30 +66,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        await fetchProfile(session.user.id);
+        try {
+          await fetchProfile(session.user.id);
+        } catch (e) {
+          if ((e as Error)?.name !== "AbortError") throw e;
+        }
       } else {
         setProfile(null);
       }
       setLoading(false);
     });
 
+    let cancelled = false;
     supabase.auth.getUser().then(({ data: { user: u } }) => {
+      if (cancelled) return;
       setUser(u ?? null);
-      if (u) fetchProfile(u.id).then(() => setLoading(false));
+      if (u) fetchProfile(u.id).then(() => { if (!cancelled) setLoading(false); });
       else setLoading(false);
+    }).catch((e) => {
+      if ((e as Error)?.name !== "AbortError" && !cancelled) setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, [supabase, fetchProfile]);
 
   const signOut = useCallback(async () => {
+    setUser(null);
+    setProfile(null);
     try {
-      await supabase.auth.signOut();
-    } finally {
-      setUser(null);
-      setProfile(null);
-      window.location.href = "/";
+      await Promise.race([
+        supabase.auth.signOut(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 5000)),
+      ]);
+    } catch {
+      // Still redirect so user sees logged-out state
     }
+    if (typeof window !== "undefined") window.location.href = "/";
   }, [supabase]);
 
   return (

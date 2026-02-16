@@ -6,9 +6,11 @@ import { useAuth } from "@/lib/auth-context";
 export function BuyButton({
   listingId,
   price,
+  totalPence,
 }: {
   listingId: string;
   price: number;
+  totalPence?: number;
 }) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -20,7 +22,7 @@ export function BuyButton({
     }
     setLoading(true);
     try {
-      const res = await fetch("/api/checkout", {
+      const res = await fetch("/api/checkout/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ listingId }),
@@ -42,7 +44,7 @@ export function BuyButton({
       disabled={loading}
       className="w-full sm:w-auto rounded-xl bg-mowing-green text-off-white-pique px-8 py-4 text-lg font-semibold hover:opacity-90 disabled:opacity-70"
     >
-      {loading ? "Redirecting…" : `Buy now · £${(price / 100).toFixed(2)}`}
+      {loading ? "Redirecting…" : `Buy now · £${((totalPence ?? price) / 100).toFixed(2)}`}
     </button>
   );
 }

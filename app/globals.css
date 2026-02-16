@@ -3,6 +3,8 @@
 @tailwind utilities;
 
 :root {
+  --font-geist-sans: "Fredoka", system-ui, sans-serif;
+  --font-geist-mono: "JetBrains Mono", monospace;
   --mowing-green: #265C4B;
   --par-3-punch: #49C184;
   --golden-tee: #FFD25E;

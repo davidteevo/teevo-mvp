@@ -37,6 +37,7 @@ export async function POST(
     .from("transactions")
     .update({
       status: "shipped",
+      order_state: "shipped",
       shipped_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })

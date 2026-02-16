@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
-export async function POST(
+export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -19,29 +19,24 @@ export async function POST(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
-
-  const { data: tx } = await admin
-    .from("transactions")
-    .select("buyer_id, status")
-    .eq("id", id)
-    .single();
-
-  if (!tx || tx.buyer_id !== user.id) {
+  const { data: profile } = await admin.from("users").select("role").eq("id", user.id).single();
+  if (profile?.role !== "admin") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  if (tx.status !== "shipped") {
-    return NextResponse.json({ error: "Can only confirm after shipped" }, { status: 400 });
+
+  const { count: txCount } = await admin
+    .from("transactions")
+    .select("id", { count: "exact", head: true })
+    .eq("listing_id", id);
+
+  if (txCount != null && txCount > 0) {
+    return NextResponse.json(
+      { error: "Cannot delete: this listing has transactions. Reject or leave as-is instead." },
+      { status: 400 }
+    );
   }
 
-  const { error } = await admin
-    .from("transactions")
-    .update({
-      status: "complete",
-      order_state: "completed",
-      completed_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", id);
+  const { error } = await admin.from("listings").delete().eq("id", id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

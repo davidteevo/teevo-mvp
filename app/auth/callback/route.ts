@@ -14,10 +14,18 @@ export async function GET(request: Request) {
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!
       );
-      await admin.from("users").upsert(
-        { id: user.id, email: user.email ?? "", role: "buyer", updated_at: new Date().toISOString() },
-        { onConflict: "id" }
-      );
+      const { data: existing } = await admin.from("users").select("id").eq("id", user.id).single();
+      const updated_at = new Date().toISOString();
+      if (existing) {
+        await admin.from("users").update({ email: user.email ?? "", updated_at }).eq("id", user.id);
+      } else {
+        await admin.from("users").insert({
+          id: user.id,
+          email: user.email ?? "",
+          role: "buyer",
+          updated_at,
+        });
+      }
     }
   }
   return NextResponse.redirect(new URL(next, request.url));

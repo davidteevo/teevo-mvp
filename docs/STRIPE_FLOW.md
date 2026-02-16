@@ -2,8 +2,8 @@
 
 ## Overview
 
-- **Sellers:** Stripe Connect Express accounts. Sellers receive payouts directly; platform does not hold funds.
-- **Buyers:** Stripe Checkout one-time payment. Funds go to connected seller account (after platform fee if any; MVP = free so 0% fee).
+- **Sellers:** Stripe Connect Express accounts. Sellers receive the **item price** via destination charge; platform keeps **authenticity fee (8% + £0.50)** and **shipping** as application fee.
+- **Buyers:** Stripe Checkout one-time payment. Total = item + authenticity & protection + shipping (tracked £9.49). Funds: item → seller; authenticity + shipping → platform.
 
 ## 1. Seller onboarding (Stripe Connect Express)
 
@@ -24,28 +24,34 @@
 
 ## 2. Buyer checkout (Stripe Checkout)
 
+**Route:** `POST /api/checkout/create` (or `POST /api/checkout` for backward compatibility).
+
+**Inputs:** `listingId` (required), `buyerPostcode` (optional), `shippingOption` (optional, default `"tracked"`).
+
+**Output:** `{ url }` – Stripe Checkout Session URL (redirect buyer here).
+
 ```
 1. Buyer clicks "Buy" on a verified listing.
-2. App calls POST /api/checkout with listing_id.
-3. API:
+2. App calls POST /api/checkout/create with { listingId, buyerPostcode?, shippingOption? }.
+3. API (lib/stripe-checkout.ts):
    - Loads listing and seller (must have stripe_account_id).
+   - Computes total: item + authenticity (8% + £0.50) + shipping (£9.49).
    - Creates Stripe Checkout Session:
      - mode: 'payment'
-     - payment_intent_data: { application_fee_amount: 0 }  // MVP free
-     - line_items: [ { price_data: { currency: 'gbp', unit_amount: listing.price }, quantity: 1 } ]
      - payment_intent_data.transfer_data.destination = seller.stripe_account_id
-   - Stores in DB: transaction (status: pending, stripe_payment_id when available).
-4. Return session.url to client; redirect buyer to Stripe Checkout.
-5. Buyer pays on Stripe; redirected to success_url (e.g. /purchase/success?session_id=...).
-6. Webhook payment_intent.succeeded (or checkout.session.completed):
-   - Create or update transaction (stripe_payment_id, status pending).
-   - Set listing to sold (or already via DB trigger).
-   - Notify seller (email or in-app).
+     - payment_intent_data.application_fee_amount = authenticity + shipping (platform keeps this)
+     - line_items: [ Item, Authenticity & Protection, Shipping (Tracked) ]
+     - metadata: listingId, buyerId, sellerId, buyerPostcode?, shippingOption?
+4. Return session.url; redirect buyer to Stripe Checkout.
+5. Buyer pays; redirected to success_url.
+6. Webhook checkout.session.completed:
+   - Insert transaction (status: pending, order_state: paid, buyer_postcode, shipping_option, stripe_checkout_session_id).
+   - Set listing to sold (trigger or webhook).
 ```
 
-**Important:** For Connect with destination charge, create PaymentIntent with `transfer_data.destination = stripe_account_id` and use Stripe Checkout with that PaymentIntent, or use Checkout Session with `payment_intent_data.transfer_data.destination`. For Express accounts, prefer Checkout Session with `transfer_data.destination` so funds go to connected account.
+**Important:** Destination charge: item goes to seller; application_fee_amount (authenticity + shipping) stays with platform.
 
-## 3. Payout to seller (release after ship + confirm or 3-day auto)
+## 3. Order state and payout
 
 **Option A – Manual transfer (simplest for MVP)**  
 - When buyer confirms receipt (or 3 days after “shipped” with no dispute), your backend creates a **Transfer** to the Connect account using the PaymentIntent’s charge.  
@@ -68,16 +74,19 @@ OR auto-release 3 days after shipped_at (cron or edge) → status = complete.
 ## 4. Webhooks
 
 **Endpoint:** `POST /api/webhooks/stripe`  
-**Signing secret:** Stripe webhook signing secret (e.g. whsec_...).
+**Signing secret:** `STRIPE_WEBHOOK_SECRET` (e.g. whsec_...).
 
 | Event | Action |
 |-------|--------|
-| `checkout.session.completed` | Create/update transaction; set listing sold; notify seller |
-| `payment_intent.succeeded` | Ensure transaction record has stripe_payment_id |
-| `charge.refunded` | Set transaction status = refunded; optionally relist item |
+| `checkout.session.completed` | Insert transaction (listingId, buyerId, sellerId, amount, stripe_payment_id, stripe_checkout_session_id, order_state=paid, buyer_postcode, shipping_option); set listing sold |
+| `charge.dispute.created` | Set transaction status = dispute |
+| `charge.refunded` | Set transaction status = refunded |
+| `refund.updated` | If refund.status === succeeded, set transaction status = refunded (by charge → payment_intent lookup) |
 | `account.updated` | (Optional) Sync seller account capabilities |
 
-Verify signature with `stripe.webhooks.constructEvent(payload, sig, secret)` and return 200 quickly; do heavy work async if needed.
+**Production:** In Stripe Dashboard → Developers → Webhooks, add endpoint and subscribe to: `checkout.session.completed`, `charge.dispute.created`, `charge.refunded`, `refund.updated`.
+
+Verify signature with `stripe.webhooks.constructEvent(body, sig, secret)` and return 200 quickly; do heavy work async if needed.
 
 ## 5. Environment variables
 

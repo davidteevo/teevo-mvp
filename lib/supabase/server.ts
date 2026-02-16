@@ -1,6 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
+const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN || undefined;
+
 export async function createClient() {
   const cookieStore = await cookies();
   return createServerClient(
@@ -21,6 +23,7 @@ export async function createClient() {
           }
         },
       },
+      ...(cookieDomain ? { cookieOptions: { domain: cookieDomain } } : {}),
     }
   );
 }

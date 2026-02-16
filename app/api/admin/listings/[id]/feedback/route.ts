@@ -3,7 +3,7 @@ import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
 export async function POST(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
@@ -19,26 +19,18 @@ export async function POST(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
-
-  const { data: tx } = await admin
-    .from("transactions")
-    .select("buyer_id, status")
-    .eq("id", id)
-    .single();
-
-  if (!tx || tx.buyer_id !== user.id) {
+  const { data: profile } = await admin.from("users").select("role").eq("id", user.id).single();
+  if (profile?.role !== "admin") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  if (tx.status !== "shipped") {
-    return NextResponse.json({ error: "Can only confirm after shipped" }, { status: 400 });
-  }
+
+  const body = await request.json();
+  const comment = typeof body.comment === "string" ? body.comment.trim() : null;
 
   const { error } = await admin
-    .from("transactions")
+    .from("listings")
     .update({
-      status: "complete",
-      order_state: "completed",
-      completed_at: new Date().toISOString(),
+      admin_feedback: comment || null,
       updated_at: new Date().toISOString(),
     })
     .eq("id", id);

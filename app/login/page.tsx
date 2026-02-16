@@ -17,12 +17,31 @@ function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url?.startsWith("https://")) {
+      setError("NEXT_PUBLIC_SUPABASE_URL is missing or invalid in .env.local. Add your Project URL from Supabase → Project Settings → API, then restart the dev server (Ctrl+C, then npm run dev).");
+      return;
+    }
+    if (!key?.startsWith("eyJ")) {
+      setError("NEXT_PUBLIC_SUPABASE_ANON_KEY is missing or invalid in .env.local. Add the anon public key from Supabase → Project Settings → API, then restart the dev server.");
+      return;
+    }
     setLoading(true);
     const supabase = createClient();
-    const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+    let err: { message: string } | null = null;
+    try {
+      const result = await supabase.auth.signInWithPassword({ email, password });
+      err = result.error;
+    } catch (e) {
+      err = { message: e instanceof Error ? e.message : "Network error" };
+    }
     setLoading(false);
     if (err) {
-      setError(err.message);
+      const msg = err.message.toLowerCase().includes("fetch") || err.message.toLowerCase().includes("network")
+        ? `Could not reach the auth server at ${url}. Check your internet connection, that the URL is correct in .env.local, and that your Supabase project is not paused (Dashboard → Project Settings → General). Then restart the dev server.`
+        : err.message;
+      setError(msg);
       return;
     }
     router.push(redirect);
@@ -40,7 +59,21 @@ function LoginForm() {
   };
 
   return (
-    <div className="max-w-sm mx-auto px-4 py-12">
+    <div className="max-w-sm mx-auto px-4 py-12 relative">
+      {loading && (
+        <div
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-2xl bg-off-white-pique/95 backdrop-blur-sm"
+          aria-live="polite"
+          role="status"
+          aria-label="Signing you in"
+        >
+          <div
+            className="h-12 w-12 rounded-full border-2 border-mowing-green/20 border-t-mowing-green animate-spin"
+          />
+          <p className="mt-4 text-mowing-green font-semibold">Signing you in</p>
+          <p className="mt-1 text-sm text-mowing-green/70">Please wait a moment…</p>
+        </div>
+      )}
       <h1 className="text-2xl font-bold text-mowing-green">Log in</h1>
       <p className="mt-2 text-mowing-green/80 text-sm">
         Welcome back. Log in to sell or buy.
@@ -60,7 +93,8 @@ function LoginForm() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green"
+            disabled={loading}
+            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green disabled:opacity-60 disabled:cursor-not-allowed"
           />
         </div>
         <div>
@@ -72,15 +106,16 @@ function LoginForm() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green"
+            disabled={loading}
+            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green disabled:opacity-60 disabled:cursor-not-allowed"
           />
         </div>
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-mowing-green text-off-white-pique py-3 font-semibold hover:opacity-90 disabled:opacity-70"
+          className="w-full rounded-xl bg-mowing-green text-off-white-pique py-3 font-semibold hover:opacity-90 disabled:opacity-70 transition-opacity"
         >
-          {loading ? "Signing in…" : "Log in"}
+          Log in
         </button>
       </form>
       <div className="mt-4">
@@ -88,7 +123,7 @@ function LoginForm() {
           type="button"
           onClick={handleGoogle}
           disabled={loading}
-          className="w-full rounded-xl border border-mowing-green/30 text-mowing-green py-3 font-medium hover:bg-mowing-green/5 disabled:opacity-70"
+          className="w-full rounded-xl border border-mowing-green/30 text-mowing-green py-3 font-medium hover:bg-mowing-green/5 disabled:opacity-70 transition-opacity"
         >
           Continue with Google
         </button>

@@ -42,7 +42,21 @@ function SignupForm() {
   };
 
   return (
-    <div className="max-w-sm mx-auto px-4 py-12">
+    <div className="max-w-sm mx-auto px-4 py-12 relative">
+      {loading && (
+        <div
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-2xl bg-off-white-pique/95 backdrop-blur-sm"
+          aria-live="polite"
+          role="status"
+          aria-label="Setting up your account"
+        >
+          <div
+            className="h-12 w-12 rounded-full border-2 border-mowing-green/20 border-t-mowing-green animate-spin"
+          />
+          <p className="mt-4 text-mowing-green font-semibold">Setting up your account</p>
+          <p className="mt-1 text-sm text-mowing-green/70">Please wait a moment…</p>
+        </div>
+      )}
       <h1 className="text-2xl font-bold text-mowing-green">Sign up</h1>
       <p className="mt-2 text-mowing-green/80 text-sm">
         Create an account to list items or buy.
@@ -62,7 +76,8 @@ function SignupForm() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green"
+            disabled={loading}
+            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green disabled:opacity-60 disabled:cursor-not-allowed"
           />
         </div>
         <div>
@@ -75,15 +90,16 @@ function SignupForm() {
             minLength={6}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green"
+            disabled={loading}
+            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green disabled:opacity-60 disabled:cursor-not-allowed"
           />
         </div>
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-mowing-green text-off-white-pique py-3 font-semibold hover:opacity-90 disabled:opacity-70"
+          className="w-full rounded-xl bg-mowing-green text-off-white-pique py-3 font-semibold hover:opacity-90 disabled:opacity-70 transition-opacity"
         >
-          {loading ? "Creating account…" : "Sign up"}
+          Sign up
         </button>
       </form>
       <div className="mt-4">
@@ -91,7 +107,7 @@ function SignupForm() {
           type="button"
           onClick={handleGoogle}
           disabled={loading}
-          className="w-full rounded-xl border border-mowing-green/30 text-mowing-green py-3 font-medium hover:bg-mowing-green/5 disabled:opacity-70"
+          className="w-full rounded-xl border border-mowing-green/30 text-mowing-green py-3 font-medium hover:bg-mowing-green/5 disabled:opacity-70 transition-opacity"
         >
           Continue with Google
         </button>

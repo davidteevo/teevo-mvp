@@ -3,7 +3,11 @@ import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { createCheckoutSession } from "@/lib/stripe-checkout";
 
-/** POST /api/checkout – same as create but no postcode/shipping. Prefer POST /api/checkout/create with buyerPostcode, shippingOption. */
+/**
+ * POST /api/checkout/create
+ * Body: { listingId, buyerPostcode?, shippingOption? }
+ * Returns: { url } (Stripe Checkout Session URL) or { client_secret } if using PaymentIntent (we use Session).
+ */
 export async function POST(request: Request) {
   const supabase = await createClient();
   const {
@@ -18,6 +22,8 @@ export async function POST(request: Request) {
   if (!listingId) {
     return NextResponse.json({ error: "listingId required" }, { status: 400 });
   }
+  const buyerPostcode = body.buyerPostcode ?? body.buyer_postcode;
+  const shippingOption = body.shippingOption ?? body.shipping_option ?? "tracked";
 
   const admin = createServiceClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -49,8 +55,8 @@ export async function POST(request: Request) {
     buyerId: user.id,
     buyerEmail: user.email ?? undefined,
     origin,
-    buyerPostcode: body.buyerPostcode ?? body.buyer_postcode,
-    shippingOption: body.shippingOption ?? body.shipping_option ?? "tracked",
+    buyerPostcode: typeof buyerPostcode === "string" ? buyerPostcode : undefined,
+    shippingOption: typeof shippingOption === "string" ? shippingOption : undefined,
   });
 
   return NextResponse.json({ url });

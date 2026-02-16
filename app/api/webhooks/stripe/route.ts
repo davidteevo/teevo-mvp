@@ -38,10 +38,26 @@ export async function POST(request: Request) {
         buyer_id: buyerId,
         seller_id: sellerId,
         stripe_payment_id: paymentIntentId ?? null,
+        stripe_checkout_session_id: session.id,
         amount,
         status: "pending",
+        order_state: "paid",
+        buyer_postcode: session.metadata?.buyerPostcode ?? null,
+        shipping_option: session.metadata?.shippingOption ?? null,
       });
       await admin.from("listings").update({ status: "sold", updated_at: new Date().toISOString() }).eq("id", listingId);
+    }
+  }
+
+  if (event.type === "charge.dispute.created") {
+    const dispute = event.data.object as Stripe.Dispute;
+    const paymentIntentId =
+      typeof dispute.payment_intent === "string" ? dispute.payment_intent : dispute.payment_intent?.id;
+    if (paymentIntentId) {
+      await admin
+        .from("transactions")
+        .update({ status: "dispute", updated_at: new Date().toISOString() })
+        .eq("stripe_payment_id", paymentIntentId);
     }
   }
 
@@ -53,6 +69,21 @@ export async function POST(request: Request) {
         .from("transactions")
         .update({ status: "refunded", updated_at: new Date().toISOString() })
         .eq("stripe_payment_id", paymentIntentId);
+    }
+  }
+
+  if (event.type === "refund.updated") {
+    const refund = event.data.object as Stripe.Refund;
+    const chargeId = refund.charge;
+    if (chargeId && refund.status === "succeeded") {
+      const charge = await stripe.charges.retrieve(chargeId as string);
+      const paymentIntentId = charge.payment_intent;
+      if (paymentIntentId) {
+        await admin
+          .from("transactions")
+          .update({ status: "refunded", updated_at: new Date().toISOString() })
+          .eq("stripe_payment_id", paymentIntentId);
+      }
     }
   }
 

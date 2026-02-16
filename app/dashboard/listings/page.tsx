@@ -15,6 +15,7 @@ type Listing = {
   price: number;
   status: string;
   created_at: string;
+  admin_feedback?: string | null;
 };
 
 export default function DashboardListingsPage() {
@@ -78,23 +79,31 @@ export default function DashboardListingsPage() {
         ) : (
           <ul className="divide-y divide-par-3-punch/10">
             {listings.map((l) => (
-              <li key={l.id} className="flex items-center justify-between p-4">
-                <div>
-                  <p className="font-medium text-mowing-green">{l.model}</p>
-                  <p className="text-sm text-mowing-green/70">{l.category} · {l.brand}</p>
+              <li key={l.id} className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-mowing-green">{l.model}</p>
+                    <p className="text-sm text-mowing-green/70">{l.category} · {l.brand}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="font-semibold text-mowing-green">{formatPrice(l.price)}</span>
+                    {statusBadge(l.status)}
+                    {l.status === "verified" && (
+                      <Link
+                        href={`/listing/${l.id}`}
+                        className="text-sm text-par-3-punch hover:underline"
+                      >
+                        View
+                      </Link>
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="font-semibold text-mowing-green">{formatPrice(l.price)}</span>
-                  {statusBadge(l.status)}
-                  {l.status === "verified" && (
-                    <Link
-                      href={`/listing/${l.id}`}
-                      className="text-sm text-par-3-punch hover:underline"
-                    >
-                      View
-                    </Link>
-                  )}
-                </div>
+                {l.admin_feedback && (l.status === "pending" || l.status === "rejected") && (
+                  <div className="mt-2 rounded-lg bg-golden-tee/20 border border-golden-tee/30 px-3 py-2 text-sm text-mowing-green/90">
+                    <p className="font-medium text-mowing-green/80 mb-0.5">Feedback from reviewer</p>
+                    <p className="whitespace-pre-wrap">{l.admin_feedback}</p>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
