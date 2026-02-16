@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
-  const { data: profile } = await admin.from("users").select("stripe_account_id").eq("id", user.id).single();
+  const { data: profile } = await admin.from("users").select("stripe_account_id, role").eq("id", user.id).single();
 
   let accountId = profile?.stripe_account_id;
 
@@ -33,12 +33,13 @@ export async function POST(request: Request) {
       email: user.email ?? undefined,
     });
     accountId = account.id;
+    const updated_at = new Date().toISOString();
     await admin
       .from("users")
       .update({
         stripe_account_id: accountId,
-        role: "seller",
-        updated_at: new Date().toISOString(),
+        updated_at,
+        ...(profile?.role !== "admin" ? { role: "seller" } : {}),
       })
       .eq("id", user.id);
   }

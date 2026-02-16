@@ -78,7 +78,10 @@ export async function POST(request: Request) {
     });
   }
 
-  await admin.from("users").update({ role: "seller", updated_at: new Date().toISOString() }).eq("id", user.id);
+  const { data: profile } = await admin.from("users").select("role").eq("id", user.id).single();
+  if (profile?.role !== "admin") {
+    await admin.from("users").update({ role: "seller", updated_at: new Date().toISOString() }).eq("id", user.id);
+  }
 
   return NextResponse.json({ id: listing.id });
 }

@@ -1,8 +1,12 @@
+import { createClient } from "@supabase/supabase-js";
+import Stripe from "stripe";
 import { notFound } from "next/navigation";
 import { getListingById } from "@/lib/listings";
 import { calcOrderBreakdown, formatPence } from "@/lib/pricing";
 import { BuyButton } from "./BuyButton";
 import { ListingImageGallery } from "./ListingImageGallery";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
 export default async function ListingPage({
   params,
@@ -32,6 +36,25 @@ export default async function ListingPage({
     imagePaths.length > 0 ? imagePaths : ["/placeholder-listing.svg"];
   const { itemPence, authenticityPence, shippingPence, totalPence } =
     calcOrderBreakdown(listing.price);
+
+  const admin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+  const { data: seller } = await admin
+    .from("users")
+    .select("stripe_account_id")
+    .eq("id", listing.user_id)
+    .single();
+  let sellerCanAcceptPayment = false;
+  if (seller?.stripe_account_id) {
+    try {
+      const account = await stripe.accounts.retrieve(seller.stripe_account_id);
+      sellerCanAcceptPayment = account.payouts_enabled === true;
+    } catch {
+      // Account invalid or deleted
+    }
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -78,7 +101,12 @@ export default async function ListingPage({
           )}
 
           <div className="mt-8">
-            <BuyButton listingId={listing.id} price={listing.price} totalPence={totalPence} />
+            <BuyButton
+              listingId={listing.id}
+              price={listing.price}
+              totalPence={totalPence}
+              sellerCanAcceptPayment={sellerCanAcceptPayment}
+            />
           </div>
         </div>
       </div>

@@ -25,9 +25,10 @@ function SignupForm() {
       setLoading(false);
       return;
     }
-    await fetch("/api/auth/sync-user", { method: "POST" });
+    const syncRes = await fetch("/api/auth/sync-user", { method: "POST" });
+    const syncData = await syncRes.json().catch(() => ({}));
     setLoading(false);
-    router.push(redirect);
+    router.push(syncData.isNewUser ? "/onboarding/payouts" : redirect);
     router.refresh();
   };
 

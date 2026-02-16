@@ -7,10 +7,13 @@ export function BuyButton({
   listingId,
   price,
   totalPence,
+  sellerCanAcceptPayment = true,
 }: {
   listingId: string;
   price: number;
   totalPence?: number;
+  /** False when the seller has not completed Stripe Connect payouts setup */
+  sellerCanAcceptPayment?: boolean;
 }) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -36,6 +39,15 @@ export function BuyButton({
       setLoading(false);
     }
   };
+
+  if (!sellerCanAcceptPayment) {
+    return (
+      <div className="rounded-xl border border-par-3-punch/40 bg-par-3-punch/10 px-4 py-3 text-mowing-green/90 text-sm">
+        <p className="font-medium">Not available to buy yet</p>
+        <p className="mt-0.5">This seller hasn’t set up payments. Check back soon.</p>
+      </div>
+    );
+  }
 
   return (
     <button

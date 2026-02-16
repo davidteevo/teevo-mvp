@@ -1,7 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
+import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { createCheckoutSession } from "@/lib/stripe-checkout";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
 /**
  * POST /api/checkout/create
@@ -43,6 +46,14 @@ export async function POST(request: Request) {
   const { data: seller } = await admin.from("users").select("stripe_account_id").eq("id", listing.user_id).single();
   if (!seller?.stripe_account_id) {
     return NextResponse.json({ error: "Seller has not set up payouts" }, { status: 400 });
+  }
+  try {
+    const account = await stripe.accounts.retrieve(seller.stripe_account_id);
+    if (!account.payouts_enabled) {
+      return NextResponse.json({ error: "Seller has not completed payouts setup" }, { status: 400 });
+    }
+  } catch {
+    return NextResponse.json({ error: "Seller payouts not available" }, { status: 400 });
   }
 
   const origin = request.headers.get("origin") || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
