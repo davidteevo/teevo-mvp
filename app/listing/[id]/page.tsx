@@ -25,6 +25,7 @@ export default async function ListingPage({
     // Listing not found or RLS denied (e.g. sold and user is buyer)
   }
 
+  let isBuyerViewingSold = false;
   if (!listing || listing.status !== "verified") {
     // Allow buyer to view their purchased (sold) listing
     if (user?.id) {
@@ -38,17 +39,20 @@ export default async function ListingPage({
           .single();
         if (tx) {
           listing = await getListingByIdAdmin(id);
+          isBuyerViewingSold = true;
         }
       } catch {
         // not buyer or listing missing
       }
     }
-    if (!listing || listing.status !== "sold") {
+    // Allow seller to view own listing (any status); otherwise 404 if not verified/sold
+    if (!listing) notFound();
+    if (listing.status !== "verified" && listing.status !== "sold" && listing.user_id !== user?.id) {
       notFound();
     }
   }
 
-  const isPurchasedView = listing.status === "sold";
+  const isPurchasedView = isBuyerViewingSold;
 
   const images = (listing.listing_images ?? []).sort(
     (a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order

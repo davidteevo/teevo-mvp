@@ -46,6 +46,20 @@ export default function DashboardPurchasesPage() {
       .catch(() => setTransactions([]));
   }, [user]);
 
+  const formatDateTime = (iso: string) => {
+    try {
+      return new Date(iso).toLocaleString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      });
+    } catch {
+      return "";
+    }
+  };
+
   const confirmReceipt = async (id: string) => {
     const res = await fetch(`/api/transactions/${id}/confirm-receipt`, { method: "POST" });
     if (res.ok) {
@@ -108,16 +122,12 @@ export default function DashboardPurchasesPage() {
                       )}
                       <p className="text-sm text-mowing-green/60 mt-0.5">
                         {formatPrice(t.amount)} · {t.status}
-                        {t.created_at && (
-                          <span className="ml-1">
-                            · {new Date(t.created_at).toLocaleDateString("en-GB", {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            })}
-                          </span>
-                        )}
                       </p>
+                      {t.created_at && (
+                        <p className="text-xs text-mowing-green/50 mt-0.5">
+                          Purchased {formatDateTime(t.created_at)}
+                        </p>
+                      )}
                     </div>
                   </Link>
                   <div className="flex items-center gap-2 shrink-0">
