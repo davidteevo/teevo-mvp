@@ -122,15 +122,18 @@ export async function POST(
       .from("transactions")
       .update({
         shippo_label_url: result.labelUrl,
+        shippo_qr_code_url: result.qrCodeUrl ?? null,
         shippo_tracking_number: result.trackingNumber,
         shippo_transaction_id: result.shippoTransactionId,
         fulfilment_status: FulfilmentStatus.LABEL_CREATED,
+        order_state: "label_created",
         updated_at: new Date().toISOString(),
       })
       .eq("id", transactionId);
 
     return NextResponse.json({
       labelUrl: result.labelUrl,
+      qrCodeUrl: result.qrCodeUrl ?? undefined,
       trackingNumber: result.trackingNumber,
       trackingUrl: result.trackingUrl,
     });

@@ -15,9 +15,10 @@ export const ShippingService = {
 export type ShippingServiceType = (typeof ShippingService)[keyof typeof ShippingService];
 
 /**
- * Allowlisted Shippo servicelevel tokens per Teevo shipping service.
- * Only rates with one of these tokens are considered; all other rates (Air Express, weekend, etc.) are rejected.
- * If your Shippo account returns different tokens, create a label once and check server logs for "Shippo rates (for allowlist)".
+ * Allowlisted Shippo servicelevel tokens. This is the single source of truth for which rates we may purchase.
+ * Server-side enforcement: even if the Shippo carrier account has more services enabled (e.g. DPD timed,
+ * weekend, express), we only ever purchase a rate whose servicelevel.token is in this list. Prevents surprise
+ * purchases. Do not add timed, weekend, or other premium DPD services here.
  */
 const ALLOWLISTED_SERVICELEVEL_TOKENS: Record<ShippingServiceType, string[]> = {
   [ShippingService.DPD_NEXT_DAY]: [
@@ -139,6 +140,8 @@ const DEFAULT_PARCEL = getParcelForPreset(ParcelPreset.SMALL_ITEM);
 
 export type CreateLabelResult = {
   labelUrl: string;
+  /** When carrier supports paperless/QR (e.g. USPS, Royal Mail, Evri); null for DPD etc. */
+  qrCodeUrl: string | null;
   trackingNumber: string | null;
   trackingUrl: string | null;
   shippoTransactionId: string;
@@ -150,7 +153,8 @@ function getServiceLevelToken(rate: { servicelevel?: { token?: string } }): stri
 
 /**
  * Filter rates to only those whose servicelevel.token is in the allowlist for the requested service.
- * Logs all received rates when no allowlisted rate is found (so you can add the correct token to lib/shippo.ts).
+ * Enforces server-side: Shippo may return timed/weekend/express rates if enabled on the carrier account;
+ * we ignore them and only return a rate from the allowlist. Logs received rates when no match (for debugging).
  */
 function pickAllowlistedRate(
   rates: Array<{ objectId?: string; servicelevel?: { token?: string; name?: string }; provider?: string }>,
@@ -180,8 +184,8 @@ function pickAllowlistedRate(
 
 /**
  * Create a Shippo shipment, pick the first allowlisted rate for the requested service, and purchase the label.
- * Only DPD UK Next Day (and optionally Ship to Shop) tokens are accepted; other rates are rejected.
- * Throws if no allowlisted rate is found or addresses are invalid.
+ * Only rates in ALLOWLISTED_SERVICELEVEL_TOKENS are used; any other rate returned by Shippo (e.g. timed,
+ * weekend) is never purchased, regardless of Shippo account tickboxes. Throws if no allowlisted rate is found.
  */
 export async function createShipmentAndPurchaseLabel(
   from: ShippoAddress,
@@ -199,7 +203,9 @@ export async function createShipmentAndPurchaseLabel(
     addressTo: to,
     parcels: [parcel],
     async: false,
-  });
+    extra: { qr_code_requested: true },
+    // Shippo API supports qr_code_requested; SDK types may not include it
+  } as unknown as Parameters<Shippo["shipments"]["create"]>[0]);
 
   const rates = shipment.rates;
   if (!rates || rates.length === 0) {
@@ -229,10 +235,12 @@ export async function createShipmentAndPurchaseLabel(
     );
   }
 
+  const tx = transaction as { labelUrl?: string; qr_code_url?: string; trackingNumber?: string; trackingUrlProvider?: string; objectId?: string };
   return {
-    labelUrl: transaction.labelUrl ?? "",
-    trackingNumber: transaction.trackingNumber ?? null,
-    trackingUrl: transaction.trackingUrlProvider ?? null,
-    shippoTransactionId: transaction.objectId ?? "",
+    labelUrl: tx.labelUrl ?? "",
+    qrCodeUrl: tx.qr_code_url ?? null,
+    trackingNumber: tx.trackingNumber ?? null,
+    trackingUrl: tx.trackingUrlProvider ?? null,
+    shippoTransactionId: tx.objectId ?? "",
   };
 }

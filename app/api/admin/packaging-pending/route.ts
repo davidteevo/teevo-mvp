@@ -6,19 +6,9 @@ import { PackagingStatus } from "@/lib/fulfilment";
 const BUCKET = "packaging-photos";
 const EXPIRY_SEC = 3600;
 
-function isAdminEmail(email: string | undefined): boolean {
-  if (!email) return false;
-  const list = process.env.TEEVO_ADMIN_EMAILS;
-  if (!list) return false;
-  return list
-    .split(",")
-    .map((e) => e.trim().toLowerCase())
-    .includes(email.toLowerCase());
-}
-
 /**
  * GET /api/admin/packaging-pending
- * Returns transactions with packaging_status = SUBMITTED and signed photo URLs. Admin only.
+ * Returns transactions with packaging_status = SUBMITTED and signed photo URLs. Admin only (users.role = 'admin').
  */
 export async function GET() {
   try {
@@ -26,11 +16,16 @@ export async function GET() {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (!user || !isAdminEmail(user.email ?? undefined)) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const admin = createAdminClient();
+    const { data: profile } = await admin.from("users").select("role").eq("id", user.id).single();
+    if (profile?.role !== "admin") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     const { data: rows, error } = await admin
       .from("transactions")
       .select(

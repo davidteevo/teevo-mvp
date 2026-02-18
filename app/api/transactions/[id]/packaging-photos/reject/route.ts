@@ -3,20 +3,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { PackagingStatus } from "@/lib/fulfilment";
 
-function isAdminEmail(email: string | undefined): boolean {
-  if (!email) return false;
-  const list = process.env.TEEVO_ADMIN_EMAILS;
-  if (!list) return false;
-  return list
-    .split(",")
-    .map((e) => e.trim().toLowerCase())
-    .includes(email.toLowerCase());
-}
-
 /**
  * POST /api/transactions/[id]/packaging-photos/reject
- * Admin only. Sets packaging_status = REJECTED, packaging_review_notes = body.notes.
- * Requires current user email in TEEVO_ADMIN_EMAILS.
+ * Admin only (users.role = 'admin'). Sets packaging_status = REJECTED, review_notes, reviewed_by, reviewed_at.
+ * Sellers cannot reject; they can only submit/re-submit.
  */
 export async function POST(
   request: Request,
@@ -28,14 +18,19 @@ export async function POST(
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (!user || !isAdminEmail(user.email ?? undefined)) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const admin = createAdminClient();
+    const { data: profile } = await admin.from("users").select("role").eq("id", user.id).single();
+    if (profile?.role !== "admin") {
+      return NextResponse.json({ error: "Forbidden. Only admins can reject packaging." }, { status: 403 });
     }
 
     const body = await request.json().catch(() => ({}));
     const notes = typeof body.notes === "string" ? body.notes.trim() : "";
 
-    const admin = createAdminClient();
     const { data: tx, error: txErr } = await admin
       .from("transactions")
       .select("id, packaging_status")
@@ -52,12 +47,16 @@ export async function POST(
       );
     }
 
+    const now = new Date().toISOString();
     await admin
       .from("transactions")
       .update({
         packaging_status: PackagingStatus.REJECTED,
+        review_notes: notes || null,
         packaging_review_notes: notes || null,
-        updated_at: new Date().toISOString(),
+        reviewed_by: user.id,
+        reviewed_at: now,
+        updated_at: now,
       })
       .eq("id", transactionId);
 

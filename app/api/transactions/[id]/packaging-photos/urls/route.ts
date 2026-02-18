@@ -34,11 +34,8 @@ export async function GET(
       return NextResponse.json({ error: "Transaction not found" }, { status: 404 });
     }
 
-    const adminEmails = (process.env.TEEVO_ADMIN_EMAILS ?? "")
-      .split(",")
-      .map((e) => e.trim().toLowerCase())
-      .filter(Boolean);
-    const isAdmin = user.email && adminEmails.includes(user.email.toLowerCase());
+    const { data: profile } = await admin.from("users").select("role").eq("id", user.id).single();
+    const isAdmin = profile?.role === "admin";
     if (tx.seller_id !== user.id && !isAdmin) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }

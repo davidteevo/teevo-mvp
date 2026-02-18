@@ -32,10 +32,14 @@ type Transaction = {
   box_fee_gbp?: number | null;
   box_type?: string | null;
   shippo_label_url?: string | null;
+  shippo_qr_code_url?: string | null;
   shippo_tracking_number?: string | null;
   packaging_photos?: string[] | null;
   packaging_status?: string | null;
   packaging_review_notes?: string | null;
+  review_notes?: string | null;
+  reviewed_by?: string | null;
+  reviewed_at?: string | null;
   listing?: {
     model: string;
     category: string;
@@ -188,6 +192,9 @@ export default function DashboardSalesPage() {
                   packaging_status: PackagingStatus.SUBMITTED,
                   fulfilment_status: FulfilmentStatus.PACKAGING_SUBMITTED,
                   packaging_review_notes: null,
+                  review_notes: null,
+                  reviewed_by: null,
+                  reviewed_at: null,
                 }
               : t
           )
@@ -219,12 +226,13 @@ export default function DashboardSalesPage() {
               ? {
                   ...t,
                   shippo_label_url: data.labelUrl ?? t.shippo_label_url,
+                  shippo_qr_code_url: data.qrCodeUrl ?? t.shippo_qr_code_url ?? null,
                   shippo_tracking_number: data.trackingNumber ?? t.shippo_tracking_number,
                 }
               : t
           )
         );
-        if (data.labelUrl) window.open(data.labelUrl, "_blank");
+        if (data.labelUrl && !data.qrCodeUrl) window.open(data.labelUrl, "_blank");
       } else {
         alert(data.error ?? "Failed to create label");
       }
@@ -341,9 +349,9 @@ export default function DashboardSalesPage() {
                       !t.shippo_label_url && (
                         <div className="w-full sm:w-auto rounded-lg border border-mowing-green/30 bg-mowing-green/5 p-3 space-y-2">
                           <p className="text-sm font-medium text-mowing-green">Upload packaging photos</p>
-                          {t.packaging_status === PackagingStatus.REJECTED && t.packaging_review_notes && (
+                          {t.packaging_status === PackagingStatus.REJECTED && (t.review_notes ?? t.packaging_review_notes) && (
                             <p className="text-xs text-red-600 bg-red-50 rounded px-2 py-1">
-                              Review notes: {t.packaging_review_notes}
+                              Review notes: {t.review_notes ?? t.packaging_review_notes}
                             </p>
                           )}
                           <div className="grid grid-cols-2 gap-2">
@@ -404,6 +412,17 @@ export default function DashboardSalesPage() {
                         Mark as shipped
                       </button>
                     )}
+                    {t.shippo_qr_code_url && (
+                      <div className="rounded-lg border border-par-3-punch/20 bg-white p-2 inline-flex flex-col items-center">
+                        <p className="text-xs text-mowing-green/70 mb-1">Label QR code</p>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={t.shippo_qr_code_url}
+                          alt="Shipping label QR code"
+                          className="w-24 h-24 object-contain"
+                        />
+                      </div>
+                    )}
                     {t.shippo_label_url && (
                       <a
                         href={t.shippo_label_url}
@@ -411,7 +430,7 @@ export default function DashboardSalesPage() {
                         rel="noopener noreferrer"
                         className="rounded-lg border border-par-3-punch/30 text-par-3-punch px-4 py-2 text-sm font-medium hover:bg-par-3-punch/10 transition-colors"
                       >
-                        Download label
+                        {t.shippo_qr_code_url ? "Download label PDF" : "Download label"}
                       </a>
                     )}
                     {t.shippo_tracking_number && (

@@ -82,6 +82,9 @@ export async function POST(
         packaging_status: PackagingStatus.SUBMITTED,
         fulfilment_status: FulfilmentStatus.PACKAGING_SUBMITTED,
         packaging_review_notes: null,
+        review_notes: null,
+        reviewed_by: null,
+        reviewed_at: null,
         updated_at: new Date().toISOString(),
       })
       .eq("id", transactionId);
