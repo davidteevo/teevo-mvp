@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   let query = supabase
     .from("transactions")
     .select(
-      "id, listing_id, buyer_id, seller_id, amount, status, shipped_at, completed_at, created_at, listing:listings(model, category, brand, listing_images(storage_path, sort_order))"
+      "id, listing_id, buyer_id, seller_id, amount, status, shipped_at, completed_at, created_at, shippo_label_url, shippo_tracking_number, fulfilment_status, shipping_package, box_fee_gbp, box_type, shipping_service, shipping_fee_gbp, packaging_photos, packaging_status, packaging_review_notes, listing:listings(model, category, brand, listing_images(storage_path, sort_order))"
     )
     .order("created_at", { ascending: false });
 

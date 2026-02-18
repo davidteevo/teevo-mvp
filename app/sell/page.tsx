@@ -13,6 +13,7 @@ const BRANDS = [
   "Titleist", "Callaway", "TaylorMade", "Ping", "Cobra", "Mizuno", "Srixon", "Wilson", "Other",
 ];
 const CONDITIONS = ["New", "Excellent", "Good", "Used"] as const;
+const PARCEL_PRESETS = ["GOLF_DRIVER", "IRON_SET", "PUTTER", "SMALL_ITEM"] as const;
 
 export default function SellPage() {
   const { user, role, loading } = useAuth();
@@ -39,6 +40,7 @@ export default function SellPage() {
     condition: string;
     description: string;
     price: string;
+    parcelPreset: string;
     images: File[];
   }) => {
     setSubmitting(true);
@@ -64,6 +66,7 @@ export default function SellPage() {
           description: payload.description || null,
           price: pricePence,
           imageCount: images.length,
+          parcelPreset: payload.parcelPreset || "SMALL_ITEM",
         }),
       });
       const createData = await createRes.json().catch(() => ({}));
@@ -145,6 +148,7 @@ export default function SellPage() {
         categories={CATEGORIES}
         brands={BRANDS}
         conditions={CONDITIONS}
+        parcelPresets={PARCEL_PRESETS}
         onSubmit={handleSubmit}
         submitting={submitting}
       />

@@ -3,6 +3,7 @@ import { createClient as createServiceClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { createCheckoutSession } from "@/lib/stripe-checkout";
+import { ShippingService, type ShippingServiceType } from "@/lib/shippo";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
@@ -26,7 +27,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "listingId required" }, { status: 400 });
   }
   const buyerPostcode = body.buyerPostcode ?? body.buyer_postcode;
-  const shippingOption = body.shippingOption ?? body.shipping_option ?? "tracked";
+  const rawShipping = body.shippingOption ?? body.shipping_option ?? body.shipping_service ?? body.shippingService;
+  const validServices: ShippingServiceType[] = [ShippingService.DPD_NEXT_DAY, ShippingService.DPD_SHIP_TO_SHOP];
+  const shippingOption =
+    typeof rawShipping === "string" && validServices.includes(rawShipping as ShippingServiceType)
+      ? (rawShipping as ShippingServiceType)
+      : ShippingService.DPD_NEXT_DAY;
 
   const admin = createServiceClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

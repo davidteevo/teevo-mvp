@@ -1,6 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
+import { ShippingService, type ShippingServiceType } from "@/lib/shippo";
+import { SHIPPING_FEE_GBP, FulfilmentStatus } from "@/lib/fulfilment";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -33,6 +35,14 @@ export async function POST(request: Request) {
 
     if (listingId && buyerId && sellerId) {
       const amount = session.amount_total ?? 0;
+      const addr = session.customer_details?.address;
+      const buyerName = session.customer_details?.name ?? (session as { shipping_details?: { name?: string } }).shipping_details?.name ?? null;
+      const rawShipping = session.metadata?.shippingOption ?? session.metadata?.shipping_service;
+      const validServices: ShippingServiceType[] = [ShippingService.DPD_NEXT_DAY, ShippingService.DPD_SHIP_TO_SHOP];
+      const shipping_service =
+        typeof rawShipping === "string" && validServices.includes(rawShipping as ShippingServiceType)
+          ? (rawShipping as ShippingServiceType)
+          : ShippingService.DPD_NEXT_DAY;
       await admin.from("transactions").insert({
         listing_id: listingId,
         buyer_id: buyerId,
@@ -42,8 +52,16 @@ export async function POST(request: Request) {
         amount,
         status: "pending",
         order_state: "paid",
-        buyer_postcode: session.metadata?.buyerPostcode ?? null,
+        fulfilment_status: FulfilmentStatus.PAID,
+        buyer_postcode: addr?.postal_code ?? session.metadata?.buyerPostcode ?? null,
         shipping_option: session.metadata?.shippingOption ?? null,
+        shipping_service,
+        shipping_fee_gbp: SHIPPING_FEE_GBP,
+        buyer_name: buyerName,
+        buyer_address_line1: addr?.line1 ?? null,
+        buyer_address_line2: addr?.line2 ?? null,
+        buyer_city: addr?.city ?? null,
+        buyer_country: addr?.country ?? null,
       });
       await admin.from("listings").update({ status: "sold", updated_at: new Date().toISOString() }).eq("id", listingId);
     }

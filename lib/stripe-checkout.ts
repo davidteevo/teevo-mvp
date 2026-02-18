@@ -44,6 +44,7 @@ export async function createCheckoutSession(params: CreateCheckoutParams): Promi
       transfer_data: { destination: sellerStripeAccountId },
       application_fee_amount: applicationFeeAmount,
     },
+    shipping_address_collection: { allowed_countries: ["GB"] },
     line_items: [
       {
         price_data: {

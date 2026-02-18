@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { OnboardingStripeBanner } from "@/components/dashboard/OnboardingStripeBanner";
-import { Package, PlusCircle, ShoppingBag, ShoppingCart, TrendingUp, User } from "lucide-react";
+import { ClipboardCheck, Package, PlusCircle, ShoppingBag, ShoppingCart, TrendingUp, User } from "lucide-react";
 
 export default function DashboardPage() {
   const { user, profile, role, loading, refreshProfile } = useAuth();
@@ -112,6 +112,18 @@ export default function DashboardPage() {
           <div>
             <p className="font-semibold text-mowing-green">Purchases</p>
             <p className="text-sm text-mowing-green/70">Track orders, confirm receipt</p>
+          </div>
+        </Link>
+        <Link
+          href="/dashboard/admin/packaging"
+          className="flex items-center gap-4 rounded-xl border border-par-3-punch/20 bg-white p-4 hover:shadow-md transition-shadow"
+        >
+          <div className="rounded-lg bg-golden-tee/20 p-3">
+            <ClipboardCheck className="h-6 w-6 text-mowing-green" />
+          </div>
+          <div>
+            <p className="font-semibold text-mowing-green">Packaging review</p>
+            <p className="text-sm text-mowing-green/70">Approve or reject seller photos (admin)</p>
           </div>
         </Link>
       </div>

@@ -28,11 +28,16 @@ export async function POST() {
 
   let stripe_account_id: string | null = null;
   try {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
     const account = await stripe.accounts.create({
       type: "express",
       country: "GB",
       business_type: "individual",
       email: user.email ?? undefined,
+      business_profile: {
+        product_description: "Selling pre-owned golf equipment as an individual on Teevo.",
+        ...(appUrl ? { url: appUrl } : {}),
+      },
     });
     stripe_account_id = account.id;
   } catch {

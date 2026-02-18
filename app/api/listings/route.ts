@@ -1,10 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
+import { ParcelPreset, type ParcelPresetType } from "@/lib/shippo";
 
 /**
  * POST /api/listings
- * Body: JSON { category, brand, model, condition, description?, price (pence), imageCount (3–6) }
+ * Body: JSON { category, brand, model, condition, description?, price (pence), imageCount (3–6), parcelPreset? }
+ * parcelPreset: GOLF_DRIVER | IRON_SET | PUTTER | SMALL_ITEM (default SMALL_ITEM).
  * Creates the listing row only. Client uploads images directly to Supabase Storage, then calls POST /api/listings/[id]/images.
  */
 export async function POST(request: Request) {
@@ -25,6 +27,17 @@ export async function POST(request: Request) {
     const description = (body.description as string) || null;
     const price = typeof body.price === "number" ? body.price : parseInt(String(body.price), 10);
     const imageCount = typeof body.imageCount === "number" ? body.imageCount : parseInt(String(body.imageCount), 10);
+    const rawParcel = body.parcelPreset ?? body.parcel_preset;
+    const validPresets: ParcelPresetType[] = [
+      ParcelPreset.GOLF_DRIVER,
+      ParcelPreset.IRON_SET,
+      ParcelPreset.PUTTER,
+      ParcelPreset.SMALL_ITEM,
+    ];
+    const parcel_preset =
+      typeof rawParcel === "string" && validPresets.includes(rawParcel as ParcelPresetType)
+        ? (rawParcel as ParcelPresetType)
+        : ParcelPreset.SMALL_ITEM;
 
     const allowedCategories = ["Driver", "Irons", "Wedges", "Putter", "Apparel", "Bag"];
     const allowedConditions = ["New", "Excellent", "Good", "Used"];
@@ -56,6 +69,7 @@ export async function POST(request: Request) {
         condition,
         description,
         price,
+        parcel_preset,
         status: "pending",
       })
       .select("id")

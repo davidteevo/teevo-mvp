@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { FulfilmentStatus } from "@/lib/fulfilment";
 
 export async function POST(
   _request: Request,
@@ -38,6 +39,7 @@ export async function POST(
     .update({
       status: "shipped",
       order_state: "shipped",
+      fulfilment_status: FulfilmentStatus.SHIPPED,
       shipped_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })
