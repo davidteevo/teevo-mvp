@@ -8,7 +8,7 @@ import { OnboardingStripeBanner } from "@/components/dashboard/OnboardingStripeB
 import { Package, PlusCircle, ShoppingBag, ShoppingCart, TrendingUp, User } from "lucide-react";
 
 export default function DashboardPage() {
-  const { user, profile, role, loading } = useAuth();
+  const { user, profile, role, loading, refreshProfile } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -16,6 +16,15 @@ export default function DashboardPage() {
       router.replace(`/login?redirect=${encodeURIComponent("/dashboard")}`);
     }
   }, [user, loading, router]);
+
+  // After Stripe redirect (?stripe=return), force-refresh profile so avatar and info load reliably
+  useEffect(() => {
+    if (typeof window === "undefined" || !user) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("stripe") === "return") {
+      refreshProfile();
+    }
+  }, [user, refreshProfile]);
 
   if (loading || !user) {
     return (

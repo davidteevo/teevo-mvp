@@ -5,6 +5,11 @@ const nextConfig = {
       { protocol: 'https', hostname: '*.supabase.co', pathname: '/storage/**' },
     ],
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "10mb",
+    },
+  },
 };
 
 module.exports = nextConfig;

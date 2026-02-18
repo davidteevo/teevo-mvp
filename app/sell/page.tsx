@@ -57,11 +57,12 @@ export default function SellPage() {
         method: "POST",
         body: formData,
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({ error: "Invalid response from server" }));
       if (!res.ok) throw new Error(data.error ?? "Failed to create listing");
       router.push("/sell/success");
     } catch (e) {
-      alert(e instanceof Error ? e.message : "Something went wrong");
+      const message = e instanceof Error ? e.message : "Something went wrong";
+      alert(message);
     } finally {
       setSubmitting(false);
     }

@@ -104,6 +104,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [supabase, fetchProfile]);
 
+  // Retry profile fetch when we have user but no profile (e.g. after Stripe redirect when first fetch failed)
+  useEffect(() => {
+    if (!user || profile !== null || loading) return;
+    const t = window.setTimeout(() => {
+      refreshProfile();
+    }, 500);
+    return () => window.clearTimeout(t);
+  }, [user, profile, loading, refreshProfile]);
+
   const signOut = useCallback(async () => {
     setUser(null);
     setProfile(null);

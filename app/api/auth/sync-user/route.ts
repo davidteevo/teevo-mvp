@@ -31,6 +31,7 @@ export async function POST() {
     const account = await stripe.accounts.create({
       type: "express",
       country: "GB",
+      business_type: "individual",
       email: user.email ?? undefined,
     });
     stripe_account_id = account.id;
