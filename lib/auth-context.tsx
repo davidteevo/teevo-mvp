@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  useMemo,
 } from "react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
@@ -36,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [profile, setProfile] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const fetchProfile = useCallback(async (userId: string) => {
     try {
@@ -78,6 +79,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     let cancelled = false;
+    const timeoutId = window.setTimeout(() => {
+      if (!cancelled) setLoading(false);
+    }, 10000);
+
     supabase.auth.getUser().then(({ data: { user: u } }) => {
       if (cancelled) return;
       setUser(u ?? null);
@@ -94,6 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       cancelled = true;
+      window.clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
   }, [supabase, fetchProfile]);
