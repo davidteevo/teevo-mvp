@@ -9,6 +9,7 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") ?? "/dashboard";
+  const message = searchParams.get("message");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -48,16 +49,6 @@ function LoginForm() {
     window.location.href = redirect;
   };
 
-  const handleGoogle = async () => {
-    setLoading(true);
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirect)}` },
-    });
-    setLoading(false);
-  };
-
   return (
     <div className="max-w-sm mx-auto px-4 py-12 relative">
       {loading && (
@@ -79,6 +70,11 @@ function LoginForm() {
         Welcome back. Log in to sell or buy.
       </p>
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        {message === "password-updated" && (
+          <p className="text-sm text-mowing-green bg-mowing-green/10 rounded-lg px-3 py-2" role="status">
+            Password updated. You can log in with your new password.
+          </p>
+        )}
         {error && (
           <p className="text-sm text-divot-pink" role="alert">
             {error}
@@ -98,9 +94,17 @@ function LoginForm() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-mowing-green mb-1">
-            Password
-          </label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-sm font-medium text-mowing-green">
+              Password
+            </label>
+            <Link
+              href={`/login/forgot-password?redirect=${encodeURIComponent(redirect)}`}
+              className="text-sm text-par-3-punch hover:underline"
+            >
+              Forgot password?
+            </Link>
+          </div>
           <input
             type="password"
             required
@@ -118,16 +122,6 @@ function LoginForm() {
           Log in
         </button>
       </form>
-      <div className="mt-4">
-        <button
-          type="button"
-          onClick={handleGoogle}
-          disabled={loading}
-          className="w-full rounded-xl border border-mowing-green/30 text-mowing-green py-3 font-medium hover:bg-mowing-green/5 disabled:opacity-70 transition-opacity"
-        >
-          Continue with Google
-        </button>
-      </div>
       <p className="mt-6 text-center text-sm text-mowing-green/80">
         No account?{" "}
         <Link href={`/signup?redirect=${encodeURIComponent(redirect)}`} className="text-par-3-punch hover:underline">
