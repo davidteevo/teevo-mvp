@@ -1,5 +1,10 @@
 [build]
   command = "npm run build"
 
+# Optional: increase Node HTTP header size if you hit header-related limits.
+# Request body size for serverless is fixed at ~6MB on Netlify; use smaller images or direct-to-Storage uploads for larger files.
+# [build.environment]
+#   NODE_OPTIONS = "--max-http-headers-size=16384"
+
 [[plugins]]
   package = "@netlify/plugin-nextjs"

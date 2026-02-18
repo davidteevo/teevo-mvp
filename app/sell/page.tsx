@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
+import { createClient } from "@/lib/supabase/client";
 import { ListingForm } from "@/components/listing/ListingForm";
+
+const LISTINGS_BUCKET = "listings";
 
 const CATEGORIES = ["Driver", "Irons", "Wedges", "Putter", "Apparel", "Bag"] as const;
 const BRANDS = [
@@ -44,21 +47,70 @@ export default function SellPage() {
       if (Number.isNaN(pricePence) || pricePence <= 0) {
         throw new Error("Invalid price");
       }
-      const formData = new FormData();
-      formData.set("category", payload.category);
-      formData.set("brand", payload.brand);
-      formData.set("model", payload.model);
-      formData.set("condition", payload.condition);
-      formData.set("description", payload.description);
-      formData.set("price", String(pricePence));
-      payload.images.forEach((f, i) => formData.append("images", f, f.name));
+      const images = payload.images;
+      if (images.length < 3 || images.length > 6) {
+        throw new Error("Upload 3–6 images");
+      }
 
-      const res = await fetch("/api/listings", {
+      // 1. Create listing (metadata only — no image bytes through API, so no body size limit)
+      const createRes = await fetch("/api/listings", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          category: payload.category,
+          brand: payload.brand,
+          model: payload.model,
+          condition: payload.condition,
+          description: payload.description || null,
+          price: pricePence,
+          imageCount: images.length,
+        }),
       });
-      const data = await res.json().catch(() => ({ error: "Invalid response from server" }));
-      if (!res.ok) throw new Error(data.error ?? "Failed to create listing");
+      const createData = await createRes.json().catch(() => ({}));
+      if (!createRes.ok) {
+        throw new Error(createData.error ?? "Failed to create listing");
+      }
+      const listingId = createData.id as string;
+      if (!listingId) throw new Error("No listing id returned");
+
+      // 2. Upload images directly to Supabase Storage (bypasses Netlify 6MB limit)
+      const supabase = createClient();
+      const paths: string[] = [];
+      const allowedExt = ["jpg", "jpeg", "png", "gif", "webp"];
+      for (let i = 0; i < images.length; i++) {
+        const file = images[i];
+        if (!file?.size) continue;
+        const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+        if (!allowedExt.includes(ext)) continue;
+        const path = `${listingId}/${i}.${ext}`;
+        const { error: uploadErr } = await supabase.storage
+          .from(LISTINGS_BUCKET)
+          .upload(path, file, { contentType: file.type || "image/jpeg", upsert: true });
+        if (uploadErr) {
+          throw new Error(
+            uploadErr.message?.includes("Bucket") || uploadErr.message?.includes("policy")
+              ? "Image upload failed. Ensure the Supabase Storage bucket 'listings' exists and has the correct policy (see docs/NETLIFY_BODY_SIZE.md)."
+              : uploadErr.message || "Image upload failed"
+          );
+        }
+        paths.push(path);
+      }
+
+      if (paths.length < 3) {
+        throw new Error("At least 3 valid images (JPG, PNG, GIF, WebP) are required.");
+      }
+
+      // 3. Register image paths with the API
+      const imagesRes = await fetch(`/api/listings/${listingId}/images`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paths }),
+      });
+      const imagesData = await imagesRes.json().catch(() => ({}));
+      if (!imagesRes.ok) {
+        throw new Error(imagesData.error ?? "Failed to save image list");
+      }
+
       router.push("/sell/success");
     } catch (e) {
       const message = e instanceof Error ? e.message : "Something went wrong";
