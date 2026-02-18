@@ -17,8 +17,8 @@ export default function ResetPasswordPage() {
     const supabase = createClient();
     // Supabase puts access_token and type=recovery in the URL hash; the client recovers the session when we call getSession
     supabase.auth.getSession().then(({ data: { session } }) => {
-      const isRecovery = session?.user?.recovery_token != null || typeof window !== "undefined" && /type=recovery/.test(window.location.hash);
-      setRecoveryReady(isRecovery || !!session);
+      const hasRecoveryHash = typeof window !== "undefined" && /type=recovery/.test(window.location.hash);
+      setRecoveryReady(!!session || hasRecoveryHash);
     });
   }, []);
 
