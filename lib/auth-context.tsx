@@ -81,8 +81,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getUser().then(({ data: { user: u } }) => {
       if (cancelled) return;
       setUser(u ?? null);
-      if (u) fetchProfile(u.id).then(() => { if (!cancelled) setLoading(false); });
-      else setLoading(false);
+      if (u) {
+        fetchProfile(u.id).finally(() => {
+          if (!cancelled) setLoading(false);
+        });
+      } else {
+        setLoading(false);
+      }
     }).catch((e) => {
       if ((e as Error)?.name !== "AbortError" && !cancelled) setLoading(false);
     });

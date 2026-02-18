@@ -29,6 +29,12 @@ export interface User {
   location: string | null;
   handicap: number | null;
   handed: "left" | "right" | null;
+  address_line1: string | null;
+  address_line2: string | null;
+  address_city: string | null;
+  address_postcode: string | null;
+  address_country: string | null;
+  date_of_birth: string | null;
   created_at: string;
   updated_at: string;
 }

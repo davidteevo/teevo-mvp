@@ -12,7 +12,7 @@ export async function GET() {
 
   const { data: profile, error } = await supabase
     .from("users")
-    .select("id, email, role, avatar_path, display_name, location, handicap, handed, created_at, updated_at")
+    .select("id, email, role, avatar_path, display_name, location, handicap, handed, address_line1, address_line2, address_city, address_postcode, address_country, date_of_birth, created_at, updated_at")
     .eq("id", user.id)
     .single();
 
@@ -53,6 +53,24 @@ export async function PATCH(request: Request) {
     const n = parseInt(body.handicap, 10);
     if (!Number.isNaN(n) && n >= 0 && n <= 54) updates.handicap = n;
     if (body.handicap.trim() === "") updates.handicap = null;
+  }
+
+  const addressFields = ["address_line1", "address_line2", "address_city", "address_postcode", "address_country"] as const;
+  for (const key of addressFields) {
+    if (typeof body[key] === "string") {
+      updates[key] = body[key].trim() || null;
+    }
+  }
+  if (typeof body.date_of_birth === "string") {
+    const trimmed = body.date_of_birth.trim();
+    if (trimmed === "") {
+      updates.date_of_birth = null;
+    } else {
+      const date = new Date(trimmed);
+      if (!Number.isNaN(date.getTime())) updates.date_of_birth = trimmed;
+    }
+  } else if (body.date_of_birth === null) {
+    updates.date_of_birth = null;
   }
 
   const { error } = await supabase.from("users").update(updates).eq("id", user.id);

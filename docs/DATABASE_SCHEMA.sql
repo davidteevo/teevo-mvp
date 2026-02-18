@@ -15,6 +15,12 @@ CREATE TABLE IF NOT EXISTS public.users (
   location TEXT,
   handicap INT CHECK (handicap IS NULL OR (handicap >= 0 AND handicap <= 54)),
   handed TEXT CHECK (handed IS NULL OR handed IN ('left', 'right')),
+  address_line1 TEXT,
+  address_line2 TEXT,
+  address_city TEXT,
+  address_postcode TEXT,
+  address_country TEXT,
+  date_of_birth DATE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -171,6 +177,14 @@ CREATE TRIGGER on_transaction_created
 -- ALTER TABLE public.users ADD CONSTRAINT users_handicap_range CHECK (handicap IS NULL OR (handicap >= 0 AND handicap <= 54));
 -- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS handed TEXT;
 -- ALTER TABLE public.users ADD CONSTRAINT users_handed_check CHECK (handed IS NULL OR handed IN ('left', 'right'));
+--
+-- Migration: address and DOB for profile / Stripe prefill
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS address_line1 TEXT;
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS address_line2 TEXT;
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS address_city TEXT;
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS address_postcode TEXT;
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS address_country TEXT;
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS date_of_birth DATE;
 
 -- Migration: Stripe checkout + order state (run if transactions already existed)
 -- ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS buyer_postcode TEXT;

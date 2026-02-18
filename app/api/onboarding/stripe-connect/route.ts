@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { createClient as createServiceClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
 
@@ -18,19 +18,44 @@ export async function POST(request: Request) {
   const returnUrl = body.returnUrl ?? `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/dashboard`;
   const refreshUrl = body.refreshUrl ?? `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/dashboard`;
 
-  const admin = createServiceClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-  const { data: profile } = await admin.from("users").select("stripe_account_id, role").eq("id", user.id).single();
+  const admin = createAdminClient();
+  const { data: profile } = await admin
+    .from("users")
+    .select("stripe_account_id, role, address_line1, address_line2, address_city, address_postcode, address_country, date_of_birth")
+    .eq("id", user.id)
+    .single();
 
   let accountId = profile?.stripe_account_id;
 
   if (!accountId) {
+    const hasAddress =
+      profile?.address_line1 &&
+      profile?.address_city &&
+      profile?.address_postcode &&
+      profile?.address_country;
+    const address = hasAddress
+      ? {
+          line1: profile.address_line1,
+          line2: profile.address_line2 || undefined,
+          city: profile.address_city,
+          postal_code: profile.address_postcode,
+          country: profile.address_country,
+        }
+      : undefined;
+
+    let dob: { day: number; month: number; year: number } | undefined;
+    if (profile?.date_of_birth) {
+      const d = new Date(profile.date_of_birth);
+      if (!Number.isNaN(d.getTime())) {
+        dob = { day: d.getDate(), month: d.getMonth() + 1, year: d.getFullYear() };
+      }
+    }
+
     const account = await stripe.accounts.create({
       type: "express",
       country: "GB",
       email: user.email ?? undefined,
+      ...(address || dob ? { individual: { ...(address && { address }), ...(dob && { dob }) } } : {}),
     });
     accountId = account.id;
     const updated_at = new Date().toISOString();
