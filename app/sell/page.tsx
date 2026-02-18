@@ -73,7 +73,22 @@ export default function SellPage() {
       const listingId = createData.id as string;
       if (!listingId) throw new Error("No listing id returned");
 
-      // 2. Upload images directly to Supabase Storage (bypasses Netlify 6MB limit)
+      // 2. Get signed upload URLs (avoids Storage RLS; server authorizes via service role)
+      const urlsRes = await fetch(`/api/listings/${listingId}/upload-urls`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ count: images.length }),
+      });
+      const urlsData = await urlsRes.json().catch(() => ({}));
+      if (!urlsRes.ok) {
+        throw new Error(urlsData.error ?? "Failed to get upload URLs");
+      }
+      const uploads = urlsData.uploads as { path: string; token: string }[] | undefined;
+      if (!Array.isArray(uploads) || uploads.length !== images.length) {
+        throw new Error("Invalid upload URLs response");
+      }
+
+      // 3. Upload each image via signed URL (no RLS check on client)
       const supabase = createClient();
       const paths: string[] = [];
       const allowedExt = ["jpg", "jpeg", "png", "gif", "webp"];
@@ -82,16 +97,15 @@ export default function SellPage() {
         if (!file?.size) continue;
         const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
         if (!allowedExt.includes(ext)) continue;
-        const path = `${listingId}/${i}.${ext}`;
+        const { path, token } = uploads[i];
         const { error: uploadErr } = await supabase.storage
           .from(LISTINGS_BUCKET)
-          .upload(path, file, { contentType: file.type || "image/jpeg", upsert: true });
+          .uploadToSignedUrl(path, token, file, {
+            contentType: file.type || "image/jpeg",
+          });
         if (uploadErr) {
-          const hint = "In Supabase: run docs/SUPABASE_LISTINGS_STORAGE.sql in SQL Editor, or add the Storage policy (see docs/NETLIFY_BODY_SIZE.md).";
           throw new Error(
-            uploadErr.message
-              ? `${uploadErr.message} ${hint}`
-              : `Image upload failed. ${hint}`
+            uploadErr.message ?? `Image ${i + 1} upload failed. Try again.`
           );
         }
         paths.push(path);
@@ -101,7 +115,7 @@ export default function SellPage() {
         throw new Error("At least 3 valid images (JPG, PNG, GIF, WebP) are required.");
       }
 
-      // 3. Register image paths with the API
+      // 4. Register image paths with the API
       const imagesRes = await fetch(`/api/listings/${listingId}/images`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
