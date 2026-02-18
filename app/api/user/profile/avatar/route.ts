@@ -1,8 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
-import { createClient as createServiceClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 
 const BUCKET = "avatars";
+const MAX_SIZE_BYTES = 4 * 1024 * 1024; // 4MB
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -18,11 +19,11 @@ export async function POST(request: Request) {
   if (!file?.size || !file.type.startsWith("image/")) {
     return NextResponse.json({ error: "Please upload an image file (JPEG, PNG, etc.)" }, { status: 400 });
   }
+  if (file.size > MAX_SIZE_BYTES) {
+    return NextResponse.json({ error: "Image must be under 4MB" }, { status: 400 });
+  }
 
-  const admin = createServiceClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const admin = createAdminClient();
 
   const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
   if (!["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) {
@@ -33,11 +34,20 @@ export async function POST(request: Request) {
   try {
     const storage = admin.storage.from(BUCKET);
     const buf = Buffer.from(await file.arrayBuffer());
-    await storage.upload(path, buf, { contentType: file.type, upsert: true });
+    const { error: uploadErr } = await storage.upload(path, buf, { contentType: file.type, upsert: true });
+    if (uploadErr) {
+      console.error("Avatar storage upload error:", uploadErr);
+      const msg = uploadErr.message ?? "Upload failed";
+      return NextResponse.json(
+        { error: msg.includes("Bucket") ? "Storage bucket 'avatars' not found. Create it in Supabase Dashboard → Storage (set to Public)." : msg },
+        { status: 500 }
+      );
+    }
   } catch (e) {
     console.error("Avatar upload error:", e);
+    const msg = e instanceof Error ? e.message : "Upload failed";
     return NextResponse.json(
-      { error: "Upload failed. In Supabase Dashboard → Storage, create a bucket named 'avatars' and set it to Public." },
+      { error: msg.includes("Bucket") || msg.includes("bucket") ? "Storage bucket 'avatars' not found. Create it in Supabase Dashboard → Storage (set to Public)." : msg },
       { status: 500 }
     );
   }

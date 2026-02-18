@@ -10,11 +10,19 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data: profile, error } = await supabase
+  const fullSelect = "id, email, role, avatar_path, display_name, location, handicap, handed, address_line1, address_line2, address_city, address_postcode, address_country, date_of_birth, created_at, updated_at";
+  let { data: profile, error } = await supabase
     .from("users")
-    .select("id, email, role, avatar_path, display_name, location, handicap, handed, address_line1, address_line2, address_city, address_postcode, address_country, date_of_birth, created_at, updated_at")
+    .select(fullSelect)
     .eq("id", user.id)
     .single();
+
+  if (error && error.message?.includes("column") && error.message?.includes("does not exist")) {
+    const coreSelect = "id, email, role, avatar_path, display_name, location, handicap, handed, created_at, updated_at";
+    const result = await supabase.from("users").select(coreSelect).eq("id", user.id).single();
+    error = result.error;
+    profile = result.data ? { ...result.data, address_line1: null, address_line2: null, address_city: null, address_postcode: null, address_country: null, date_of_birth: null } : null;
+  }
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -73,7 +81,31 @@ export async function PATCH(request: Request) {
     updates.date_of_birth = null;
   }
 
-  const { error } = await supabase.from("users").update(updates).eq("id", user.id);
+  let { error } = await supabase.from("users").update(updates).eq("id", user.id);
+
+  // If update failed due to missing columns (e.g. migration not run), save core fields only
+  if (error && (error.message?.includes("column") && error.message?.includes("does not exist"))) {
+    const coreUpdates: Record<string, unknown> = { updated_at: new Date().toISOString() };
+    if (typeof body.display_name === "string") coreUpdates.display_name = body.display_name.trim() || null;
+    if (typeof body.location === "string") coreUpdates.location = body.location.trim() || null;
+    if (body.handed === "left" || body.handed === "right") coreUpdates.handed = body.handed;
+    else if (body.handed === null || body.handed === "") coreUpdates.handed = null;
+    if (body.handicap === null || body.handicap === "") coreUpdates.handicap = null;
+    else if (typeof body.handicap === "number" && body.handicap >= 0 && body.handicap <= 54) coreUpdates.handicap = body.handicap;
+    else if (typeof body.handicap === "string") {
+      const n = parseInt(body.handicap, 10);
+      if (!Number.isNaN(n) && n >= 0 && n <= 54) coreUpdates.handicap = n;
+      if (body.handicap.trim() === "") coreUpdates.handicap = null;
+    }
+    const result = await supabase.from("users").update(coreUpdates).eq("id", user.id);
+    error = result.error;
+    if (!error) {
+      return NextResponse.json({
+        ok: true,
+        warning: "Address and date of birth were not saved. Run the database migration to enable them.",
+      });
+    }
+  }
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
