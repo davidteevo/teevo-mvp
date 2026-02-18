@@ -61,11 +61,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [supabase, fetchProfile]);
 
-  /** Ensure users row exists (e.g. after login when callback didn't run), then fetch profile. Helps on app.teevohq.com when profile fails to load. */
+  /** Ensure users row exists, then try client fetch; then load from server API (cookie is sent to our origin so profile loads on app.teevohq.com). */
   const ensureUserAndRefreshProfile = useCallback(async () => {
     try {
       await fetch("/api/auth/sync-user", { method: "POST" });
       await refreshProfile();
+      // If client fetch didn't set profile (e.g. cookie not sent to Supabase), load via our API (cookie is sent to our origin)
+      const res = await fetch("/api/user/profile");
+      if (res.ok) {
+        const data = await res.json().catch(() => ({}));
+        if (data.profile && data.profile.id) {
+          setProfile(data.profile as AppUser);
+        }
+      }
     } catch (e) {
       if ((e as Error)?.name !== "AbortError") throw e;
     }

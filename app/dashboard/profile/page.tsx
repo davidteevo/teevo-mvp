@@ -39,6 +39,24 @@ export default function ProfilePage() {
     }
   }, [profile]);
 
+  // Fallback: when we have user but no profile (e.g. app.teevohq.com), load from server API so form shows data
+  useEffect(() => {
+    if (!user || profile !== null || authLoading) return;
+    let cancelled = false;
+    fetch("/api/user/profile")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled || !data?.profile) return;
+        const p = data.profile;
+        setDisplayName(p.display_name ?? "");
+        setLocation(p.location ?? "");
+        setHandicap(p.handicap != null ? String(p.handicap) : "");
+        setHanded(p.handed ?? "");
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [user, profile, authLoading]);
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage("");

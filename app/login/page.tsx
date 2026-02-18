@@ -44,8 +44,8 @@ function LoginForm() {
       setError(msg);
       return;
     }
-    router.push(redirect);
-    router.refresh();
+    // Full page redirect so the next load has the session cookie and auth context sees the user (avoids staying on login)
+    window.location.href = redirect;
   };
 
   const handleGoogle = async () => {
