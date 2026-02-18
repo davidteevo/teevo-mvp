@@ -108,12 +108,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     setProfile(null);
     try {
-      await supabase.auth.signOut({ scope: "local" });
+      await supabase.auth.signOut({ scope: "global" });
     } catch {
       // ignore
     }
-    // Redirect to server sign-out route so auth cookies are cleared there;
-    // otherwise the next page load can restore the old session (known Supabase/SSR issue).
+    // Full redirect to server route so cookies are cleared; middleware skips session refresh for this path
     if (typeof window !== "undefined") {
       window.location.href = "/api/auth/signout";
     }

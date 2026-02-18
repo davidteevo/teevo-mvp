@@ -30,13 +30,14 @@ export async function GET(request: NextRequest) {
     }
   );
 
-  await supabase.auth.signOut({ scope: "local" });
+  await supabase.auth.signOut({ scope: "global" });
 
-  // Manually clear any Supabase auth cookies (sb-*) that may have survived
+  // Manually clear any Supabase auth cookies (sb-*) so the session cannot be restored
   const clearOptions: Record<string, unknown> = {
     path: "/",
     maxAge: 0,
     expires: new Date(0),
+    sameSite: "lax" as const,
   };
   if (cookieDomain) {
     clearOptions.domain = cookieDomain;
