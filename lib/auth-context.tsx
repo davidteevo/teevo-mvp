@@ -61,6 +61,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [supabase, fetchProfile]);
 
+  /** Ensure users row exists (e.g. after login when callback didn't run), then fetch profile. Helps on app.teevohq.com when profile fails to load. */
+  const ensureUserAndRefreshProfile = useCallback(async () => {
+    try {
+      await fetch("/api/auth/sync-user", { method: "POST" });
+      await refreshProfile();
+    } catch (e) {
+      if ((e as Error)?.name !== "AbortError") throw e;
+    }
+  }, [refreshProfile]);
+
   useEffect(() => {
     const {
       data: { subscription },
@@ -104,14 +114,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [supabase, fetchProfile]);
 
-  // Retry profile fetch when we have user but no profile (e.g. after Stripe redirect when first fetch failed)
+  // Retry when we have user but no profile: ensure users row exists (sync-user) then fetch (e.g. app.teevohq.com after login, or after Stripe redirect)
   useEffect(() => {
     if (!user || profile !== null || loading) return;
     const t = window.setTimeout(() => {
-      refreshProfile();
+      ensureUserAndRefreshProfile();
     }, 500);
     return () => window.clearTimeout(t);
-  }, [user, profile, loading, refreshProfile]);
+  }, [user, profile, loading, ensureUserAndRefreshProfile]);
+
+  // Second retry with longer delay in case cookies/session weren't ready (e.g. cross-subdomain)
+  useEffect(() => {
+    if (!user || profile !== null || loading) return;
+    const t = window.setTimeout(() => {
+      ensureUserAndRefreshProfile();
+    }, 2500);
+    return () => window.clearTimeout(t);
+  }, [user, profile, loading, ensureUserAndRefreshProfile]);
 
   const signOut = useCallback(async () => {
     setUser(null);
