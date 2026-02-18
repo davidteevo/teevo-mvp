@@ -45,7 +45,7 @@ export async function GET() {
 
     const bucket = admin.storage.from(BUCKET);
     const withUrls = await Promise.all(
-      (rows ?? []).map(async (tx: { id: string; packaging_photos?: string[]; listing?: unknown; created_at: string }) => {
+      (rows ?? []).map(async (tx: { id: string; listing_id: string; packaging_photos?: string[]; listing?: unknown; created_at: string }) => {
         const paths = Array.isArray(tx.packaging_photos) ? tx.packaging_photos : [];
         const photoUrls: string[] = [];
         for (const path of paths) {
