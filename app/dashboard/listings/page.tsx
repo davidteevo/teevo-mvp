@@ -43,6 +43,21 @@ export default function DashboardListingsPage() {
     );
   }
 
+  const formatListedAt = (iso: string) => {
+    try {
+      const d = new Date(iso);
+      return d.toLocaleString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      });
+    } catch {
+      return "";
+    }
+  };
+
   const statusBadge = (status: string) => {
     const styles: Record<string, string> = {
       pending: "bg-golden-tee/30 text-mowing-green",
@@ -84,6 +99,11 @@ export default function DashboardListingsPage() {
                   <div>
                     <p className="font-medium text-mowing-green">{l.model}</p>
                     <p className="text-sm text-mowing-green/70">{l.category} · {l.brand}</p>
+                    {l.created_at && (
+                      <p className="text-xs text-mowing-green/50 mt-0.5">
+                        Listed {formatListedAt(l.created_at)}
+                      </p>
+                    )}
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="font-semibold text-mowing-green">{formatPrice(l.price)}</span>

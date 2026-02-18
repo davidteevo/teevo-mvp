@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { ListingCategory } from "@/types/database";
 
 interface Filters {
@@ -44,6 +45,23 @@ export async function getVerifiedListings(filters?: Filters) {
 export async function getListingById(id: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
+    .from("listings")
+    .select(
+      `
+      *,
+      listing_images ( id, storage_path, sort_order )
+    `
+    )
+    .eq("id", id)
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+/** Fetch listing by id with service role (e.g. for buyer viewing a purchased/sold listing). */
+export async function getListingByIdAdmin(id: string) {
+  const admin = createAdminClient();
+  const { data, error } = await admin
     .from("listings")
     .select(
       `

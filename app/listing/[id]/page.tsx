@@ -1,7 +1,8 @@
-import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 import { notFound } from "next/navigation";
-import { getListingById } from "@/lib/listings";
+import { getListingById, getListingByIdAdmin } from "@/lib/listings";
+import { createClient as createServerClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { calcOrderBreakdown, formatPence } from "@/lib/pricing";
 import { BuyButton } from "./BuyButton";
 import { ListingImageGallery } from "./ListingImageGallery";
@@ -14,16 +15,40 @@ export default async function ListingPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  let listing;
+  const supabase = await createServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  let listing: Awaited<ReturnType<typeof getListingById>> | null = null;
   try {
     listing = await getListingById(id);
   } catch {
-    notFound();
+    // Listing not found or RLS denied (e.g. sold and user is buyer)
   }
 
-  if (listing.status !== "verified") {
-    notFound();
+  if (!listing || listing.status !== "verified") {
+    // Allow buyer to view their purchased (sold) listing
+    if (user?.id) {
+      try {
+        const admin = createAdminClient();
+        const { data: tx } = await admin
+          .from("transactions")
+          .select("id")
+          .eq("listing_id", id)
+          .eq("buyer_id", user.id)
+          .single();
+        if (tx) {
+          listing = await getListingByIdAdmin(id);
+        }
+      } catch {
+        // not buyer or listing missing
+      }
+    }
+    if (!listing || listing.status !== "sold") {
+      notFound();
+    }
   }
+
+  const isPurchasedView = listing.status === "sold";
 
   const images = (listing.listing_images ?? []).sort(
     (a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order
@@ -37,22 +62,21 @@ export default async function ListingPage({
   const { itemPence, authenticityPence, shippingPence, totalPence } =
     calcOrderBreakdown(listing.price);
 
-  const admin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-  const { data: seller } = await admin
-    .from("users")
-    .select("stripe_account_id")
-    .eq("id", listing.user_id)
-    .single();
   let sellerCanAcceptPayment = false;
-  if (seller?.stripe_account_id) {
-    try {
-      const account = await stripe.accounts.retrieve(seller.stripe_account_id);
-      sellerCanAcceptPayment = account.payouts_enabled === true;
-    } catch {
-      // Account invalid or deleted
+  if (!isPurchasedView) {
+    const admin = createAdminClient();
+    const { data: seller } = await admin
+      .from("users")
+      .select("stripe_account_id")
+      .eq("id", listing.user_id)
+      .single();
+    if (seller?.stripe_account_id) {
+      try {
+        const account = await stripe.accounts.retrieve(seller.stripe_account_id);
+        sellerCanAcceptPayment = account.payouts_enabled === true;
+      } catch {
+        // Account invalid or deleted
+      }
     }
   }
 
@@ -83,12 +107,20 @@ export default async function ListingPage({
           </div>
 
           <div className="mt-6 flex flex-wrap gap-3">
-            <span className="inline-flex items-center rounded-full bg-par-3-punch/20 text-mowing-green px-3 py-1 text-xs font-medium">
-              Secure payment protected
-            </span>
-            <span className="inline-flex items-center rounded-full bg-par-3-punch/20 text-mowing-green px-3 py-1 text-xs font-medium">
-              UK only
-            </span>
+            {isPurchasedView ? (
+              <span className="inline-flex items-center rounded-full bg-mowing-green/20 text-mowing-green px-3 py-1 text-xs font-medium">
+                You purchased this item
+              </span>
+            ) : (
+              <>
+                <span className="inline-flex items-center rounded-full bg-par-3-punch/20 text-mowing-green px-3 py-1 text-xs font-medium">
+                  Secure payment protected
+                </span>
+                <span className="inline-flex items-center rounded-full bg-par-3-punch/20 text-mowing-green px-3 py-1 text-xs font-medium">
+                  UK only
+                </span>
+              </>
+            )}
           </div>
 
           {listing.description && (
@@ -100,14 +132,16 @@ export default async function ListingPage({
             </div>
           )}
 
-          <div className="mt-8">
-            <BuyButton
-              listingId={listing.id}
-              price={listing.price}
-              totalPence={totalPence}
-              sellerCanAcceptPayment={sellerCanAcceptPayment}
-            />
-          </div>
+          {!isPurchasedView && (
+            <div className="mt-8">
+              <BuyButton
+                listingId={listing.id}
+                price={listing.price}
+                totalPence={totalPence}
+                sellerCanAcceptPayment={sellerCanAcceptPayment}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

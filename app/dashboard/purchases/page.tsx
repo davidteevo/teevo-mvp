@@ -1,17 +1,33 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { formatPrice } from "@/lib/format";
 
+type ListingImage = { storage_path: string; sort_order: number };
+
 type Transaction = {
   id: string;
+  listing_id: string;
   status: string;
   amount: number;
   created_at: string;
-  listing?: { model: string; category: string };
+  listing?: {
+    model: string;
+    category: string;
+    brand: string;
+    listing_images?: ListingImage[] | null;
+  } | null;
 };
+
+function firstImagePath(images: ListingImage[] | null | undefined): string | null {
+  if (!images?.length) return null;
+  const sorted = [...images].sort((a, b) => a.sort_order - b.sort_order);
+  return sorted[0]?.storage_path ?? null;
+}
 
 export default function DashboardPurchasesPage() {
   const { user, loading } = useAuth();
@@ -61,25 +77,69 @@ export default function DashboardPurchasesPage() {
           </div>
         ) : (
           <ul className="divide-y divide-par-3-punch/10">
-            {transactions.map((t) => (
-              <li key={t.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4">
-                <div>
-                  <p className="font-medium text-mowing-green">{t.listing?.model ?? "Item"}</p>
-                  <p className="text-sm text-mowing-green/70">
-                    {formatPrice(t.amount)} · {t.status}
-                  </p>
-                </div>
-                {t.status === "shipped" && (
-                  <button
-                    type="button"
-                    onClick={() => confirmReceipt(t.id)}
-                    className="rounded-lg bg-par-3-punch text-white px-4 py-2 text-sm font-medium hover:opacity-90"
+            {transactions.map((t) => {
+              const listing = t.listing;
+              const imgPath = firstImagePath(listing?.listing_images);
+              const imageUrl = imgPath && process.env.NEXT_PUBLIC_SUPABASE_URL
+                ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listings/${imgPath}`
+                : "/placeholder-listing.svg";
+              const subtitle = [listing?.category, listing?.brand].filter(Boolean).join(" · ") || null;
+              return (
+                <li key={t.id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4">
+                  <Link
+                    href={`/listing/${t.listing_id}`}
+                    className="flex flex-1 min-w-0 gap-4 rounded-lg hover:bg-mowing-green/5 -m-2 p-2 transition-colors"
                   >
-                    I received it
-                  </button>
-                )}
-              </li>
-            ))}
+                    <div className="relative w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-mowing-green/10">
+                      <Image
+                        src={imageUrl}
+                        alt={listing?.model ?? "Listing"}
+                        fill
+                        className="object-cover"
+                        sizes="64px"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-mowing-green truncate">
+                        {listing?.model ?? "Item"}
+                      </p>
+                      {subtitle && (
+                        <p className="text-sm text-mowing-green/70 truncate">{subtitle}</p>
+                      )}
+                      <p className="text-sm text-mowing-green/60 mt-0.5">
+                        {formatPrice(t.amount)} · {t.status}
+                        {t.created_at && (
+                          <span className="ml-1">
+                            · {new Date(t.created_at).toLocaleDateString("en-GB", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </Link>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {t.status === "shipped" && (
+                      <button
+                        type="button"
+                        onClick={() => confirmReceipt(t.id)}
+                        className="rounded-lg bg-par-3-punch text-white px-4 py-2 text-sm font-medium hover:opacity-90"
+                      >
+                        I received it
+                      </button>
+                    )}
+                    <Link
+                      href={`/listing/${t.listing_id}`}
+                      className="rounded-lg border border-par-3-punch/30 text-par-3-punch px-4 py-2 text-sm font-medium hover:bg-par-3-punch/10 transition-colors"
+                    >
+                      View listing
+                    </Link>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
