@@ -87,10 +87,11 @@ export default function SellPage() {
           .from(LISTINGS_BUCKET)
           .upload(path, file, { contentType: file.type || "image/jpeg", upsert: true });
         if (uploadErr) {
+          const hint = "In Supabase: run docs/SUPABASE_LISTINGS_STORAGE.sql in SQL Editor, or add the Storage policy (see docs/NETLIFY_BODY_SIZE.md).";
           throw new Error(
-            uploadErr.message?.includes("Bucket") || uploadErr.message?.includes("policy")
-              ? "Image upload failed. Ensure the Supabase Storage bucket 'listings' exists and has the correct policy (see docs/NETLIFY_BODY_SIZE.md)."
-              : uploadErr.message || "Image upload failed"
+            uploadErr.message
+              ? `${uploadErr.message} ${hint}`
+              : `Image upload failed. ${hint}`
           );
         }
         paths.push(path);
