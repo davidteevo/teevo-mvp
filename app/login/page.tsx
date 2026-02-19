@@ -53,16 +53,19 @@ function LoginForm() {
     <div className="max-w-sm mx-auto px-4 py-12 relative">
       {loading && (
         <div
-          className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-2xl bg-off-white-pique/95 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-off-white-pique"
           aria-live="polite"
           role="status"
           aria-label="Signing you in"
         >
-          <div
-            className="h-12 w-12 rounded-full border-2 border-mowing-green/20 border-t-mowing-green animate-spin"
-          />
-          <p className="mt-4 text-mowing-green font-semibold">Signing you in</p>
-          <p className="mt-1 text-sm text-mowing-green/70">Please wait a moment…</p>
+          <div className="flex flex-col items-center">
+            <div className="relative h-14 w-14">
+              <div className="absolute inset-0 rounded-full border-2 border-mowing-green/15" />
+              <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-mowing-green border-r-mowing-green/40 animate-spin" style={{ animationDuration: "0.9s" }} />
+            </div>
+            <p className="mt-5 text-lg font-semibold text-mowing-green">Signing you in</p>
+            <p className="mt-1.5 text-sm text-mowing-green/60">Taking you to your dashboard…</p>
+          </div>
         </div>
       )}
       <h1 className="text-2xl font-bold text-mowing-green">Log in</h1>

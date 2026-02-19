@@ -61,15 +61,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [supabase, fetchProfile]);
 
-  /** Ensure users row exists, then try client fetch; then load from server API (cookie is sent to our origin so profile loads on app.teevohq.com). */
+  /** Ensure users row exists, then load profile from API and client in parallel (faster; API works when cookie not sent to Supabase). */
   const ensureUserAndRefreshProfile = useCallback(async () => {
     try {
       await fetch("/api/auth/sync-user", { method: "POST" });
-      await refreshProfile();
-      // If client fetch didn't set profile (e.g. cookie not sent to Supabase), load via our API (cookie is sent to our origin)
-      const res = await fetch("/api/user/profile");
-      if (res.ok) {
-        const data = await res.json().catch(() => ({}));
+      // Run both: API (reliable on our origin) and client fetch; use whichever returns first
+      const [apiRes] = await Promise.all([
+        fetch("/api/user/profile"),
+        refreshProfile(),
+      ]);
+      if (apiRes.ok) {
+        const data = await apiRes.json().catch(() => ({}));
         if (data.profile && data.profile.id) {
           setProfile(data.profile as AppUser);
         }
@@ -122,21 +124,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [supabase, fetchProfile]);
 
-  // Retry when we have user but no profile: ensure users row exists (sync-user) then fetch (e.g. app.teevohq.com after login, or after Stripe redirect)
+  // Retry when we have user but no profile: ensure users row exists then fetch (e.g. app.teevohq.com after login)
   useEffect(() => {
     if (!user || profile !== null || loading) return;
     const t = window.setTimeout(() => {
       ensureUserAndRefreshProfile();
-    }, 500);
+    }, 200);
     return () => window.clearTimeout(t);
   }, [user, profile, loading, ensureUserAndRefreshProfile]);
 
-  // Second retry with longer delay in case cookies/session weren't ready (e.g. cross-subdomain)
+  // Second retry if profile still missing (e.g. cookies/session not ready)
   useEffect(() => {
     if (!user || profile !== null || loading) return;
     const t = window.setTimeout(() => {
       ensureUserAndRefreshProfile();
-    }, 2500);
+    }, 1200);
     return () => window.clearTimeout(t);
   }, [user, profile, loading, ensureUserAndRefreshProfile]);
 

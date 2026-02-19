@@ -28,8 +28,13 @@ export default function DashboardPage() {
 
   if (loading || !user) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-12 text-center text-mowing-green/80">
-        Loading…
+      <div className="min-h-[40vh] flex flex-col items-center justify-center px-4 py-12">
+        <div className="relative h-12 w-12">
+          <div className="absolute inset-0 rounded-full border-2 border-mowing-green/15" />
+          <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-mowing-green border-r-mowing-green/40 animate-spin" style={{ animationDuration: "0.9s" }} />
+        </div>
+        <p className="mt-4 font-medium text-mowing-green">Loading your dashboard</p>
+        <p className="mt-1 text-sm text-mowing-green/60">Just a moment…</p>
       </div>
     );
   }

@@ -7,10 +7,10 @@ import { Menu, ChevronDown, LayoutDashboard, Settings, LogOut, ShoppingCart, Tag
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 
-const AVATAR_BUCKET = "avatars";
-function avatarUrl(path: string | null): string | null {
-  if (!path) return null;
-  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${AVATAR_BUCKET}/${path}`;
+/** Use API so avatar works with private bucket and same-origin cookies (profile loads faster). */
+function avatarSrc(avatarPath: string | null | undefined): string | null {
+  if (!avatarPath) return null;
+  return "/api/user/avatar";
 }
 
 const nav = [
@@ -79,9 +79,9 @@ export function Header() {
                 className="rounded-full overflow-hidden ring-2 ring-transparent hover:ring-mowing-green/30 transition-shadow focus:outline-none focus:ring-2 focus:ring-mowing-green"
                 aria-label="Go to dashboard"
               >
-                {avatarUrl(profile?.avatar_path ?? null) ? (
+                {avatarSrc(profile?.avatar_path) ? (
                   <img
-                    src={avatarUrl(profile?.avatar_path ?? null)!}
+                    src={avatarSrc(profile?.avatar_path)!}
                     alt=""
                     className="h-9 w-9 object-cover"
                   />
@@ -154,9 +154,9 @@ export function Header() {
               className="sm:hidden rounded-full overflow-hidden ring-2 ring-transparent hover:ring-mowing-green/30"
               aria-label="Go to dashboard"
             >
-              {avatarUrl(profile?.avatar_path ?? null) ? (
+              {avatarSrc(profile?.avatar_path) ? (
                 <img
-                  src={avatarUrl(profile?.avatar_path ?? null)!}
+                  src={avatarSrc(profile?.avatar_path)!}
                   alt=""
                   className="h-9 w-9 object-cover"
                 />
@@ -189,9 +189,9 @@ export function Header() {
                     className="flex items-center gap-3 py-1"
                     onClick={() => setMenuOpen(false)}
                   >
-                    {avatarUrl(profile?.avatar_path ?? null) ? (
+                    {avatarSrc(profile?.avatar_path) ? (
                       <img
-                        src={avatarUrl(profile?.avatar_path ?? null)!}
+                        src={avatarSrc(profile?.avatar_path)!}
                         alt=""
                         className="h-12 w-12 rounded-full object-cover ring-2 ring-white shadow-sm"
                       />

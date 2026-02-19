@@ -5,11 +5,10 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 
-const AVATAR_BUCKET = "avatars";
-
-function avatarUrl(path: string | null): string | null {
-  if (!path) return null;
-  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${AVATAR_BUCKET}/${path}`;
+/** Use API so avatar works with private bucket and same-origin cookies. */
+function avatarSrc(avatarPath: string | null | undefined): string | null {
+  if (!avatarPath) return null;
+  return "/api/user/avatar";
 }
 
 export default function ProfilePage() {
@@ -110,13 +109,18 @@ export default function ProfilePage() {
 
   if (authLoading || !user) {
     return (
-      <div className="max-w-xl mx-auto px-4 py-12 text-center text-mowing-green/80">
-        Loading…
+      <div className="min-h-[40vh] flex flex-col items-center justify-center px-4 py-12">
+        <div className="relative h-12 w-12">
+          <div className="absolute inset-0 rounded-full border-2 border-mowing-green/15" />
+          <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-mowing-green border-r-mowing-green/40 animate-spin" style={{ animationDuration: "0.9s" }} />
+        </div>
+        <p className="mt-4 font-medium text-mowing-green">Loading profile</p>
+        <p className="mt-1 text-sm text-mowing-green/60">Just a moment…</p>
       </div>
     );
   }
 
-  const avatarSrc = avatarUrl(profile?.avatar_path ?? null);
+  const avatarSrcUrl = avatarSrc(profile?.avatar_path);
 
   return (
     <div className="max-w-xl mx-auto px-4 py-8">
@@ -134,8 +138,8 @@ export default function ProfilePage() {
               <div className="h-24 w-24 rounded-full bg-mowing-green/10 border-2 border-par-3-punch/30 overflow-hidden flex items-center justify-center">
                 {avatarUploading ? (
                   <span className="text-mowing-green/60 text-sm">Uploading…</span>
-                ) : avatarSrc ? (
-                  <img src={avatarSrc} alt="" className="h-full w-full object-cover" />
+                ) : avatarSrcUrl ? (
+                  <img src={avatarSrcUrl} alt="" className="h-full w-full object-cover" />
                 ) : (
                   <span className="text-mowing-green/50 text-2xl font-semibold">
                     {(displayName || user.email || "?").charAt(0).toUpperCase()}
@@ -157,7 +161,7 @@ export default function ProfilePage() {
                 disabled={avatarUploading}
                 className="rounded-lg border border-mowing-green/40 text-mowing-green px-4 py-2 text-sm font-medium hover:bg-mowing-green/5 disabled:opacity-60"
               >
-                {avatarSrc ? "Change photo" : "Upload photo"}
+                {avatarSrcUrl ? "Change photo" : "Upload photo"}
               </button>
             </div>
           </div>
