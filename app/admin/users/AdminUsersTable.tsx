@@ -1,13 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { AdminUser } from "@/lib/admin-data";
 
 export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminUser[] }) {
+  const [users, setUsers] = useState<AdminUser[]>(initialUsers);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    setUsers(initialUsers);
+  }, [initialUsers]);
 
   const deleteUser = async (userId: string, email: string) => {
     if (!confirm(`Permanently delete user ${email}? They will not be able to sign in again.`)) return;
@@ -15,8 +20,12 @@ export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminU
     try {
       const res = await fetch(`/api/admin/users/${userId}`, { method: "DELETE" });
       const data = await res.json();
-      if (res.ok) router.refresh();
-      else alert(data.error ?? "Failed to delete");
+      if (res.ok) {
+        setUsers((prev) => prev.filter((u) => u.id !== userId));
+        router.refresh();
+      } else {
+        alert(data.error ?? "Failed to delete");
+      }
     } finally {
       setDeletingId(null);
     }
@@ -40,7 +49,7 @@ export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminU
     }
   };
 
-  if (initialUsers.length === 0) {
+  if (users.length === 0) {
     return <div className="p-8 text-center text-mowing-green/80">No users yet.</div>;
   }
 
@@ -57,7 +66,7 @@ export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminU
           </tr>
         </thead>
         <tbody>
-          {initialUsers.map((u) => (
+          {users.map((u) => (
             <tr key={u.id} className="border-b border-par-3-punch/10">
               <td className="px-4 py-3 text-sm text-mowing-green">{u.email}</td>
               <td className="px-4 py-3">

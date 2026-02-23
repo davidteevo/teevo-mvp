@@ -23,6 +23,7 @@ export type AdminUser = {
 export async function getAdminUsers(): Promise<AdminUser[]> {
   const admin = adminClient();
   const { data: authUsers } = await admin.auth.admin.listUsers({ perPage: 1000 });
+  const authIds = new Set((authUsers?.users ?? []).map((u) => u.id));
   const now = new Date().toISOString();
   for (const authUser of authUsers?.users ?? []) {
     const id = authUser.id;
@@ -39,7 +40,8 @@ export async function getAdminUsers(): Promise<AdminUser[]> {
     .select("id, email, role, stripe_account_id, created_at")
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
-  return data ?? [];
+  const rows = data ?? [];
+  return rows.filter((u) => authIds.has(u.id));
 }
 
 export type PendingListing = {
