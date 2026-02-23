@@ -7,10 +7,16 @@ import { Menu, ChevronDown, LayoutDashboard, Settings, LogOut, ShoppingCart, Tag
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 
-/** Use API so avatar works with private bucket and same-origin cookies. Cache-bust on retry. */
-function avatarSrc(avatarPath: string | null | undefined, retryKey?: number): string | null {
+const AVATAR_BUCKET = "avatars";
+/** API URL for avatar (works with private bucket; may fail in Safari private browsing). */
+function avatarApiSrc(avatarPath: string | null | undefined, retryKey?: number): string | null {
   if (!avatarPath) return null;
   return retryKey != null ? `/api/user/avatar?r=${retryKey}` : "/api/user/avatar";
+}
+/** Public storage URL fallback when API fails (e.g. private browsing). */
+function avatarPublicSrc(avatarPath: string | null | undefined): string | null {
+  if (!avatarPath || !process.env.NEXT_PUBLIC_SUPABASE_URL) return null;
+  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${AVATAR_BUCKET}/${avatarPath}`;
 }
 
 const nav = [
@@ -27,11 +33,13 @@ export function Header() {
   const [signingOut, setSigningOut] = useState(false);
   const [avatarRetry, setAvatarRetry] = useState(0);
   const [avatarError, setAvatarError] = useState(false);
+  const [publicAvatarError, setPublicAvatarError] = useState(false);
   const accountRef = useRef<HTMLDivElement>(null);
+  const usePublicAvatar = avatarError && avatarRetry >= 1;
 
-  // Reset avatar error when profile or avatar_path changes so we try again
   useEffect(() => {
     setAvatarError(false);
+    setPublicAvatarError(false);
   }, [profile?.id, profile?.avatar_path]);
 
   useEffect(() => {
@@ -86,17 +94,21 @@ export function Header() {
                 className="rounded-full overflow-hidden ring-2 ring-transparent hover:ring-mowing-green/30 transition-shadow focus:outline-none focus:ring-2 focus:ring-mowing-green"
                 aria-label="Go to dashboard"
               >
-                {avatarSrc(profile?.avatar_path, avatarRetry) && !avatarError ? (
+                {profile?.avatar_path && !(avatarError && !usePublicAvatar) && !publicAvatarError ? (
                   <img
-                    src={avatarSrc(profile?.avatar_path, avatarRetry)!}
+                    src={(usePublicAvatar ? avatarPublicSrc(profile.avatar_path) : avatarApiSrc(profile.avatar_path, avatarRetry)) ?? ""}
                     alt=""
                     className="h-9 w-9 object-cover"
                     onError={() => {
-                      setAvatarError(true);
-                      setTimeout(() => {
-                        setAvatarRetry((r) => r + 1);
-                        setAvatarError(false);
-                      }, 800);
+                      if (usePublicAvatar) {
+                        setPublicAvatarError(true);
+                      } else {
+                        setAvatarError(true);
+                        setTimeout(() => {
+                          setAvatarRetry((r) => r + 1);
+                          setAvatarError(false);
+                        }, 800);
+                      }
                     }}
                   />
                 ) : (
@@ -168,17 +180,21 @@ export function Header() {
               className="sm:hidden rounded-full overflow-hidden ring-2 ring-transparent hover:ring-mowing-green/30"
               aria-label="Go to dashboard"
             >
-              {avatarSrc(profile?.avatar_path, avatarRetry) && !avatarError ? (
+              {profile?.avatar_path && !(avatarError && !usePublicAvatar) && !publicAvatarError ? (
                 <img
-                  src={avatarSrc(profile?.avatar_path, avatarRetry)!}
+                  src={(usePublicAvatar ? avatarPublicSrc(profile.avatar_path) : avatarApiSrc(profile.avatar_path, avatarRetry)) ?? ""}
                   alt=""
                   className="h-9 w-9 object-cover"
                   onError={() => {
-                    setAvatarError(true);
-                    setTimeout(() => {
-                      setAvatarRetry((r) => r + 1);
-                      setAvatarError(false);
-                    }, 800);
+                    if (usePublicAvatar) {
+                      setPublicAvatarError(true);
+                    } else {
+                      setAvatarError(true);
+                      setTimeout(() => {
+                        setAvatarRetry((r) => r + 1);
+                        setAvatarError(false);
+                      }, 800);
+                    }
                   }}
                 />
               ) : (
@@ -210,17 +226,21 @@ export function Header() {
                     className="flex items-center gap-3 py-1"
                     onClick={() => setMenuOpen(false)}
                   >
-                    {avatarSrc(profile?.avatar_path, avatarRetry) && !avatarError ? (
+                    {profile?.avatar_path && !(avatarError && !usePublicAvatar) && !publicAvatarError ? (
                       <img
-                        src={avatarSrc(profile?.avatar_path, avatarRetry)!}
+                        src={(usePublicAvatar ? avatarPublicSrc(profile.avatar_path) : avatarApiSrc(profile.avatar_path, avatarRetry)) ?? ""}
                         alt=""
                         className="h-12 w-12 rounded-full object-cover ring-2 ring-white shadow-sm"
                         onError={() => {
-                          setAvatarError(true);
-                          setTimeout(() => {
-                            setAvatarRetry((r) => r + 1);
-                            setAvatarError(false);
-                          }, 800);
+                          if (usePublicAvatar) {
+                            setPublicAvatarError(true);
+                          } else {
+                            setAvatarError(true);
+                            setTimeout(() => {
+                              setAvatarRetry((r) => r + 1);
+                              setAvatarError(false);
+                            }, 800);
+                          }
                         }}
                       />
                     ) : (

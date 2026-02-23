@@ -21,7 +21,12 @@ function SignupForm() {
     const supabase = createClient();
     const { error: err } = await supabase.auth.signUp({ email, password });
     if (err) {
-      setError(err.message);
+      const lower = err.message.toLowerCase();
+      setError(
+        lower.includes("rate") || lower.includes("rate limit") || lower.includes("too many requests")
+          ? "Too many sign-up attempts. Please wait a few minutes and try again. You can increase auth rate limits in Supabase Dashboard → Authentication → Rate Limits."
+          : err.message
+      );
       setLoading(false);
       return;
     }

@@ -21,7 +21,12 @@ export default function ForgotPasswordPage() {
     });
     setLoading(false);
     if (err) {
-      setError(err.message);
+      const lower = err.message.toLowerCase();
+      setError(
+        lower.includes("rate") || lower.includes("rate limit") || lower.includes("too many requests")
+          ? "Too many attempts. Please wait a few minutes and try again. You can increase auth rate limits in Supabase Dashboard → Authentication → Rate Limits."
+          : err.message
+      );
       return;
     }
     setSent(true);

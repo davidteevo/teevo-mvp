@@ -5,10 +5,14 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 
-/** Use API so avatar works with private bucket and same-origin cookies. Cache-bust on retry. */
-function avatarSrc(avatarPath: string | null | undefined, retryKey?: number): string | null {
+const AVATAR_BUCKET = "avatars";
+function avatarApiSrc(avatarPath: string | null | undefined, retryKey?: number): string | null {
   if (!avatarPath) return null;
   return retryKey != null ? `/api/user/avatar?r=${retryKey}` : "/api/user/avatar";
+}
+function avatarPublicSrc(avatarPath: string | null | undefined): string | null {
+  if (!avatarPath || !process.env.NEXT_PUBLIC_SUPABASE_URL) return null;
+  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${AVATAR_BUCKET}/${avatarPath}`;
 }
 
 export default function ProfilePage() {
@@ -22,11 +26,14 @@ export default function ProfilePage() {
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarRetry, setAvatarRetry] = useState(0);
   const [avatarError, setAvatarError] = useState(false);
+  const [publicAvatarError, setPublicAvatarError] = useState(false);
   const [message, setMessage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const usePublicAvatar = avatarError && avatarRetry >= 1;
 
   useEffect(() => {
     setAvatarError(false);
+    setPublicAvatarError(false);
   }, [profile?.avatar_path]);
 
   useEffect(() => {
@@ -126,7 +133,10 @@ export default function ProfilePage() {
     );
   }
 
-  const avatarSrcUrl = avatarSrc(profile?.avatar_path, avatarRetry);
+  const avatarSrcUrl =
+    profile?.avatar_path && !(avatarError && !usePublicAvatar) && !publicAvatarError
+      ? (usePublicAvatar ? avatarPublicSrc(profile.avatar_path) : avatarApiSrc(profile.avatar_path, avatarRetry))
+      : null;
 
   return (
     <div className="max-w-xl mx-auto px-4 py-8">
@@ -144,17 +154,21 @@ export default function ProfilePage() {
               <div className="h-24 w-24 rounded-full bg-mowing-green/10 border-2 border-par-3-punch/30 overflow-hidden flex items-center justify-center">
                 {avatarUploading ? (
                   <span className="text-mowing-green/60 text-sm">Uploading…</span>
-                ) : avatarSrcUrl && !avatarError ? (
+                ) : avatarSrcUrl ? (
                   <img
                     src={avatarSrcUrl}
                     alt=""
                     className="h-full w-full object-cover"
                     onError={() => {
-                      setAvatarError(true);
-                      setTimeout(() => {
-                        setAvatarRetry((r) => r + 1);
-                        setAvatarError(false);
-                      }, 800);
+                      if (usePublicAvatar) {
+                        setPublicAvatarError(true);
+                      } else {
+                        setAvatarError(true);
+                        setTimeout(() => {
+                          setAvatarRetry((r) => r + 1);
+                          setAvatarError(false);
+                        }, 800);
+                      }
                     }}
                   />
                 ) : (
@@ -178,7 +192,7 @@ export default function ProfilePage() {
                 disabled={avatarUploading}
                 className="rounded-lg border border-mowing-green/40 text-mowing-green px-4 py-2 text-sm font-medium hover:bg-mowing-green/5 disabled:opacity-60"
               >
-                {avatarSrcUrl ? "Change photo" : "Upload photo"}
+                {profile?.avatar_path ? "Change photo" : "Upload photo"}
               </button>
             </div>
           </div>

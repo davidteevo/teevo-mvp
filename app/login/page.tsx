@@ -39,17 +39,21 @@ function LoginForm() {
     }
     if (err) {
       setLoading(false);
-      const msg = err.message.toLowerCase().includes("fetch") || err.message.toLowerCase().includes("network")
-        ? `Could not reach the auth server at ${url}. Check your internet connection, that the URL is correct in .env.local, and that your Supabase project is not paused (Dashboard → Project Settings → General). Then restart the dev server.`
-        : err.message;
+      const lower = err.message.toLowerCase();
+      let msg: string;
+      if (lower.includes("rate") || lower.includes("rate limit") || lower.includes("too many requests")) {
+        msg = "Too many sign-in attempts. Please wait a few minutes and try again. You can also increase auth rate limits in Supabase Dashboard → Authentication → Rate Limits.";
+      } else if (lower.includes("fetch") || lower.includes("network")) {
+        msg = `Could not reach the auth server at ${url}. Check your internet connection, that the URL is correct in .env.local, and that your Supabase project is not paused (Dashboard → Project Settings → General). Then restart the dev server.`;
+      } else {
+        msg = err.message;
+      }
       setError(msg);
       return;
     }
-    // Ensure session is persisted to cookies before navigating (avoids dashboard loading with no session and redirecting back)
-    await supabase.auth.getSession();
-    await new Promise((r) => setTimeout(r, 100));
-    // Full page redirect so the next load has the session cookie and auth context sees the user
-    window.location.href = redirect;
+    // Brief delay so onAuthStateChange runs before we navigate (avoids extra getSession() auth request)
+    await new Promise((r) => setTimeout(r, 50));
+    router.push(redirect);
   };
 
   return (
