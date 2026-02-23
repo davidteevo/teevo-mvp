@@ -82,5 +82,6 @@ export async function DELETE(
   if (authError) {
     return NextResponse.json({ error: authError.message }, { status: 500 });
   }
+  await admin.from("users").delete().eq("id", id);
   return NextResponse.json({ ok: true });
 }

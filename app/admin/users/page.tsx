@@ -1,6 +1,8 @@
 import { getAdminUsers } from "@/lib/admin-data";
 import AdminUsersTable from "./AdminUsersTable";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminUsersPage() {
   const users = await getAdminUsers();
   return (
