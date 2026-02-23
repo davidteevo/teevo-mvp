@@ -132,5 +132,9 @@ export async function getAdminTransactions(status?: string): Promise<AdminTransa
   if (status) query = query.eq("status", status);
   const { data, error } = await query;
   if (error) throw new Error(error.message);
-  return (data ?? []) as AdminTransaction[];
+  const rows = (data ?? []) as Record<string, unknown>[];
+  return rows.map((row) => ({
+    ...row,
+    listing: Array.isArray(row.listing) ? row.listing[0] : row.listing,
+  })) as AdminTransaction[];
 }
