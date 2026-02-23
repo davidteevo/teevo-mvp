@@ -37,15 +37,18 @@ function LoginForm() {
     } catch (e) {
       err = { message: e instanceof Error ? e.message : "Network error" };
     }
-    setLoading(false);
     if (err) {
+      setLoading(false);
       const msg = err.message.toLowerCase().includes("fetch") || err.message.toLowerCase().includes("network")
         ? `Could not reach the auth server at ${url}. Check your internet connection, that the URL is correct in .env.local, and that your Supabase project is not paused (Dashboard → Project Settings → General). Then restart the dev server.`
         : err.message;
       setError(msg);
       return;
     }
-    // Full page redirect so the next load has the session cookie and auth context sees the user (avoids staying on login)
+    // Ensure session is persisted to cookies before navigating (avoids dashboard loading with no session and redirecting back)
+    await supabase.auth.getSession();
+    await new Promise((r) => setTimeout(r, 100));
+    // Full page redirect so the next load has the session cookie and auth context sees the user
     window.location.href = redirect;
   };
 
