@@ -7,10 +7,10 @@ import { Menu, ChevronDown, LayoutDashboard, Settings, LogOut, ShoppingCart, Tag
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 
-/** Use API so avatar works with private bucket and same-origin cookies (profile loads faster). */
-function avatarSrc(avatarPath: string | null | undefined): string | null {
+/** Use API so avatar works with private bucket and same-origin cookies. Cache-bust on retry. */
+function avatarSrc(avatarPath: string | null | undefined, retryKey?: number): string | null {
   if (!avatarPath) return null;
-  return "/api/user/avatar";
+  return retryKey != null ? `/api/user/avatar?r=${retryKey}` : "/api/user/avatar";
 }
 
 const nav = [
@@ -25,7 +25,14 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
+  const [avatarRetry, setAvatarRetry] = useState(0);
+  const [avatarError, setAvatarError] = useState(false);
   const accountRef = useRef<HTMLDivElement>(null);
+
+  // Reset avatar error when profile or avatar_path changes so we try again
+  useEffect(() => {
+    setAvatarError(false);
+  }, [profile?.id, profile?.avatar_path]);
 
   useEffect(() => {
     const close = (e: MouseEvent) => {
@@ -79,11 +86,18 @@ export function Header() {
                 className="rounded-full overflow-hidden ring-2 ring-transparent hover:ring-mowing-green/30 transition-shadow focus:outline-none focus:ring-2 focus:ring-mowing-green"
                 aria-label="Go to dashboard"
               >
-                {avatarSrc(profile?.avatar_path) ? (
+                {avatarSrc(profile?.avatar_path, avatarRetry) && !avatarError ? (
                   <img
-                    src={avatarSrc(profile?.avatar_path)!}
+                    src={avatarSrc(profile?.avatar_path, avatarRetry)!}
                     alt=""
                     className="h-9 w-9 object-cover"
+                    onError={() => {
+                      setAvatarError(true);
+                      setTimeout(() => {
+                        setAvatarRetry((r) => r + 1);
+                        setAvatarError(false);
+                      }, 800);
+                    }}
                   />
                 ) : (
                   <span className="flex h-9 w-9 items-center justify-center rounded-full bg-mowing-green/20 text-mowing-green font-semibold text-sm">
@@ -154,11 +168,18 @@ export function Header() {
               className="sm:hidden rounded-full overflow-hidden ring-2 ring-transparent hover:ring-mowing-green/30"
               aria-label="Go to dashboard"
             >
-              {avatarSrc(profile?.avatar_path) ? (
+              {avatarSrc(profile?.avatar_path, avatarRetry) && !avatarError ? (
                 <img
-                  src={avatarSrc(profile?.avatar_path)!}
+                  src={avatarSrc(profile?.avatar_path, avatarRetry)!}
                   alt=""
                   className="h-9 w-9 object-cover"
+                  onError={() => {
+                    setAvatarError(true);
+                    setTimeout(() => {
+                      setAvatarRetry((r) => r + 1);
+                      setAvatarError(false);
+                    }, 800);
+                  }}
                 />
               ) : (
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-mowing-green/20 text-mowing-green font-semibold text-sm">
@@ -189,11 +210,18 @@ export function Header() {
                     className="flex items-center gap-3 py-1"
                     onClick={() => setMenuOpen(false)}
                   >
-                    {avatarSrc(profile?.avatar_path) ? (
+                    {avatarSrc(profile?.avatar_path, avatarRetry) && !avatarError ? (
                       <img
-                        src={avatarSrc(profile?.avatar_path)!}
+                        src={avatarSrc(profile?.avatar_path, avatarRetry)!}
                         alt=""
                         className="h-12 w-12 rounded-full object-cover ring-2 ring-white shadow-sm"
+                        onError={() => {
+                          setAvatarError(true);
+                          setTimeout(() => {
+                            setAvatarRetry((r) => r + 1);
+                            setAvatarError(false);
+                          }, 800);
+                        }}
                       />
                     ) : (
                       <span className="flex h-12 w-12 items-center justify-center rounded-full bg-mowing-green/20 text-mowing-green font-semibold text-lg ring-2 ring-white shadow-sm">

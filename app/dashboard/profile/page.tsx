@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 
-/** Use API so avatar works with private bucket and same-origin cookies. */
-function avatarSrc(avatarPath: string | null | undefined): string | null {
+/** Use API so avatar works with private bucket and same-origin cookies. Cache-bust on retry. */
+function avatarSrc(avatarPath: string | null | undefined, retryKey?: number): string | null {
   if (!avatarPath) return null;
-  return "/api/user/avatar";
+  return retryKey != null ? `/api/user/avatar?r=${retryKey}` : "/api/user/avatar";
 }
 
 export default function ProfilePage() {
@@ -20,8 +20,14 @@ export default function ProfilePage() {
   const [handed, setHanded] = useState<"left" | "right" | "">("");
   const [saving, setSaving] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarRetry, setAvatarRetry] = useState(0);
+  const [avatarError, setAvatarError] = useState(false);
   const [message, setMessage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setAvatarError(false);
+  }, [profile?.avatar_path]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -120,7 +126,7 @@ export default function ProfilePage() {
     );
   }
 
-  const avatarSrcUrl = avatarSrc(profile?.avatar_path);
+  const avatarSrcUrl = avatarSrc(profile?.avatar_path, avatarRetry);
 
   return (
     <div className="max-w-xl mx-auto px-4 py-8">
@@ -138,8 +144,19 @@ export default function ProfilePage() {
               <div className="h-24 w-24 rounded-full bg-mowing-green/10 border-2 border-par-3-punch/30 overflow-hidden flex items-center justify-center">
                 {avatarUploading ? (
                   <span className="text-mowing-green/60 text-sm">Uploading…</span>
-                ) : avatarSrcUrl ? (
-                  <img src={avatarSrcUrl} alt="" className="h-full w-full object-cover" />
+                ) : avatarSrcUrl && !avatarError ? (
+                  <img
+                    src={avatarSrcUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    onError={() => {
+                      setAvatarError(true);
+                      setTimeout(() => {
+                        setAvatarRetry((r) => r + 1);
+                        setAvatarError(false);
+                      }, 800);
+                    }}
+                  />
                 ) : (
                   <span className="text-mowing-green/50 text-2xl font-semibold">
                     {(displayName || user.email || "?").charAt(0).toUpperCase()}

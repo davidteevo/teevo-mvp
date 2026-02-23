@@ -39,5 +39,9 @@ export async function GET() {
     return new NextResponse(null, { status: 500 });
   }
 
-  return NextResponse.redirect(signData.signedUrl, { status: 302 });
+  const res = NextResponse.redirect(signData.signedUrl, { status: 302 });
+  // Prevent caching the redirect so the browser always gets a fresh signed URL (avoids expired URL on reload)
+  res.headers.set("Cache-Control", "private, no-store, no-cache, max-age=0");
+  res.headers.set("Pragma", "no-cache");
+  return res;
 }
