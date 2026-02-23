@@ -20,6 +20,20 @@ export async function GET() {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  // Sync auth.users → public.users so the list includes everyone who has signed up
+  const { data: authUsers } = await admin.auth.admin.listUsers({ perPage: 1000 });
+  const now = new Date().toISOString();
+  for (const authUser of authUsers?.users ?? []) {
+    const id = authUser.id;
+    const email = authUser.email ?? "";
+    const { data: existing } = await admin.from("users").select("id").eq("id", id).single();
+    if (existing) {
+      await admin.from("users").update({ email, updated_at: now }).eq("id", id);
+    } else {
+      await admin.from("users").insert({ id, email, role: "buyer", updated_at: now });
+    }
+  }
+
   const { data, error } = await admin
     .from("users")
     .select("id, email, role, stripe_account_id, created_at")
