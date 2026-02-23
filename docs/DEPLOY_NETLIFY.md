@@ -75,6 +75,8 @@ Add the same variables you use in `.env.local`:
 | `NEXT_PUBLIC_APP_URL` | Full URL of your main app | `https://app.teevohq.com` or `https://teevo-mvp.netlify.app` |
 | `NEXT_PUBLIC_ADMIN_DOMAIN` | (Optional) Admin-only domain; see [Admin domain](#admin-domain-adminteevohqcom) | `admin.teevohq.com` |
 | `NEXT_PUBLIC_COOKIE_DOMAIN` | (Optional) Shared auth cookie domain so app + admin stay logged in; use when using admin subdomain | `.teevohq.com` |
+| `RESEND_API_KEY` | Resend API key (for auth emails + transactional emails) | `re_...` |
+| `SEND_EMAIL_HOOK_SECRET` | Supabase Auth “Send Email” hook secret (so Resend sends signup + forgot-password emails) | From Supabase → Auth → Hooks; format `v1,whsec_...` |
 
 - **Scopes:** enable these for **Production** (and optionally **Branch deploys** if you use previews).
 - **Sensitive:** mark secret keys as “Sensitive” so they’re hidden in the UI.
@@ -110,6 +112,19 @@ Add the same variables you use in `.env.local`:
 Save. This lets login/signup and Google OAuth redirect back to your Netlify site.
 
 **For local development:** Add to Redirect URLs: `http://localhost:3000/auth/callback` and `http://localhost:3000/**`. Use a copy of `.env.example` as `.env.local` with your Supabase and Stripe keys; set `NEXT_PUBLIC_APP_URL=http://localhost:3000`. Then `npm run dev` and open http://localhost:3000 and http://localhost:3000/admin.
+
+---
+
+## 6a. (Optional) Use Resend for auth emails (signup + forgot password)
+
+To send **email verification** and **forgot password** emails via Resend instead of Supabase’s built-in SMTP:
+
+1. In Netlify env vars, set **`RESEND_API_KEY`** (from [Resend](https://resend.com)) and **`SEND_EMAIL_HOOK_SECRET`** (from step 3 below).
+2. In [Supabase Dashboard](https://app.supabase.com) → your project → **Authentication** → **Hooks**.
+3. Under **Send Email**, choose **HTTP** and set:
+   - **URL:** `https://YOUR_NETLIFY_SITE_URL/api/auth/send-email` (e.g. `https://app.teevohq.com/api/auth/send-email`).
+   - Copy the **secret** (format `v1,whsec_...`) and set it in Netlify as `SEND_EMAIL_HOOK_SECRET`, then redeploy.
+4. With the hook enabled, Supabase will call your app for signup and recovery emails; the app sends them via Resend using your existing alert template.
 
 ---
 
