@@ -40,3 +40,47 @@ export async function PATCH(
   }
   return NextResponse.json({ ok: true });
 }
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const admin = createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+  const { data: profile } = await admin.from("users").select("role").eq("id", user.id).single();
+  if (profile?.role !== "admin") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  if (id === user.id) {
+    return NextResponse.json({ error: "You cannot delete your own account" }, { status: 400 });
+  }
+
+  const { count: txCount } = await admin
+    .from("transactions")
+    .select("id", { count: "exact", head: true })
+    .or(`buyer_id.eq.${id},seller_id.eq.${id}`);
+  if (txCount && txCount > 0) {
+    return NextResponse.json(
+      { error: "Cannot delete user with transaction history. Remove or reassign transactions first." },
+      { status: 400 }
+    );
+  }
+
+  const { error: authError } = await admin.auth.admin.deleteUser(id);
+  if (authError) {
+    return NextResponse.json({ error: authError.message }, { status: 500 });
+  }
+  return NextResponse.json({ ok: true });
+}

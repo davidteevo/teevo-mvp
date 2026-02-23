@@ -6,7 +6,21 @@ import type { AdminUser } from "@/lib/admin-data";
 
 export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminUser[] }) {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const router = useRouter();
+
+  const deleteUser = async (userId: string, email: string) => {
+    if (!confirm(`Permanently delete user ${email}? They will not be able to sign in again.`)) return;
+    setDeletingId(userId);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, { method: "DELETE" });
+      const data = await res.json();
+      if (res.ok) router.refresh();
+      else alert(data.error ?? "Failed to delete");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const updateRole = async (userId: string, role: string) => {
     setUpdatingId(userId);
@@ -61,7 +75,7 @@ export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminU
               <td className="px-4 py-3 text-sm text-mowing-green/70">
                 {new Date(u.created_at).toLocaleDateString()}
               </td>
-              <td className="px-4 py-3">
+              <td className="px-4 py-3 flex flex-wrap items-center gap-2">
                 <select
                   value={u.role}
                   onChange={(e) => updateRole(u.id, e.target.value)}
@@ -72,6 +86,14 @@ export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminU
                   <option value="seller">Seller</option>
                   <option value="admin">Admin</option>
                 </select>
+                <button
+                  type="button"
+                  onClick={() => deleteUser(u.id, u.email)}
+                  disabled={deletingId === u.id}
+                  className="rounded-lg border border-divot-pink text-divot-pink px-2 py-1.5 text-sm font-medium hover:bg-divot-pink/10 disabled:opacity-50"
+                >
+                  {deletingId === u.id ? "Deleting…" : "Delete"}
+                </button>
               </td>
             </tr>
           ))}
