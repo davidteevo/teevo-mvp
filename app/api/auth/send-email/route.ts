@@ -70,7 +70,7 @@ export async function POST(request: Request) {
   const { token_hash, redirect_to, email_action_type } = email_data;
   const verifyUrl = `${supabaseUrl}/auth/v1/verify?token=${encodeURIComponent(token_hash)}&type=${encodeURIComponent(email_action_type)}&redirect_to=${encodeURIComponent(redirect_to)}`;
 
-  const firstName = (user.user_metadata?.name ?? email).split(/\s+/)[0] || "there";
+  const firstName = (user.user_metadata?.name ?? "").trim().split(/\s+/)[0] || "there";
 
   if (email_action_type === "signup") {
     try {
@@ -115,12 +115,14 @@ export async function POST(request: Request) {
       );
     }
   } else {
+    console.error("Send email hook: unsupported type", email_action_type);
     return NextResponse.json(
       { error: { message: `Unsupported email_action_type: ${email_action_type}`, http_code: 400 } },
       { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
 
+  console.info("Send email hook: sent", email_action_type, "to", email);
   return new Response(JSON.stringify({}), {
     status: 200,
     headers: { "Content-Type": "application/json" },
