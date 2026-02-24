@@ -1,15 +1,26 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-const supabaseUrl =
-  process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
 const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN || undefined;
 
 export async function createClient() {
+  const supabaseUrl =
+    process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl) {
+    throw new Error(
+      "Supabase URL is missing. Set SUPABASE_URL or NEXT_PUBLIC_SUPABASE_URL in your environment (e.g. in Netlify env vars for app.teevohq.com)."
+    );
+  }
+  if (!anonKey) {
+    throw new Error(
+      "Supabase anon key is missing. Set NEXT_PUBLIC_SUPABASE_ANON_KEY in your environment (e.g. in Netlify env vars for app.teevohq.com)."
+    );
+  }
   const cookieStore = await cookies();
   return createServerClient(
-    supabaseUrl!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    anonKey,
     {
       cookies: {
         getAll() {

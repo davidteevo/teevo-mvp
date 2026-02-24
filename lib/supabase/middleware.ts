@@ -8,10 +8,18 @@ export async function updateSession(request: NextRequest) {
   if (request.nextUrl.pathname === "/api/auth/signout") {
     return NextResponse.next({ request });
   }
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !anonKey) {
+    console.error(
+      "Missing Supabase env: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY must be set (e.g. in Netlify env vars)."
+    );
+    return NextResponse.next({ request });
+  }
   let response = NextResponse.next({ request });
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    anonKey,
     {
       cookies: {
         getAll() {
