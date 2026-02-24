@@ -7,6 +7,8 @@ import { ShippingService, type ShippingServiceType } from "@/lib/shippo";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
+export const dynamic = "force-dynamic";
+
 /**
  * POST /api/checkout/create
  * Body: { listingId, buyerPostcode?, shippingOption? }

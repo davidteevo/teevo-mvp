@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 /**
  * POST /api/listings/[id]/images
  * Body: JSON { paths: string[] } — storage paths under listings bucket (e.g. "listing-uuid/0.jpg")

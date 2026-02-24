@@ -5,6 +5,8 @@ import { NextResponse } from "next/server";
 const BUCKET = "avatars";
 const MAX_SIZE_BYTES = 4 * 1024 * 1024; // 4MB
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
   const supabase = await createClient();
   const {

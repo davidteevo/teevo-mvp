@@ -5,6 +5,8 @@ import { NextResponse } from "next/server";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/onboarding/status
  * Returns Stripe Connect onboarding status for the current user.

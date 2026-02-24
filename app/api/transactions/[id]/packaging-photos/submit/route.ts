@@ -3,6 +3,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { FulfilmentStatus, PackagingStatus } from "@/lib/fulfilment";
 
+export const dynamic = "force-dynamic";
+
 /**
  * POST /api/transactions/[id]/packaging-photos/submit
  * Body: { paths: string[] } (3–4 storage paths from upload-urls + upload)

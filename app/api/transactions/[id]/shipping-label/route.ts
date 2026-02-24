@@ -11,6 +11,8 @@ import {
 } from "@/lib/shippo";
 import { FulfilmentStatus } from "@/lib/fulfilment";
 
+export const dynamic = "force-dynamic";
+
 /**
  * POST /api/transactions/[id]/shipping-label
  * Creates a Shippo shipping label for the transaction. Seller only.

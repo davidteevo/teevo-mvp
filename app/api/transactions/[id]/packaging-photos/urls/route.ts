@@ -5,6 +5,8 @@ import { NextResponse } from "next/server";
 const BUCKET = "packaging-photos";
 const EXPIRY_SEC = 3600;
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/transactions/[id]/packaging-photos/urls
  * Returns signed read URLs for packaging_photos. Seller (own tx) or admin only.

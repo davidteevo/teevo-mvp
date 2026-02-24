@@ -3,6 +3,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { FulfilmentStatus, PackagingStatus } from "@/lib/fulfilment";
 
+export const dynamic = "force-dynamic";
+
 /**
  * POST /api/transactions/[id]/packaging-photos/verify
  * Admin only (users.role = 'admin'). Sets packaging_status = VERIFIED, fulfilment_status = PACKAGING_VERIFIED,

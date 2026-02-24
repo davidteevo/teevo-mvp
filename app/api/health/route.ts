@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/health - Debug server-side env and Supabase connectivity.
  * Returns the actual error message so you can see it in the browser or Netlify logs.

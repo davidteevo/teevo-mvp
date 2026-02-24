@@ -3,6 +3,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { ParcelPreset, type ParcelPresetType } from "@/lib/shippo";
 
+export const dynamic = "force-dynamic";
+
 /**
  * POST /api/listings
  * Body: JSON { category, brand, model, condition, description?, price (pence), imageCount (3–6), parcelPreset? }

@@ -5,6 +5,8 @@ import { FulfilmentStatus, PackagingStatus, PACKAGING_PHOTO_COUNT } from "@/lib/
 
 const BUCKET = "packaging-photos";
 
+export const dynamic = "force-dynamic";
+
 /**
  * POST /api/transactions/[id]/packaging-photos/upload-urls
  * Body: { count?: number } (default 4)

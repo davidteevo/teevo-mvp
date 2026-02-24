@@ -5,6 +5,8 @@ import { ensureEmailSent, EmailTriggerType, formatGbp } from "@/lib/email-trigge
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "https://app.teevohq.com";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }

@@ -3,6 +3,8 @@ import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { createCheckoutSession } from "@/lib/stripe-checkout";
 
+export const dynamic = "force-dynamic";
+
 /** POST /api/checkout – same as create but no postcode/shipping. Prefer POST /api/checkout/create with buyerPostcode, shippingOption. */
 export async function POST(request: Request) {
   const supabase = await createClient();

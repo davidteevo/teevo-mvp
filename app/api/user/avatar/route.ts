@@ -5,6 +5,8 @@ import { NextResponse } from "next/server";
 const BUCKET = "avatars";
 const EXPIRY_SEC = 3600;
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/user/avatar
  * Redirects to a signed URL for the current user's profile photo.

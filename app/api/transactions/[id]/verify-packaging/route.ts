@@ -3,6 +3,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { FulfilmentStatus } from "@/lib/fulfilment";
 
+export const dynamic = "force-dynamic";
+
 /**
  * POST /api/transactions/[id]/verify-packaging
  * Seller confirms packaging is ready. Unlocks label creation (fulfilment_status = PACKAGING_VERIFIED).

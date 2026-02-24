@@ -3,6 +3,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { PackagingStatus } from "@/lib/fulfilment";
 
+export const dynamic = "force-dynamic";
+
 const BUCKET = "packaging-photos";
 const EXPIRY_SEC = 3600;
 

@@ -3,6 +3,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { PackagingStatus } from "@/lib/fulfilment";
 
+export const dynamic = "force-dynamic";
+
 /**
  * POST /api/transactions/[id]/packaging-photos/reject
  * Admin only (users.role = 'admin'). Sets packaging_status = REJECTED, review_notes, reviewed_by, reviewed_at.
