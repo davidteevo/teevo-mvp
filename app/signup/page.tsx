@@ -2,17 +2,18 @@
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Mail } from "lucide-react";
 
 function SignupForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") ?? "/dashboard";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [emailVerificationSent, setEmailVerificationSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,7 +21,7 @@ function SignupForm() {
     setLoading(true);
     const supabase = createClient();
     const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : undefined;
-    const { error: err } = await supabase.auth.signUp({
+    const { data, error: err } = await supabase.auth.signUp({
       email,
       password,
       options: redirectTo ? { emailRedirectTo: redirectTo } : undefined,
@@ -35,12 +36,39 @@ function SignupForm() {
       setLoading(false);
       return;
     }
-    const syncRes = await fetch("/api/auth/sync-user", { method: "POST" });
-    const syncData = await syncRes.json().catch(() => ({}));
     setLoading(false);
-    router.push(syncData.isNewUser ? "/onboarding/payouts" : redirect);
-    router.refresh();
+    if (data?.user?.identities?.length === 0) {
+      setError("An account with this email already exists. Try logging in instead.");
+      return;
+    }
+    setEmailVerificationSent(true);
   };
+
+  if (emailVerificationSent) {
+    return (
+      <div className="max-w-sm mx-auto px-4 py-12 text-center">
+        <div className="rounded-2xl bg-par-3-punch/10 border border-par-3-punch/30 p-8">
+          <div className="mx-auto w-14 h-14 rounded-full bg-golden-tee/20 flex items-center justify-center">
+            <Mail className="w-7 h-7 text-mowing-green" aria-hidden />
+          </div>
+          <h1 className="mt-5 text-xl font-bold text-mowing-green">
+            Check your inbox
+          </h1>
+          <p className="mt-2 text-mowing-green/90 text-sm leading-relaxed">
+            We’ve sent a link to <strong>{email}</strong>. Click it to verify your email and you’re in — then you can list clubs, browse, and get back to the fairway.
+          </p>
+          <p className="mt-4 text-mowing-green/70 text-xs">
+            No email? Check spam, or wait a minute and try again.
+          </p>
+        </div>
+        <p className="mt-6">
+          <Link href="/login" className="text-par-3-punch font-medium hover:underline text-sm">
+            Back to log in
+          </Link>
+        </p>
+      </div>
+    );
+  }
 
   const handleGoogle = async () => {
     setLoading(true);
