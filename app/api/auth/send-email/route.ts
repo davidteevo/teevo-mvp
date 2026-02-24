@@ -5,7 +5,12 @@ import { sendEmail } from "@/lib/email";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "") ?? "";
 
 type HookPayload = {
-  user: { id: string; email?: string; user_metadata?: { email?: string; name?: string } };
+  user: {
+    id: string;
+    email?: string;
+    email_new?: string;
+    user_metadata?: { email?: string; name?: string };
+  };
   email_data: {
     token: string;
     token_hash: string;
@@ -17,12 +22,23 @@ type HookPayload = {
   };
 };
 
+/** Safe first name for greeting; user_metadata.name can be non-string. */
+function getFirstName(user: HookPayload["user"]): string {
+  const name = user.user_metadata?.name;
+  return String(name ?? "").trim().split(/\s+/)[0] || "there";
+}
+
 /**
- * Supabase Auth "Send Email" hook.
- * When enabled in Supabase Dashboard (Auth → Hooks), Supabase calls this instead of sending its own email.
- * We send via Resend using the Alert template for signup and password reset.
+ * Supabase Auth "Send Email" hook — all auth emails use the Resend platform.
  *
- * Env: SEND_EMAIL_HOOK_SECRET (from Supabase Dashboard → Auth → Hooks → Send Email → secret, format "v1,whsec_<base64>").
+ * When enabled in Supabase Dashboard (Auth → Hooks → Send Email), Supabase calls this
+ * instead of its built-in SMTP. Every auth email (signup, recovery, email change) is
+ * sent via Resend using lib/email.ts and the Alert template.
+ *
+ * Env:
+ * - RESEND_API_KEY (required for lib/email)
+ * - RESEND_FROM (optional, e.g. "Teevo <hello@yourdomain.com>")
+ * - SEND_EMAIL_HOOK_SECRET (from Supabase Dashboard → Auth → Hooks → secret, format "v1,whsec_<base64>")
  */
 export async function POST(request: Request) {
   if (!process.env.RESEND_API_KEY) {
@@ -67,25 +83,33 @@ export async function POST(request: Request) {
     );
   }
 
-  const { token_hash, redirect_to, email_action_type } = email_data;
-  const verifyUrl = `${supabaseUrl}/auth/v1/verify?token=${encodeURIComponent(token_hash)}&type=${encodeURIComponent(email_action_type)}&redirect_to=${encodeURIComponent(redirect_to)}`;
+  const { token_hash, redirect_to, email_action_type, token_new, token_hash_new } = email_data;
+  const firstName = getFirstName(user);
 
-  const firstName = (user.user_metadata?.name ?? "").trim().split(/\s+/)[0] || "there";
+  const buildVerifyUrl = (hash: string, type: string) =>
+    `${supabaseUrl}/auth/v1/verify?token=${encodeURIComponent(hash)}&type=${encodeURIComponent(type)}&redirect_to=${encodeURIComponent(redirect_to)}`;
+
+  const sendViaResend = async (
+    to: string,
+    subject: string,
+    variables: { title: string; subtitle: string; body: string; cta_link: string; cta_text: string }
+  ) => {
+    await sendEmail({ type: "alert", to, subject, variables });
+  };
 
   if (email_action_type === "signup") {
     try {
-      await sendEmail({
-        type: "alert",
-        to: email,
-        subject: "Confirm your Teevo email",
-        variables: {
+      await sendViaResend(
+        email,
+        "Confirm your Teevo email",
+        {
           title: "Confirm your email",
           subtitle: "Verify your Teevo account",
           body: `Hi ${firstName}, click the button below to confirm your email address and start using Teevo.`,
-          cta_link: verifyUrl,
+          cta_link: buildVerifyUrl(token_hash, email_action_type),
           cta_text: "Confirm email",
-        },
-      });
+        }
+      );
     } catch (e) {
       console.error("Send email hook: signup email failed", e);
       return NextResponse.json(
@@ -95,20 +119,54 @@ export async function POST(request: Request) {
     }
   } else if (email_action_type === "recovery") {
     try {
-      await sendEmail({
-        type: "alert",
-        to: email,
-        subject: "Reset your Teevo password",
-        variables: {
+      await sendViaResend(
+        email,
+        "Reset your Teevo password",
+        {
           title: "Reset your password",
           subtitle: "You requested a password reset",
           body: `Hi ${firstName}, click the button below to set a new password. If you didn't request this, you can ignore this email.`,
-          cta_link: verifyUrl,
+          cta_link: buildVerifyUrl(token_hash, email_action_type),
           cta_text: "Reset password",
-        },
-      });
+        }
+      );
     } catch (e) {
       console.error("Send email hook: recovery email failed", e);
+      return NextResponse.json(
+        { error: { message: e instanceof Error ? e.message : "Failed to send email", http_code: 500 } },
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+  } else if (email_action_type === "email_change") {
+    // Supabase: token_hash pairs with new email (user.email_new); token_hash_new pairs with current (user.email).
+    const newEmail = user.email_new ?? email;
+    try {
+      await sendViaResend(
+        newEmail,
+        "Confirm your new Teevo email",
+        {
+          title: "Confirm your new email",
+          subtitle: "You requested to change your email address",
+          body: `Hi ${firstName}, click the button below to confirm this email address for your Teevo account.`,
+          cta_link: buildVerifyUrl(token_hash, email_action_type),
+          cta_text: "Confirm new email",
+        }
+      );
+      if (token_hash_new && user.email && user.email !== newEmail) {
+        await sendViaResend(
+          user.email,
+          "Teevo email change requested",
+          {
+            title: "Email change requested",
+            subtitle: "A request was made to change your Teevo account email",
+            body: `Hi ${firstName}, if you requested this change, confirm it from the email we sent to your new address. If you didn’t, you can ignore this email.`,
+            cta_link: buildVerifyUrl(token_hash_new, email_action_type),
+            cta_text: "View details",
+          }
+        );
+      }
+    } catch (e) {
+      console.error("Send email hook: email_change failed", e);
       return NextResponse.json(
         { error: { message: e instanceof Error ? e.message : "Failed to send email", http_code: 500 } },
         { status: 500, headers: { "Content-Type": "application/json" } }

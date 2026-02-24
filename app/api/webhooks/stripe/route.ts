@@ -167,7 +167,8 @@ export async function POST(request: Request) {
 
   if (event.type === "charge.refunded") {
     const charge = event.data.object as Stripe.Charge;
-    const paymentIntentId = charge.payment_intent;
+    const raw = charge.payment_intent;
+    const paymentIntentId = typeof raw === "string" ? raw : (raw as { id?: string })?.id;
     if (paymentIntentId) {
       await admin
         .from("transactions")
@@ -181,7 +182,8 @@ export async function POST(request: Request) {
     const chargeId = refund.charge;
     if (chargeId && refund.status === "succeeded") {
       const charge = await stripe.charges.retrieve(chargeId as string);
-      const paymentIntentId = charge.payment_intent;
+      const raw = charge.payment_intent;
+      const paymentIntentId = typeof raw === "string" ? raw : (raw as { id?: string })?.id;
       if (paymentIntentId) {
         await admin
           .from("transactions")

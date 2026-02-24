@@ -2,7 +2,20 @@ import { Resend } from "resend";
 import fs from "fs";
 import path from "path";
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
+/**
+ * Single entrypoint for sending email via the Resend platform.
+ * All app emails (auth hook + transactional) go through this module and Resend's API.
+ * Configure: RESEND_API_KEY (required), optional RESEND_FROM (e.g. "Teevo <hello@yourdomain.com>").
+ */
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const RESEND_FROM = process.env.RESEND_FROM?.trim() || "Teevo <hello@teevohq.com>";
+
+function getResend(): Resend {
+  if (!RESEND_API_KEY) {
+    throw new Error("RESEND_API_KEY is not set; cannot send email via Resend.");
+  }
+  return new Resend(RESEND_API_KEY);
+}
 
 export type EmailType = "transactional" | "standard" | "alert";
 
@@ -54,8 +67,9 @@ export async function sendEmail({
   const rawHtml = loadTemplate(type);
   const html = render(rawHtml, variables);
 
+  const resend = getResend();
   const { error } = await resend.emails.send({
-    from: "Teevo <hello@teevohq.com>",
+    from: RESEND_FROM,
     to: [to],
     subject,
     html,
