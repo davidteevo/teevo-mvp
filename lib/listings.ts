@@ -14,8 +14,9 @@ const LISTINGS_GRID_LIMIT = 60;
 const LISTINGS_CACHE_SECONDS = 45;
 const LISTING_DETAIL_CACHE_SECONDS = 30;
 
+/** Uses admin client so this can run inside unstable_cache without request/cookies (e.g. on Netlify). Only returns public verified listings. */
 async function getVerifiedListingsUncached(filters?: Filters) {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   let query = supabase
     .from("listings")
     .select(
