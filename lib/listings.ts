@@ -66,12 +66,9 @@ async function getListingByIdUncached(id: string) {
   return data;
 }
 
+/** Fetches listing by id with session (RLS: verified or own). Not cached so it always runs in request context (cookies available). */
 export function getListingById(id: string) {
-  return unstable_cache(
-    () => getListingByIdUncached(id),
-    ["listing", id],
-    { revalidate: LISTING_DETAIL_CACHE_SECONDS }
-  )();
+  return getListingByIdUncached(id);
 }
 
 /** Fetch listing by id with service role (e.g. for buyer viewing a purchased/sold listing). */
