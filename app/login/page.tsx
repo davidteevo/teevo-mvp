@@ -2,11 +2,10 @@
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") ?? "/dashboard";
   const message = searchParams.get("message");
@@ -51,9 +50,9 @@ function LoginForm() {
       setError(msg);
       return;
     }
-    // Brief delay so onAuthStateChange runs before we navigate (avoids extra getSession() auth request)
-    await new Promise((r) => setTimeout(r, 50));
-    router.push(redirect);
+    // Full-page redirect so the next request includes session cookies and middleware/auth see the user (avoids sticking on /login on app.teevohq.com)
+    setLoading(false);
+    window.location.href = redirect;
   };
 
   return (
