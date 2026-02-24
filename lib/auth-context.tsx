@@ -61,11 +61,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [supabase, fetchProfile]);
 
-  /** Ensure users row exists, then load profile from API and client in parallel (faster; API works when cookie not sent to Supabase). */
+  /** Ensure users row exists, then load profile from API and client in parallel. */
   const ensureUserAndRefreshProfile = useCallback(async () => {
     try {
       await fetch("/api/auth/sync-user", { method: "POST", credentials: "include" });
-      // Run both: API (reliable on our origin) and client fetch; use whichever returns first
       const [apiRes] = await Promise.all([
         fetch("/api/user/profile", { credentials: "include" }),
         refreshProfile(),
@@ -80,6 +79,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if ((e as Error)?.name !== "AbortError") throw e;
     }
   }, [refreshProfile]);
+
+  /** Profile-only fetch (no sync, no client getUser) to avoid token refresh burst on retries. */
+  const fetchProfileFromApiOnly = useCallback(async () => {
+    try {
+      const res = await fetch("/api/user/profile", { credentials: "include" });
+      if (!res.ok) return;
+      const data = await res.json().catch(() => ({}));
+      if (data.profile?.id) setProfile(data.profile as AppUser);
+    } catch (e) {
+      if ((e as Error)?.name !== "AbortError") throw e;
+    }
+  }, []);
 
   useEffect(() => {
     const {
@@ -124,32 +135,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [supabase, fetchProfile]);
 
-  // Retry when we have user but no profile: ensure users row exists then fetch (e.g. app.teevohq.com after login)
+  // Single retry when we have user but no profile (e.g. after login). One full run to avoid token refresh burst.
   useEffect(() => {
     if (!user || profile !== null || loading) return;
     const t = window.setTimeout(() => {
       ensureUserAndRefreshProfile();
-    }, 200);
+    }, 400);
     return () => window.clearTimeout(t);
   }, [user, profile, loading, ensureUserAndRefreshProfile]);
 
-  // Second retry if profile still missing (e.g. cookies/session not ready)
+  // Second attempt: profile API only (no sync, no client getUser) to limit /token calls if first run didn't get profile
   useEffect(() => {
     if (!user || profile !== null || loading) return;
     const t = window.setTimeout(() => {
-      ensureUserAndRefreshProfile();
-    }, 1200);
+      fetchProfileFromApiOnly();
+    }, 2500);
     return () => window.clearTimeout(t);
-  }, [user, profile, loading, ensureUserAndRefreshProfile]);
-
-  // Third retry for slow cookie/session propagation (e.g. app.teevohq.com after full-page redirect)
-  useEffect(() => {
-    if (!user || profile !== null || loading) return;
-    const t = window.setTimeout(() => {
-      ensureUserAndRefreshProfile();
-    }, 3500);
-    return () => window.clearTimeout(t);
-  }, [user, profile, loading, ensureUserAndRefreshProfile]);
+  }, [user, profile, loading, fetchProfileFromApiOnly]);
 
   const signOut = useCallback(async () => {
     setUser(null);
