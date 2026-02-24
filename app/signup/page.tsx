@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -14,6 +14,16 @@ function SignupForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
+
+  // If user already has a session (e.g. stale after sign out, or they clicked Sign up while logged in), clear it so signup creates a fresh account
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        window.location.href = `/api/auth/signout?redirect=${encodeURIComponent("/signup" + (searchParams.toString() ? "?" + searchParams.toString() : ""))}`;
+      }
+    });
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +49,7 @@ function SignupForm() {
     setLoading(false);
     if (data?.user?.identities?.length === 0) {
       setError("An account with this email already exists. Try logging in instead.");
+      await supabase.auth.signOut({ scope: "local" });
       return;
     }
     setEmailVerificationSent(true);
