@@ -18,34 +18,21 @@ export default async function ListingPage({
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  let listing: Awaited<ReturnType<typeof getListingById>> | null = null;
-  try {
-    listing = await getListingById(id);
-  } catch {
-    // Listing not found or RLS denied (e.g. sold and user is buyer)
-  }
+  const admin = createAdminClient();
+  const [listingResult, txResult] = await Promise.all([
+    getListingById(id).then((l) => ({ listing: l, err: null })).catch((err) => ({ listing: null, err })),
+    user?.id
+      ? admin.from("transactions").select("id").eq("listing_id", id).eq("buyer_id", user.id).single().then(({ data }) => data)
+      : Promise.resolve(null),
+  ]);
 
+  let listing = listingResult.listing;
   let isBuyerViewingSold = false;
   if (!listing || listing.status !== "verified") {
-    // Allow buyer to view their purchased (sold) listing
-    if (user?.id) {
-      try {
-        const admin = createAdminClient();
-        const { data: tx } = await admin
-          .from("transactions")
-          .select("id")
-          .eq("listing_id", id)
-          .eq("buyer_id", user.id)
-          .single();
-        if (tx) {
-          listing = await getListingByIdAdmin(id);
-          isBuyerViewingSold = true;
-        }
-      } catch {
-        // not buyer or listing missing
-      }
+    if (txResult) {
+      listing = await getListingByIdAdmin(id);
+      isBuyerViewingSold = true;
     }
-    // Allow seller to view own listing (any status); otherwise 404 if not verified/sold
     if (!listing) notFound();
     if (listing.status !== "verified" && listing.status !== "sold" && listing.user_id !== user?.id) {
       notFound();
@@ -68,7 +55,6 @@ export default async function ListingPage({
 
   let sellerCanAcceptPayment = false;
   if (!isPurchasedView) {
-    const admin = createAdminClient();
     const { data: seller } = await admin
       .from("users")
       .select("stripe_account_id")
