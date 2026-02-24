@@ -64,10 +64,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   /** Ensure users row exists, then load profile from API and client in parallel (faster; API works when cookie not sent to Supabase). */
   const ensureUserAndRefreshProfile = useCallback(async () => {
     try {
-      await fetch("/api/auth/sync-user", { method: "POST" });
+      await fetch("/api/auth/sync-user", { method: "POST", credentials: "include" });
       // Run both: API (reliable on our origin) and client fetch; use whichever returns first
       const [apiRes] = await Promise.all([
-        fetch("/api/user/profile"),
+        fetch("/api/user/profile", { credentials: "include" }),
         refreshProfile(),
       ]);
       if (apiRes.ok) {
@@ -139,6 +139,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const t = window.setTimeout(() => {
       ensureUserAndRefreshProfile();
     }, 1200);
+    return () => window.clearTimeout(t);
+  }, [user, profile, loading, ensureUserAndRefreshProfile]);
+
+  // Third retry for slow cookie/session propagation (e.g. app.teevohq.com after full-page redirect)
+  useEffect(() => {
+    if (!user || profile !== null || loading) return;
+    const t = window.setTimeout(() => {
+      ensureUserAndRefreshProfile();
+    }, 3500);
     return () => window.clearTimeout(t);
   }, [user, profile, loading, ensureUserAndRefreshProfile]);
 

@@ -50,9 +50,13 @@ function LoginForm() {
       setError(msg);
       return;
     }
-    // Full-page redirect so the next request includes session cookies and middleware/auth see the user (avoids sticking on /login on app.teevohq.com)
+    // Let Supabase SSR persist session to cookies before full-page redirect (avoids session missing on app.teevohq.com)
+    await supabase.auth.getSession();
+    await new Promise((r) => setTimeout(r, 300));
     setLoading(false);
-    window.location.href = redirect;
+    const safePath = redirect.startsWith("/") && !redirect.startsWith("//") ? redirect : "/dashboard";
+    const origin = window.location.origin;
+    window.location.href = safePath.startsWith("http") ? safePath : `${origin}${safePath}`;
   };
 
   return (
