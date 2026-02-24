@@ -25,7 +25,7 @@ export default function SettingsPaymentsPage() {
       const res = await fetch("/api/user/stripe-login-link", { method: "POST" });
       const data = await res.json();
       if (res.ok && data.url) {
-        window.location.href = data.url;
+        window.open(data.url, "_blank", "noopener,noreferrer");
         return;
       }
       setError(data.error ?? "Could not open Stripe");

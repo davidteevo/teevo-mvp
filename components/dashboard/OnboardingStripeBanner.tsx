@@ -31,7 +31,7 @@ export function OnboardingStripeBanner({ className = "" }: { className?: string 
         }),
       });
       const data = await res.json();
-      if (data.url) window.location.href = data.url;
+      if (data.url) window.open(data.url, "_blank", "noopener,noreferrer");
       else alert(data.error ?? "Could not start onboarding");
     } catch {
       alert("Something went wrong");
@@ -59,7 +59,7 @@ export function OnboardingStripeBanner({ className = "" }: { className?: string 
             disabled={buttonLoading}
             className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-70"
           >
-            {buttonLoading ? "Redirecting…" : "Complete setup"}
+            {buttonLoading ? "Opening…" : "Complete setup"}
           </button>
           <Link
             href="/onboarding/payouts"

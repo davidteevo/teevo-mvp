@@ -59,7 +59,7 @@ export function PayoutsContent() {
       });
       const data = await res.json();
       if (data.url) {
-        window.location.href = data.url;
+        window.open(data.url, "_blank", "noopener,noreferrer");
         return;
       }
       setError(data.error ?? "Could not start onboarding");
@@ -105,7 +105,7 @@ export function PayoutsContent() {
             disabled={redirecting}
             className="w-full rounded-xl bg-mowing-green text-off-white-pique py-3 font-semibold hover:opacity-90 disabled:opacity-70 transition-opacity"
           >
-            {redirecting ? "Redirecting…" : "Enable payouts (2 min)"}
+            {redirecting ? "Opening…" : "Enable payouts (2 min)"}
           </button>
           <Link
             href="/dashboard"

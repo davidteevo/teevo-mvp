@@ -40,7 +40,7 @@ export function BuyButton({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Checkout failed");
-      if (data.url) window.location.href = data.url;
+      if (data.url) window.open(data.url, "_blank", "noopener,noreferrer");
     } catch (e) {
       alert(e instanceof Error ? e.message : "Something went wrong");
     } finally {
@@ -82,7 +82,7 @@ export function BuyButton({
         disabled={loading}
         className="w-full sm:w-auto rounded-xl bg-mowing-green text-off-white-pique px-8 py-4 text-lg font-semibold hover:opacity-90 disabled:opacity-70"
       >
-        {loading ? "Redirecting…" : `Buy now · £${((totalPence ?? price) / 100).toFixed(2)}`}
+        {loading ? "Opening…" : `Buy now · £${((totalPence ?? price) / 100).toFixed(2)}`}
       </button>
     </div>
   );
