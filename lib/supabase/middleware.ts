@@ -17,23 +17,29 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.next({ request });
   }
   let response = NextResponse.next({ request });
-  const supabase = createServerClient(
-    supabaseUrl,
-    anonKey,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
+  try {
+    const supabase = createServerClient(
+      supabaseUrl,
+      anonKey,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll(cookiesToSet: Array<{ name: string; value: string; options?: Record<string, unknown> }>) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              response.cookies.set(name, value, options)
+            );
+          },
         },
-        setAll(cookiesToSet: Array<{ name: string; value: string; options?: Record<string, unknown> }>) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          );
-        },
-      },
-      ...(cookieDomain ? { cookieOptions: { domain: cookieDomain } } : {}),
-    }
-  );
-  await supabase.auth.getUser();
+        ...(cookieDomain ? { cookieOptions: { domain: cookieDomain } } : {}),
+      }
+    );
+    await supabase.auth.getUser();
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.error("[Supabase middleware] updateSession failed:", message);
+    // Continue the request so the app can still load; session refresh will be skipped
+  }
   return response;
 }

@@ -7,7 +7,21 @@ async function GridInner({
 }: {
   searchParams: { category?: string; brand?: string; minPrice?: string; maxPrice?: string };
 }) {
-  const listings = await getVerifiedListings(searchParams);
+  let listings: Awaited<ReturnType<typeof getVerifiedListings>>;
+  try {
+    listings = await getVerifiedListings(searchParams);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.error("[ListingGrid] getVerifiedListings failed:", message, e instanceof Error ? e.stack : "");
+    return (
+      <div className="rounded-xl border border-par-3-punch/20 bg-white/60 p-8 text-center text-mowing-green">
+        <p className="font-medium">Unable to load listings.</p>
+        <p className="mt-2 text-sm text-mowing-green/80">
+          Check server logs for details. You can also try <a href="/api/health" className="underline">/api/health</a> to debug.
+        </p>
+      </div>
+    );
+  }
   if (!listings.length) {
     return (
       <div className="rounded-xl border border-par-3-punch/20 bg-white/60 p-12 text-center text-mowing-green/80">
