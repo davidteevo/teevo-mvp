@@ -54,10 +54,10 @@ export async function POST(request: Request) {
 
   try {
     const result = await createTransactionAndSendEmails(admin, session);
-    if ("alreadyExists" in result && result.alreadyExists) {
-      return NextResponse.json({ ok: true, alreadyExists: true });
+    if ("transactionId" in result) {
+      return NextResponse.json({ ok: true, transactionId: result.transactionId });
     }
-    return NextResponse.json({ ok: true, transactionId: result.transactionId });
+    return NextResponse.json({ ok: true, alreadyExists: true });
   } catch (e) {
     console.error("Confirm session failed", e);
     return NextResponse.json(
