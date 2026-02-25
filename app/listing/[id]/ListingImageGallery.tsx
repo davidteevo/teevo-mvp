@@ -66,7 +66,7 @@ export function ListingImageGallery({
 
       {hasMultiple && (
         <div className="grid grid-cols-4 gap-2">
-          {imageUrls.slice(0, 4).map((url, i) => (
+          {imageUrls.map((url, i) => (
             <button
               key={i}
               type="button"
@@ -144,8 +144,8 @@ export function ListingImageGallery({
             </div>
           </div>
           {hasMultiple && (
-            <div className="flex justify-center gap-2 pb-4">
-              {imageUrls.slice(0, 4).map((url, i) => (
+            <div className="flex flex-wrap justify-center gap-2 pb-4">
+              {imageUrls.map((url, i) => (
                 <button
                   key={i}
                   type="button"
