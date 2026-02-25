@@ -12,6 +12,10 @@ Teevo uses [Shippo](https://goshippo.com) to create shipping labels for sales. S
    ```bash
    SHIPPO_API_TOKEN=shippo_test_...
    ```
+   Optional: if you get "no shipping rates" in test mode, set your DPD UK carrier account object ID (from [Shippo → Settings → Carriers](https://apps.goshippo.com/settings/carriers), click the carrier and copy the object ID):
+   ```bash
+   SHIPPO_DPD_CARRIER_ACCOUNT_ID=your-carrier-account-object-id
+   ```
 
 3. **Database**  
    Run the migrations in Supabase SQL Editor:
@@ -59,7 +63,20 @@ Allowlisted Shippo `servicelevel.token` values are in `lib/shippo.ts` (`ALLOWLIS
 
 Each listing has a **parcel preset** (set when creating the listing): GOLF_DRIVER, IRON_SET, PUTTER, SMALL_ITEM. Dimensions are in `lib/shippo.ts` (`PARCEL_PRESET_DIMENSIONS`). When the seller creates a label, the listing’s preset is used so DPD gets accurate dimensions and weight. Unknown or null preset falls back to SMALL_ITEM.
 
+## Troubleshooting: "No shipping rates available"
+
+If label creation fails with **no shipping rates available**:
+
+1. **Sender address** – Seller must have a full postage address in **Settings → Postage** (address line 1, city, postcode, country).
+2. **Recipient address** – Buyer address must be present (collected at Stripe Checkout). For old orders without it, data cannot be backfilled from Shippo.
+3. **Parcel** – Each listing must have a parcel preset; dimensions and weight are required for rate calculation.
+4. **Carrier** – In [Shippo test mode](https://support.goshippo.com/hc/en-us/articles/360003902611-How-to-Use-Test-Mode-Account-Sandbox-in-Shippo), ensure your DPD UK carrier is enabled and (if needed) set `SHIPPO_DPD_CARRIER_ACCOUNT_ID` to that carrier’s object ID so rates are requested from it.
+5. **Fallback** – The app requests rates from all active carriers by default; specifying `SHIPPO_DPD_CARRIER_ACCOUNT_ID` limits the request to that carrier, which can help in test/sandbox.
+
+Server logs will include `[Shippo] No rates returned` with from/to postcodes and parcel weight when no rates are returned, to help debug.
+
 ## References
 
 - [Shippo API quickstart](https://docs.goshippo.com/docs/guides_general/api_quickstart/)
 - [Generate your first label](https://docs.goshippo.com/docs/guides_general/generate_shipping_label/)
+- [Shippo test mode (sandbox)](https://support.goshippo.com/hc/en-us/articles/360003902611-How-to-Use-Test-Mode-Account-Sandbox-in-Shippo)

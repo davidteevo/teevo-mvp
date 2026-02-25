@@ -6,6 +6,10 @@
 import { Shippo } from "shippo";
 
 const SHIPPO_API_TOKEN = process.env.SHIPPO_API_TOKEN;
+/** Optional: DPD UK carrier account object ID(s) from Shippo. Comma-separated for multiple. Ensures rates are requested from this carrier (helps in test mode). */
+const SHIPPO_DPD_CARRIER_ACCOUNT_IDS = process.env.SHIPPO_DPD_CARRIER_ACCOUNT_ID
+  ? process.env.SHIPPO_DPD_CARRIER_ACCOUNT_ID.split(",").map((s) => s.trim()).filter(Boolean)
+  : null;
 
 /** Shipping service selected at checkout. Only allowlisted DPD UK services are used when buying labels. */
 export const ShippingService = {
@@ -52,7 +56,10 @@ export type ShippoAddress = {
   email?: string;
 };
 
-/** Teevo user address (from users table) to Shippo address. */
+/** UK placeholder when phone is required by carrier but we don't have one. Shippo/DPD may require phone for rate quotes. */
+const UK_PHONE_PLACEHOLDER = "00000000000";
+
+/** Teevo user address (from users table) to Shippo address. Adds phone placeholder for UK so carriers return rates. */
 export function addressFromUserProfile(profile: {
   address_line1: string | null;
   address_line2?: string | null;
@@ -64,18 +71,20 @@ export function addressFromUserProfile(profile: {
   surname?: string | null;
 }): ShippoAddress {
   const country = (profile.address_country || "GB").toUpperCase().slice(0, 2);
+  const normalizedCountry = country === "UK" ? "GB" : country;
   const fullName = [profile.first_name?.trim(), profile.surname?.trim()].filter(Boolean).join(" ") || profile.display_name?.trim() || null;
   return {
     name: fullName ?? "Seller",
-    street1: profile.address_line1 ?? "",
-    street2: profile.address_line2 || undefined,
-    city: profile.address_city ?? "",
-    zip: profile.address_postcode ?? "",
-    country: country === "UK" ? "GB" : country,
+    street1: (profile.address_line1 ?? "").trim(),
+    street2: profile.address_line2?.trim() || undefined,
+    city: (profile.address_city ?? "").trim(),
+    zip: (profile.address_postcode ?? "").trim(),
+    country: normalizedCountry,
+    phone: UK_PHONE_PLACEHOLDER,
   };
 }
 
-/** Buyer shipping address (from transaction) to Shippo address. */
+/** Buyer shipping address (from transaction) to Shippo address. Adds phone placeholder for UK so carriers return rates. */
 export function addressFromBuyer(buyer: {
   name: string;
   address_line1: string;
@@ -85,13 +94,15 @@ export function addressFromBuyer(buyer: {
   address_country: string;
 }): ShippoAddress {
   const country = (buyer.address_country || "GB").toUpperCase().slice(0, 2);
+  const normalizedCountry = country === "UK" ? "GB" : country;
   return {
-    name: buyer.name,
-    street1: buyer.address_line1,
-    street2: buyer.address_line2 || undefined,
-    city: buyer.address_city,
-    zip: buyer.address_postcode,
-    country: country === "UK" ? "GB" : country,
+    name: (buyer.name || "Buyer").trim(),
+    street1: buyer.address_line1.trim(),
+    street2: buyer.address_line2?.trim() || undefined,
+    city: buyer.address_city.trim(),
+    zip: buyer.address_postcode.trim(),
+    country: normalizedCountry,
+    phone: UK_PHONE_PLACEHOLDER,
   };
 }
 
@@ -185,6 +196,10 @@ function pickAllowlistedRate(
   return null;
 }
 
+/** Error message and checklist when Shippo returns no rates. @see https://support.goshippo.com/hc/en-us/articles/360003902611 */
+const NO_RATES_HINT =
+  " Confirm sender address (Settings → Postage), recipient address (from checkout), parcel dimensions/weight (listing preset), and that your Shippo carrier (e.g. DPD UK) is active. In test mode see https://support.goshippo.com/hc/en-us/articles/360003902611";
+
 /**
  * Create a Shippo shipment, pick the first allowlisted rate for the requested service, and purchase the label.
  * Only rates in ALLOWLISTED_SERVICELEVEL_TOKENS are used; any other rate returned by Shippo (e.g. timed,
@@ -201,18 +216,34 @@ export async function createShipmentAndPurchaseLabel(
   const { preferredService = ShippingService.DPD_NEXT_DAY, parcel = DEFAULT_PARCEL } = options;
   const shippo = getShippoClient();
 
-  const shipment = await shippo.shipments.create({
+  if (!from.street1?.trim() || !from.city?.trim() || !from.zip?.trim()) {
+    throw new Error("Sender address is incomplete. Add a full postage address in Settings → Postage (line 1, city, postcode)." + NO_RATES_HINT);
+  }
+  if (!to.street1?.trim() || !to.city?.trim() || !to.zip?.trim()) {
+    throw new Error("Recipient address is incomplete. Ensure the buyer's shipping address was collected at checkout." + NO_RATES_HINT);
+  }
+  const weightKg = parseFloat(parcel.weight);
+  if (Number.isNaN(weightKg) || weightKg <= 0) {
+    throw new Error("Parcel weight is missing or invalid. Each listing must have a parcel preset with weight set." + NO_RATES_HINT);
+  }
+
+  const payload = {
     addressFrom: from,
     addressTo: to,
     parcels: [parcel],
     async: false,
+    ...(SHIPPO_DPD_CARRIER_ACCOUNT_IDS && SHIPPO_DPD_CARRIER_ACCOUNT_IDS.length > 0
+      ? { carrierAccounts: SHIPPO_DPD_CARRIER_ACCOUNT_IDS }
+      : {}),
     extra: { qr_code_requested: true },
-    // Shippo API supports qr_code_requested; SDK types may not include it
-  } as unknown as Parameters<Shippo["shipments"]["create"]>[0]);
+  } as unknown as Parameters<Shippo["shipments"]["create"]>[0];
+
+  const shipment = await shippo.shipments.create(payload);
 
   const rates = shipment.rates;
   if (!rates || rates.length === 0) {
-    throw new Error("No shipping rates available for this address. Check sender and recipient addresses.");
+    console.warn("[Shippo] No rates returned. From zip:", from.zip, "To zip:", to.zip, "Parcel weight:", parcel.weight, "kg. Carrier accounts:", SHIPPO_DPD_CARRIER_ACCOUNT_IDS ? "set" : "not set");
+    throw new Error("No shipping rates available for this address." + NO_RATES_HINT);
   }
 
   const picked = pickAllowlistedRate(rates, preferredService);
