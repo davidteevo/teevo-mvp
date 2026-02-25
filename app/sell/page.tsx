@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { createClient } from "@/lib/supabase/client";
-import { ListingForm } from "@/components/listing/ListingForm";
+import { ListingForm, type SubmitStatus } from "@/components/listing/ListingForm";
 
 const LISTINGS_BUCKET = "listings";
+const SUBMIT_TIMEOUT_MS = 120_000; // 2 min total for create + upload URLs + uploads + images
 
 const CATEGORIES = ["Driver", "Irons", "Wedges", "Putter", "Apparel", "Bag"] as const;
 const BRANDS = [
@@ -19,6 +20,8 @@ export default function SellPage() {
   const { user, role, loading } = useAuth();
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<SubmitStatus>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   if (loading) {
     return (
@@ -43,6 +46,10 @@ export default function SellPage() {
     parcelPreset: string;
     images: File[];
   }) => {
+    abortRef.current = new AbortController();
+    const signal = abortRef.current.signal;
+    const timeoutId = window.setTimeout(() => abortRef.current?.abort(), SUBMIT_TIMEOUT_MS);
+
     setSubmitting(true);
     try {
       const pricePence = Math.round(parseFloat(payload.price) * 100);
@@ -55,6 +62,7 @@ export default function SellPage() {
       }
 
       // 1. Create listing (metadata only — no image bytes through API, so no body size limit)
+      setSubmitStatus({ phase: "creating" });
       const createRes = await fetch("/api/listings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -68,6 +76,7 @@ export default function SellPage() {
           imageCount: images.length,
           parcelPreset: payload.parcelPreset || "SMALL_ITEM",
         }),
+        signal,
       });
       const createData = await createRes.json().catch(() => ({}));
       if (!createRes.ok) {
@@ -77,10 +86,12 @@ export default function SellPage() {
       if (!listingId) throw new Error("No listing id returned");
 
       // 2. Get signed upload URLs (avoids Storage RLS; server authorizes via service role)
+      setSubmitStatus({ phase: "upload_urls" });
       const urlsRes = await fetch(`/api/listings/${listingId}/upload-urls`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ count: images.length }),
+        signal,
       });
       const urlsData = await urlsRes.json().catch(() => ({}));
       if (!urlsRes.ok) {
@@ -95,7 +106,10 @@ export default function SellPage() {
       const supabase = createClient();
       const paths: string[] = [];
       const allowedExt = ["jpg", "jpeg", "png", "gif", "webp"];
+      const total = images.length;
       for (let i = 0; i < images.length; i++) {
+        if (signal.aborted) throw new Error("Upload cancelled");
+        setSubmitStatus({ phase: "uploading", current: i + 1, total });
         const file = images[i];
         if (!file?.size) continue;
         const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
@@ -119,10 +133,12 @@ export default function SellPage() {
       }
 
       // 4. Register image paths with the API
+      setSubmitStatus({ phase: "saving" });
       const imagesRes = await fetch(`/api/listings/${listingId}/images`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ paths }),
+        signal,
       });
       const imagesData = await imagesRes.json().catch(() => ({}));
       if (!imagesRes.ok) {
@@ -131,10 +147,17 @@ export default function SellPage() {
 
       router.push("/sell/success");
     } catch (e) {
-      const message = e instanceof Error ? e.message : "Something went wrong";
-      alert(message);
+      if (e instanceof Error && e.name === "AbortError") {
+        alert("Request took too long. Please check your connection and try again.");
+      } else {
+        const message = e instanceof Error ? e.message : "Something went wrong";
+        alert(message);
+      }
     } finally {
+      window.clearTimeout(timeoutId);
+      abortRef.current = null;
       setSubmitting(false);
+      setSubmitStatus(null);
     }
   };
 
@@ -151,6 +174,7 @@ export default function SellPage() {
         parcelPresets={PARCEL_PRESETS}
         onSubmit={handleSubmit}
         submitting={submitting}
+        submitStatus={submitStatus}
       />
     </div>
   );

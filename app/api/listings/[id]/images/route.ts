@@ -29,6 +29,18 @@ export async function POST(
       return NextResponse.json({ error: "Need 3–6 image paths" }, { status: 400 });
     }
 
+    // Validate every path: must be "listingId/filename" under this listing
+    const prefix = `${listingId}/`;
+    const validPaths = paths.filter(
+      (p: unknown): p is string => typeof p === "string" && p.startsWith(prefix) && p.length > prefix.length
+    );
+    if (validPaths.length !== paths.length) {
+      return NextResponse.json(
+        { error: "Invalid image path format; paths must be under this listing" },
+        { status: 400 }
+      );
+    }
+
     const admin = createAdminClient();
     const { data: listing, error: listErr } = await admin
       .from("listings")
@@ -42,14 +54,19 @@ export async function POST(
 
     await admin.from("listing_images").delete().eq("listing_id", listingId);
 
-    for (let i = 0; i < paths.length; i++) {
-      const path = paths[i];
-      if (typeof path !== "string" || !path.startsWith(`${listingId}/`)) continue;
-      await admin.from("listing_images").insert({
-        listing_id: listingId,
-        sort_order: i,
-        storage_path: path,
-      });
+    const rows = validPaths.map((storage_path: string, i: number) => ({
+      listing_id: listingId,
+      sort_order: i,
+      storage_path,
+    }));
+    const { error: insertErr } = await admin.from("listing_images").insert(rows);
+
+    if (insertErr) {
+      console.error("listing_images insert error:", insertErr);
+      return NextResponse.json(
+        { error: insertErr.message ?? "Failed to save image list" },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ ok: true });

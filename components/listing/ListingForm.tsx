@@ -10,6 +10,9 @@ export const PARCEL_PRESET_LABELS: Record<string, string> = {
   SMALL_ITEM: "Small item / accessories / clothing (~50×30×15 cm, 2 kg)",
 };
 
+export type SubmitPhase = "creating" | "upload_urls" | "uploading" | "saving";
+export type SubmitStatus = { phase: SubmitPhase; current?: number; total?: number } | null;
+
 interface ListingFormProps {
   categories: readonly string[];
   brands: readonly string[];
@@ -26,6 +29,24 @@ interface ListingFormProps {
     images: File[];
   }) => void;
   submitting: boolean;
+  submitStatus?: SubmitStatus;
+}
+
+function getStatusLabel(status: NonNullable<SubmitStatus>): string {
+  switch (status.phase) {
+    case "creating":
+      return "Creating listing…";
+    case "upload_urls":
+      return "Preparing upload…";
+    case "uploading":
+      return status.total != null && status.current != null
+        ? `Uploading image ${status.current} of ${status.total}…`
+        : "Uploading images…";
+    case "saving":
+      return "Saving…";
+    default:
+      return "Submitting…";
+  }
 }
 
 export function ListingForm({
@@ -35,6 +56,7 @@ export function ListingForm({
   parcelPresets,
   onSubmit,
   submitting,
+  submitStatus = null,
 }: ListingFormProps) {
   const [category, setCategory] = useState("");
   const [brand, setBrand] = useState("");
@@ -180,10 +202,44 @@ export function ListingForm({
           onChange={setImages}
         />
       </div>
+
+      {submitting && submitStatus && (
+        <div
+          className="rounded-xl border border-mowing-green/30 bg-mowing-green/5 p-4"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="flex items-center gap-3">
+            <span
+              className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-mowing-green/30 border-t-mowing-green"
+              aria-hidden
+            />
+            <span className="text-sm font-medium text-mowing-green">
+              {getStatusLabel(submitStatus)}
+            </span>
+          </div>
+          {submitStatus.phase === "uploading" &&
+            submitStatus.total != null &&
+            submitStatus.current != null &&
+            submitStatus.total > 0 && (
+              <div className="mt-3">
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-mowing-green/20">
+                  <div
+                    className="h-full rounded-full bg-mowing-green transition-all duration-300"
+                    style={{
+                      width: `${(100 * submitStatus.current) / submitStatus.total}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+        </div>
+      )}
+
       <button
         type="submit"
         disabled={submitting}
-        className="w-full rounded-xl bg-mowing-green text-off-white-pique py-3 font-semibold hover:opacity-90 disabled:opacity-70"
+        className="w-full rounded-xl bg-mowing-green text-off-white-pique py-3 font-semibold hover:opacity-90 disabled:opacity-70 disabled:cursor-not-allowed"
       >
         {submitting ? "Submitting…" : "Submit for verification"}
       </button>

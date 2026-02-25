@@ -54,14 +54,22 @@ export async function POST(
       const path = `${listingId}/${i}.jpg`;
       const { data: signData, error: signErr } =
         await bucket.createSignedUploadUrl(path, { upsert: true });
-      if (signErr || !signData?.token) {
+      if (signErr) {
         console.error("createSignedUploadUrl error:", signErr);
         return NextResponse.json(
-          { error: signErr?.message ?? "Failed to create upload URL" },
+          { error: signErr.message ?? "Failed to create upload URL" },
           { status: 500 }
         );
       }
-      uploads.push({ path, token: signData.token });
+      const token = signData?.token ?? (signData as { token?: string } | undefined)?.token;
+      if (!token || typeof token !== "string") {
+        console.error("createSignedUploadUrl: no token in response", signData);
+        return NextResponse.json(
+          { error: "Failed to create upload URL (no token)" },
+          { status: 500 }
+        );
+      }
+      uploads.push({ path, token });
     }
 
     return NextResponse.json({ uploads });
