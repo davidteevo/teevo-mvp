@@ -30,7 +30,7 @@ async function GridInner({
     );
   }
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
       {listings.map((listing) => (
         <ListingCard key={listing.id} listing={listing} />
       ))}
@@ -46,11 +46,11 @@ export function ListingGrid({
   return (
     <Suspense
       fallback={
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+          {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="rounded-xl border border-par-3-punch/20 bg-white/60 aspect-[1] animate-pulse"
+              className="rounded-lg border border-par-3-punch/20 bg-white/60 aspect-[3/4] animate-pulse"
             />
           ))}
         </div>

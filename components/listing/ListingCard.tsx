@@ -34,33 +34,33 @@ export function ListingCard({ listing }: { listing: ListingWithSeller }) {
   return (
     <Link
       href={`/listing/${listing.id}`}
-      className="block rounded-xl border border-par-3-punch/20 bg-white overflow-hidden hover:shadow-md transition-shadow"
+      className="block rounded-lg border border-par-3-punch/20 bg-white overflow-hidden hover:shadow-md transition-shadow"
     >
-      <div className="aspect-square relative bg-mowing-green/5">
+      <div className="aspect-[3/4] relative bg-mowing-green/5">
         <Image
           src={imageUrl}
           alt={listing.model}
           fill
           className="object-cover"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           unoptimized={!!imgPath}
         />
-        <div className="absolute top-2 right-2">
+        <div className="absolute top-1.5 right-1.5">
           <VerifiedBadge />
         </div>
       </div>
-      <div className="p-4">
-        <p className="text-xs text-mowing-green/70 uppercase tracking-wide">
+      <div className="p-2.5 sm:p-3">
+        <p className="text-[10px] sm:text-xs text-mowing-green/70 uppercase tracking-wide truncate">
           {listing.category} · {listing.brand}
         </p>
-        <h2 className="font-semibold text-mowing-green mt-1 line-clamp-2">
+        <h2 className="text-sm font-semibold text-mowing-green mt-0.5 line-clamp-2">
           {listing.model}
         </h2>
-        <p className="text-xs text-mowing-green/70 mt-1">{listing.condition}</p>
+        <p className="text-[10px] sm:text-xs text-mowing-green/70 mt-0.5 truncate">{listing.condition}</p>
         {sellerName && (
-          <p className="text-xs text-mowing-green/60 mt-1">Sold by {sellerName}</p>
+          <p className="text-[10px] sm:text-xs text-mowing-green/60 mt-0.5 truncate">Sold by {sellerName}</p>
         )}
-        <p className="mt-2 text-lg font-bold text-mowing-green">
+        <p className="mt-1.5 text-base font-bold text-mowing-green">
           {formatPrice(listing.price)}
         </p>
       </div>
