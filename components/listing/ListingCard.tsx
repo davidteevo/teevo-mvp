@@ -24,7 +24,7 @@ function sellerDisplayName(listing: ListingWithSeller): string | null {
   return name?.trim() || null;
 }
 
-export function ListingCard({ listing }: { listing: ListingWithSeller }) {
+export function ListingCard({ listing, priority }: { listing: ListingWithSeller; priority?: boolean }) {
   const imgPath = firstImage(listing);
   const sellerName = sellerDisplayName(listing);
   const imageUrl = imgPath
@@ -43,7 +43,7 @@ export function ListingCard({ listing }: { listing: ListingWithSeller }) {
           fill
           className="object-cover"
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          unoptimized={!!imgPath}
+          priority={priority}
         />
         <div className="absolute top-1.5 right-1.5">
           <VerifiedBadge />

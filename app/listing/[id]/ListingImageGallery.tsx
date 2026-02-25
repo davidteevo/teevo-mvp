@@ -51,7 +51,6 @@ export function ListingImageGallery({
           fill
           className="object-contain"
           priority
-          unoptimized
           sizes="(max-width: 1024px) 100vw, 50vw"
         />
         <div className="absolute top-3 left-3">
@@ -83,7 +82,6 @@ export function ListingImageGallery({
                 alt=""
                 fill
                 className="object-cover"
-                unoptimized
                 sizes="120px"
               />
             </button>
@@ -140,7 +138,6 @@ export function ListingImageGallery({
                 alt={alt}
                 fill
                 className="object-contain select-none"
-                unoptimized
                 sizes="600px"
                 draggable={false}
               />
@@ -165,7 +162,6 @@ export function ListingImageGallery({
                     width={48}
                     height={48}
                     className="object-cover w-full h-full"
-                    unoptimized
                   />
                 </button>
               ))}
