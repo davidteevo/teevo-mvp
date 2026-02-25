@@ -39,8 +39,12 @@ export async function POST(request: Request) {
     try {
       await createTransactionAndSendEmails(admin, session);
     } catch (err) {
+      const message = err instanceof Error ? err.message : "Processing failed";
       console.error("Stripe webhook: checkout.session.completed failed", err);
-      return NextResponse.json({ error: "Processing failed" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Processing failed", detail: message },
+        { status: 500 }
+      );
     }
   }
 
