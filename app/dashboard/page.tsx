@@ -154,18 +154,32 @@ export default function DashboardPage() {
           )}
         </Link>
         {role === "admin" && (
-          <Link
-            href="/dashboard/admin/packaging"
-            className="flex items-center gap-4 rounded-xl border border-par-3-punch/20 bg-white p-4 hover:shadow-md transition-shadow"
-          >
-            <div className="rounded-lg bg-golden-tee/20 p-3">
-              <ClipboardCheck className="h-6 w-6 text-mowing-green" />
-            </div>
-            <div>
-              <p className="font-semibold text-mowing-green">Packaging review</p>
-              <p className="text-sm text-mowing-green/70">Approve or reject seller photos (admin)</p>
-            </div>
-          </Link>
+          <>
+            <Link
+              href="/admin/listings"
+              className="flex items-center gap-4 rounded-xl border border-par-3-punch/20 bg-white p-4 hover:shadow-md transition-shadow"
+            >
+              <div className="rounded-lg bg-golden-tee/20 p-3">
+                <Package className="h-6 w-6 text-mowing-green" />
+              </div>
+              <div>
+                <p className="font-semibold text-mowing-green">Verify listings (go live)</p>
+                <p className="text-sm text-mowing-green/70">Approve items for the platform (admin)</p>
+              </div>
+            </Link>
+            <Link
+              href="/dashboard/admin/packaging"
+              className="flex items-center gap-4 rounded-xl border border-par-3-punch/20 bg-white p-4 hover:shadow-md transition-shadow"
+            >
+              <div className="rounded-lg bg-golden-tee/20 p-3">
+                <ClipboardCheck className="h-6 w-6 text-mowing-green" />
+              </div>
+              <div>
+                <p className="font-semibold text-mowing-green">Verify packaging (shipping)</p>
+                <p className="text-sm text-mowing-green/70">Approve seller photos before ship (admin)</p>
+              </div>
+            </Link>
+          </>
         )}
       </div>
     </div>

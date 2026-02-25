@@ -45,7 +45,10 @@ export default async function AdminLayout({
             Overview
           </Link>
           <Link href="/admin/listings" className="text-mowing-green font-medium hover:underline">
-            Pending listings
+            Verify listings (go live)
+          </Link>
+          <Link href="/dashboard/admin/packaging" className="text-mowing-green font-medium hover:underline">
+            Verify packaging (shipping)
           </Link>
           <Link href="/admin/listings/all" className="text-mowing-green font-medium hover:underline">
             All listings

@@ -93,9 +93,9 @@ export default function AdminPackagingPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-mowing-green">Packaging review</h1>
+      <h1 className="text-2xl font-bold text-mowing-green">Verify packaging (shipping)</h1>
       <p className="mt-1 text-mowing-green/80 text-sm">
-        Review seller packaging photos and approve or reject. Approved orders can generate a label.
+        Review seller packaging photos before shipping. Approve or reject. Approved orders can generate a label.
       </p>
       {loadingList ? (
         <div className="mt-6 text-mowing-green/70">Loading…</div>

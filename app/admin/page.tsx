@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
-import { Package, ShoppingCart, Users, TrendingUp, CheckCircle } from "lucide-react";
+import { Package, ShoppingCart, Users, TrendingUp, CheckCircle, ClipboardCheck } from "lucide-react";
 import { formatPrice } from "@/lib/format";
 
 const admin = createClient(
@@ -15,12 +15,14 @@ export default async function AdminDashboardPage() {
     txRes,
     gmvRes,
     usersRes,
+    packagingRes,
   ] = await Promise.all([
     admin.from("listings").select("id", { count: "exact", head: true }).eq("status", "pending"),
     admin.from("listings").select("id, status", { count: "exact" }),
     admin.from("transactions").select("id, amount, status", { count: "exact" }),
     admin.from("transactions").select("amount").in("status", ["complete", "shipped"]),
     admin.from("users").select("id, role", { count: "exact" }),
+    admin.from("transactions").select("id, packaging_photos").or("packaging_status.eq.SUBMITTED,packaging_status.is.null"),
   ]);
 
   const pendingCount = pendingRes.count ?? 0;
@@ -30,6 +32,10 @@ export default async function AdminDashboardPage() {
   const txCount = txRes.count ?? 0;
   const gmv = gmvRes.data?.reduce((sum, t) => sum + (t.amount ?? 0), 0) ?? 0;
   const usersCount = usersRes.count ?? 0;
+  const packagingPendingCount = (packagingRes.data ?? []).filter((t) => {
+    const photos = (t as { packaging_photos?: unknown }).packaging_photos;
+    return Array.isArray(photos) && photos.length >= 3;
+  }).length;
 
   return (
     <div>
@@ -37,16 +43,27 @@ export default async function AdminDashboardPage() {
       <p className="mt-1 text-mowing-green/80">Approve listings, monitor metrics, manage users.</p>
 
       <section className="mt-8">
-        <h2 className="text-lg font-semibold text-mowing-green mb-4">Key metrics</h2>
+        <h2 className="text-lg font-semibold text-mowing-green mb-4">Verification queue</h2>
+        <p className="text-sm text-mowing-green/70 mb-4">Listings to go live on the platform vs packaging photos to approve before shipping.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="rounded-xl border border-par-3-punch/20 bg-white p-5">
             <div className="flex items-center gap-2 text-mowing-green/70">
               <Package className="h-5 w-5" />
-              <span className="text-sm font-medium">Pending listings</span>
+              <span className="text-sm font-medium">Listings (go live)</span>
             </div>
             <p className="mt-2 text-2xl font-bold text-mowing-green">{pendingCount}</p>
             <Link href="/admin/listings" className="mt-2 inline-block text-sm text-par-3-punch hover:underline">
-              Review & approve →
+              Verify listings →
+            </Link>
+          </div>
+          <div className="rounded-xl border border-par-3-punch/20 bg-white p-5">
+            <div className="flex items-center gap-2 text-mowing-green/70">
+              <ClipboardCheck className="h-5 w-5" />
+              <span className="text-sm font-medium">Packaging (shipping)</span>
+            </div>
+            <p className="mt-2 text-2xl font-bold text-mowing-green">{packagingPendingCount}</p>
+            <Link href="/dashboard/admin/packaging" className="mt-2 inline-block text-sm text-par-3-punch hover:underline">
+              Verify packaging photos →
             </Link>
           </div>
           <div className="rounded-xl border border-par-3-punch/20 bg-white p-5">
@@ -79,7 +96,7 @@ export default async function AdminDashboardPage() {
 
       <section className="mt-8">
         <h2 className="text-lg font-semibold text-mowing-green mb-4">Quick actions</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Link
             href="/admin/listings"
             className="rounded-xl border border-par-3-punch/20 bg-white p-6 hover:shadow-md transition-shadow flex items-start gap-4"
@@ -88,8 +105,20 @@ export default async function AdminDashboardPage() {
               <Package className="h-6 w-6 text-mowing-green" />
             </div>
             <div>
-              <p className="font-semibold text-mowing-green">Approve listings</p>
-              <p className="text-sm text-mowing-green/70 mt-0.5">{pendingCount} pending</p>
+              <p className="font-semibold text-mowing-green">Verify listings (go live)</p>
+              <p className="text-sm text-mowing-green/70 mt-0.5">{pendingCount} to approve for platform</p>
+            </div>
+          </Link>
+          <Link
+            href="/dashboard/admin/packaging"
+            className="rounded-xl border border-par-3-punch/20 bg-white p-6 hover:shadow-md transition-shadow flex items-start gap-4"
+          >
+            <div className="rounded-lg bg-golden-tee/20 p-3">
+              <ClipboardCheck className="h-6 w-6 text-mowing-green" />
+            </div>
+            <div>
+              <p className="font-semibold text-mowing-green">Verify packaging (shipping)</p>
+              <p className="text-sm text-mowing-green/70 mt-0.5">{packagingPendingCount} to approve before ship</p>
             </div>
           </Link>
           <Link
