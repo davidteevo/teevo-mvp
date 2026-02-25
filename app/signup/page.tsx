@@ -81,16 +81,6 @@ function SignupForm() {
     );
   }
 
-  const handleGoogle = async () => {
-    setLoading(true);
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirect)}` },
-    });
-    setLoading(false);
-  };
-
   return (
     <div className="max-w-sm mx-auto px-4 py-12 relative">
       {loading && (
@@ -152,16 +142,6 @@ function SignupForm() {
           Sign up
         </button>
       </form>
-      <div className="mt-4">
-        <button
-          type="button"
-          onClick={handleGoogle}
-          disabled={loading}
-          className="w-full rounded-xl border border-mowing-green/30 text-mowing-green py-3 font-medium hover:bg-mowing-green/5 disabled:opacity-70 transition-opacity"
-        >
-          Continue with Google
-        </button>
-      </div>
       <p className="mt-6 text-center text-sm text-mowing-green/80">
         Already have an account?{" "}
         <Link href={`/login?redirect=${encodeURIComponent(redirect)}`} className="text-par-3-punch hover:underline">

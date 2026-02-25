@@ -4,7 +4,7 @@
 - [ ] Init Next.js app (App Router), Tailwind, TypeScript
 - [ ] Add brand colours and Teevo logo to public; configure Tailwind theme
 - [ ] Create Supabase project; run DATABASE_SCHEMA.sql; configure env (NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-- [ ] Supabase Auth: email/password sign up & sign in; optional Google provider
+- [ ] Supabase Auth: email/password sign up & sign in (email-only for MVP)
 - [ ] Sync user to public.users on signup (trigger or API); role default buyer
 - [ ] Auth middleware: protect /dashboard, /sell, /admin by role
 - [ ] Layout: Header (logo, nav), Footer, TrustStrip

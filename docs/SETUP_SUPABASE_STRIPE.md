@@ -62,14 +62,10 @@ Create a second bucket for user profile pictures: **Storage** → **New bucket**
 2. **Email:**  
    - Ensure **Email** is **Enabled**.  
    - Optionally disable “Confirm email” for faster local testing (re-enable for production).
-3. **Google (optional):**  
-   - Enable **Google**.  
-   - You’ll need a Google Cloud OAuth client (Client ID and Secret).  
-   - In Google Cloud Console: create OAuth 2.0 credentials (Web application), add authorised redirect URI:  
-     `https://<YOUR_SUPABASE_PROJECT_REF>.supabase.co/auth/v1/callback`.  
-   - Paste Client ID and Secret into Supabase Google provider and Save.
+3. **Google (skip for MVP):**  
+   The app uses email-only auth for the MVP. You can leave the Google provider disabled. To add Google later, enable it in Supabase and create OAuth 2.0 credentials in Google Cloud Console with redirect URI `https://<YOUR_SUPABASE_PROJECT_REF>.supabase.co/auth/v1/callback`.
 
-**Redirect URLs (for OAuth):**  
+**Redirect URLs:**  
 Under **Authentication** → **URL Configuration**, set:
 
 - **Site URL:** your app URL (e.g. `http://localhost:3000` for dev, or `https://your-domain.com` for prod).
@@ -78,7 +74,7 @@ Under **Authentication** → **URL Configuration**, set:
   - `http://localhost:3000/**`
   - And your production URL + `/auth/callback` and `https://your-domain.com/**` when you deploy.
 
-This lets Supabase redirect back to your app after login/signup and after Google OAuth.
+This lets Supabase redirect back to your app after login/signup.
 
 ---
 
@@ -250,7 +246,7 @@ In production set `NEXT_PUBLIC_APP_URL` to your real domain (e.g. `https://teevo
 
 - [ ] Project created and schema run (`docs/DATABASE_SCHEMA.sql`)
 - [ ] Storage bucket `listings` created and set to **Public**
-- [ ] Email auth enabled; Google optional
+- [ ] Email auth enabled (email-only for MVP)
 - [ ] Redirect URLs include `.../auth/callback` and `.../**` for your app URL
 - [ ] `.env.local` has `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
 - [ ] First user created in the app, then promoted to admin via SQL

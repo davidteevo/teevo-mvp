@@ -19,7 +19,7 @@ Liquidity-first MVP for a UK-based golf equipment marketplace. Sellers list item
    - Create a project at [supabase.com](https://supabase.com).
    - Run the SQL in `docs/DATABASE_SCHEMA.sql` in the SQL Editor.
    - Create a storage bucket named `listings` and set it to **public** (or add a policy to allow public read for listing images).
-   - In Authentication → Providers, enable Email and optionally Google.
+   - In Authentication → Providers, enable Email (email-only for MVP).
    - Copy project URL and anon key; create a service role key for server-side admin and webhooks.
 
 3. **Stripe**

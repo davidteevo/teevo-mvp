@@ -109,7 +109,7 @@ Add the same variables you use in `.env.local`:
    - `https://app.teevo.com/auth/callback`
    - `https://app.teevo.com/**`
 
-Save. This lets login/signup and Google OAuth redirect back to your Netlify site.
+Save. This lets login/signup redirect back to your Netlify site.
 
 **For local development:** Add to Redirect URLs: `http://localhost:3000/auth/callback` and `http://localhost:3000/**`. Use a copy of `.env.example` as `.env.local` with your Supabase and Stripe keys; set `NEXT_PUBLIC_APP_URL=http://localhost:3000`. Then `npm run dev` and open http://localhost:3000 and http://localhost:3000/admin.
 
