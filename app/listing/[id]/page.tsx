@@ -108,6 +108,10 @@ export default async function ListingPage({
               <span className="inline-flex items-center rounded-full bg-mowing-green/20 text-mowing-green px-3 py-1 text-xs font-medium">
                 You purchased this item
               </span>
+            ) : listing.status === "sold" ? (
+              <span className="inline-flex items-center rounded-full bg-mowing-green/20 text-mowing-green px-3 py-1 text-xs font-medium">
+                {user?.id === listing.user_id ? "You sold this item" : "Sold"}
+              </span>
             ) : (
               <>
                 <span className="inline-flex items-center rounded-full bg-par-3-punch/20 text-mowing-green px-3 py-1 text-xs font-medium">
@@ -129,7 +133,7 @@ export default async function ListingPage({
             </div>
           )}
 
-          {!isPurchasedView && (
+          {!isPurchasedView && listing.status !== "sold" && (
             <div className="mt-8">
               <BuyButton
                 listingId={listing.id}
