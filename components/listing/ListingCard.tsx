@@ -4,6 +4,11 @@ import type { Listing } from "@/types/database";
 import { VerifiedBadge } from "@/components/trust/VerifiedBadge";
 import { formatPrice } from "@/lib/format";
 
+/** Listing optionally with joined seller display name (from users relation). Supabase returns users as array for the join. */
+type ListingWithSeller = Listing & {
+  users?: { display_name?: string | null }[] | { display_name?: string | null } | null;
+};
+
 function firstImage(listing: Listing): string | null {
   const images = listing.listing_images;
   if (!images?.length) return null;
@@ -11,8 +16,17 @@ function firstImage(listing: Listing): string | null {
   return sorted[0]?.storage_path ?? null;
 }
 
-export function ListingCard({ listing }: { listing: Listing }) {
+function sellerDisplayName(listing: ListingWithSeller): string | null {
+  const u = listing.users;
+  if (!u) return null;
+  const first = Array.isArray(u) ? u[0] : u;
+  const name = first && typeof first === "object" && "display_name" in first ? first.display_name : null;
+  return name?.trim() || null;
+}
+
+export function ListingCard({ listing }: { listing: ListingWithSeller }) {
   const imgPath = firstImage(listing);
+  const sellerName = sellerDisplayName(listing);
   const imageUrl = imgPath
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listings/${imgPath}`
     : "/placeholder-listing.svg";
@@ -43,6 +57,9 @@ export function ListingCard({ listing }: { listing: Listing }) {
           {listing.model}
         </h2>
         <p className="text-xs text-mowing-green/70 mt-1">{listing.condition}</p>
+        {sellerName && (
+          <p className="text-xs text-mowing-green/60 mt-1">Sold by {sellerName}</p>
+        )}
         <p className="mt-2 text-lg font-bold text-mowing-green">
           {formatPrice(listing.price)}
         </p>

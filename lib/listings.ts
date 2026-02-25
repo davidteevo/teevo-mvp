@@ -20,7 +20,7 @@ async function getVerifiedListingsUncached(filters?: Filters) {
   let query = supabase
     .from("listings")
     .select(
-      "id, user_id, category, brand, model, condition, description, price, status, flagged, created_at, updated_at, listing_images ( id, storage_path, sort_order )"
+      "id, user_id, category, brand, model, condition, description, price, status, flagged, created_at, updated_at, listing_images ( id, storage_path, sort_order ), users ( display_name )"
     )
     .eq("status", "verified")
     .order("created_at", { ascending: false })

@@ -54,13 +54,15 @@ export default async function ListingPage({
     calcOrderBreakdown(listing.price);
 
   let sellerCanAcceptPayment = false;
-  if (!isPurchasedView) {
-    const { data: seller } = await admin
-      .from("users")
-      .select("stripe_account_id")
-      .eq("id", listing.user_id)
-      .single();
-    if (seller?.stripe_account_id) {
+  let sellerDisplayName: string | null = null;
+  const { data: seller } = await admin
+    .from("users")
+    .select("stripe_account_id, display_name")
+    .eq("id", listing.user_id)
+    .single();
+  if (seller) {
+    sellerDisplayName = seller.display_name?.trim() || null;
+    if (!isPurchasedView && seller.stripe_account_id) {
       try {
         const account = await stripe.accounts.retrieve(seller.stripe_account_id);
         sellerCanAcceptPayment = account.payouts_enabled === true;
@@ -85,6 +87,11 @@ export default async function ListingPage({
             {listing.model}
           </h1>
           <p className="text-mowing-green/80 mt-2">{listing.condition}</p>
+          {sellerDisplayName && (
+            <p className="mt-3 text-sm text-mowing-green/80">
+              Sold by <span className="font-medium text-mowing-green">{sellerDisplayName}</span>
+            </p>
+          )}
           <p className="mt-4 text-3xl font-bold text-mowing-green">
             {formatPence(itemPence)}
           </p>
