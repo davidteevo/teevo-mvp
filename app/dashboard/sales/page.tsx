@@ -484,7 +484,7 @@ export default function DashboardSalesPage() {
                           {creatingLabelId === t.id ? "Creating…" : "Generate QR/Label"}
                         </button>
                       )}
-                    {t.status === "pending" && (
+                    {t.status === "pending" && t.shippo_label_url && (
                       <button
                         type="button"
                         onClick={() => markShipped(t.id)}

@@ -29,7 +29,9 @@ export default function AdminPackagingPage() {
   useEffect(() => {
     if (!user) return;
     setForbidden(false);
-    fetch("/api/admin/packaging-pending")
+    fetch("/api/admin/packaging-pending", {
+      headers: { "X-Debug-Packaging": "1a0940" },
+    })
       .then((r) => {
         if (r.status === 403) {
           setForbidden(true);
@@ -37,7 +39,31 @@ export default function AdminPackagingPage() {
         }
         return r.json();
       })
-      .then((data) => setList(data.transactions ?? []))
+      .then((data) => {
+        const transactions = data.transactions ?? [];
+        if (data._debug) {
+          console.log("[packaging-pending _debug]", data._debug);
+        }
+        // #region agent log
+        fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "1a0940" },
+          body: JSON.stringify({
+            sessionId: "1a0940",
+            location: "admin/packaging/page.tsx",
+            message: "packaging-pending response received",
+            data: {
+              listLength: transactions.length,
+              firstPhotoUrlsLength: transactions[0]?.photoUrls?.length ?? null,
+              firstHasPhotoUrls: !!transactions[0]?.photoUrls,
+              _debug: data._debug,
+            },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {});
+        // #endregion
+        setList(transactions);
+      })
       .catch(() => setList([]))
       .finally(() => setLoadingList(false));
   }, [user]);
