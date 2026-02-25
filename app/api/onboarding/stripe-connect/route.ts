@@ -23,7 +23,7 @@ export async function POST(request: Request) {
   const admin = createAdminClient();
   const { data: profile } = await admin
     .from("users")
-    .select("stripe_account_id, role, address_line1, address_line2, address_city, address_postcode, address_country, date_of_birth")
+    .select("stripe_account_id, role, first_name, surname, address_line1, address_line2, address_city, address_postcode, address_country, date_of_birth")
     .eq("id", user.id)
     .single();
 
@@ -53,6 +53,13 @@ export async function POST(request: Request) {
       }
     }
 
+    const hasName = profile?.first_name?.trim() || profile?.surname?.trim();
+    const individual: { first_name?: string; last_name?: string; address?: typeof address; dob?: typeof dob } = {};
+    if (profile?.first_name?.trim()) individual.first_name = profile.first_name.trim();
+    if (profile?.surname?.trim()) individual.last_name = profile.surname.trim();
+    if (address) individual.address = address;
+    if (dob) individual.dob = dob;
+
     const appUrl = process.env.NEXT_PUBLIC_APP_URL;
     const account = await stripe.accounts.create({
       type: "express",
@@ -63,7 +70,7 @@ export async function POST(request: Request) {
         product_description: "Selling pre-owned golf equipment as an individual on Teevo.",
         ...(appUrl ? { url: appUrl } : {}),
       },
-      ...(address || dob ? { individual: { ...(address && { address }), ...(dob && { dob }) } } : {}),
+      ...(hasName || address || dob ? { individual } : {}),
     });
     accountId = account.id;
     const updated_at = new Date().toISOString();

@@ -1,6 +1,7 @@
 import { Webhook } from "standardwebhooks";
 import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "") ?? "";
 
@@ -22,8 +23,8 @@ type HookPayload = {
   };
 };
 
-/** Safe first name for greeting; user_metadata.name can be non-string. */
-function getFirstName(user: HookPayload["user"]): string {
+/** Safe first name for greeting; prefers profile first_name, then user_metadata.name. */
+function getFirstNameFromMetadata(user: HookPayload["user"]): string {
   const name = user.user_metadata?.name;
   return String(name ?? "").trim().split(/\s+/)[0] || "there";
 }
@@ -83,8 +84,20 @@ export async function POST(request: Request) {
     );
   }
 
+  let firstName: string;
+  try {
+    const admin = createAdminClient();
+    const { data: profile } = await admin
+      .from("users")
+      .select("first_name")
+      .eq("id", user.id)
+      .maybeSingle();
+    firstName = profile?.first_name?.trim() || getFirstNameFromMetadata(user);
+  } catch {
+    firstName = getFirstNameFromMetadata(user);
+  }
+
   const { token_hash, redirect_to, email_action_type, token_new, token_hash_new } = email_data;
-  const firstName = getFirstName(user);
 
   const buildVerifyUrl = (hash: string, type: string) =>
     `${supabaseUrl}/auth/v1/verify?token=${encodeURIComponent(hash)}&type=${encodeURIComponent(type)}&redirect_to=${encodeURIComponent(redirect_to)}`;

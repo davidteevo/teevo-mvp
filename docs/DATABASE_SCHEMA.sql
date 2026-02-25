@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS public.users (
   stripe_account_id TEXT,
   avatar_path TEXT,
   display_name TEXT,
+  first_name TEXT,
+  surname TEXT,
   location TEXT,
   handicap INT CHECK (handicap IS NULL OR (handicap >= 0 AND handicap <= 54)),
   handed TEXT CHECK (handed IS NULL OR handed IN ('left', 'right')),

@@ -19,6 +19,8 @@ export default function ProfilePage() {
   const { user, profile, loading: authLoading, refreshProfile } = useAuth();
   const router = useRouter();
   const [displayName, setDisplayName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [surname, setSurname] = useState("");
   const [location, setLocation] = useState("");
   const [handicap, setHandicap] = useState("");
   const [handed, setHanded] = useState<"left" | "right" | "">("");
@@ -45,6 +47,8 @@ export default function ProfilePage() {
   useEffect(() => {
     if (profile) {
       setDisplayName(profile.display_name ?? "");
+      setFirstName(profile.first_name ?? "");
+      setSurname(profile.surname ?? "");
       setLocation(profile.location ?? "");
       setHandicap(profile.handicap != null ? String(profile.handicap) : "");
       setHanded(profile.handed ?? "");
@@ -61,6 +65,8 @@ export default function ProfilePage() {
         if (cancelled || !data?.profile) return;
         const p = data.profile;
         setDisplayName(p.display_name ?? "");
+        setFirstName(p.first_name ?? "");
+        setSurname(p.surname ?? "");
         setLocation(p.location ?? "");
         setHandicap(p.handicap != null ? String(p.handicap) : "");
         setHanded(p.handed ?? "");
@@ -79,6 +85,8 @@ export default function ProfilePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           display_name: displayName.trim() || null,
+          first_name: firstName.trim() || null,
+          surname: surname.trim() || null,
           location: location.trim() || null,
           handicap: handicap === "" ? null : Math.min(54, Math.max(0, parseInt(handicap, 10) || 0)),
           handed: handed || null,
@@ -216,6 +224,37 @@ export default function ProfilePage() {
             placeholder="e.g. Alex"
             className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
           />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="first_name" className="block text-sm font-medium text-mowing-green mb-1">
+              First name
+            </label>
+            <input
+              id="first_name"
+              type="text"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="e.g. Alex"
+              className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
+            />
+            <p className="text-xs text-mowing-green/60 mt-0.5">Used in emails and Stripe.</p>
+          </div>
+          <div>
+            <label htmlFor="surname" className="block text-sm font-medium text-mowing-green mb-1">
+              Surname
+            </label>
+            <input
+              id="surname"
+              type="text"
+              value={surname}
+              onChange={(e) => setSurname(e.target.value)}
+              placeholder="e.g. Smith"
+              className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
+            />
+            <p className="text-xs text-mowing-green/60 mt-0.5">Used on shipping labels and Stripe.</p>
+          </div>
         </div>
 
         <div>

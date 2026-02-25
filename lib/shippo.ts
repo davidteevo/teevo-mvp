@@ -60,10 +60,13 @@ export function addressFromUserProfile(profile: {
   address_postcode: string | null;
   address_country: string | null;
   display_name?: string | null;
+  first_name?: string | null;
+  surname?: string | null;
 }): ShippoAddress {
   const country = (profile.address_country || "GB").toUpperCase().slice(0, 2);
+  const fullName = [profile.first_name?.trim(), profile.surname?.trim()].filter(Boolean).join(" ") || profile.display_name?.trim() || null;
   return {
-    name: profile.display_name ?? "Seller",
+    name: fullName ?? "Seller",
     street1: profile.address_line1 ?? "",
     street2: profile.address_line2 || undefined,
     city: profile.address_city ?? "",

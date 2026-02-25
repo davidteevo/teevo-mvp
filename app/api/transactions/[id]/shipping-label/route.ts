@@ -61,7 +61,7 @@ export async function POST(
 
     const { data: seller } = await admin
       .from("users")
-      .select("address_line1, address_line2, address_city, address_postcode, address_country, display_name")
+      .select("address_line1, address_line2, address_city, address_postcode, address_country, display_name, first_name, surname")
       .eq("id", user.id)
       .single();
 

@@ -26,6 +26,8 @@ export interface User {
   stripe_account_id: string | null;
   avatar_path: string | null;
   display_name: string | null;
+  first_name: string | null;
+  surname: string | null;
   location: string | null;
   handicap: number | null;
   handed: "left" | "right" | null;
