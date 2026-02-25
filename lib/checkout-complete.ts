@@ -93,12 +93,17 @@ export async function createTransactionAndSendEmails(
       address_country: addr.country?.trim() || null,
       updated_at: new Date().toISOString(),
     };
-    await admin
-      .from("users")
-      .update(buyerAddressUpdates)
-      .eq("id", buyerId)
-      .then(() => {})
-      .catch((e) => console.error("Failed to update buyer profile address from Stripe", e));
+    try {
+      const { error } = await admin
+        .from("users")
+        .update(buyerAddressUpdates)
+        .eq("id", buyerId);
+      if (error) {
+        console.error("Failed to update buyer profile address from Stripe", error);
+      }
+    } catch (e) {
+      console.error("Failed to update buyer profile address from Stripe", e);
+    }
   }
 
   await admin.from("listings").update({ status: "sold", updated_at: new Date().toISOString() }).eq("id", listingId);
