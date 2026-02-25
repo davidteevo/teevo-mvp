@@ -39,11 +39,11 @@ export async function POST(
     if (txErr || !tx) {
       return NextResponse.json({ error: "Transaction not found" }, { status: 404 });
     }
-    if (tx.packaging_status !== PackagingStatus.SUBMITTED) {
-      return NextResponse.json(
-        { error: tx.packaging_status === PackagingStatus.VERIFIED ? "Already verified" : "Not submitted for review" },
-        { status: 400 }
-      );
+    if (tx.packaging_status === PackagingStatus.VERIFIED) {
+      return NextResponse.json({ error: "Already verified" }, { status: 400 });
+    }
+    if (tx.packaging_status !== PackagingStatus.SUBMITTED && tx.packaging_status != null) {
+      return NextResponse.json({ error: "Not submitted for review" }, { status: 400 });
     }
 
     const now = new Date().toISOString();

@@ -77,7 +77,7 @@ export async function POST(
       );
     }
 
-    await admin
+    const { error: updateErr } = await admin
       .from("transactions")
       .update({
         packaging_photos: paths,
@@ -90,6 +90,14 @@ export async function POST(
         updated_at: new Date().toISOString(),
       })
       .eq("id", transactionId);
+
+    if (updateErr) {
+      console.error("Packaging submit update error:", updateErr);
+      return NextResponse.json(
+        { error: updateErr.message ?? "Failed to save" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ ok: true });
   } catch (e) {

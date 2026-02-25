@@ -31,18 +31,25 @@ export async function GET() {
     const { data: rows, error } = await admin
       .from("transactions")
       .select(
-        "id, listing_id, created_at, packaging_photos, listing:listings(model, category, brand)"
+        "id, listing_id, created_at, packaging_photos, packaging_status, listing:listings(model, category, brand)"
       )
-      .eq("packaging_status", PackagingStatus.SUBMITTED)
+      .or("packaging_status.eq.SUBMITTED,packaging_status.is.null")
       .order("created_at", { ascending: false });
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    const pending = (rows ?? []).filter((tx) => {
+      const paths = Array.isArray((tx as { packaging_photos?: unknown }).packaging_photos)
+        ? (tx as { packaging_photos: string[] }).packaging_photos
+        : [];
+      return paths.length >= 3;
+    });
+
     const bucket = admin.storage.from(BUCKET);
     const withUrls = await Promise.all(
-      (rows ?? []).map(async (tx: { id: string; listing_id: string; packaging_photos?: string[]; listing?: unknown; created_at: string }) => {
+      pending.map(async (tx: { id: string; listing_id: string; packaging_photos?: string[]; listing?: unknown; created_at: string }) => {
         const rawPaths = Array.isArray(tx.packaging_photos) ? tx.packaging_photos : [];
         const paths = rawPaths.map((p) => (typeof p === "string" && p.startsWith("/") ? p.slice(1) : p));
         const photoUrls: string[] = [];
