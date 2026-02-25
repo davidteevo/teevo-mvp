@@ -30,6 +30,7 @@ function WelcomeContent() {
     }
     setError("");
     setSaving(true);
+    let navigated = false;
     try {
       const res = await fetch("/api/user/profile", {
         method: "PATCH",
@@ -41,15 +42,17 @@ function WelcomeContent() {
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
-        await refreshProfile();
+        navigated = true;
+        // Navigate immediately so we don't stick if refreshProfile() is slow or hangs
         router.replace(nextPath);
+        refreshProfile(); // fire-and-forget so payouts page has fresh profile when needed
         return;
       }
       setError(data.error ?? "Something went wrong");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
-      setSaving(false);
+      if (!navigated) setSaving(false);
     }
   };
 

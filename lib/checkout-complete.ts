@@ -83,6 +83,24 @@ export async function createTransactionAndSendEmails(
     throw new Error(insertErr?.message ?? "Transaction insert failed");
   }
 
+  // Persist buyer's Stripe checkout address to their profile (Settings → Postage) when we have it
+  if (buyerId && addr?.line1?.trim() && (addr?.city?.trim() || addr?.postal_code?.trim() || addr?.country?.trim())) {
+    const buyerAddressUpdates: Record<string, string | null> = {
+      address_line1: addr.line1.trim(),
+      address_line2: addr.line2?.trim() || null,
+      address_city: addr.city?.trim() || null,
+      address_postcode: addr.postal_code?.trim() || null,
+      address_country: addr.country?.trim() || null,
+      updated_at: new Date().toISOString(),
+    };
+    await admin
+      .from("users")
+      .update(buyerAddressUpdates)
+      .eq("id", buyerId)
+      .then(() => {})
+      .catch((e) => console.error("Failed to update buyer profile address from Stripe", e));
+  }
+
   await admin.from("listings").update({ status: "sold", updated_at: new Date().toISOString() }).eq("id", listingId);
 
   const txId = newTx.id;

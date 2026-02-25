@@ -31,7 +31,7 @@ export function OnboardingStripeBanner({ className = "" }: { className?: string 
         }),
       });
       const data = await res.json();
-      if (data.url) window.open(data.url, "_blank", "noopener,noreferrer");
+      if (data.url) window.location.href = data.url;
       else alert(data.error ?? "Could not start onboarding");
     } catch {
       alert("Something went wrong");

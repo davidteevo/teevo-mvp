@@ -63,7 +63,8 @@ export function PayoutsContent() {
       });
       const data = await res.json();
       if (data.url) {
-        window.open(data.url, "_blank", "noopener,noreferrer");
+        // Same-tab navigation so the link isn't blocked by popup blockers (async fetch breaks user-gesture)
+        window.location.href = data.url;
         return;
       }
       setError(data.error ?? "Could not start onboarding");
