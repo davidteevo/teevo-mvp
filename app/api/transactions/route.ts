@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +16,9 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const role = searchParams.get("role"); // buyer | seller
 
-  let query = supabase
+  // Use admin client so the join to listings returns data for sold listings (RLS otherwise blocks buyers from reading sold listings).
+  const admin = createAdminClient();
+  let query = admin
     .from("transactions")
     .select(
       "id, listing_id, buyer_id, seller_id, amount, status, shipped_at, completed_at, created_at, shippo_label_url, shippo_qr_code_url, shippo_tracking_number, fulfilment_status, shipping_package, box_fee_gbp, box_type, shipping_service, shipping_fee_gbp, packaging_photos, packaging_status, packaging_review_notes, review_notes, reviewed_by, reviewed_at, listing:listings(model, category, brand, listing_images(storage_path, sort_order))"
