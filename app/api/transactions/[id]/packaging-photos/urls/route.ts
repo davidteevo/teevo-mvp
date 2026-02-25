@@ -42,7 +42,8 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const paths = Array.isArray(tx.packaging_photos) ? (tx.packaging_photos as string[]) : [];
+    const rawPaths = Array.isArray(tx.packaging_photos) ? (tx.packaging_photos as string[]) : [];
+    const paths = rawPaths.map((p) => (typeof p === "string" && p.startsWith("/") ? p.slice(1) : p)).filter(Boolean);
     if (paths.length === 0) {
       return NextResponse.json({ urls: [] });
     }

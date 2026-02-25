@@ -79,9 +79,11 @@ export async function GET(request: NextRequest) {
     const bucket = admin.storage.from(BUCKET);
     const withUrls = await Promise.all(
       (rows ?? []).map(async (tx: { id: string; listing_id: string; packaging_photos?: string[]; listing?: unknown; created_at: string }) => {
-        const paths = Array.isArray(tx.packaging_photos) ? tx.packaging_photos : [];
+        const rawPaths = Array.isArray(tx.packaging_photos) ? tx.packaging_photos : [];
+        const paths = rawPaths.map((p) => (typeof p === "string" && p.startsWith("/") ? p.slice(1) : p));
         const photoUrls: string[] = [];
         for (const path of paths) {
+          if (!path || typeof path !== "string") continue;
           const { data: signData, error: signErr } = await bucket.createSignedUrl(path, EXPIRY_SEC);
           // #region agent log
           if (tx.id === (rows?.[0] as { id: string } | undefined)?.id && photoUrls.length === 0 && paths.length > 0) {
@@ -115,10 +117,12 @@ export async function GET(request: NextRequest) {
     const resPayload: { transactions: typeof withUrls; _debug?: Record<string, unknown> } = { transactions: withUrls };
     const debugHeader = request.headers.get("X-Debug-Packaging");
     if (debugHeader === "1a0940") {
+      const firstUrl = withUrls[0]?.photoUrls?.[0];
       resPayload._debug = {
         rowCount: rows?.length ?? 0,
         firstRowPackagingPhotos: rows?.[0] ? (rows[0] as { packaging_photos?: unknown }).packaging_photos : null,
         firstPhotoUrlsLength: withUrls[0]?.photoUrls?.length ?? 0,
+        firstSignedUrlPrefix: firstUrl ? firstUrl.slice(0, 80) + "…" : null,
       };
     }
     return NextResponse.json(resPayload);
