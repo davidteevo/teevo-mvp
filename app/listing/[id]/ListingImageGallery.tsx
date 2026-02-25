@@ -49,7 +49,7 @@ export function ListingImageGallery({
           src={mainUrl}
           alt={alt}
           fill
-          className="object-cover"
+          className="object-contain"
           priority
           unoptimized
           sizes="(max-width: 1024px) 100vw, 50vw"
