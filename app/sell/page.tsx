@@ -115,11 +115,17 @@ export default function SellPage() {
         const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
         if (!allowedExt.includes(ext)) continue;
         const { path, token } = uploads[i];
+        // #region agent log
+        fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"1d9b73"},body:JSON.stringify({sessionId:"1d9b73",runId:"upload",hypothesisId:"H1_H3_H5",location:"sell/page.tsx:upload-loop",message:"before uploadToSignedUrl",data:{index:i,path:path,hasToken:!!token,tokenLen:typeof token==="string"?token.length:0,fileSize:file?.size,signalAborted:signal.aborted},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
         const { error: uploadErr } = await supabase.storage
           .from(LISTINGS_BUCKET)
           .uploadToSignedUrl(path, token, file, {
             contentType: file.type || "image/jpeg",
           });
+        // #region agent log
+        fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"1d9b73"},body:JSON.stringify({sessionId:"1d9b73",runId:"upload",hypothesisId:"H1_H2",location:"sell/page.tsx:after-upload",message:"uploadToSignedUrl returned",data:{index:i,hasError:!!uploadErr,errorMessage:uploadErr?.message ?? null},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
         if (uploadErr) {
           throw new Error(
             uploadErr.message ?? `Image ${i + 1} upload failed. Try again.`
@@ -147,12 +153,28 @@ export default function SellPage() {
 
       router.push("/sell/success");
     } catch (e) {
-      if (e instanceof Error && e.name === "AbortError") {
-        alert("Request took too long. Please check your connection and try again.");
+      // #region agent log
+      fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"1d9b73"},body:JSON.stringify({sessionId:"1d9b73",runId:"upload",hypothesisId:"H2",location:"sell/page.tsx:catch",message:"handleSubmit catch",data:{name:e instanceof Error?e.name:"",message:e instanceof Error?e.message:String(e)},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
+      let message: string;
+      if (e instanceof Error) {
+        if (e.name === "AbortError") {
+          message = "Request took too long. Please check your connection and try again.";
+        } else if (
+          e.name === "TypeError" ||
+          e.message === "Failed to fetch" ||
+          e.message === "Load failed" ||
+          /network|fetch|load failed/i.test(e.message)
+        ) {
+          message =
+            "Couldn't reach the server. Check your connection and try again. If it keeps happening, the site may be temporarily unavailable.";
+        } else {
+          message = e.message;
+        }
       } else {
-        const message = e instanceof Error ? e.message : "Something went wrong";
-        alert(message);
+        message = "Something went wrong. Please try again.";
       }
+      alert(message);
     } finally {
       window.clearTimeout(timeoutId);
       abortRef.current = null;
