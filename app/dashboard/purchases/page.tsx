@@ -40,10 +40,15 @@ export default function DashboardPurchasesPage() {
 
   useEffect(() => {
     if (!user) return;
-    fetch("/api/transactions?role=buyer")
-      .then((r) => r.json())
-      .then((data) => setTransactions(data.transactions ?? []))
-      .catch(() => setTransactions([]));
+    const fetchTransactions = () => {
+      fetch("/api/transactions?role=buyer")
+        .then((r) => r.json())
+        .then((data) => setTransactions(data.transactions ?? []))
+        .catch(() => setTransactions([]));
+    };
+    fetchTransactions();
+    window.addEventListener("focus", fetchTransactions);
+    return () => window.removeEventListener("focus", fetchTransactions);
   }, [user]);
 
   const formatDateTime = (iso: string) => {

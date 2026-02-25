@@ -29,10 +29,15 @@ export default function DashboardListingsPage() {
 
   useEffect(() => {
     if (!user) return;
-    fetch("/api/listings/mine")
-      .then((r) => r.json())
-      .then((data) => setListings(data.listings ?? []))
-      .catch(() => setListings([]));
+    const fetchListings = () => {
+      fetch("/api/listings/mine")
+        .then((r) => r.json())
+        .then((data) => setListings(data.listings ?? []))
+        .catch(() => setListings([]));
+    };
+    fetchListings();
+    window.addEventListener("focus", fetchListings);
+    return () => window.removeEventListener("focus", fetchListings);
   }, [user]);
 
   if (loading || !user) {

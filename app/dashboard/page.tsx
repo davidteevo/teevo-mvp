@@ -1,21 +1,40 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { OnboardingStripeBanner } from "@/components/dashboard/OnboardingStripeBanner";
 import { ClipboardCheck, Package, PlusCircle, ShoppingBag, ShoppingCart, TrendingUp, User } from "lucide-react";
 
+type DashboardCounts = { listings: number; sales: number; purchases: number } | null;
+
 export default function DashboardPage() {
   const { user, profile, role, loading, refreshProfile } = useAuth();
   const router = useRouter();
+  const [counts, setCounts] = useState<DashboardCounts>(null);
 
   useEffect(() => {
     if (!loading && !user) {
       router.replace(`/login?redirect=${encodeURIComponent("/dashboard")}`);
     }
   }, [user, loading, router]);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchCounts = () => {
+      Promise.all([
+        fetch("/api/listings/mine").then((r) => r.json().then((d) => (d.listings ?? []).length)),
+        fetch("/api/transactions?role=seller").then((r) => r.json().then((d) => (d.transactions ?? []).length)),
+        fetch("/api/transactions?role=buyer").then((r) => r.json().then((d) => (d.transactions ?? []).length)),
+      ])
+        .then(([listings, sales, purchases]) => setCounts({ listings, sales, purchases }))
+        .catch(() => setCounts(null));
+    };
+    fetchCounts();
+    window.addEventListener("focus", fetchCounts);
+    return () => window.removeEventListener("focus", fetchCounts);
+  }, [user]);
 
   // After Stripe redirect (?stripe=return), force-refresh profile so avatar and info load reliably
   useEffect(() => {
@@ -85,39 +104,54 @@ export default function DashboardPage() {
         </Link>
         <Link
           href="/dashboard/listings"
-          className="flex items-center gap-4 rounded-xl border border-par-3-punch/20 bg-white p-4 hover:shadow-md transition-shadow"
+          className="flex items-center gap-4 rounded-xl border border-par-3-punch/20 bg-white p-4 hover:shadow-md transition-shadow relative"
         >
           <div className="rounded-lg bg-par-3-punch/20 p-3">
             <Package className="h-6 w-6 text-mowing-green" />
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="font-semibold text-mowing-green">My listings</p>
             <p className="text-sm text-mowing-green/70">View and manage your items</p>
           </div>
+          {counts != null && counts.listings > 0 && (
+            <span className="shrink-0 rounded-full bg-mowing-green/20 text-mowing-green px-2.5 py-0.5 text-sm font-medium">
+              {counts.listings}
+            </span>
+          )}
         </Link>
         <Link
           href="/dashboard/sales"
-          className="flex items-center gap-4 rounded-xl border border-par-3-punch/20 bg-white p-4 hover:shadow-md transition-shadow"
+          className="flex items-center gap-4 rounded-xl border border-par-3-punch/20 bg-white p-4 hover:shadow-md transition-shadow relative"
         >
           <div className="rounded-lg bg-par-3-punch/20 p-3">
             <TrendingUp className="h-6 w-6 text-mowing-green" />
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="font-semibold text-mowing-green">Sales</p>
             <p className="text-sm text-mowing-green/70">Mark shipped, get paid</p>
           </div>
+          {counts != null && counts.sales > 0 && (
+            <span className="shrink-0 rounded-full bg-mowing-green/20 text-mowing-green px-2.5 py-0.5 text-sm font-medium">
+              {counts.sales}
+            </span>
+          )}
         </Link>
         <Link
           href="/dashboard/purchases"
-          className="flex items-center gap-4 rounded-xl border border-par-3-punch/20 bg-white p-4 hover:shadow-md transition-shadow"
+          className="flex items-center gap-4 rounded-xl border border-par-3-punch/20 bg-white p-4 hover:shadow-md transition-shadow relative"
         >
           <div className="rounded-lg bg-par-3-punch/20 p-3">
             <ShoppingBag className="h-6 w-6 text-mowing-green" />
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="font-semibold text-mowing-green">Purchases</p>
             <p className="text-sm text-mowing-green/70">Track orders, confirm receipt</p>
           </div>
+          {counts != null && counts.purchases > 0 && (
+            <span className="shrink-0 rounded-full bg-mowing-green/20 text-mowing-green px-2.5 py-0.5 text-sm font-medium">
+              {counts.purchases}
+            </span>
+          )}
         </Link>
         {role === "admin" && (
           <Link
