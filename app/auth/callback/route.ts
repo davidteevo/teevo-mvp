@@ -53,6 +53,6 @@ export async function GET(request: Request) {
       }
     }
   }
-  const redirectPath = isNewUser ? "/onboarding/payouts?new=1" : next;
+  const redirectPath = isNewUser ? "/onboarding/welcome?new=1" : next;
   return NextResponse.redirect(new URL(redirectPath, request.url));
 }

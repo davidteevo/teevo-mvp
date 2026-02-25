@@ -27,7 +27,7 @@ export async function GET() {
   );
   const { data: profile } = await admin
     .from("users")
-    .select("stripe_account_id")
+    .select("stripe_account_id, first_name")
     .eq("id", user.id)
     .single();
 
@@ -43,8 +43,11 @@ export async function GET() {
     }
   }
 
+  const hasCompletedWelcome = Boolean(profile?.first_name?.trim());
+
   return NextResponse.json({
     stripeAccountId,
     payoutsEnabled,
+    hasCompletedWelcome,
   });
 }

@@ -48,9 +48,21 @@ export async function PATCH(request: Request) {
   }
   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
 
-  if (typeof body.display_name === "string") {
-    updates.display_name = body.display_name.trim() || null;
+  // Display name is auto-generated (first name + 4 random digits), not accepted from client
+  const { data: current } = await supabase
+    .from("users")
+    .select("display_name, first_name")
+    .eq("id", user.id)
+    .single();
+  const nameForDisplay =
+    (typeof body.first_name === "string" ? body.first_name.trim() : null) ||
+    current?.first_name?.trim() ||
+    "User";
+  if (!current?.display_name?.trim()) {
+    const fourDigits = Math.floor(1000 + Math.random() * 9000);
+    updates.display_name = `${nameForDisplay} ${fourDigits}`;
   }
+
   if (typeof body.first_name === "string") {
     updates.first_name = body.first_name.trim() || null;
   }
@@ -98,7 +110,13 @@ export async function PATCH(request: Request) {
   // If update failed due to missing columns (e.g. migration not run), save core fields only
   if (error && (error.message?.includes("column") && error.message?.includes("does not exist"))) {
     const coreUpdates: Record<string, unknown> = { updated_at: new Date().toISOString() };
-    if (typeof body.display_name === "string") coreUpdates.display_name = body.display_name.trim() || null;
+    if (!current?.display_name?.trim()) {
+      const nameForDisplay =
+        (typeof body.first_name === "string" ? body.first_name.trim() : null) ||
+        current?.first_name?.trim() ||
+        "User";
+      coreUpdates.display_name = `${nameForDisplay} ${Math.floor(1000 + Math.random() * 9000)}`;
+    }
     if (typeof body.first_name === "string") coreUpdates.first_name = body.first_name.trim() || null;
     if (typeof body.surname === "string") coreUpdates.surname = body.surname.trim() || null;
     if (typeof body.location === "string") coreUpdates.location = body.location.trim() || null;

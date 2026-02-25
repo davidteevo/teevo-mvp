@@ -30,6 +30,10 @@ export function PayoutsContent() {
       .then((r) => r.json())
       .then((data) => {
         if (cancelled) return;
+        if (data.hasCompletedWelcome === false) {
+          router.replace("/onboarding/welcome?next=" + encodeURIComponent("/onboarding/payouts"));
+          return;
+        }
         setPayoutsEnabled(data.payoutsEnabled === true);
         if (data.payoutsEnabled === true) {
           router.replace("/dashboard");

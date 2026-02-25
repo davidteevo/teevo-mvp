@@ -18,7 +18,6 @@ function avatarPublicSrc(avatarPath: string | null | undefined): string | null {
 export default function ProfilePage() {
   const { user, profile, loading: authLoading, refreshProfile } = useAuth();
   const router = useRouter();
-  const [displayName, setDisplayName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [surname, setSurname] = useState("");
   const [location, setLocation] = useState("");
@@ -46,7 +45,6 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (profile) {
-      setDisplayName(profile.display_name ?? "");
       setFirstName(profile.first_name ?? "");
       setSurname(profile.surname ?? "");
       setLocation(profile.location ?? "");
@@ -64,7 +62,6 @@ export default function ProfilePage() {
       .then((data) => {
         if (cancelled || !data?.profile) return;
         const p = data.profile;
-        setDisplayName(p.display_name ?? "");
         setFirstName(p.first_name ?? "");
         setSurname(p.surname ?? "");
         setLocation(p.location ?? "");
@@ -84,7 +81,6 @@ export default function ProfilePage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          display_name: displayName.trim() || null,
           first_name: firstName.trim() || null,
           surname: surname.trim() || null,
           location: location.trim() || null,
@@ -181,7 +177,7 @@ export default function ProfilePage() {
                   />
                 ) : (
                   <span className="text-mowing-green/50 text-2xl font-semibold">
-                    {(displayName || user.email || "?").charAt(0).toUpperCase()}
+                    {(profile?.display_name || user.email || "?").charAt(0).toUpperCase()}
                   </span>
                 )}
               </div>
@@ -212,19 +208,19 @@ export default function ProfilePage() {
           <p className="text-xs text-mowing-green/60 mt-0.5">Email cannot be changed here.</p>
         </div>
 
-        <div>
-          <label htmlFor="display_name" className="block text-sm font-medium text-mowing-green mb-1">
-            Display name
-          </label>
-          <input
-            id="display_name"
-            type="text"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            placeholder="e.g. Alex"
-            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
-          />
-        </div>
+        {profile?.display_name && (
+          <div>
+            <label className="block text-sm font-medium text-mowing-green mb-1">
+              Display name
+            </label>
+            <p className="text-mowing-green/80 text-sm py-2">
+              {profile.display_name}
+            </p>
+            <p className="text-xs text-mowing-green/60 mt-0.5">
+              Shown to buyers instead of your real name. Generated automatically and not editable.
+            </p>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
