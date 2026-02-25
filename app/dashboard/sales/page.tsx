@@ -15,9 +15,27 @@ import {
   PACKAGING_PHOTO_LABELS,
   PACKAGING_PHOTO_COUNT,
 } from "@/lib/fulfilment";
-import { createClient } from "@/lib/supabase/client";
 
 const PACKAGING_BUCKET = "packaging-photos";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+
+type PackagingUploadPhase = "upload_urls" | "uploading" | "submitting";
+type PackagingUploadStatus = { id: string; phase: PackagingUploadPhase; current?: number; total?: number } | null;
+
+function getPackagingStatusLabel(status: NonNullable<PackagingUploadStatus>): string {
+  switch (status.phase) {
+    case "upload_urls":
+      return "Preparing upload…";
+    case "uploading":
+      return status.total != null && status.current != null
+        ? `Uploading photo ${status.current} of ${status.total}…`
+        : "Uploading photos…";
+    case "submitting":
+      return "Submitting for review…";
+    default:
+      return "Uploading…";
+  }
+}
 
 type ListingImage = { storage_path: string; sort_order: number };
 
@@ -68,6 +86,7 @@ export default function DashboardSalesPage() {
   const [creatingLabelId, setCreatingLabelId] = useState<string | null>(null);
   const [packagingSubmittingId, setPackagingSubmittingId] = useState<string | null>(null);
   const [packagingPhotoSubmittingId, setPackagingPhotoSubmittingId] = useState<string | null>(null);
+  const [packagingUploadStatus, setPackagingUploadStatus] = useState<PackagingUploadStatus>(null);
   const [packagingPhotoFiles, setPackagingPhotoFiles] = useState<Record<string, (File | null)[]>>({});
   const [teevoBoxType, setTeevoBoxType] = useState<string>(BOX_TYPES[0]);
 
@@ -152,6 +171,7 @@ export default function DashboardSalesPage() {
       return;
     }
     setPackagingPhotoSubmittingId(id);
+    setPackagingUploadStatus({ id, phase: "upload_urls" });
     try {
       const urlsRes = await fetch(`/api/transactions/${id}/packaging-photos/upload-urls`, {
         method: "POST",
@@ -166,16 +186,37 @@ export default function DashboardSalesPage() {
       if (!Array.isArray(uploads) || uploads.length < valid.length) {
         throw new Error("Invalid upload URLs");
       }
-      const supabase = createClient();
+      if (!SUPABASE_URL) throw new Error("Missing Supabase URL");
       const paths: string[] = [];
+      const allowedExt = ["jpg", "jpeg", "png", "gif", "webp"];
       for (let i = 0; i < valid.length; i++) {
+        setPackagingUploadStatus({ id, phase: "uploading", current: i + 1, total: valid.length });
+        const file = valid[i];
+        if (!file?.size) continue;
+        const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+        if (!allowedExt.includes(ext)) continue;
         const { path, token } = uploads[i];
-        const { error: uploadErr } = await supabase.storage
-          .from(PACKAGING_BUCKET)
-          .uploadToSignedUrl(path, token, valid[i], { contentType: valid[i].type || "image/jpeg" });
-        if (uploadErr) throw new Error(uploadErr.message ?? `Upload ${i + 1} failed`);
+        const uploadUrl = `${SUPABASE_URL}/storage/v1/object/upload/sign/${PACKAGING_BUCKET}/${path}?token=${encodeURIComponent(token)}`;
+        const formData = new FormData();
+        formData.append("cacheControl", "3600");
+        formData.append("", file);
+        const uploadRes = await fetch(uploadUrl, {
+          method: "PUT",
+          body: formData,
+          headers: { "x-upsert": "true" },
+        });
+        if (!uploadRes.ok) {
+          const errText = await uploadRes.text();
+          throw new Error(
+            errText ? errText.slice(0, 100) : `Photo ${i + 1} upload failed (${uploadRes.status}). Try again.`
+          );
+        }
         paths.push(path);
       }
+      if (paths.length < 3) {
+        throw new Error("At least 3 valid photos (JPG, PNG, GIF, WebP) are required.");
+      }
+      setPackagingUploadStatus({ id, phase: "submitting" });
       const submitRes = await fetch(`/api/transactions/${id}/packaging-photos/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -211,6 +252,7 @@ export default function DashboardSalesPage() {
       alert(e instanceof Error ? e.message : "Something went wrong");
     } finally {
       setPackagingPhotoSubmittingId(null);
+      setPackagingUploadStatus(null);
     }
   };
 
@@ -354,6 +396,38 @@ export default function DashboardSalesPage() {
                               Review notes: {t.review_notes ?? t.packaging_review_notes}
                             </p>
                           )}
+                          {packagingPhotoSubmittingId === t.id && packagingUploadStatus?.id === t.id && (
+                            <div
+                              className="rounded-lg border border-mowing-green/30 bg-mowing-green/5 p-3"
+                              role="status"
+                              aria-live="polite"
+                            >
+                              <div className="flex items-center gap-3">
+                                <span
+                                  className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-mowing-green/30 border-t-mowing-green"
+                                  aria-hidden
+                                />
+                                <span className="text-sm font-medium text-mowing-green">
+                                  {getPackagingStatusLabel(packagingUploadStatus)}
+                                </span>
+                              </div>
+                              {packagingUploadStatus.phase === "uploading" &&
+                                packagingUploadStatus.total != null &&
+                                packagingUploadStatus.current != null &&
+                                packagingUploadStatus.total > 0 && (
+                                  <div className="mt-2">
+                                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-mowing-green/20">
+                                      <div
+                                        className="h-full rounded-full bg-mowing-green transition-all duration-300"
+                                        style={{
+                                          width: `${(100 * packagingUploadStatus.current) / packagingUploadStatus.total}%`,
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
+                                )}
+                            </div>
+                          )}
                           <div className="grid grid-cols-2 gap-2">
                             {PACKAGING_PHOTO_LABELS.map((label, i) => (
                               <label key={i} className="flex flex-col gap-0.5">
@@ -381,7 +455,9 @@ export default function DashboardSalesPage() {
                             disabled={packagingPhotoSubmittingId === t.id}
                             className="rounded-lg bg-mowing-green text-off-white-pique px-3 py-1.5 text-sm font-medium hover:opacity-90 disabled:opacity-70"
                           >
-                            {packagingPhotoSubmittingId === t.id ? "Uploading…" : "Submit for review"}
+                            {packagingPhotoSubmittingId === t.id && packagingUploadStatus?.id === t.id
+                              ? getPackagingStatusLabel(packagingUploadStatus)
+                              : "Submit for review"}
                           </button>
                         </div>
                       )}
@@ -413,15 +489,25 @@ export default function DashboardSalesPage() {
                       </button>
                     )}
                     {t.shippo_qr_code_url && (
-                      <div className="rounded-lg border border-par-3-punch/20 bg-white p-2 inline-flex flex-col items-center">
-                        <p className="text-xs text-mowing-green/70 mb-1">Label QR code</p>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={t.shippo_qr_code_url}
-                          alt="Shipping label QR code"
-                          className="w-24 h-24 object-contain"
-                        />
-                      </div>
+                      <>
+                        <a
+                          href={t.shippo_qr_code_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-lg border border-par-3-punch/30 text-par-3-punch px-4 py-2 text-sm font-medium hover:bg-par-3-punch/10 transition-colors inline-flex items-center gap-2"
+                        >
+                          View QR code
+                        </a>
+                        <div className="rounded-lg border border-par-3-punch/20 bg-white p-2 inline-flex flex-col items-center">
+                          <p className="text-xs text-mowing-green/70 mb-1">Label QR code</p>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={t.shippo_qr_code_url}
+                            alt="Shipping label QR code"
+                            className="w-24 h-24 object-contain"
+                          />
+                        </div>
+                      </>
                     )}
                     {t.shippo_label_url && (
                       <a
