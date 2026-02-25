@@ -198,7 +198,7 @@ function pickAllowlistedRate(
 
 /** Error message and checklist when Shippo returns no rates. @see https://support.goshippo.com/hc/en-us/articles/360003902611 */
 const NO_RATES_HINT =
-  " Confirm sender address (Settings → Postage), recipient address (from checkout), parcel dimensions/weight (listing preset), and that your Shippo carrier (e.g. DPD UK) is active. In test mode see https://support.goshippo.com/hc/en-us/articles/360003902611";
+  " Set SHIPPO_DPD_CARRIER_ACCOUNT_ID in your deploy env to your DPD UK carrier object ID (Shippo → Settings → Carriers). Confirm sender address (Settings → Postage), recipient address (from checkout), and parcel preset on the listing. In test mode: https://support.goshippo.com/hc/en-us/articles/360003902611";
 
 /**
  * Create a Shippo shipment, pick the first allowlisted rate for the requested service, and purchase the label.
@@ -242,7 +242,17 @@ export async function createShipmentAndPurchaseLabel(
 
   const rates = shipment.rates;
   if (!rates || rates.length === 0) {
-    console.warn("[Shippo] No rates returned. From zip:", from.zip, "To zip:", to.zip, "Parcel weight:", parcel.weight, "kg. Carrier accounts:", SHIPPO_DPD_CARRIER_ACCOUNT_IDS ? "set" : "not set");
+    const shipmentAny = shipment as { status?: string; messages?: Array<{ source?: string; code?: string; text?: string }> };
+    const status = shipmentAny.status;
+    const messages = shipmentAny.messages;
+    console.warn(
+      "[Shippo] No rates returned.",
+      "From zip:", from.zip, "To zip:", to.zip, "Country:", to.country,
+      "Parcel weight:", parcel.weight, "kg.",
+      "Carrier account IDs:", SHIPPO_DPD_CARRIER_ACCOUNT_IDS ? SHIPPO_DPD_CARRIER_ACCOUNT_IDS.join(",") : "none (using all active)",
+      "Shipment status:", status,
+      "Shipment messages:", messages ? JSON.stringify(messages) : "none"
+    );
     throw new Error("No shipping rates available for this address." + NO_RATES_HINT);
   }
 
