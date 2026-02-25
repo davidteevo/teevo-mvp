@@ -29,10 +29,8 @@ export default async function ListingPage({
   let listing = listingResult.listing;
   let isBuyerViewingSold = false;
   if (!listing || listing.status !== "verified") {
-    if (txResult) {
-      listing = await getListingByIdAdmin(id);
-      isBuyerViewingSold = true;
-    }
+    listing = await getListingByIdAdmin(id);
+    if (txResult) isBuyerViewingSold = true;
     if (!listing) notFound();
     if (listing.status !== "verified" && listing.status !== "sold" && listing.user_id !== user?.id) {
       notFound();
