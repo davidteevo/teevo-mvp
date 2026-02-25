@@ -71,9 +71,10 @@ If label creation fails with **no shipping rates available**:
 2. **Recipient address** – Buyer address must be present (collected at Stripe Checkout). For old orders without it, data cannot be backfilled from Shippo.
 3. **Parcel** – Each listing must have a parcel preset; dimensions and weight are required for rate calculation.
 4. **Carrier** – In [Shippo test mode](https://support.goshippo.com/hc/en-us/articles/360003902611-How-to-Use-Test-Mode-Account-Sandbox-in-Shippo), ensure your DPD UK carrier is enabled and (if needed) set `SHIPPO_DPD_CARRIER_ACCOUNT_ID` to that carrier’s object ID so rates are requested from it.
-5. **Fallback** – The app requests rates from all active carriers by default; specifying `SHIPPO_DPD_CARRIER_ACCOUNT_ID` limits the request to that carrier, which can help in test/sandbox.
+5. **Live mode** – When DPD UK is in **live** mode in Shippo you must use a **live** API token: set `SHIPPO_API_TOKEN=shippo_live_...` (not `shippo_test_...`) in your deploy env. Re-copy the DPD UK **Object ID** from Shippo → Settings → Carriers (edit the carrier) after switching to live; the ID can differ from test. Ensure the DPD UK carrier has live credentials connected in Shippo.
+6. **Server logs** – The log line `[Shippo] No rates returned` includes `Token: live` or `Token: test` so you can confirm which token is in use.
 
-Server logs will include `[Shippo] No rates returned` with from/to postcodes and parcel weight when no rates are returned, to help debug.
+Server logs will include `[Shippo] No rates returned` with from/to postcodes, parcel weight, token kind, and Shippo status/messages when no rates are returned.
 
 ## References
 

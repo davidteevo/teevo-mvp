@@ -248,9 +248,10 @@ export async function createShipmentAndPurchaseLabel(
     const messagesText = Array.isArray(messages) && messages.length > 0
       ? messages.map((m) => m?.text ?? m?.code ?? JSON.stringify(m)).join("; ")
       : "";
+    const tokenKind = SHIPPO_API_TOKEN?.startsWith("shippo_live_") ? "live" : SHIPPO_API_TOKEN?.startsWith("shippo_test_") ? "test" : "unknown";
     console.warn(
       "[Shippo] No rates returned. From zip:", from.zip, "To zip:", to.zip, "Country:", to.country,
-      "Parcel weight:", parcel.weight, "kg. Carrier accounts:", SHIPPO_DPD_CARRIER_ACCOUNT_IDS ? "set" : "none",
+      "Parcel weight:", parcel.weight, "kg. Token:", tokenKind, "Carrier accounts:", SHIPPO_DPD_CARRIER_ACCOUNT_IDS ? "set" : "none",
       "Status:", status, "Messages:", messagesText || "none"
     );
     const shippoDetail = [status && `Shippo status: ${status}`, messagesText && `Shippo messages: ${messagesText}`].filter(Boolean).join(". ");
