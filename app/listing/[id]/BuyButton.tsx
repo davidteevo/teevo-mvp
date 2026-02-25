@@ -38,9 +38,14 @@ export function BuyButton({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ listingId, shippingService: deliveryService }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error ?? "Checkout failed");
-      if (data.url) window.open(data.url, "_blank", "noopener,noreferrer");
+      const url = data.url;
+      if (!url || typeof url !== "string") {
+        alert("Checkout could not be started. Please try again.");
+        return;
+      }
+      window.location.href = url;
     } catch (e) {
       alert(e instanceof Error ? e.message : "Something went wrong");
     } finally {

@@ -78,5 +78,8 @@ export async function POST(request: Request) {
     shippingOption: typeof shippingOption === "string" ? shippingOption : undefined,
   });
 
+  if (!url) {
+    return NextResponse.json({ error: "Checkout session URL not available" }, { status: 500 });
+  }
   return NextResponse.json({ url });
 }
