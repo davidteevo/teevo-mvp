@@ -3,10 +3,10 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { createClient } from "@/lib/supabase/client";
 import { ListingForm, type SubmitStatus } from "@/components/listing/ListingForm";
 
 const LISTINGS_BUCKET = "listings";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const SUBMIT_TIMEOUT_MS = 120_000; // 2 min total for create + upload URLs + uploads + images
 
 const CATEGORIES = ["Driver", "Irons", "Wedges", "Putter", "Apparel", "Bag"] as const;
@@ -102,11 +102,11 @@ export default function SellPage() {
         throw new Error("Invalid upload URLs response");
       }
 
-      // 3. Upload each image via signed URL (no RLS check on client)
-      const supabase = createClient();
+      // 3. Upload each image via signed URL (native fetch to avoid Supabase client hang)
       const paths: string[] = [];
       const allowedExt = ["jpg", "jpeg", "png", "gif", "webp"];
       const total = images.length;
+      if (!SUPABASE_URL) throw new Error("Missing Supabase URL");
       for (let i = 0; i < images.length; i++) {
         if (signal.aborted) throw new Error("Upload cancelled");
         setSubmitStatus({ phase: "uploading", current: i + 1, total });
@@ -115,20 +115,22 @@ export default function SellPage() {
         const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
         if (!allowedExt.includes(ext)) continue;
         const { path, token } = uploads[i];
-        // #region agent log
-        fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"1d9b73"},body:JSON.stringify({sessionId:"1d9b73",runId:"upload",hypothesisId:"H1_H3_H5",location:"sell/page.tsx:upload-loop",message:"before uploadToSignedUrl",data:{index:i,path:path,hasToken:!!token,tokenLen:typeof token==="string"?token.length:0,fileSize:file?.size,signalAborted:signal.aborted},timestamp:Date.now()})}).catch(()=>{});
-        // #endregion
-        const { error: uploadErr } = await supabase.storage
-          .from(LISTINGS_BUCKET)
-          .uploadToSignedUrl(path, token, file, {
-            contentType: file.type || "image/jpeg",
-          });
-        // #region agent log
-        fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"1d9b73"},body:JSON.stringify({sessionId:"1d9b73",runId:"upload",hypothesisId:"H1_H2",location:"sell/page.tsx:after-upload",message:"uploadToSignedUrl returned",data:{index:i,hasError:!!uploadErr,errorMessage:uploadErr?.message ?? null},timestamp:Date.now()})}).catch(()=>{});
-        // #endregion
-        if (uploadErr) {
+        const uploadUrl = `${SUPABASE_URL}/storage/v1/object/upload/sign/${LISTINGS_BUCKET}/${path}?token=${encodeURIComponent(token)}`;
+        const formData = new FormData();
+        formData.append("cacheControl", "3600");
+        formData.append("", file);
+        const uploadRes = await fetch(uploadUrl, {
+          method: "PUT",
+          body: formData,
+          headers: { "x-upsert": "true" },
+          signal,
+        });
+        if (!uploadRes.ok) {
+          const errText = await uploadRes.text();
           throw new Error(
-            uploadErr.message ?? `Image ${i + 1} upload failed. Try again.`
+            errText
+              ? `${errText.slice(0, 100)}`
+              : `Image ${i + 1} upload failed (${uploadRes.status}). Try again.`
           );
         }
         paths.push(path);
@@ -153,9 +155,6 @@ export default function SellPage() {
 
       router.push("/sell/success");
     } catch (e) {
-      // #region agent log
-      fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"1d9b73"},body:JSON.stringify({sessionId:"1d9b73",runId:"upload",hypothesisId:"H2",location:"sell/page.tsx:catch",message:"handleSubmit catch",data:{name:e instanceof Error?e.name:"",message:e instanceof Error?e.message:String(e)},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       let message: string;
       if (e instanceof Error) {
         if (e.name === "AbortError") {
