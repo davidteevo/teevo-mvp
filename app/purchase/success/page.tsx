@@ -1,7 +1,26 @@
+"use client";
+
+import { useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { CheckCircle } from "lucide-react";
 
 export default function PurchaseSuccessPage() {
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get("session_id");
+
+  useEffect(() => {
+    if (!sessionId) return;
+    fetch("/api/checkout/confirm-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: sessionId }),
+      credentials: "include",
+    }).catch(() => {
+      // Silently ignore; user may already have been confirmed by webhook
+    });
+  }, [sessionId]);
+
   return (
     <div className="max-w-lg mx-auto px-4 py-12 text-center">
       <CheckCircle className="mx-auto h-16 w-16 text-par-3-punch" aria-hidden />

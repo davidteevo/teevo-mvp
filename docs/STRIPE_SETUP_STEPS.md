@@ -71,3 +71,17 @@ So Stripe can notify your app when a payment succeeds, is refunded, or disputed.
    (change the port if your app uses another.)
 4. The CLI will print a **webhook signing secret** (e.g. `whsec_...`). Use that in `.env.local` as `STRIPE_WEBHOOK_SECRET`.
 5. Keep the CLI running while testing payments; it forwards Stripe events to your app.
+
+---
+
+## Troubleshooting: Purchase not showing / no emails
+
+If a buyer pays successfully but the order doesn’t appear under **My purchases** (buyer) or **Sales** (seller), and no order/sold emails are sent, the **Stripe webhook** likely never ran (wrong URL, missing `STRIPE_WEBHOOK_SECRET`, or delivery failure).
+
+**What to check:**
+
+1. **Production:** In [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/webhooks), confirm an endpoint exists with URL `https://YOUR_DOMAIN/api/webhooks/stripe` and events include `checkout.session.completed`. Use the **same** mode (Test/Live) as the payment.
+2. **Env:** On your host (e.g. Netlify), ensure `STRIPE_WEBHOOK_SECRET` is set to the **signing secret** for that endpoint (starts with `whsec_`). If you added the endpoint after deploy, copy the secret again and redeploy.
+3. **Logs:** In your host’s function/server logs, look for errors from `/api/webhooks/stripe` (e.g. "Missing signature or secret", "Insert failed").
+
+**Fallback:** When the buyer lands on the **Payment successful** page (`/purchase/success?session_id=...`), the app calls `/api/checkout/confirm-session` and, if no transaction exists yet for that session, creates it and sends the same emails. So even if the webhook didn’t run, the order and emails should appear after the buyer visits the success page (or clicks "My purchases"). If the buyer closed the tab before the success page loaded, use Stripe Dashboard to confirm the payment and fix the webhook for future orders.
