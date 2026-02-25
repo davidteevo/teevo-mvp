@@ -245,15 +245,20 @@ export async function createShipmentAndPurchaseLabel(
     const shipmentAny = shipment as { status?: string; messages?: Array<{ source?: string; code?: string; text?: string }> };
     const status = shipmentAny.status;
     const messages = shipmentAny.messages;
+    const messagesText = Array.isArray(messages) && messages.length > 0
+      ? messages.map((m) => m?.text ?? m?.code ?? JSON.stringify(m)).join("; ")
+      : "";
     console.warn(
-      "[Shippo] No rates returned.",
-      "From zip:", from.zip, "To zip:", to.zip, "Country:", to.country,
-      "Parcel weight:", parcel.weight, "kg.",
-      "Carrier account IDs:", SHIPPO_DPD_CARRIER_ACCOUNT_IDS ? SHIPPO_DPD_CARRIER_ACCOUNT_IDS.join(",") : "none (using all active)",
-      "Shipment status:", status,
-      "Shipment messages:", messages ? JSON.stringify(messages) : "none"
+      "[Shippo] No rates returned. From zip:", from.zip, "To zip:", to.zip, "Country:", to.country,
+      "Parcel weight:", parcel.weight, "kg. Carrier accounts:", SHIPPO_DPD_CARRIER_ACCOUNT_IDS ? "set" : "none",
+      "Status:", status, "Messages:", messagesText || "none"
     );
-    throw new Error("No shipping rates available for this address." + NO_RATES_HINT);
+    const shippoDetail = [status && `Shippo status: ${status}`, messagesText && `Shippo messages: ${messagesText}`].filter(Boolean).join(". ");
+    throw new Error(
+      "No shipping rates available for this address." +
+      (shippoDetail ? ` ${shippoDetail}.` : "") +
+      NO_RATES_HINT
+    );
   }
 
   const picked = pickAllowlistedRate(rates, preferredService);
