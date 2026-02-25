@@ -142,6 +142,16 @@ export async function POST(
   } catch (e) {
     const message = e instanceof Error ? e.message : "Failed to create label";
     console.error("Shippo shipping-label error:", e);
-    return NextResponse.json({ error: message }, { status: 500 });
+    // Shippo/address/parcel errors are user-actionable → 400; unexpected errors → 500
+    const isShippoConfigError =
+      message.includes("No shipping rates") ||
+      message.includes("No allowlisted rate") ||
+      message.includes("address is incomplete") ||
+      message.includes("Parcel weight") ||
+      message.includes("postage address");
+    return NextResponse.json(
+      { error: message },
+      { status: isShippoConfigError ? 400 : 500 }
+    );
   }
 }
