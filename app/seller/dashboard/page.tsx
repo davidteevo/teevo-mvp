@@ -72,7 +72,6 @@ export default function SellerDashboardPage() {
     return map[status] ?? "bg-mowing-green/10 text-mowing-green";
   };
 
-  const whatsappUrl = process.env.NEXT_PUBLIC_SELLER_WHATSAPP_URL;
   const bookCallUrl = process.env.NEXT_PUBLIC_BOOK_CALL_URL;
 
   return (
@@ -95,16 +94,6 @@ export default function SellerDashboardPage() {
         >
           Add new listing
         </Link>
-        {whatsappUrl && (
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-xl border border-mowing-green text-mowing-green px-5 py-2.5 font-medium hover:bg-mowing-green/5"
-          >
-            Join Founding Sellers WhatsApp
-          </a>
-        )}
         {bookCallUrl && (
           <a
             href={bookCallUrl}

@@ -36,7 +36,6 @@ export default function SellStartSuccessPage() {
       .finally(() => setLoading(false));
   }, [listingId]);
 
-  const whatsappUrl = process.env.NEXT_PUBLIC_SELLER_WHATSAPP_URL;
   const displayTitle = listing?.title?.trim() || (listing ? `${listing.brand} ${listing.model}`.trim() || listing.category : "");
   const imagePath = listing?.listing_images?.sort((a, b) => a.sort_order - b.sort_order)[0]?.storage_path;
   const imageUrl = imagePath && process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -100,17 +99,6 @@ export default function SellStartSuccessPage() {
         >
           List another item
         </Link>
-        {whatsappUrl && (
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-xl border border-mowing-green text-mowing-green px-6 py-3 font-medium hover:bg-mowing-green/5"
-            onClick={() => track("seller_joined_whatsapp")}
-          >
-            Join Founding Sellers WhatsApp
-          </a>
-        )}
       </div>
     </div>
   );

@@ -12,7 +12,6 @@ const ALLOWED_EVENTS = [
   "seller_listing_completed",
   "seller_listing_photo_upload",
   "seller_listing_published",
-  "seller_joined_whatsapp",
 ] as const;
 
 export type AllowedEventName = (typeof ALLOWED_EVENTS)[number];
