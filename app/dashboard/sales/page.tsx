@@ -89,6 +89,7 @@ export default function DashboardSalesPage() {
   const [packagingUploadStatus, setPackagingUploadStatus] = useState<PackagingUploadStatus>(null);
   const [packagingPhotoFiles, setPackagingPhotoFiles] = useState<Record<string, (File | null)[]>>({});
   const [teevoBoxType, setTeevoBoxType] = useState<string>(BOX_TYPES[0]);
+  const [labelErrorById, setLabelErrorById] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!loading && !user) router.replace(`/login?redirect=${encodeURIComponent("/dashboard/sales")}`);
@@ -263,10 +264,20 @@ export default function DashboardSalesPage() {
 
   const createLabel = async (id: string) => {
     setCreatingLabelId(id);
+    setLabelErrorById((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
     try {
       const res = await fetch(`/api/transactions/${id}/shipping-label`, { method: "POST" });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
+        setLabelErrorById((prev) => {
+          const next = { ...prev };
+          delete next[id];
+          return next;
+        });
         setTransactions((prev) =>
           prev.map((t) =>
             t.id === id
@@ -281,8 +292,12 @@ export default function DashboardSalesPage() {
         );
         if (data.labelUrl && !data.qrCodeUrl) window.open(data.labelUrl, "_blank");
       } else {
-        alert(data.error ?? "Failed to create label");
+        const errMsg = data.error ?? "Failed to create label";
+        setLabelErrorById((prev) => ({ ...prev, [id]: errMsg }));
+        alert(errMsg);
       }
+    } catch (err) {
+      alert("Failed to create label. Please try again.");
     } finally {
       setCreatingLabelId(null);
     }
@@ -475,14 +490,21 @@ export default function DashboardSalesPage() {
                       t.fulfilment_status === FulfilmentStatus.PACKAGING_VERIFIED) &&
                       t.status === "pending" &&
                       !t.shippo_label_url && (
-                        <button
-                          type="button"
-                          onClick={() => createLabel(t.id)}
-                          disabled={creatingLabelId === t.id}
-                          className="rounded-lg bg-par-3-punch text-white px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-70"
-                        >
-                          {creatingLabelId === t.id ? "Creating…" : "Generate QR/Label"}
-                        </button>
+                        <span className="inline-flex flex-col items-start gap-1">
+                          <button
+                            type="button"
+                            onClick={() => createLabel(t.id)}
+                            disabled={creatingLabelId === t.id}
+                            className="rounded-lg bg-par-3-punch text-white px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-70"
+                          >
+                            {creatingLabelId === t.id ? "Creating…" : "Generate QR/Label"}
+                          </button>
+                          {labelErrorById[t.id] && (
+                            <p className="text-sm text-red-600 max-w-md" role="alert">
+                              {labelErrorById[t.id]}
+                            </p>
+                          )}
+                        </span>
                       )}
                     {t.status === "pending" && t.shippo_label_url && (
                       <button
