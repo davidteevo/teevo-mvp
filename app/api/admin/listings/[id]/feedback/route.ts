@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { ensureEmailSent } from "@/lib/email-triggers";
+import { EmailTriggerType } from "@/lib/email-triggers";
 
 export const dynamic = "force-dynamic";
 
@@ -45,5 +47,46 @@ export async function POST(
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  if (comment) {
+    const { data: listing } = await admin
+      .from("listings")
+      .select("user_id")
+      .eq("id", id)
+      .single();
+    if (listing?.user_id) {
+      const { data: seller } = await admin
+        .from("users")
+        .select("email")
+        .eq("id", listing.user_id)
+        .single();
+      const toEmail = seller?.email?.trim();
+      if (toEmail) {
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+        const editUrl = `${appUrl}/sell/edit/${id}`;
+        try {
+          await ensureEmailSent(admin, {
+            emailType: EmailTriggerType.LISTING_EDITS_REQUESTED,
+            referenceId: id,
+            referenceType: "listing",
+            recipientId: listing.user_id,
+            to: toEmail,
+            subject: "Teevo: edits needed for your listing",
+            type: "alert",
+            variables: {
+              title: "Edits needed for your listing",
+              subtitle: "Our team left feedback",
+              body: comment,
+              cta_link: editUrl,
+              cta_text: "Edit listing",
+            },
+          });
+        } catch (e) {
+          console.error("Failed to send listing edits email:", e);
+        }
+      }
+    }
+  }
+
   return NextResponse.json({ ok: true });
 }

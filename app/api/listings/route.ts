@@ -25,6 +25,7 @@ export async function POST(request: Request) {
     const category = body.category as string;
     const brand = body.brand as string;
     const model = body.model as string;
+    const title = typeof body.title === "string" ? body.title.trim() || null : null;
     const condition = body.condition as string;
     const description = (body.description as string) || null;
     const shaft = typeof body.shaft === "string" ? body.shaft.trim() || null : null;
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
         : ParcelPreset.SMALL_ITEM;
 
     const allowedCategories = ["Driver", "Woods", "Irons", "Wedges", "Putter", "Apparel", "Bag"];
-    const allowedConditions = ["New", "Excellent", "Good", "Used"];
+    const allowedConditions = ["New", "Excellent", "Good", "Fair", "Used"];
     if (
       !category ||
       !allowedCategories.includes(category) ||
@@ -70,6 +71,7 @@ export async function POST(request: Request) {
         category,
         brand,
         model,
+        title,
         condition,
         description,
         shaft,

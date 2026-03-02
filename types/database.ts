@@ -9,7 +9,7 @@ export type ListingCategory =
   | "Apparel"
   | "Bag";
 
-export type ListingCondition = "New" | "Excellent" | "Good" | "Used";
+export type ListingCondition = "New" | "Excellent" | "Good" | "Fair" | "Used";
 
 export type ListingStatus = "pending" | "verified" | "rejected" | "sold";
 
@@ -48,6 +48,7 @@ export interface Listing {
   category: ListingCategory;
   brand: string;
   model: string;
+  title?: string | null;
   condition: ListingCondition;
   description: string | null;
   price: number;

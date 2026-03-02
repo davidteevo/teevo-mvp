@@ -43,16 +43,24 @@ export async function GET(request: Request) {
         } catch {
           // Create on first Connect click if Stripe fails here (e.g. rate limit)
         }
+        const first_name =
+          (user.user_metadata?.first_name as string)?.trim() || null;
         await admin.from("users").insert({
           id: user.id,
           email: user.email ?? "",
           role: "seller",
           stripe_account_id,
+          first_name,
           updated_at,
         });
       }
     }
   }
-  const redirectPath = isNewUser ? "/onboarding/welcome?new=1" : next;
+  const redirectPath =
+    isNewUser && next === "/sell/start"
+      ? "/sell/start"
+      : isNewUser
+        ? "/onboarding/welcome?new=1"
+        : next;
   return NextResponse.redirect(new URL(redirectPath, request.url));
 }

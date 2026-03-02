@@ -14,6 +14,7 @@ export const EmailTriggerType = {
   KYC_INCOMPLETE_REMINDER: "kyc_incomplete_reminder",
   EMAIL_VERIFICATION: "email_verification",
   FORGOT_PASSWORD: "forgot_password",
+  LISTING_EDITS_REQUESTED: "listing_edits_requested",
 } as const;
 
 export type EmailTriggerTypeValue = (typeof EmailTriggerType)[keyof typeof EmailTriggerType];
@@ -27,7 +28,7 @@ export async function ensureEmailSent(
   opts: {
     emailType: EmailTriggerTypeValue;
     referenceId: string;
-    referenceType?: "transaction" | "user";
+    referenceType?: "transaction" | "user" | "listing";
     recipientId?: string | null;
     to: string;
     subject: string;

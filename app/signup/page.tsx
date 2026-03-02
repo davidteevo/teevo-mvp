@@ -4,12 +4,14 @@ import { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { track } from "@/lib/analytics";
 import { Mail } from "lucide-react";
 
 function SignupForm() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") ?? "/dashboard";
   const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -28,13 +30,24 @@ function SignupForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    const first = firstName.trim();
+    if (!first) {
+      setError("Please enter your first name.");
+      return;
+    }
     setLoading(true);
     const supabase = createClient();
-    const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : undefined;
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const redirectTo = origin ? `${origin}/auth/callback` : undefined;
+    const nextParam = redirect ? `?next=${encodeURIComponent(redirect)}` : "";
+    const emailRedirectTo = redirectTo && nextParam ? `${redirectTo}${nextParam}` : redirectTo;
     const { data, error: err } = await supabase.auth.signUp({
       email,
       password,
-      options: redirectTo ? { emailRedirectTo: redirectTo } : undefined,
+      options: {
+        data: { first_name: first },
+        ...(emailRedirectTo ? { emailRedirectTo } : {}),
+      },
     });
     if (err) {
       const lower = err.message.toLowerCase();
@@ -52,6 +65,7 @@ function SignupForm() {
       await supabase.auth.signOut({ scope: "local" });
       return;
     }
+    track("seller_signup_complete", { redirect });
     setEmailVerificationSent(true);
   };
 
@@ -107,6 +121,20 @@ function SignupForm() {
             {error}
           </p>
         )}
+        <div>
+          <label className="block text-sm font-medium text-mowing-green mb-1">
+            First name
+          </label>
+          <input
+            type="text"
+            required
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            disabled={loading}
+            placeholder="e.g. Alex"
+            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50 disabled:opacity-60 disabled:cursor-not-allowed"
+          />
+        </div>
         <div>
           <label className="block text-sm font-medium text-mowing-green mb-1">
             Email
