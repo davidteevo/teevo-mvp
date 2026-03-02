@@ -9,7 +9,7 @@ const LISTINGS_BUCKET = "listings";
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const SUBMIT_TIMEOUT_MS = 120_000; // 2 min total for create + upload URLs + uploads + images
 
-const CATEGORIES = ["Driver", "Irons", "Wedges", "Putter", "Apparel", "Bag"] as const;
+const CATEGORIES = ["Driver", "Woods", "Irons", "Wedges", "Putter", "Apparel", "Bag"] as const;
 const BRANDS = [
   "Titleist", "Callaway", "TaylorMade", "Ping", "Cobra", "Mizuno", "Srixon", "Wilson", "Other",
 ];
@@ -44,6 +44,8 @@ export default function SellPage() {
     description: string;
     price: string;
     parcelPreset: string;
+    shaft?: string;
+    degree?: string;
     images: File[];
   }) => {
     abortRef.current = new AbortController();
@@ -75,6 +77,8 @@ export default function SellPage() {
           price: pricePence,
           imageCount: images.length,
           parcelPreset: payload.parcelPreset || "SMALL_ITEM",
+          shaft: payload.shaft || null,
+          degree: payload.degree || null,
         }),
         signal,
       });

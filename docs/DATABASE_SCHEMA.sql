@@ -31,12 +31,14 @@ CREATE TABLE IF NOT EXISTS public.users (
 CREATE TABLE IF NOT EXISTS public.listings (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
-  category TEXT NOT NULL CHECK (category IN ('Driver', 'Irons', 'Wedges', 'Putter', 'Apparel', 'Bag')),
+  category TEXT NOT NULL CHECK (category IN ('Driver', 'Woods', 'Irons', 'Wedges', 'Putter', 'Apparel', 'Bag')),
   brand TEXT NOT NULL,
   model TEXT NOT NULL,
   "condition" TEXT NOT NULL CHECK ("condition" IN ('New', 'Excellent', 'Good', 'Used')),
   description TEXT,
   price INTEGER NOT NULL CHECK (price > 0), -- pence
+  shaft TEXT,
+  degree TEXT,
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'verified', 'rejected', 'sold')),
   flagged BOOLEAN NOT NULL DEFAULT FALSE,
   admin_feedback TEXT,

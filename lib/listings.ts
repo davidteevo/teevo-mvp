@@ -20,7 +20,7 @@ async function getVerifiedListingsUncached(filters?: Filters) {
   let query = supabase
     .from("listings")
     .select(
-      "id, user_id, category, brand, model, condition, description, price, status, flagged, created_at, updated_at, listing_images ( id, storage_path, sort_order ), users ( display_name )"
+      "id, user_id, category, brand, model, condition, description, price, shaft, degree, status, flagged, created_at, updated_at, listing_images ( id, storage_path, sort_order ), users ( display_name )"
     )
     .eq("status", "verified")
     .order("created_at", { ascending: false })
@@ -59,7 +59,7 @@ async function getListingByIdUncached(id: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
-    .select("id, user_id, category, brand, model, condition, description, price, status, created_at, listing_images ( id, storage_path, sort_order )")
+    .select("id, user_id, category, brand, model, condition, description, price, shaft, degree, status, created_at, listing_images ( id, storage_path, sort_order )")
     .eq("id", id)
     .single();
   if (error) throw error;
@@ -76,7 +76,7 @@ async function getListingByIdAdminUncached(id: string) {
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("listings")
-    .select("id, user_id, category, brand, model, condition, description, price, status, created_at, listing_images ( id, storage_path, sort_order )")
+    .select("id, user_id, category, brand, model, condition, description, price, shaft, degree, status, created_at, listing_images ( id, storage_path, sort_order )")
     .eq("id", id)
     .single();
   if (error) throw error;

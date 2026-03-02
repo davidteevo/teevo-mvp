@@ -85,6 +85,14 @@ export default async function ListingPage({
             {listing.model}
           </h1>
           <p className="text-mowing-green/80 mt-2">{listing.condition}</p>
+          {(listing.shaft || listing.degree) && (
+            <p className="mt-2 text-sm text-mowing-green/80">
+              {[
+                listing.shaft && `Shaft: ${listing.shaft}`,
+                listing.degree && `Loft: ${listing.degree}${String(listing.degree).trim().endsWith("°") ? "" : "°"}`,
+              ].filter(Boolean).join(" · ")}
+            </p>
+          )}
           {sellerDisplayName && (
             <p className="mt-3 text-sm text-mowing-green/80">
               Sold by <span className="font-medium text-mowing-green">{sellerDisplayName}</span>

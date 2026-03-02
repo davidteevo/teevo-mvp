@@ -2,6 +2,7 @@ export type UserRole = "buyer" | "seller" | "admin";
 
 export type ListingCategory =
   | "Driver"
+  | "Woods"
   | "Irons"
   | "Wedges"
   | "Putter"
@@ -50,6 +51,8 @@ export interface Listing {
   condition: ListingCondition;
   description: string | null;
   price: number;
+  shaft: string | null;
+  degree: string | null;
   status: ListingStatus;
   flagged: boolean;
   created_at: string;

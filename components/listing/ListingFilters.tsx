@@ -6,6 +6,7 @@ import type { ListingCategory } from "@/types/database";
 
 const CATEGORIES: ListingCategory[] = [
   "Driver",
+  "Woods",
   "Irons",
   "Wedges",
   "Putter",

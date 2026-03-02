@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * POST /api/listings
- * Body: JSON { category, brand, model, condition, description?, price (pence), imageCount (3–6), parcelPreset? }
+ * Body: JSON { category, brand, model, condition, description?, price (pence), imageCount (3–6), parcelPreset?, shaft?, degree? }
  * parcelPreset: GOLF_DRIVER | IRON_SET | PUTTER | SMALL_ITEM (default SMALL_ITEM).
  * Creates the listing row only. Client uploads images directly to Supabase Storage, then calls POST /api/listings/[id]/images.
  */
@@ -27,6 +27,8 @@ export async function POST(request: Request) {
     const model = body.model as string;
     const condition = body.condition as string;
     const description = (body.description as string) || null;
+    const shaft = typeof body.shaft === "string" ? body.shaft.trim() || null : null;
+    const degree = typeof body.degree === "string" ? body.degree.trim() || null : null;
     const price = typeof body.price === "number" ? body.price : parseInt(String(body.price), 10);
     const imageCount = typeof body.imageCount === "number" ? body.imageCount : parseInt(String(body.imageCount), 10);
     const rawParcel = body.parcelPreset ?? body.parcel_preset;
@@ -41,7 +43,7 @@ export async function POST(request: Request) {
         ? (rawParcel as ParcelPresetType)
         : ParcelPreset.SMALL_ITEM;
 
-    const allowedCategories = ["Driver", "Irons", "Wedges", "Putter", "Apparel", "Bag"];
+    const allowedCategories = ["Driver", "Woods", "Irons", "Wedges", "Putter", "Apparel", "Bag"];
     const allowedConditions = ["New", "Excellent", "Good", "Used"];
     if (
       !category ||
@@ -70,6 +72,8 @@ export async function POST(request: Request) {
         model,
         condition,
         description,
+        shaft,
+        degree,
         price,
         parcel_preset,
         status: "pending",

@@ -28,7 +28,7 @@ export async function GET(request: Request) {
 
   let query = admin
     .from("listings")
-    .select("id, user_id, category, brand, model, condition, price, status, created_at")
+    .select("id, user_id, category, brand, model, condition, price, shaft, degree, status, created_at")
     .order("created_at", { ascending: false });
 
   if (status && ["pending", "verified", "rejected", "sold"].includes(status)) {

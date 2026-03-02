@@ -26,6 +26,8 @@ interface ListingFormProps {
     description: string;
     price: string;
     parcelPreset: string;
+    shaft?: string;
+    degree?: string;
     images: File[];
   }) => void;
   submitting: boolean;
@@ -62,10 +64,14 @@ export function ListingForm({
   const [brand, setBrand] = useState("");
   const [model, setModel] = useState("");
   const [condition, setCondition] = useState("");
+  const [shaft, setShaft] = useState("");
+  const [degree, setDegree] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [parcelPreset, setParcelPreset] = useState(parcelPresets[0] ?? "SMALL_ITEM");
   const [images, setImages] = useState<File[]>([]);
+
+  const isDriverOrWoods = category === "Driver" || category === "Woods";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,6 +87,7 @@ export function ListingForm({
       description,
       price,
       parcelPreset,
+      ...(isDriverOrWoods && { shaft: shaft.trim() || undefined, degree: degree.trim() || undefined }),
       images,
     });
   };
@@ -148,6 +155,34 @@ export function ListingForm({
           ))}
         </select>
       </div>
+      {isDriverOrWoods && (
+        <>
+          <div>
+            <label className="block text-sm font-medium text-mowing-green mb-1">
+              Shaft (brand / name)
+            </label>
+            <input
+              type="text"
+              value={shaft}
+              onChange={(e) => setShaft(e.target.value)}
+              placeholder="e.g. Project X, Ventus Blue"
+              className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-mowing-green mb-1">
+              Loft / degree
+            </label>
+            <input
+              type="text"
+              value={degree}
+              onChange={(e) => setDegree(e.target.value)}
+              placeholder="e.g. 9.5, 10.5, 3"
+              className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
+            />
+          </div>
+        </>
+      )}
       <div>
         <label className="block text-sm font-medium text-mowing-green mb-1">
           Parcel size (for shipping) *
@@ -195,11 +230,17 @@ export function ListingForm({
         <label className="block text-sm font-medium text-mowing-green mb-1">
           Images (3–6) *
         </label>
+        {isDriverOrWoods && (
+          <p className="mb-2 text-xs text-mowing-green/70">
+            For drivers and woods, include: <strong>face</strong>, <strong>back (sole)</strong>, <strong>top (crown)</strong>, <strong>shaft</strong>, <strong>grip</strong>.
+          </p>
+        )}
         <ImageUpload
           min={3}
           max={6}
           value={images}
           onChange={setImages}
+          slotLabels={isDriverOrWoods ? ["Face", "Back (sole)", "Top (crown)", "Shaft", "Grip", "Other"] : undefined}
         />
       </div>
 
