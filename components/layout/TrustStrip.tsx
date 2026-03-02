@@ -3,8 +3,8 @@ import { Shield, Lock, MapPin } from "lucide-react";
 
 export function TrustStrip() {
   return (
-    <div className="bg-mowing-green text-off-white-pique py-2 px-4">
-      <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-center gap-6 text-sm">
+    <div className="bg-mowing-green text-off-white-pique py-1.5 px-4">
+      <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs">
         <Image
           src="/logo-text-white.png"
           alt="Teevo"

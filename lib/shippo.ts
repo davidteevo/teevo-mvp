@@ -115,6 +115,25 @@ export const ParcelPreset = {
 } as const;
 export type ParcelPresetType = (typeof ParcelPreset)[keyof typeof ParcelPreset];
 
+/** Listing category to parcel preset. Used when creating/updating listings so parcel size is automatic. */
+export function categoryToParcelPreset(category: string | null | undefined): ParcelPresetType {
+  switch (category) {
+    case "Driver":
+    case "Woods":
+      return ParcelPreset.GOLF_DRIVER;
+    case "Irons":
+      return ParcelPreset.IRON_SET;
+    case "Wedges":
+      return ParcelPreset.SMALL_ITEM;
+    case "Putter":
+      return ParcelPreset.PUTTER;
+    case "Apparel":
+    case "Bag":
+    default:
+      return ParcelPreset.SMALL_ITEM;
+  }
+}
+
 /** Dimensions (cm, kg) per preset. Essential for accurate DPD rates and acceptance. */
 export const PARCEL_PRESET_DIMENSIONS: Record<
   ParcelPresetType,

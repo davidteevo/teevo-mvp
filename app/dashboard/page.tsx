@@ -5,7 +5,82 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { OnboardingStripeBanner } from "@/components/dashboard/OnboardingStripeBanner";
-import { ClipboardCheck, Package, PlusCircle, ShoppingBag, ShoppingCart, TrendingUp, User } from "lucide-react";
+import { Calendar, ClipboardCheck, Package, PlusCircle, Send, ShoppingBag, ShoppingCart, TrendingUp, User } from "lucide-react";
+
+function FoundingSellerFeedback() {
+  const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
+  const bookCallUrl = process.env.NEXT_PUBLIC_BOOK_CALL_URL;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!message.trim()) return;
+    setError("");
+    setSending(true);
+    try {
+      const res = await fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: message.trim() }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error ?? "Failed to send");
+        return;
+      }
+      setSent(true);
+      setMessage("");
+    } catch {
+      setError("Something went wrong");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <div className="rounded-xl border border-mowing-green/30 bg-mowing-green/5 p-3 sm:p-4">
+      <p className="text-mowing-green font-medium text-sm sm:text-base mb-2">You&apos;re a founding seller — we&apos;d love your feedback.</p>
+      <div className="flex flex-col sm:flex-row sm:items-end gap-2 sm:gap-3">
+        <form onSubmit={handleSubmit} className="flex-1 min-w-0 flex flex-col gap-1.5">
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Quick message or book a call below…"
+            rows={2}
+            maxLength={5000}
+            disabled={sending}
+            className="w-full rounded-lg border border-mowing-green/30 bg-white px-3 py-2 text-sm text-mowing-green placeholder:text-mowing-green/50 resize-y disabled:opacity-60"
+          />
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="submit"
+              disabled={sending || !message.trim()}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-mowing-green text-off-white-pique px-3 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Send className="h-3.5 w-3.5" />
+              {sending ? "Sending…" : "Send"}
+            </button>
+            {bookCallUrl && (
+              <a
+                href={bookCallUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-mowing-green/50 text-mowing-green px-3 py-2 text-sm font-medium hover:bg-mowing-green/10"
+              >
+                <Calendar className="h-3.5 w-3.5" />
+                Book 15‑min call
+              </a>
+            )}
+          </div>
+        </form>
+      </div>
+      {sent && <p className="text-xs text-mowing-green mt-1.5" role="status">Thanks, we got it.</p>}
+      {error && <p className="text-xs text-divot-pink mt-1.5" role="alert">{error}</p>}
+    </div>
+  );
+}
 
 type DashboardCounts = { listings: number; sales: number; purchases: number } | null;
 
@@ -13,12 +88,22 @@ export default function DashboardPage() {
   const { user, profile, role, loading, refreshProfile } = useAuth();
   const router = useRouter();
   const [counts, setCounts] = useState<DashboardCounts>(null);
+  const [edited, setEdited] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
       router.replace(`/login?redirect=${encodeURIComponent("/dashboard")}`);
     }
   }, [user, loading, router]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("edited") === "1") {
+      setEdited(true);
+      window.history.replaceState({}, "", "/dashboard");
+    }
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -64,6 +149,18 @@ export default function DashboardPage() {
       <p className="mt-1 text-mowing-green/80">Buy and sell from one account. Manage your listings and activity.</p>
 
       <OnboardingStripeBanner className="mt-6" />
+
+      {edited && (
+        <div className="mt-6 rounded-xl border border-par-3-punch/30 bg-par-3-punch/5 p-4 text-sm text-mowing-green">
+          Listing changes saved. We&apos;ll review again and get back to you.
+        </div>
+      )}
+
+      {(role === "seller" || role === "admin") && (
+        <div className="mt-6">
+          <FoundingSellerFeedback />
+        </div>
+      )}
 
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Link

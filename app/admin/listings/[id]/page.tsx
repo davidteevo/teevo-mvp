@@ -24,7 +24,7 @@ export default async function AdminListingDetailPage({
   const { data: listing, error } = await admin
     .from("listings")
     .select(`
-      id, user_id, category, brand, model, condition, price, description, shaft, degree, status, created_at, admin_feedback,
+      id, user_id, category, brand, model, condition, price, description, shaft, degree, shaft_flex, status, created_at, admin_feedback,
       listing_images(storage_path, sort_order),
       users!user_id(id, email, role, created_at)
     `)
@@ -112,10 +112,11 @@ export default async function AdminListingDetailPage({
                   {listing.model}
                 </h1>
                 <p className="text-mowing-green/80 mt-1">{listing.condition}</p>
-                {(listing.shaft || listing.degree) && (
+                {(listing.shaft || listing.degree || listing.shaft_flex) && (
                   <p className="mt-2 text-sm text-mowing-green/80">
                     {[
                       listing.shaft && `Shaft: ${listing.shaft}`,
+                      listing.shaft_flex && `Flex: ${listing.shaft_flex}`,
                       listing.degree && `Loft: ${listing.degree}${String(listing.degree).trim().endsWith("°") ? "" : "°"}`,
                     ].filter(Boolean).join(" · ")}
                   </p>

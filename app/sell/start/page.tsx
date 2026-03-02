@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { Suspense, useState, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { ImageUpload } from "@/components/listing/ImageUpload";
@@ -17,7 +17,7 @@ const PARCEL_PRESET = "SMALL_ITEM";
 type SubmitPhase = "creating" | "upload_urls" | "uploading" | "saving";
 type SubmitStatus = { phase: SubmitPhase; current?: number; total?: number } | null;
 
-export default function SellStartPage() {
+function SellStartContent() {
   const searchParams = useSearchParams();
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -362,5 +362,13 @@ export default function SellStartPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function SellStartPage() {
+  return (
+    <Suspense fallback={<div className="max-w-xl mx-auto px-4 py-12 text-center text-mowing-green/80">Loading…</div>}>
+      <SellStartContent />
+    </Suspense>
   );
 }

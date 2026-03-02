@@ -1,15 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
-import { ParcelPreset, type ParcelPresetType } from "@/lib/shippo";
+import { categoryToParcelPreset } from "@/lib/shippo";
 
 export const dynamic = "force-dynamic";
 
 /**
  * POST /api/listings
- * Body: JSON { category, brand, model, condition, description?, price (pence), imageCount (3–6), parcelPreset?, shaft?, degree? }
- * parcelPreset: GOLF_DRIVER | IRON_SET | PUTTER | SMALL_ITEM (default SMALL_ITEM).
- * Creates the listing row only. Client uploads images directly to Supabase Storage, then calls POST /api/listings/[id]/images.
+ * Body: JSON { category, brand, model, condition, description?, price (pence), imageCount (5–6), shaft?, degree?, shaft_flex? }
+ * parcel_preset is derived from category (automatic). Creates the listing row only. Client uploads images, then calls POST /api/listings/[id]/images.
  */
 export async function POST(request: Request) {
   try {
@@ -30,19 +29,9 @@ export async function POST(request: Request) {
     const description = (body.description as string) || null;
     const shaft = typeof body.shaft === "string" ? body.shaft.trim() || null : null;
     const degree = typeof body.degree === "string" ? body.degree.trim() || null : null;
+    const shaft_flex = typeof body.shaft_flex === "string" ? body.shaft_flex.trim() || null : null;
     const price = typeof body.price === "number" ? body.price : parseInt(String(body.price), 10);
     const imageCount = typeof body.imageCount === "number" ? body.imageCount : parseInt(String(body.imageCount), 10);
-    const rawParcel = body.parcelPreset ?? body.parcel_preset;
-    const validPresets: ParcelPresetType[] = [
-      ParcelPreset.GOLF_DRIVER,
-      ParcelPreset.IRON_SET,
-      ParcelPreset.PUTTER,
-      ParcelPreset.SMALL_ITEM,
-    ];
-    const parcel_preset =
-      typeof rawParcel === "string" && validPresets.includes(rawParcel as ParcelPresetType)
-        ? (rawParcel as ParcelPresetType)
-        : ParcelPreset.SMALL_ITEM;
 
     const allowedCategories = ["Driver", "Woods", "Irons", "Wedges", "Putter", "Apparel", "Bag"];
     const allowedConditions = ["New", "Excellent", "Good", "Fair", "Used"];
@@ -58,9 +47,11 @@ export async function POST(request: Request) {
     ) {
       return NextResponse.json({ error: "Invalid fields" }, { status: 400 });
     }
-    if (!Number.isFinite(imageCount) || imageCount < 3 || imageCount > 6) {
-      return NextResponse.json({ error: "Upload 3–6 images" }, { status: 400 });
+    if (!Number.isFinite(imageCount) || imageCount < 5 || imageCount > 6) {
+      return NextResponse.json({ error: "Upload 5–6 images" }, { status: 400 });
     }
+
+    const parcel_preset = categoryToParcelPreset(category);
 
     const admin = createAdminClient();
 
@@ -71,11 +62,11 @@ export async function POST(request: Request) {
         category,
         brand,
         model,
-        title,
         condition,
         description,
         shaft,
         degree,
+        shaft_flex,
         price,
         parcel_preset,
         status: "pending",

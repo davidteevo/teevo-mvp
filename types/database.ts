@@ -54,6 +54,7 @@ export interface Listing {
   price: number;
   shaft: string | null;
   degree: string | null;
+  shaft_flex: string | null;
   status: ListingStatus;
   flagged: boolean;
   created_at: string;

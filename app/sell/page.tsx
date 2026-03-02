@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useRef, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { ListingForm, type SubmitStatus } from "@/components/listing/ListingForm";
 
@@ -14,11 +14,16 @@ const BRANDS = [
   "Titleist", "Callaway", "TaylorMade", "Ping", "Cobra", "Mizuno", "Srixon", "Wilson", "Other",
 ];
 const CONDITIONS = ["New", "Excellent", "Good", "Used"] as const;
-const PARCEL_PRESETS = ["GOLF_DRIVER", "IRON_SET", "PUTTER", "SMALL_ITEM"] as const;
 
-export default function SellPage() {
-  const { user, role, loading } = useAuth();
+function SellPageContent() {
+  const { user, loading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const categoryFromUrl = searchParams.get("category");
+  const initialCategory =
+    categoryFromUrl && CATEGORIES.includes(categoryFromUrl as (typeof CATEGORIES)[number])
+      ? categoryFromUrl
+      : "";
   const [submitting, setSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -43,9 +48,9 @@ export default function SellPage() {
     condition: string;
     description: string;
     price: string;
-    parcelPreset: string;
     shaft?: string;
     degree?: string;
+    shaftFlex?: string;
     images: File[];
   }) => {
     abortRef.current = new AbortController();
@@ -59,8 +64,8 @@ export default function SellPage() {
         throw new Error("Invalid price");
       }
       const images = payload.images;
-      if (images.length < 3 || images.length > 6) {
-        throw new Error("Upload 3–6 images");
+      if (images.length < 5 || images.length > 6) {
+        throw new Error("Please upload 5 or 6 images (Front, Back, Sole, Shaft, Grip).");
       }
 
       // 1. Create listing (metadata only — no image bytes through API, so no body size limit)
@@ -76,9 +81,9 @@ export default function SellPage() {
           description: payload.description || null,
           price: pricePence,
           imageCount: images.length,
-          parcelPreset: payload.parcelPreset || "SMALL_ITEM",
           shaft: payload.shaft || null,
           degree: payload.degree || null,
+          shaft_flex: payload.shaftFlex || null,
         }),
         signal,
       });
@@ -140,8 +145,8 @@ export default function SellPage() {
         paths.push(path);
       }
 
-      if (paths.length < 3) {
-        throw new Error("At least 3 valid images (JPG, PNG, GIF, WebP) are required.");
+      if (paths.length < 5) {
+        throw new Error("At least 5 valid images (JPG, PNG, GIF, WebP) are required.");
       }
 
       // 4. Register image paths with the API
@@ -188,19 +193,37 @@ export default function SellPage() {
 
   return (
     <div className="max-w-xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-mowing-green">List an item</h1>
+      <h1 className="text-2xl font-bold text-mowing-green">Sell your gear</h1>
       <p className="mt-2 text-mowing-green/80 text-sm">
-        Under 2 minutes. We’ll verify your listing before it goes live.
+        We verify every listing to protect buyers and sellers.
       </p>
+      <div className="mt-4 rounded-xl border border-mowing-green/20 bg-mowing-green/5 p-4">
+        <p className="text-sm font-medium text-mowing-green mb-2">Sell in 3 steps</p>
+        <ol className="text-sm text-mowing-green/80 space-y-1">
+          <li><strong>1. List your item</strong> — Add photos and key details</li>
+          <li><strong>2. We verify it</strong> — Within 24 hours</li>
+          <li><strong>3. Get paid</strong> — When it sells</li>
+        </ol>
+      </div>
       <ListingForm
         categories={CATEGORIES}
         brands={BRANDS}
         conditions={CONDITIONS}
-        parcelPresets={PARCEL_PRESETS}
+        initialCategory={initialCategory}
         onSubmit={handleSubmit}
         submitting={submitting}
         submitStatus={submitStatus}
       />
     </div>
+  );
+}
+
+export default function SellPage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-xl mx-auto px-4 py-12 text-center text-mowing-green/80">Loading…</div>
+    }>
+      <SellPageContent />
+    </Suspense>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle } from "lucide-react";
@@ -18,7 +18,7 @@ type ListingPreview = {
   listing_images?: { storage_path: string; sort_order: number }[];
 };
 
-export default function SellStartSuccessPage() {
+function SuccessContent() {
   const searchParams = useSearchParams();
   const listingId = searchParams.get("listingId");
   const [listing, setListing] = useState<ListingPreview | null>(null);
@@ -99,7 +99,21 @@ export default function SellStartSuccessPage() {
         >
           List another item
         </Link>
+        <Link
+          href="/dashboard"
+          className="rounded-xl border border-mowing-green text-mowing-green px-6 py-3 font-medium hover:bg-mowing-green/5"
+        >
+          Go to dashboard
+        </Link>
       </div>
     </div>
+  );
+}
+
+export default function SellStartSuccessPage() {
+  return (
+    <Suspense fallback={<div className="max-w-lg mx-auto px-4 py-12 text-center text-mowing-green/80">Loading…</div>}>
+      <SuccessContent />
+    </Suspense>
   );
 }

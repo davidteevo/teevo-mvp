@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
+import { categoryToParcelPreset } from "@/lib/shippo";
 
 export const dynamic = "force-dynamic";
 
@@ -9,7 +10,8 @@ const ALLOWED_CONDITIONS = ["New", "Excellent", "Good", "Fair", "Used"];
 
 /**
  * PATCH /api/listings/[id]
- * Seller can update own pending listing: title, category, brand, model, condition, description, price.
+ * Seller can update own pending listing: title, category, brand, model, condition, description, price, shaft, degree, shaft_flex.
+ * parcel_preset is derived from category when category is updated.
  */
 export async function PATCH(
   request: Request,
@@ -58,15 +60,24 @@ export async function PATCH(
   const condition = typeof body.condition === "string" && ALLOWED_CONDITIONS.includes(body.condition) ? body.condition : undefined;
   const description = typeof body.description === "string" ? body.description.trim() || null : undefined;
   const price = typeof body.price === "number" ? body.price : typeof body.price === "string" ? parseInt(String(body.price), 10) : undefined;
+  const shaft = typeof body.shaft === "string" ? body.shaft.trim() || null : undefined;
+  const degree = typeof body.degree === "string" ? body.degree.trim() || null : undefined;
+  const shaft_flex = typeof body.shaft_flex === "string" ? body.shaft_flex.trim() || null : undefined;
 
   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
-  if (category !== undefined) updates.category = category;
+  if (category !== undefined) {
+    updates.category = category;
+    updates.parcel_preset = categoryToParcelPreset(category);
+  }
   if (brand !== undefined) updates.brand = brand;
   if (model !== undefined) updates.model = model;
   if (title !== undefined) updates.title = title;
   if (condition !== undefined) updates.condition = condition;
   if (description !== undefined) updates.description = description;
   if (typeof price === "number" && Number.isFinite(price) && price > 0) updates.price = price;
+  if (shaft !== undefined) updates.shaft = shaft;
+  if (degree !== undefined) updates.degree = degree;
+  if (shaft_flex !== undefined) updates.shaft_flex = shaft_flex;
   // Optionally clear admin feedback when seller resubmits
   if (Object.keys(updates).length > 1) updates.admin_feedback = null;
 

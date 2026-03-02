@@ -123,7 +123,7 @@ export default function SellEditPage() {
         setSaving(false);
         return;
       }
-      router.push("/seller/dashboard?edited=1");
+      router.push("/dashboard?edited=1");
     } catch {
       setMessage("Something went wrong. Please try again.");
       setSaving(false);

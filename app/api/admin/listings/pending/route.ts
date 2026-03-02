@@ -24,7 +24,7 @@ export async function GET() {
 
   const { data, error } = await admin
     .from("listings")
-    .select("id, user_id, category, brand, model, condition, price, description, shaft, degree, status, created_at, listing_images(storage_path, sort_order)")
+    .select("id, user_id, category, brand, model, condition, price, description, shaft, degree, shaft_flex, status, created_at, listing_images(storage_path, sort_order)")
     .eq("status", "pending")
     .order("created_at", { ascending: false });
 

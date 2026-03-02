@@ -10,10 +10,13 @@ interface ImageUploadProps {
   onChange: (files: File[]) => void;
   /** Optional labels for each slot (e.g. "Face", "Shaft") — shown under thumbnails when provided */
   slotLabels?: string[];
+  /** Hero variant: larger drop zone and "Drag and drop or click" copy */
+  variant?: "default" | "hero";
 }
 
-export function ImageUpload({ min, max, value, onChange, slotLabels }: ImageUploadProps) {
+export function ImageUpload({ min, max, value, onChange, slotLabels, variant = "default" }: ImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const isHero = variant === "hero";
 
   const add = (files: FileList | null) => {
     if (!files?.length) return;
@@ -29,7 +32,7 @@ export function ImageUpload({ min, max, value, onChange, slotLabels }: ImageUplo
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <input
         ref={inputRef}
         type="file"
@@ -41,6 +44,20 @@ export function ImageUpload({ min, max, value, onChange, slotLabels }: ImageUplo
           e.target.value = "";
         }}
       />
+      {value.length < max && (
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          className={`w-full rounded-xl border-2 border-dashed border-par-3-punch/50 text-mowing-green/70 flex flex-col items-center justify-center gap-2 hover:border-par-3-punch hover:text-mowing-green transition-colors ${
+            isHero ? "py-12 px-6 min-h-[140px]" : "py-6"
+          }`}
+        >
+          <Upload className={isHero ? "h-10 w-10" : "h-6 w-6"} />
+          {isHero && (
+            <span className="text-sm font-medium">Drag and drop or click to add photos</span>
+          )}
+        </button>
+      )}
       <div className="flex flex-wrap gap-2">
         {value.map((file, i) => (
           <div key={i} className="flex flex-col items-center gap-0.5">
@@ -66,15 +83,6 @@ export function ImageUpload({ min, max, value, onChange, slotLabels }: ImageUplo
             )}
           </div>
         ))}
-        {value.length < max && (
-          <button
-            type="button"
-            onClick={() => inputRef.current?.click()}
-            className="w-20 h-20 rounded-lg border-2 border-dashed border-par-3-punch/50 text-mowing-green/70 flex items-center justify-center hover:border-par-3-punch hover:text-mowing-green"
-          >
-            <Upload className="h-6 w-6" />
-          </button>
-        )}
       </div>
       <p className="text-xs text-mowing-green/60">
         {value.length} / {max} images (min {min})
