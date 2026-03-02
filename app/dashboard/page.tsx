@@ -41,7 +41,7 @@ function FoundingSellerFeedback() {
 
   return (
     <div className="rounded-xl border border-mowing-green/30 bg-mowing-green/5 p-3 sm:p-4">
-      <p className="text-mowing-green font-medium text-sm sm:text-base mb-2">You&apos;re a founding seller — we&apos;d love your feedback.</p>
+      <p className="text-mowing-green font-medium text-sm sm:text-base mb-2">You&apos;re a founding member — we&apos;d love your feedback.</p>
       <div className="flex flex-col sm:flex-row sm:items-end gap-2 sm:gap-3">
         <form onSubmit={handleSubmit} className="flex-1 min-w-0 flex flex-col gap-1.5">
           <textarea
