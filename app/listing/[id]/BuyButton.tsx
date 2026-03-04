@@ -97,8 +97,8 @@ export function BuyButton({
   };
 
   if (!BUYING_ENABLED) {
-    return (
-      <>
+    const comingSoonUi = (
+      <div>
         <div className="space-y-3">
           <button
             type="button"
@@ -109,7 +109,6 @@ export function BuyButton({
             Coming Soon
           </button>
         </div>
-
         {modalOpen && (
           <div
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
@@ -126,16 +125,18 @@ export function BuyButton({
                 Buying launches soon
               </h2>
               {notifySuccess ? (
-                <p className="mt-4 text-mowing-green/90">
-                  Thanks — we&apos;ll email you when buying opens.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="mt-6 w-full rounded-xl bg-mowing-green text-off-white-pique px-4 py-3 font-semibold hover:opacity-90"
-                >
-                  Close
-                </button>
+                <>
+                  <p className="mt-4 text-mowing-green/90">
+                    Thanks — we&apos;ll email you when buying opens.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setModalOpen(false)}
+                    className="mt-6 w-full rounded-xl bg-mowing-green text-off-white-pique px-4 py-3 font-semibold hover:opacity-90"
+                  >
+                    Close
+                  </button>
+                </>
               ) : (
                 <>
                   <p className="mt-2 text-mowing-green/80">
@@ -184,8 +185,9 @@ export function BuyButton({
             </div>
           </div>
         )}
-      </>
+      </div>
     );
+    return comingSoonUi;
   }
 
   if (!sellerCanAcceptPayment) {
