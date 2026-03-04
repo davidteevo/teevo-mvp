@@ -12,6 +12,7 @@ export interface Filters {
   shaft?: string;
   shaftFlex?: string;
   degree?: string;
+  handed?: string;
 }
 
 const LISTINGS_GRID_LIMIT = 60;
@@ -66,6 +67,9 @@ async function getVerifiedListingsUncached(filters?: Filters) {
   if (filters?.degree?.trim()) {
     query = query.ilike("degree", `%${escapeLike(filters.degree.trim())}%`);
   }
+  if (filters?.handed === "left" || filters?.handed === "right") {
+    query = query.eq("handed", filters.handed);
+  }
 
   const { data, error } = await query;
   if (error) throw error;
@@ -83,6 +87,7 @@ export function getVerifiedListings(filters?: Filters) {
     filters?.shaft ?? "",
     filters?.shaftFlex ?? "",
     filters?.degree ?? "",
+    filters?.handed ?? "",
   ].join("-");
   return unstable_cache(
     () => getVerifiedListingsUncached(filters),

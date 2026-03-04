@@ -13,6 +13,7 @@ export type SearchParams = {
   shaft?: string;
   shaftFlex?: string;
   degree?: string;
+  handed?: string;
 };
 
 function FiltersFallback() {

@@ -34,6 +34,7 @@ export function SmartSearchHero() {
       if (filters.shaft) params.set("shaft", filters.shaft);
       if (filters.shaftFlex) params.set("shaftFlex", filters.shaftFlex);
       if (filters.degree) params.set("degree", filters.degree);
+      if (filters.handed) params.set("handed", filters.handed);
       router.push(`/?${params.toString()}`);
     },
     [router]
@@ -214,7 +215,6 @@ export function SmartSearchHero() {
                     onClick={() => selectSuggestion(s)}
                   >
                     <span className="font-medium">{s.label}</span>
-                    <span className="ml-2 text-mowing-green/70">{s.brand}</span>
                   </li>
                 ))}
               </ul>

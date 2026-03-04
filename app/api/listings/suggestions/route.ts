@@ -43,7 +43,7 @@ export async function GET(request: Request) {
       const key = `${row.model}|${row.brand}|${row.category}`;
       if (seen.has(key)) continue;
       seen.add(key);
-      const label = `${row.model} ${row.category}`;
+      const label = `${row.model} · ${row.brand}`;
       suggestions.push({
         label,
         category: row.category,

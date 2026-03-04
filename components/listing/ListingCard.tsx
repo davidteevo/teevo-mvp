@@ -35,6 +35,7 @@ export function ListingCard({ listing, priority }: { listing: ListingWithSeller;
     listing.shaft?.trim(),
     listing.shaft_flex?.trim(),
     listing.degree?.trim() ? `${listing.degree}${String(listing.degree).trim().endsWith("°") ? "" : "°"}` : null,
+    listing.handed ? (listing.handed === "left" ? "Left" : "Right") + " handed" : null,
   ].filter(Boolean) as string[];
   const specLine = specParts.length > 0 ? specParts.join(" · ") : null;
 

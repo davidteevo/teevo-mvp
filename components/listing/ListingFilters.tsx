@@ -3,17 +3,6 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import type { ListingCategory } from "@/types/database";
-
-const CATEGORIES: ListingCategory[] = [
-  "Driver",
-  "Woods",
-  "Irons",
-  "Wedges",
-  "Putter",
-  "Apparel",
-  "Bag",
-];
 
 const BRANDS = [
   "Titleist",
@@ -44,7 +33,6 @@ export function ListingFilters() {
     [router, searchParams]
   );
 
-  const category = searchParams.get("category") ?? "";
   const brand = searchParams.get("brand") ?? "";
   const minPrice = searchParams.get("minPrice") ?? "";
   const maxPrice = searchParams.get("maxPrice") ?? "";
@@ -52,29 +40,15 @@ export function ListingFilters() {
   const shaft = searchParams.get("shaft") ?? "";
   const shaftFlex = searchParams.get("shaftFlex") ?? "";
   const degree = searchParams.get("degree") ?? "";
+  const handed = searchParams.get("handed") ?? "";
 
   const hasAnyFilter =
-    category || brand || minPrice || maxPrice || search || shaft || shaftFlex || degree;
+    searchParams.get("category") || brand || minPrice || maxPrice || search || shaft || shaftFlex || degree || handed;
 
   return (
     <div className="mb-4">
-      {/* Primary row: Category | Brand | Price */}
+      {/* Primary row: Brand | Price */}
       <div className="flex flex-wrap items-end gap-3 py-2">
-        <div>
-          <label className="block text-xs font-medium text-mowing-green/70 mb-0.5">Category</label>
-          <select
-            value={category}
-            onChange={(e) => setParam("category", e.target.value || null)}
-            className="rounded-lg border border-mowing-green/30 bg-white px-3 py-1.5 text-sm text-mowing-green min-w-[120px]"
-          >
-            <option value="">All</option>
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-        </div>
         <div>
           <label className="block text-xs font-medium text-mowing-green/70 mb-0.5">Brand</label>
           <select
@@ -183,6 +157,18 @@ export function ListingFilters() {
                     {f}
                   </option>
                 ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-mowing-green/70 mb-0.5">Handed</label>
+              <select
+                value={handed}
+                onChange={(e) => setParam("handed", e.target.value || null)}
+                className="rounded-lg border border-mowing-green/30 bg-white px-2 py-1.5 text-sm text-mowing-green min-w-[100px]"
+              >
+                <option value="">Any</option>
+                <option value="left">Left</option>
+                <option value="right">Right</option>
               </select>
             </div>
           </div>
