@@ -42,9 +42,11 @@ interface ListingFormProps {
     condition: string;
     description: string;
     price: string;
+    title?: string;
     shaft?: string;
     degree?: string;
     shaftFlex?: string;
+    handed?: "left" | "right";
     images: File[];
   }) => void;
   submitting: boolean;
@@ -81,14 +83,19 @@ export function ListingForm({
   const [brand, setBrand] = useState("");
   const [model, setModel] = useState("");
   const [condition, setCondition] = useState("");
+  const [title, setTitle] = useState("");
   const [shaft, setShaft] = useState("");
   const [degree, setDegree] = useState("");
   const [shaftFlex, setShaftFlex] = useState("");
+  const [handed, setHanded] = useState<"" | "left" | "right">("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [enhanceLoading, setEnhanceLoading] = useState(false);
   const [images, setImages] = useState<File[]>([]);
   const [specsOpen, setSpecsOpen] = useState(false);
   const [stickyVisible, setStickyVisible] = useState(false);
+  const [priceGuidance, setPriceGuidance] = useState<{ minPence: number; maxPence: number; source: string } | null>(null);
+  const [priceGuidanceLoading, setPriceGuidanceLoading] = useState(false);
   const mainCtaRef = useRef<HTMLButtonElement>(null);
   const modelSelectRef = useRef<SearchableSelectHandle>(null);
 
@@ -113,6 +120,39 @@ export function ListingForm({
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (!category || !brand || !model.trim() || !condition) {
+      setPriceGuidance(null);
+      return;
+    }
+    let cancelled = false;
+    setPriceGuidanceLoading(true);
+    const params = new URLSearchParams({ category, brand, model: model.trim(), condition });
+    fetch(`/api/ai/price-guidance?${params}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled || !data) return;
+        if (data.minPence != null && data.maxPence != null) {
+          setPriceGuidance({
+            minPence: data.minPence,
+            maxPence: data.maxPence,
+            source: data.source ?? "platform",
+          });
+        } else {
+          setPriceGuidance(null);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setPriceGuidance(null);
+      })
+      .finally(() => {
+        if (!cancelled) setPriceGuidanceLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [category, brand, model, condition]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (images.length < 5 || images.length > 6) {
@@ -127,6 +167,10 @@ export function ListingForm({
       alert("Please select a condition.");
       return;
     }
+    if (isGolfEquipment && !handed) {
+      alert("Please select Right handed or Left handed.");
+      return;
+    }
     onSubmit({
       category,
       brand,
@@ -134,13 +178,53 @@ export function ListingForm({
       condition,
       description,
       price,
+      ...(title.trim() && { title: title.trim() }),
       ...(isDriverOrWoods && {
         shaft: shaft.trim() || undefined,
         degree: degree.trim() || undefined,
         shaftFlex: shaftFlex.trim() || undefined,
       }),
+      ...(isGolfEquipment && handed && { handed: handed as "left" | "right" }),
       images,
     });
+  };
+
+  const handleImproveWithAI = async () => {
+    if (!category || !brand || !model.trim() || !condition) {
+      alert("Please fill in Category, Brand, Model and Condition first.");
+      return;
+    }
+    setEnhanceLoading(true);
+    try {
+      const res = await fetch("/api/ai/enhance-listing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          category,
+          brand,
+          model: model.trim(),
+          condition,
+          description: description.trim() || undefined,
+          title: title.trim() || undefined,
+          shaft: shaft.trim() || undefined,
+          degree: degree.trim() || undefined,
+          shaft_flex: shaftFlex.trim() || undefined,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error ?? "Could not get suggestions");
+      }
+      if (data.title) setTitle(data.title);
+      if (data.description) setDescription(data.description);
+      if (data.shaft != null) setShaft(data.shaft ?? "");
+      if (data.degree != null) setDegree(data.degree ?? "");
+      if (data.shaft_flex != null) setShaftFlex(data.shaft_flex ?? "");
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Something went wrong. Try again.");
+    } finally {
+      setEnhanceLoading(false);
+    }
   };
 
   return (
@@ -182,6 +266,15 @@ export function ListingForm({
             className="flex-1 min-w-0 bg-transparent border-none p-0 text-mowing-green placeholder:text-mowing-green/50 outline-none"
           />
         </div>
+        {priceGuidanceLoading && (
+          <p className="mt-1.5 text-xs text-mowing-green/60">Checking resale range…</p>
+        )}
+        {!priceGuidanceLoading && priceGuidance && (
+          <p className="mt-1.5 text-xs text-mowing-green/70">
+            Estimated resale range: £{(priceGuidance.minPence / 100).toFixed(0)}–£{(priceGuidance.maxPence / 100).toFixed(0)}
+            {priceGuidance.source === "limited" && " (based on limited data)"}
+          </p>
+        )}
       </section>
 
       {/* 3. Item details */}
@@ -270,6 +363,35 @@ export function ListingForm({
         </section>
       )}
 
+      {/* 4b. Right/Left handed (golf clubs only) */}
+      {isGolfEquipment && (
+        <section>
+          <label className="block text-sm font-medium text-mowing-green mb-2">
+            Handed *
+          </label>
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Handed">
+            {(["right", "left"] as const).map((h) => {
+              const selected = handed === h;
+              const label = h === "right" ? "Right handed" : "Left handed";
+              return (
+                <button
+                  key={h}
+                  type="button"
+                  onClick={() => setHanded(h)}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                    selected
+                      ? "bg-mowing-green text-off-white-pique"
+                      : "bg-mowing-green/10 text-mowing-green hover:bg-mowing-green/20"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       {/* 5. Condition */}
       <section>
         <label className="block text-sm font-medium text-mowing-green mb-2">
@@ -299,15 +421,35 @@ export function ListingForm({
 
       {/* 6. Description */}
       <section>
-        <label className="block text-sm font-medium text-mowing-green mb-1">
-          Description
-        </label>
+        <div className="flex items-center justify-between gap-2 mb-1">
+          <label className="block text-sm font-medium text-mowing-green">
+            Description
+          </label>
+          <button
+            type="button"
+            onClick={handleImproveWithAI}
+            disabled={enhanceLoading || !category || !brand || !model.trim() || !condition || submitting}
+            className="text-xs font-medium text-mowing-green underline hover:no-underline disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {enhanceLoading ? "Improving…" : "Improve with AI"}
+          </button>
+        </div>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={4}
           placeholder="Any details that help buyers..."
           className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50 resize-y"
+        />
+        <label className="block text-sm font-medium text-mowing-green/80 mt-3 mb-1">
+          Listing title (optional)
+        </label>
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="e.g. Ping G425 Max Driver – 10.5° – Excellent"
+          className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
         />
       </section>
 

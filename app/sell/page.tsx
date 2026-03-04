@@ -48,9 +48,11 @@ function SellPageContent() {
     condition: string;
     description: string;
     price: string;
+    title?: string;
     shaft?: string;
     degree?: string;
     shaftFlex?: string;
+    handed?: "left" | "right";
     images: File[];
   }) => {
     abortRef.current = new AbortController();
@@ -77,6 +79,7 @@ function SellPageContent() {
           category: payload.category,
           brand: payload.brand,
           model: payload.model,
+          title: payload.title?.trim() || null,
           condition: payload.condition,
           description: payload.description || null,
           price: pricePence,
@@ -84,6 +87,7 @@ function SellPageContent() {
           shaft: payload.shaft || null,
           degree: payload.degree || null,
           shaft_flex: payload.shaftFlex || null,
+          handed: payload.handed || null,
         }),
         signal,
       });

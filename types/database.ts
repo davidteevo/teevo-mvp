@@ -55,6 +55,7 @@ export interface Listing {
   shaft: string | null;
   degree: string | null;
   shaft_flex: string | null;
+  handed: "left" | "right" | null;
   status: ListingStatus;
   flagged: boolean;
   created_at: string;

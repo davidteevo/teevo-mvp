@@ -31,10 +31,17 @@ export function ListingCard({ listing, priority }: { listing: ListingWithSeller;
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listings/${imgPath}`
     : "/placeholder-listing.svg";
 
+  const specParts = [
+    listing.shaft?.trim(),
+    listing.shaft_flex?.trim(),
+    listing.degree?.trim() ? `${listing.degree}${String(listing.degree).trim().endsWith("°") ? "" : "°"}` : null,
+  ].filter(Boolean) as string[];
+  const specLine = specParts.length > 0 ? specParts.join(" · ") : null;
+
   return (
     <Link
       href={`/listing/${listing.id}`}
-      className="block rounded-lg border border-par-3-punch/20 bg-white overflow-hidden hover:shadow-md transition-shadow"
+      className="block rounded-lg border border-par-3-punch/20 bg-white overflow-hidden hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200"
     >
       <div className="aspect-[3/4] relative bg-mowing-green/5">
         <Image
@@ -57,6 +64,9 @@ export function ListingCard({ listing, priority }: { listing: ListingWithSeller;
           {listing.model}
         </h2>
         <p className="text-[10px] sm:text-xs text-mowing-green/70 mt-0.5 truncate">{listing.condition}</p>
+        {specLine && (
+          <p className="text-[10px] sm:text-xs text-mowing-green/60 mt-0.5 truncate">{specLine}</p>
+        )}
         {sellerName && (
           <p className="text-[10px] sm:text-xs text-mowing-green/60 mt-0.5 truncate">Sold by {sellerName}</p>
         )}

@@ -3,16 +3,25 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { ListingCategory } from "@/types/database";
 
-interface Filters {
+export interface Filters {
   category?: string;
   brand?: string;
   minPrice?: string;
   maxPrice?: string;
+  search?: string;
+  shaft?: string;
+  shaftFlex?: string;
+  degree?: string;
 }
 
 const LISTINGS_GRID_LIMIT = 60;
 const LISTINGS_CACHE_SECONDS = 45;
 const LISTING_DETAIL_CACHE_SECONDS = 30;
+
+/** Escape term for use in ilike (%, _ are wildcards in SQL LIKE). */
+function escapeLike(term: string): string {
+  return term.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
+}
 
 /** Uses admin client so this can run inside unstable_cache without request/cookies (e.g. on Netlify). Only returns public verified listings. */
 async function getVerifiedListingsUncached(filters?: Filters) {
@@ -20,7 +29,7 @@ async function getVerifiedListingsUncached(filters?: Filters) {
   let query = supabase
     .from("listings")
     .select(
-      "id, user_id, category, brand, model, condition, description, price, shaft, degree, shaft_flex, status, flagged, created_at, updated_at, listing_images ( id, storage_path, sort_order ), users ( display_name )"
+      "id, user_id, category, brand, model, condition, description, price, shaft, degree, shaft_flex, handed, status, flagged, created_at, updated_at, listing_images ( id, storage_path, sort_order ), users ( display_name )"
     )
     .eq("status", "verified")
     .order("created_at", { ascending: false })
@@ -40,6 +49,23 @@ async function getVerifiedListingsUncached(filters?: Filters) {
     const pence = Math.round(parseFloat(filters.maxPrice) * 100);
     if (!Number.isNaN(pence)) query = query.lte("price", pence);
   }
+  if (filters?.search?.trim()) {
+    const raw = filters.search.trim().replace(/,/g, " ");
+    const term = escapeLike(raw);
+    const pattern = `%${term}%`;
+    query = query.or(
+      `model.ilike.${pattern},brand.ilike.${pattern},description.ilike.${pattern},shaft.ilike.${pattern},shaft_flex.ilike.${pattern},degree.ilike.${pattern}`
+    );
+  }
+  if (filters?.shaft?.trim()) {
+    query = query.ilike("shaft", `%${escapeLike(filters.shaft.trim())}%`);
+  }
+  if (filters?.shaftFlex?.trim()) {
+    query = query.eq("shaft_flex", filters.shaftFlex.trim());
+  }
+  if (filters?.degree?.trim()) {
+    query = query.ilike("degree", `%${escapeLike(filters.degree.trim())}%`);
+  }
 
   const { data, error } = await query;
   if (error) throw error;
@@ -47,7 +73,17 @@ async function getVerifiedListingsUncached(filters?: Filters) {
 }
 
 export function getVerifiedListings(filters?: Filters) {
-  const key = ["verified-listings", filters?.category ?? "", filters?.brand ?? "", filters?.minPrice ?? "", filters?.maxPrice ?? ""].join("-");
+  const key = [
+    "verified-listings",
+    filters?.category ?? "",
+    filters?.brand ?? "",
+    filters?.minPrice ?? "",
+    filters?.maxPrice ?? "",
+    filters?.search ?? "",
+    filters?.shaft ?? "",
+    filters?.shaftFlex ?? "",
+    filters?.degree ?? "",
+  ].join("-");
   return unstable_cache(
     () => getVerifiedListingsUncached(filters),
     [key],
@@ -59,7 +95,7 @@ async function getListingByIdUncached(id: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
-    .select("id, user_id, category, brand, model, condition, description, price, shaft, degree, shaft_flex, status, created_at, listing_images ( id, storage_path, sort_order )")
+    .select("id, user_id, category, brand, model, condition, description, price, shaft, degree, shaft_flex, handed, status, created_at, listing_images ( id, storage_path, sort_order )")
     .eq("id", id)
     .single();
   if (error) throw error;
@@ -76,7 +112,7 @@ async function getListingByIdAdminUncached(id: string) {
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("listings")
-    .select("id, user_id, category, brand, model, condition, description, price, shaft, degree, shaft_flex, status, created_at, listing_images ( id, storage_path, sort_order )")
+    .select("id, user_id, category, brand, model, condition, description, price, shaft, degree, shaft_flex, handed, status, created_at, listing_images ( id, storage_path, sort_order )")
     .eq("id", id)
     .single();
   if (error) throw error;

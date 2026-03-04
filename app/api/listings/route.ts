@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * POST /api/listings
- * Body: JSON { category, brand, model, condition, description?, price (pence), imageCount (5–6), shaft?, degree?, shaft_flex? }
+ * Body: JSON { category, brand, model, title?, condition, description?, price (pence), imageCount (5–6), shaft?, degree?, shaft_flex? }
  * parcel_preset is derived from category (automatic). Creates the listing row only. Client uploads images, then calls POST /api/listings/[id]/images.
  */
 export async function POST(request: Request) {
@@ -30,6 +30,9 @@ export async function POST(request: Request) {
     const shaft = typeof body.shaft === "string" ? body.shaft.trim() || null : null;
     const degree = typeof body.degree === "string" ? body.degree.trim() || null : null;
     const shaft_flex = typeof body.shaft_flex === "string" ? body.shaft_flex.trim() || null : null;
+    const handedRaw = body.handed;
+    const handed =
+      handedRaw === "left" || handedRaw === "right" ? handedRaw : null;
     const price = typeof body.price === "number" ? body.price : parseInt(String(body.price), 10);
     const imageCount = typeof body.imageCount === "number" ? body.imageCount : parseInt(String(body.imageCount), 10);
 
@@ -62,11 +65,13 @@ export async function POST(request: Request) {
         category,
         brand,
         model,
+        title: title ?? null,
         condition,
         description,
         shaft,
         degree,
         shaft_flex,
+        handed,
         price,
         parcel_preset,
         status: "pending",

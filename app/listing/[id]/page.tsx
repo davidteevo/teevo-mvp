@@ -84,7 +84,10 @@ export default async function ListingPage({
           <h1 className="text-2xl sm:text-3xl font-bold text-mowing-green mt-1">
             {listing.model}
           </h1>
-          <p className="text-mowing-green/80 mt-2">{listing.condition}</p>
+          <p className="text-mowing-green/80 mt-2">
+            {listing.condition}
+            {listing.handed && ` · ${listing.handed === "left" ? "Left" : "Right"} handed`}
+          </p>
           {(listing.shaft || listing.degree || listing.shaft_flex) && (
             <p className="mt-2 text-sm text-mowing-green/80">
               {[

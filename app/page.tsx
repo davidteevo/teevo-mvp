@@ -1,12 +1,23 @@
 import { Suspense } from "react";
 import { ListingGrid } from "@/components/listing/ListingGrid";
 import { ListingFilters } from "@/components/listing/ListingFilters";
+import { SmartSearchHero } from "@/components/listing/SmartSearchHero";
+import { CategoryShortcuts } from "@/components/listing/CategoryShortcuts";
 
-type SearchParams = { category?: string; brand?: string; minPrice?: string; maxPrice?: string };
+export type SearchParams = {
+  category?: string;
+  brand?: string;
+  minPrice?: string;
+  maxPrice?: string;
+  search?: string;
+  shaft?: string;
+  shaftFlex?: string;
+  degree?: string;
+};
 
 function FiltersFallback() {
   return (
-    <div className="flex flex-wrap gap-4 mb-6 p-4 rounded-xl bg-white/60 border border-par-3-punch/20 animate-pulse h-[72px]" />
+    <div className="flex flex-wrap items-end gap-3 mb-4 py-2 animate-pulse h-10" aria-hidden />
   );
 }
 
@@ -17,17 +28,26 @@ export default function HomePage({
 }) {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="mb-8">
+      {/* Hero: primary visual weight */}
+      <header className="mb-8 rounded-2xl bg-mowing-green/5 border border-mowing-green/10 px-6 py-8 sm:px-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-mowing-green">
           Golf equipment for every game
         </h1>
         <p className="mt-2 text-mowing-green/80">
           Browse verified listings from UK sellers. Secure payment, no fuss.
         </p>
-      </div>
+        <SmartSearchHero />
+      </header>
+
+      {/* Category shortcuts */}
+      <CategoryShortcuts />
+
+      {/* Filters: compact, secondary */}
       <Suspense fallback={<FiltersFallback />}>
         <ListingFilters />
       </Suspense>
+
+      {/* Listings grid */}
       <ListingGrid searchParams={searchParams} />
     </div>
   );
