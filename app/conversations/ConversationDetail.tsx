@@ -608,7 +608,7 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
       {/* Compose: always visible, sticky at bottom */}
       <div className="sticky bottom-0 shrink-0 bg-off-white-pique pt-2 pb-2 border-t border-mowing-green/20">
         <p className="text-mowing-green/60 text-xs mb-2">
-          Keep payments and messaging on Teevo to stay protected. Transactions made outside Teevo are not protected. Payments protected on Teevo.
+          Keep payments and messaging on Teevo to stay protected. Transactions made outside Teevo are not protected.
         </p>
         {listing?.status !== "verified" && listing !== null && (
           <p className="text-mowing-green/70 text-sm mb-2">Listing no longer available for new messages.</p>
