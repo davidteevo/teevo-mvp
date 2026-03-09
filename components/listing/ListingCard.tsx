@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Listing } from "@/types/database";
 import { VerifiedBadge } from "@/components/trust/VerifiedBadge";
-import { formatPrice } from "@/lib/format";
+import { PriceWithBreakdown } from "@/components/listing/PriceWithBreakdown";
 import { getListingDisplayTitle, getListingMetaParts } from "@/lib/listing-display";
 
 /** Listing optionally with joined seller display name (from users relation). Supabase returns users as array for the join. */
@@ -74,9 +74,11 @@ export function ListingCard({ listing, priority }: { listing: ListingWithSeller;
         {sellerName && (
           <p className="text-[10px] sm:text-xs text-mowing-green/60 mt-0.5 truncate">Sold by {sellerName}</p>
         )}
-        <p className="mt-1.5 text-base font-bold text-mowing-green">
-          {formatPrice(listing.price)}
-        </p>
+        <PriceWithBreakdown
+          pricePence={listing.price}
+          displayTitle={displayTitle}
+          imageUrl={imageUrl}
+        />
       </div>
     </Link>
   );
