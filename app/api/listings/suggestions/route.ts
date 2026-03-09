@@ -31,6 +31,7 @@ export async function GET(request: Request) {
       .from("listings")
       .select("model, brand, category, title, item_type, size, colour")
       .eq("status", "verified")
+      .is("archived_at", null)
       .or(
         `model.ilike.${pattern},brand.ilike.${pattern},category.ilike.${pattern},title.ilike.${pattern},item_type.ilike.${pattern},size.ilike.${pattern},colour.ilike.${pattern}`
       )

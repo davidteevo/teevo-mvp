@@ -46,7 +46,12 @@ export async function POST(
     return NextResponse.json({ error: "Offer has expired" }, { status: 400 });
   }
 
-  const { data: listing } = await admin.from("listings").select("status").eq("id", offer.listing_id).single();
+  const { data: listing } = await admin
+    .from("listings")
+    .select("status")
+    .eq("id", offer.listing_id)
+    .is("archived_at", null)
+    .single();
   if (!listing || listing.status !== "verified") {
     return NextResponse.json({ error: "Listing is no longer available" }, { status: 400 });
   }

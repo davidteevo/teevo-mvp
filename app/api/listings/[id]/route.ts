@@ -10,7 +10,9 @@ const ALLOWED_CONDITIONS_SET = new Set<string>(CONDITIONS);
 
 /**
  * PATCH /api/listings/[id]
- * Seller can update own pending listing: title, category, brand, model, condition, description, price, shaft, degree, shaft_flex.
+ * Seller can:
+ * - Unpublish/reactivate: body { archive: true } or { archive: false } (any status).
+ * - Edit own pending listing: title, category, brand, model, condition, description, price, shaft, degree, shaft_flex.
  * parcel_preset is derived from category when category is updated.
  */
 export async function PATCH(
@@ -39,18 +41,37 @@ export async function PATCH(
   if (listing.user_id !== user.id) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  if (listing.status !== "pending") {
-    return NextResponse.json(
-      { error: "Only pending listings can be edited" },
-      { status: 400 }
-    );
-  }
 
   let body: Record<string, unknown>;
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  // Unpublish (archive) or reactivate: allowed for any status
+  if (typeof body.archive === "boolean") {
+    const updates = {
+      updated_at: new Date().toISOString(),
+      archived_at: body.archive ? new Date().toISOString() : null,
+    };
+    const { error } = await admin
+      .from("listings")
+      .update(updates)
+      .eq("id", id)
+      .eq("user_id", user.id);
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ ok: true });
+  }
+
+  // Edit fields: only for pending listings
+  if (listing.status !== "pending") {
+    return NextResponse.json(
+      { error: "Only pending listings can be edited" },
+      { status: 400 }
+    );
   }
 
   const category: ListingCategory | undefined =

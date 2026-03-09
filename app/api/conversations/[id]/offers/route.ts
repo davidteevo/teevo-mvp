@@ -52,6 +52,7 @@ export async function POST(
     .from("listings")
     .select("id, price, status")
     .eq("id", conv.listing_id)
+    .is("archived_at", null)
     .single();
   if (!listing || listing.status !== "verified") {
     return NextResponse.json({ error: "Listing is not available" }, { status: 400 });

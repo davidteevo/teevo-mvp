@@ -35,6 +35,7 @@ async function getVerifiedListingsUncached(filters?: Filters) {
       "id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, handed, item_type, size, colour, status, flagged, created_at, updated_at, listing_images ( id, storage_path, sort_order ), users ( display_name )"
     )
     .eq("status", "verified")
+    .is("archived_at", null)
     .order("created_at", { ascending: false })
     .limit(LISTINGS_GRID_LIMIT);
 

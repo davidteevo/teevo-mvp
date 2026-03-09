@@ -35,6 +35,7 @@ export async function POST(request: Request) {
     .from("listings")
     .select("id, status")
     .eq("id", listingId)
+    .is("archived_at", null)
     .single();
 
   if (listErr || !listing) {
