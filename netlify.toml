@@ -9,6 +9,6 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# Run expire-offers cron every hour (UTC). Requires SITE_URL and CRON_SECRET in Netlify env.
+# Run expire-offers cron every hour (UTC). Uses Supabase env vars (same as the app).
 [functions."expire-offers-cron"]
   schedule = "@hourly"

@@ -1,31 +1,33 @@
 /**
- * Netlify Scheduled Function: calls the Next.js API to expire old offers.
- * Schedule is set in netlify.toml. Requires env vars: SITE_URL, CRON_SECRET.
+ * Netlify Scheduled Function: expires old offers directly in Supabase.
+ * Schedule is set in netlify.toml. No need to call the Next.js API.
+ * Requires env vars: NEXT_PUBLIC_SUPABASE_URL (or SUPABASE_URL), SUPABASE_SERVICE_ROLE_KEY.
  */
+import { createClient } from "@supabase/supabase-js";
+
 export default async (_req: Request) => {
-  const siteUrl = process.env.SITE_URL || process.env.URL;
-  const secret = process.env.CRON_SECRET;
-  if (!siteUrl) {
-    console.error("expire-offers-cron: SITE_URL or URL not set");
+  const supabaseUrl =
+    process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceRoleKey) {
+    console.error(
+      "expire-offers-cron: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set"
+    );
     return;
   }
-  if (!secret) {
-    console.error("expire-offers-cron: CRON_SECRET not set");
+  const admin = createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false },
+  });
+  const now = new Date().toISOString();
+  const { data: expired, error } = await admin
+    .from("offers")
+    .update({ status: "expired", updated_at: now })
+    .lt("expires_at", now)
+    .eq("status", "pending")
+    .select("id");
+  if (error) {
+    console.error("expire-offers-cron: DB error", error.message);
     return;
   }
-  const url = `${siteUrl.replace(/\/$/, "")}/api/cron/expire-offers`;
-  try {
-    const res = await fetch(url, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${secret}` },
-    });
-    const text = await res.text();
-    if (!res.ok) {
-      console.error("expire-offers-cron:", res.status, text);
-      return;
-    }
-    console.log("expire-offers-cron: OK", text);
-  } catch (err) {
-    console.error("expire-offers-cron: fetch failed", err);
-  }
+  console.log("expire-offers-cron: OK expired=" + (expired?.length ?? 0));
 };
