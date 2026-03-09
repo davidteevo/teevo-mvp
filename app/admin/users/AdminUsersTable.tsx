@@ -4,13 +4,19 @@ import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import type { AdminUser } from "@/lib/admin-data";
 
-type SortKey = "email" | "role" | "stripe" | "joined";
+type SortKey = "email" | "first_name" | "surname" | "role" | "stripe" | "joined";
 
 function compareUsers(a: AdminUser, b: AdminUser, sortKey: SortKey, sortAsc: boolean): number {
   let cmp = 0;
   switch (sortKey) {
     case "email":
       cmp = (a.email ?? "").localeCompare(b.email ?? "", undefined, { sensitivity: "base" });
+      break;
+    case "first_name":
+      cmp = (a.first_name ?? "").localeCompare(b.first_name ?? "", undefined, { sensitivity: "base" });
+      break;
+    case "surname":
+      cmp = (a.surname ?? "").localeCompare(b.surname ?? "", undefined, { sensitivity: "base" });
       break;
     case "role":
       cmp = (a.role ?? "").localeCompare(b.role ?? "", undefined, { sensitivity: "base" });
@@ -74,7 +80,12 @@ export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminU
   const filteredAndSortedUsers = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     const filtered = q
-      ? users.filter((u) => (u.email ?? "").toLowerCase().includes(q))
+      ? users.filter(
+          (u) =>
+            (u.email ?? "").toLowerCase().includes(q) ||
+            (u.first_name ?? "").toLowerCase().includes(q) ||
+            (u.surname ?? "").toLowerCase().includes(q)
+        )
       : users;
     return [...filtered].sort((a, b) => compareUsers(a, b, sortKey, sortAsc));
   }, [users, searchQuery, sortKey, sortAsc]);
@@ -126,7 +137,7 @@ export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminU
   const searchInput = (
     <input
       type="search"
-      placeholder="Search by email"
+      placeholder="Search by email or name"
       value={searchQuery}
       onChange={(e) => setSearchQuery(e.target.value)}
       className="w-full max-w-sm rounded-lg border border-mowing-green/30 bg-white px-3 py-2 text-sm text-mowing-green placeholder:text-mowing-green/50"
@@ -154,6 +165,8 @@ export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminU
           <thead>
             <tr className="border-b border-par-3-punch/20 bg-mowing-green/5">
               <SortHeaderButton columnKey="email" label="Email" activeKey={sortKey} asc={sortAsc} onSort={handleSort} />
+              <SortHeaderButton columnKey="first_name" label="First name" activeKey={sortKey} asc={sortAsc} onSort={handleSort} />
+              <SortHeaderButton columnKey="surname" label="Last name" activeKey={sortKey} asc={sortAsc} onSort={handleSort} />
               <SortHeaderButton columnKey="role" label="Role" activeKey={sortKey} asc={sortAsc} onSort={handleSort} />
               <SortHeaderButton columnKey="stripe" label="Stripe connected" activeKey={sortKey} asc={sortAsc} onSort={handleSort} />
               <SortHeaderButton columnKey="joined" label="Joined" activeKey={sortKey} asc={sortAsc} onSort={handleSort} />
@@ -164,6 +177,8 @@ export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminU
             {filteredAndSortedUsers.map((u) => (
               <tr key={u.id} className="border-b border-par-3-punch/10">
                 <td className="px-4 py-3 text-sm text-mowing-green">{u.email}</td>
+                <td className="px-4 py-3 text-sm text-mowing-green/90">{u.first_name?.trim() || "—"}</td>
+                <td className="px-4 py-3 text-sm text-mowing-green/90">{u.surname?.trim() || "—"}</td>
                 <td className="px-4 py-3">
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                     u.role === "admin" ? "bg-divot-pink/30 text-mowing-green" :

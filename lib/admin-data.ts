@@ -15,6 +15,8 @@ function adminClient() {
 export type AdminUser = {
   id: string;
   email: string;
+  first_name: string | null;
+  surname: string | null;
   role: string;
   stripe_account_id: string | null;
   created_at: string;
@@ -37,7 +39,7 @@ export async function getAdminUsers(): Promise<AdminUser[]> {
   }
   const { data, error } = await admin
     .from("users")
-    .select("id, email, role, stripe_account_id, created_at")
+    .select("id, email, first_name, surname, role, stripe_account_id, created_at")
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
   const rows = data ?? [];
