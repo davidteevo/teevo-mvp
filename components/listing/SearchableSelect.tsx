@@ -64,14 +64,19 @@ export const SearchableSelect = forwardRef<SearchableSelectHandle, SearchableSel
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        if (allowCustom && queryRef.current.trim()) onChange(queryRef.current.trim());
+      const target = e.target as Node;
+      const outside = containerRef.current && !containerRef.current.contains(target);
+      const clickedOption = (target as Element).getAttribute?.("role") === "option" || (target as Element).closest?.("[role=option]");
+      if (outside) {
+        const query = queryRef.current.trim();
+        const valueWasSelectedFromList = value && options.includes(value);
+        if (allowCustom && query && !clickedOption && !valueWasSelectedFromList) onChange(query);
         setOpen(false);
       }
     };
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
-  }, [allowCustom, onChange]);
+  }, [allowCustom, onChange, value, options]);
 
   const displayValue = value || "";
   const showInput = open;

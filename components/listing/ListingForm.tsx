@@ -263,26 +263,44 @@ export function ListingForm({
   };
 
   const handleImproveWithAI = async () => {
-    if (!category || !brand || !model.trim() || !condition) {
-      alert("Please fill in Category, Brand, Model and Condition first.");
-      return;
+    if (isStructured) {
+      if (!category || !brand || !itemType || !condition) {
+        alert("Please fill in Category, Brand, item type and Condition first.");
+        return;
+      }
+    } else {
+      if (!category || !brand || !model.trim() || !condition) {
+        alert("Please fill in Category, Brand, Model and Condition first.");
+        return;
+      }
     }
     setEnhanceLoading(true);
     try {
+      const body: Record<string, string | undefined> = isStructured
+        ? {
+            category,
+            brand,
+            condition,
+            item_type: itemType,
+            ...(isClothing ? { size: size || undefined, colour: colour.trim() || undefined } : { model: model.trim() || undefined }),
+            description: description.trim() || undefined,
+            title: title.trim() || undefined,
+          }
+        : {
+            category,
+            brand,
+            model: model.trim(),
+            condition,
+            description: description.trim() || undefined,
+            title: title.trim() || undefined,
+            shaft: shaft.trim() || undefined,
+            degree: degree.trim() || undefined,
+            shaft_flex: shaftFlex.trim() || undefined,
+          };
       const res = await fetch("/api/ai/enhance-listing", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          category,
-          brand,
-          model: model.trim(),
-          condition,
-          description: description.trim() || undefined,
-          title: title.trim() || undefined,
-          shaft: shaft.trim() || undefined,
-          degree: degree.trim() || undefined,
-          shaft_flex: shaftFlex.trim() || undefined,
-        }),
+        body: JSON.stringify(body),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -290,9 +308,11 @@ export function ListingForm({
       }
       if (data.title) setTitle(data.title);
       if (data.description) setDescription(data.description);
-      if (data.shaft != null) setShaft(data.shaft ?? "");
-      if (data.degree != null) setDegree(data.degree ?? "");
-      if (data.shaft_flex != null) setShaftFlex(data.shaft_flex ?? "");
+      if (!isStructured) {
+        if (data.shaft != null) setShaft(data.shaft ?? "");
+        if (data.degree != null) setDegree(data.degree ?? "");
+        if (data.shaft_flex != null) setShaftFlex(data.shaft_flex ?? "");
+      }
     } catch (e) {
       alert(e instanceof Error ? e.message : "Something went wrong. Try again.");
     } finally {
@@ -569,7 +589,7 @@ export function ListingForm({
           <button
             type="button"
             onClick={handleImproveWithAI}
-            disabled={enhanceLoading || isStructured || !category || !brand || !model.trim() || !condition || submitting}
+            disabled={enhanceLoading || !category || !brand || !condition || submitting || (isStructured ? !itemType : !model.trim())}
             className="text-xs font-medium text-mowing-green underline hover:no-underline disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {enhanceLoading ? "Improving…" : "Improve with AI"}
