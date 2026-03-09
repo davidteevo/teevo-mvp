@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/format";
+import { getListingDisplayTitle } from "@/lib/listing-display";
 import type { PendingListing } from "@/lib/admin-data";
+import type { Listing } from "@/types/database";
 
 export default function PendingListingsTable({ listings }: { listings: PendingListing[] }) {
   const router = useRouter();
@@ -54,7 +56,7 @@ export default function PendingListingsTable({ listings }: { listings: PendingLi
             </Link>
             <div>
               <Link href={`/admin/listings/${l.id}`} className="font-semibold text-mowing-green hover:underline">
-                {l.model}
+                {getListingDisplayTitle(l as unknown as Listing)}
               </Link>
               <p className="text-sm text-mowing-green/70">{l.category} · {l.brand} · {l.condition}</p>
               <p className="font-semibold text-mowing-green mt-1">{formatPrice(l.price)}</p>

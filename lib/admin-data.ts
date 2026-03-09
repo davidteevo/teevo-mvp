@@ -49,12 +49,16 @@ export type PendingListing = {
   user_id: string;
   category: string;
   brand: string;
-  model: string;
+  model: string | null;
+  title: string | null;
   condition: string;
   price: number;
   description: string | null;
   status: string;
   created_at: string;
+  item_type: string | null;
+  size: string | null;
+  colour: string | null;
   listing_images?: { storage_path: string; sort_order: number }[];
 };
 
@@ -62,7 +66,7 @@ export async function getPendingListings(): Promise<PendingListing[]> {
   const admin = adminClient();
   const { data, error } = await admin
     .from("listings")
-    .select("id, user_id, category, brand, model, condition, price, description, status, created_at, listing_images(storage_path, sort_order)")
+    .select("id, user_id, category, brand, model, title, condition, price, description, status, created_at, item_type, size, colour, listing_images(storage_path, sort_order)")
     .eq("status", "pending")
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
@@ -74,11 +78,15 @@ export type AllListing = {
   user_id: string;
   category: string;
   brand: string;
-  model: string;
+  model: string | null;
+  title: string | null;
   condition: string;
   price: number;
   status: string;
   created_at: string;
+  item_type: string | null;
+  size: string | null;
+  colour: string | null;
   seller_email: string | null;
 };
 
@@ -86,13 +94,16 @@ export async function getAllListings(opts: { q?: string; status?: string }): Pro
   const admin = adminClient();
   let query = admin
     .from("listings")
-    .select("id, user_id, category, brand, model, condition, price, status, created_at")
+    .select("id, user_id, category, brand, model, title, condition, price, status, created_at, item_type, size, colour")
     .order("created_at", { ascending: false });
   if (opts.status && ["pending", "verified", "rejected", "sold"].includes(opts.status)) {
     query = query.eq("status", opts.status);
   }
   if (opts.q?.trim()) {
-    query = query.or(`model.ilike.%${opts.q.trim()}%,brand.ilike.%${opts.q.trim()}%,description.ilike.%${opts.q.trim()}%`);
+    const term = opts.q.trim();
+    query = query.or(
+      `model.ilike.%${term}%,brand.ilike.%${term}%,description.ilike.%${term}%,title.ilike.%${term}%,item_type.ilike.%${term}%,size.ilike.%${term}%`
+    );
   }
   const { data: listings, error } = await query;
   if (error) throw new Error(error.message);

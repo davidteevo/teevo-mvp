@@ -14,6 +14,8 @@ export type SearchParams = {
   shaftFlex?: string;
   degree?: string;
   handed?: string;
+  item_type?: string;
+  size?: string;
 };
 
 function FiltersFallback() {

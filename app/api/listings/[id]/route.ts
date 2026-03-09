@@ -2,11 +2,11 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { categoryToParcelPreset } from "@/lib/shippo";
+import type { ListingCategory, ListingCondition } from "@/types/database";
+import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
 
-export const dynamic = "force-dynamic";
-
-const ALLOWED_CATEGORIES = ["Driver", "Woods", "Irons", "Wedges", "Putter", "Apparel", "Bag"];
-const ALLOWED_CONDITIONS = ["New", "Excellent", "Good", "Fair", "Used"];
+const ALLOWED_CATEGORIES_SET = new Set<string>(ALL_CATEGORIES);
+const ALLOWED_CONDITIONS_SET = new Set<string>(CONDITIONS);
 
 /**
  * PATCH /api/listings/[id]
@@ -53,16 +53,25 @@ export async function PATCH(
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const category = typeof body.category === "string" && ALLOWED_CATEGORIES.includes(body.category) ? body.category : undefined;
+  const category: ListingCategory | undefined =
+    typeof body.category === "string" && ALLOWED_CATEGORIES_SET.has(body.category)
+      ? (body.category as ListingCategory)
+      : undefined;
   const brand = typeof body.brand === "string" && body.brand.trim() ? body.brand.trim() : undefined;
-  const model = typeof body.model === "string" && body.model.trim() ? body.model.trim() : undefined;
+  const model = typeof body.model === "string" ? body.model.trim() || null : body.model === null ? null : undefined;
   const title = typeof body.title === "string" ? body.title.trim() || null : undefined;
-  const condition = typeof body.condition === "string" && ALLOWED_CONDITIONS.includes(body.condition) ? body.condition : undefined;
+  const condition: ListingCondition | undefined =
+    typeof body.condition === "string" && ALLOWED_CONDITIONS_SET.has(body.condition)
+      ? (body.condition as ListingCondition)
+      : undefined;
   const description = typeof body.description === "string" ? body.description.trim() || null : undefined;
   const price = typeof body.price === "number" ? body.price : typeof body.price === "string" ? parseInt(String(body.price), 10) : undefined;
   const shaft = typeof body.shaft === "string" ? body.shaft.trim() || null : undefined;
   const degree = typeof body.degree === "string" ? body.degree.trim() || null : undefined;
   const shaft_flex = typeof body.shaft_flex === "string" ? body.shaft_flex.trim() || null : undefined;
+  const item_type = typeof body.item_type === "string" ? body.item_type.trim() || null : body.item_type === null ? null : undefined;
+  const size = typeof body.size === "string" ? body.size.trim() || null : body.size === null ? null : undefined;
+  const colour = typeof body.colour === "string" ? body.colour.trim() || null : body.colour === null ? null : undefined;
 
   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (category !== undefined) {
@@ -78,6 +87,9 @@ export async function PATCH(
   if (shaft !== undefined) updates.shaft = shaft;
   if (degree !== undefined) updates.degree = degree;
   if (shaft_flex !== undefined) updates.shaft_flex = shaft_flex;
+  if (item_type !== undefined) updates.item_type = item_type;
+  if (size !== undefined) updates.size = size;
+  if (colour !== undefined) updates.colour = colour;
   // Optionally clear admin feedback when seller resubmits
   if (Object.keys(updates).length > 1) updates.admin_feedback = null;
 

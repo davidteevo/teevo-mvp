@@ -1,5 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
+import { getListingDisplayTitle } from "@/lib/listing-display";
+import type { Listing } from "@/types/database";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +14,7 @@ function safePattern(q: string): string {
 
 /**
  * GET /api/listings/suggestions?q=stea
- * Returns distinct (model, brand, category) from verified listings matching q.
+ * Returns distinct (model, brand, category, item_type, size, title) from verified listings matching q.
  * No auth required; read-only.
  */
 export async function GET(request: Request) {
@@ -27,9 +29,11 @@ export async function GET(request: Request) {
     const supabase = createAdminClient();
     const { data: rows, error } = await supabase
       .from("listings")
-      .select("model, brand, category")
+      .select("model, brand, category, title, item_type, size, colour")
       .eq("status", "verified")
-      .or(`model.ilike.${pattern},brand.ilike.${pattern},category.ilike.${pattern}`)
+      .or(
+        `model.ilike.${pattern},brand.ilike.${pattern},category.ilike.${pattern},title.ilike.${pattern},item_type.ilike.${pattern},size.ilike.${pattern},colour.ilike.${pattern}`
+      )
       .limit(50);
 
     if (error) {
@@ -40,15 +44,16 @@ export async function GET(request: Request) {
     const seen = new Set<string>();
     const suggestions: { label: string; category: string; brand: string; model: string }[] = [];
     for (const row of rows ?? []) {
-      const key = `${row.model}|${row.brand}|${row.category}`;
+      const listing = row as unknown as Listing;
+      const key = `${listing.category}|${listing.brand}|${listing.model ?? ""}|${listing.item_type ?? ""}|${listing.size ?? ""}`;
       if (seen.has(key)) continue;
       seen.add(key);
-      const label = `${row.model} · ${row.brand}`;
+      const label = getListingDisplayTitle(listing);
       suggestions.push({
         label,
-        category: row.category,
-        brand: row.brand,
-        model: row.model,
+        category: listing.category,
+        brand: listing.brand,
+        model: listing.model ?? "",
       });
       if (suggestions.length >= MAX_SUGGESTIONS) break;
     }

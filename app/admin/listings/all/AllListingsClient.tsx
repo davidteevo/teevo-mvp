@@ -4,7 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { formatPrice } from "@/lib/format";
+import { getListingDisplayTitle } from "@/lib/listing-display";
 import type { AllListing } from "@/lib/admin-data";
+import type { Listing } from "@/types/database";
 
 export default function AllListingsClient({ listings }: { listings: AllListing[] }) {
   const router = useRouter();
@@ -20,8 +22,8 @@ export default function AllListingsClient({ listings }: { listings: AllListing[]
     router.push(`/admin/listings/all${params.toString() ? `?${params}` : ""}`);
   };
 
-  const handleDelete = async (id: string, model: string) => {
-    if (!confirm(`Permanently delete listing "${model}"? This cannot be undone.`)) return;
+  const handleDelete = async (id: string, displayTitle: string) => {
+    if (!confirm(`Permanently delete listing "${displayTitle}"? This cannot be undone.`)) return;
     setDeletingId(id);
     try {
       const res = await fetch(`/api/admin/listings/${id}/delete`, { method: "DELETE" });
@@ -83,7 +85,7 @@ export default function AllListingsClient({ listings }: { listings: AllListing[]
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-par-3-punch/20 bg-mowing-green/5 text-left text-mowing-green/80 font-medium">
-                  <th className="p-3">Model</th>
+                  <th className="p-3">Title</th>
                   <th className="p-3">Category · Brand</th>
                   <th className="p-3">Price</th>
                   <th className="p-3">Status</th>
@@ -97,7 +99,7 @@ export default function AllListingsClient({ listings }: { listings: AllListing[]
                   <tr key={l.id} className="border-b border-par-3-punch/10 hover:bg-mowing-green/[0.03]">
                     <td className="p-3">
                       <Link href={`/admin/listings/${l.id}`} className="font-medium text-mowing-green hover:underline">
-                        {l.model}
+                        {getListingDisplayTitle(l as unknown as Listing)}
                       </Link>
                     </td>
                     <td className="p-3 text-mowing-green/80">{l.category} · {l.brand}</td>
@@ -128,7 +130,7 @@ export default function AllListingsClient({ listings }: { listings: AllListing[]
                       </Link>
                       <button
                         type="button"
-                        onClick={() => handleDelete(l.id, l.model)}
+                        onClick={() => handleDelete(l.id, getListingDisplayTitle(l as unknown as Listing))}
                         disabled={deletingId === l.id}
                         className="text-divot-pink hover:underline disabled:opacity-50"
                       >

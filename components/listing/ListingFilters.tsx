@@ -3,20 +3,26 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import {
+  ALL_CATEGORIES,
+  CLOTHING_TYPES,
+  ACCESSORY_ITEM_TYPES,
+  SIZES_ALL,
+} from "@/lib/listing-categories";
 
-const BRANDS = [
-  "Titleist",
-  "Callaway",
-  "TaylorMade",
-  "Ping",
-  "Cobra",
-  "Mizuno",
-  "Srixon",
-  "Wilson",
-  "Other",
+const CLUB_BRANDS = [
+  "Titleist", "Callaway", "TaylorMade", "Ping", "Cobra", "Mizuno", "Srixon", "Wilson", "Other",
 ];
+const CLOTHING_BRANDS = [
+  "Nike", "Adidas", "FootJoy", "Lululemon", "Peter Millar", "RLX", "J Lindeberg", "TravisMathew", "Puma", "Under Armour", "Other",
+];
+const ACCESSORY_BRANDS = [
+  "Bushnell", "Garmin", "Shot Scope", "Titleist", "TaylorMade", "Ping", "Scotty Cameron", "Callaway", "Other",
+];
+const BRANDS = Array.from(new Set([...CLUB_BRANDS, ...CLOTHING_BRANDS, ...ACCESSORY_BRANDS])).sort();
 
 const SHAFT_FLEX_OPTIONS = ["Senior", "Regular", "Stiff", "X-Stiff", "Other"];
+const ALL_ITEM_TYPES = Array.from(new Set([...CLOTHING_TYPES, ...ACCESSORY_ITEM_TYPES])).sort();
 
 export function ListingFilters() {
   const router = useRouter();
@@ -33,6 +39,7 @@ export function ListingFilters() {
     [router, searchParams]
   );
 
+  const category = searchParams.get("category") ?? "";
   const brand = searchParams.get("brand") ?? "";
   const minPrice = searchParams.get("minPrice") ?? "";
   const maxPrice = searchParams.get("maxPrice") ?? "";
@@ -41,14 +48,31 @@ export function ListingFilters() {
   const shaftFlex = searchParams.get("shaftFlex") ?? "";
   const degree = searchParams.get("degree") ?? "";
   const handed = searchParams.get("handed") ?? "";
+  const itemType = searchParams.get("item_type") ?? "";
+  const size = searchParams.get("size") ?? "";
 
   const hasAnyFilter =
-    searchParams.get("category") || brand || minPrice || maxPrice || search || shaft || shaftFlex || degree || handed;
+    category || brand || minPrice || maxPrice || search || shaft || shaftFlex || degree || handed || itemType || size;
 
   return (
     <div className="mb-4">
-      {/* Primary row: Brand | Price */}
+      {/* Primary row: Category | Brand | Price */}
       <div className="flex flex-wrap items-end gap-3 py-2">
+        <div>
+          <label className="block text-xs font-medium text-mowing-green/70 mb-0.5">Category</label>
+          <select
+            value={category}
+            onChange={(e) => setParam("category", e.target.value || null)}
+            className="rounded-lg border border-mowing-green/30 bg-white px-3 py-1.5 text-sm text-mowing-green min-w-[120px]"
+          >
+            <option value="">All</option>
+            {ALL_CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </div>
         <div>
           <label className="block text-xs font-medium text-mowing-green/70 mb-0.5">Brand</label>
           <select
@@ -120,7 +144,7 @@ export function ListingFilters() {
                 type="text"
                 value={search}
                 onChange={(e) => setParam("search", e.target.value || null)}
-                placeholder="Model, shaft..."
+                placeholder="Model, brand, size, item type..."
                 className="w-40 rounded-lg border border-mowing-green/30 bg-white px-2 py-1.5 text-sm text-mowing-green placeholder:text-mowing-green/50"
               />
             </div>
@@ -155,6 +179,36 @@ export function ListingFilters() {
                 {SHAFT_FLEX_OPTIONS.map((f) => (
                   <option key={f} value={f}>
                     {f}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-mowing-green/70 mb-0.5">Item type</label>
+              <select
+                value={itemType}
+                onChange={(e) => setParam("item_type", e.target.value || null)}
+                className="rounded-lg border border-mowing-green/30 bg-white px-2 py-1.5 text-sm text-mowing-green min-w-[140px]"
+              >
+                <option value="">Any</option>
+                {ALL_ITEM_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-mowing-green/70 mb-0.5">Size</label>
+              <select
+                value={size}
+                onChange={(e) => setParam("size", e.target.value || null)}
+                className="rounded-lg border border-mowing-green/30 bg-white px-2 py-1.5 text-sm text-mowing-green min-w-[80px]"
+              >
+                <option value="">Any</option>
+                {SIZES_ALL.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
                   </option>
                 ))}
               </select>

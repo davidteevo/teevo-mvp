@@ -7,9 +7,18 @@ export type ListingCategory =
   | "Wedges"
   | "Putter"
   | "Apparel"
-  | "Bag";
+  | "Bag"
+  | "Clothing"
+  | "Accessories";
 
-export type ListingCondition = "New" | "Excellent" | "Good" | "Fair" | "Used";
+export type ListingCondition =
+  | "New"
+  | "Excellent"
+  | "Good"
+  | "Fair"
+  | "Used"
+  | "New with tags"
+  | "New without tags";
 
 export type ListingStatus = "pending" | "verified" | "rejected" | "sold";
 
@@ -65,7 +74,7 @@ export interface Listing {
   user_id: string;
   category: ListingCategory;
   brand: string;
-  model: string;
+  model: string | null;
   title?: string | null;
   condition: ListingCondition;
   description: string | null;
@@ -74,6 +83,9 @@ export interface Listing {
   degree: string | null;
   shaft_flex: string | null;
   handed: "left" | "right" | null;
+  item_type: string | null;
+  size: string | null;
+  colour: string | null;
   status: ListingStatus;
   flagged: boolean;
   created_at: string;

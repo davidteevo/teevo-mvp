@@ -4,7 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-const PLACEHOLDER = "Search drivers, Scotty Cameron, Qi10, wedges...";
+const PLACEHOLDER = "Search drivers, polos, rangefinders, FootJoy shoes...";
 const DEBOUNCE_MS = 250;
 
 type Suggestion = { label: string; category: string; brand: string; model: string };

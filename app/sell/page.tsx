@@ -4,16 +4,15 @@ import { useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { ListingForm, type SubmitStatus } from "@/components/listing/ListingForm";
+import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
 
 const LISTINGS_BUCKET = "listings";
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const SUBMIT_TIMEOUT_MS = 120_000; // 2 min total for create + upload URLs + uploads + images
 
-const CATEGORIES = ["Driver", "Woods", "Irons", "Wedges", "Putter", "Apparel", "Bag"] as const;
-const BRANDS = [
+const CLUB_BRANDS = [
   "Titleist", "Callaway", "TaylorMade", "Ping", "Cobra", "Mizuno", "Srixon", "Wilson", "Other",
 ];
-const CONDITIONS = ["New", "Excellent", "Good", "Used"] as const;
 
 function SellPageContent() {
   const { user, loading } = useAuth();
@@ -21,7 +20,7 @@ function SellPageContent() {
   const searchParams = useSearchParams();
   const categoryFromUrl = searchParams.get("category");
   const initialCategory =
-    categoryFromUrl && CATEGORIES.includes(categoryFromUrl as (typeof CATEGORIES)[number])
+    categoryFromUrl && ALL_CATEGORIES.includes(categoryFromUrl as (typeof ALL_CATEGORIES)[number])
       ? categoryFromUrl
       : "";
   const [submitting, setSubmitting] = useState(false);
@@ -44,7 +43,7 @@ function SellPageContent() {
   const handleSubmit = async (payload: {
     category: string;
     brand: string;
-    model: string;
+    model?: string | null;
     condition: string;
     description: string;
     price: string;
@@ -53,6 +52,9 @@ function SellPageContent() {
     degree?: string;
     shaftFlex?: string;
     handed?: "left" | "right";
+    item_type?: string | null;
+    size?: string | null;
+    colour?: string | null;
     images: File[];
   }) => {
     abortRef.current = new AbortController();
@@ -78,7 +80,7 @@ function SellPageContent() {
         body: JSON.stringify({
           category: payload.category,
           brand: payload.brand,
-          model: payload.model,
+          model: payload.model ?? null,
           title: payload.title?.trim() || null,
           condition: payload.condition,
           description: payload.description || null,
@@ -88,6 +90,9 @@ function SellPageContent() {
           degree: payload.degree || null,
           shaft_flex: payload.shaftFlex || null,
           handed: payload.handed || null,
+          item_type: payload.item_type ?? null,
+          size: payload.size ?? null,
+          colour: payload.colour ?? null,
         }),
         signal,
       });
@@ -210,8 +215,8 @@ function SellPageContent() {
         </ol>
       </div>
       <ListingForm
-        categories={CATEGORIES}
-        brands={BRANDS}
+        categories={ALL_CATEGORIES}
+        brands={CLUB_BRANDS}
         conditions={CONDITIONS}
         initialCategory={initialCategory}
         onSubmit={handleSubmit}

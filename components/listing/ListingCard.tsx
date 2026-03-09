@@ -3,6 +3,7 @@ import Image from "next/image";
 import type { Listing } from "@/types/database";
 import { VerifiedBadge } from "@/components/trust/VerifiedBadge";
 import { formatPrice } from "@/lib/format";
+import { getListingDisplayTitle, getListingMetaParts } from "@/lib/listing-display";
 
 /** Listing optionally with joined seller display name (from users relation). Supabase returns users as array for the join. */
 type ListingWithSeller = Listing & {
@@ -31,6 +32,8 @@ export function ListingCard({ listing, priority }: { listing: ListingWithSeller;
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listings/${imgPath}`
     : "/placeholder-listing.svg";
 
+  const displayTitle = getListingDisplayTitle(listing);
+  const metaParts = getListingMetaParts(listing);
   const specParts = [
     listing.shaft?.trim(),
     listing.shaft_flex?.trim(),
@@ -47,7 +50,7 @@ export function ListingCard({ listing, priority }: { listing: ListingWithSeller;
       <div className="aspect-[3/4] relative bg-mowing-green/5">
         <Image
           src={imageUrl}
-          alt={listing.model}
+          alt={displayTitle}
           fill
           className="object-cover"
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -62,9 +65,9 @@ export function ListingCard({ listing, priority }: { listing: ListingWithSeller;
           {listing.category} · {listing.brand}
         </p>
         <h2 className="text-sm font-semibold text-mowing-green mt-0.5 line-clamp-2">
-          {listing.model}
+          {displayTitle}
         </h2>
-        <p className="text-[10px] sm:text-xs text-mowing-green/70 mt-0.5 truncate">{listing.condition}</p>
+        <p className="text-[10px] sm:text-xs text-mowing-green/70 mt-0.5 truncate">{metaParts.join(" · ")}</p>
         {specLine && (
           <p className="text-[10px] sm:text-xs text-mowing-green/60 mt-0.5 truncate">{specLine}</p>
         )}

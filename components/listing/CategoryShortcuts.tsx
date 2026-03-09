@@ -10,6 +10,8 @@ const CATEGORIES: { value: ListingCategory; label: string }[] = [
   { value: "Wedges", label: "Wedges" },
   { value: "Woods", label: "Fairway Woods" },
   { value: "Bag", label: "Bags" },
+  { value: "Clothing", label: "Clothing" },
+  { value: "Accessories", label: "Accessories" },
   { value: "Apparel", label: "Apparel" },
 ];
 

@@ -4,6 +4,15 @@ import { useState, useEffect, useRef } from "react";
 import { ImageUpload } from "./ImageUpload";
 import { SearchableSelect, type SearchableSelectHandle } from "./SearchableSelect";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import {
+  CLOTHING_TYPES,
+  ACCESSORY_ITEM_TYPES,
+  CLOTHING_BRANDS,
+  ACCESSORY_BRANDS,
+  getSizeOptionsForClothingType,
+  isClothingCategory,
+  isAccessoriesCategory,
+} from "@/lib/listing-categories";
 
 export type SubmitPhase = "creating" | "upload_urls" | "uploading" | "saving";
 export type SubmitStatus = { phase: SubmitPhase; current?: number; total?: number } | null;
@@ -25,9 +34,12 @@ const MODELS_BY_BRAND: Record<string, string[]> = {
 
 const CONDITION_LABELS: Record<string, string> = {
   New: "Like new",
+  "New with tags": "New with tags",
+  "New without tags": "New without tags",
   Excellent: "Excellent",
   Good: "Good",
   Used: "Fair",
+  Fair: "Fair",
 };
 
 interface ListingFormProps {
@@ -38,7 +50,7 @@ interface ListingFormProps {
   onSubmit: (payload: {
     category: string;
     brand: string;
-    model: string;
+    model?: string | null;
     condition: string;
     description: string;
     price: string;
@@ -47,6 +59,9 @@ interface ListingFormProps {
     degree?: string;
     shaftFlex?: string;
     handed?: "left" | "right";
+    item_type?: string | null;
+    size?: string | null;
+    colour?: string | null;
     images: File[];
   }) => void;
   submitting: boolean;
@@ -88,6 +103,9 @@ export function ListingForm({
   const [degree, setDegree] = useState("");
   const [shaftFlex, setShaftFlex] = useState("");
   const [handed, setHanded] = useState<"" | "left" | "right">("");
+  const [itemType, setItemType] = useState("");
+  const [size, setSize] = useState("");
+  const [colour, setColour] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [enhanceLoading, setEnhanceLoading] = useState(false);
@@ -99,13 +117,31 @@ export function ListingForm({
   const mainCtaRef = useRef<HTMLButtonElement>(null);
   const modelSelectRef = useRef<SearchableSelectHandle>(null);
 
+  const isClothing = isClothingCategory(category);
+  const isAccessories = isAccessoriesCategory(category);
+  const isStructured = isClothing || isAccessories;
+  const brandsOptions = isClothing
+    ? [...CLOTHING_BRANDS]
+    : isAccessories
+      ? [...ACCESSORY_BRANDS]
+      : brands;
+  const sizeOptions = isClothing && itemType ? getSizeOptionsForClothingType(itemType) : [];
+
   useEffect(() => {
     setCategory((c) => (initialCategory && c === "" ? initialCategory : c));
   }, [initialCategory]);
 
   useEffect(() => {
-    if (brand) modelSelectRef.current?.focus();
-  }, [brand]);
+    if (brand && !isStructured) modelSelectRef.current?.focus();
+  }, [brand, isStructured]);
+
+  useEffect(() => {
+    if (!isClothing) setSize("");
+    else if (itemType) {
+      const allowed = getSizeOptionsForClothingType(itemType);
+      setSize((s) => (s && allowed.includes(s) ? s : ""));
+    }
+  }, [isClothing, itemType]);
 
   const isDriverOrWoods = category === "Driver" || category === "Woods";
   const isGolfEquipment = GOLF_EQUIPMENT_CATEGORIES.includes(category);
@@ -121,7 +157,7 @@ export function ListingForm({
   }, []);
 
   useEffect(() => {
-    if (!category || !brand || !model.trim() || !condition) {
+    if (isStructured || !category || !brand || !model.trim() || !condition) {
       setPriceGuidance(null);
       return;
     }
@@ -151,7 +187,7 @@ export function ListingForm({
     return () => {
       cancelled = true;
     };
-  }, [category, brand, model, condition]);
+  }, [category, brand, model, condition, isStructured]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -159,22 +195,44 @@ export function ListingForm({
       alert("Please upload 5 or 6 images (Front, Back, Sole, Shaft, Grip).");
       return;
     }
-    if (!category || !brand || !model?.trim()) {
-      alert("Please fill in Category, Brand and Model.");
+    if (!category || !brand) {
+      alert("Please select Category and Brand.");
       return;
     }
     if (!condition) {
       alert("Please select a condition.");
       return;
     }
-    if (isGolfEquipment && !handed) {
-      alert("Please select Right handed or Left handed.");
-      return;
+    if (isClothing) {
+      if (!itemType) {
+        alert("Please select clothing type.");
+        return;
+      }
+      if (!size) {
+        alert("Please select size.");
+        return;
+      }
+    } else if (isAccessories) {
+      if (!itemType) {
+        alert("Please select item type.");
+        return;
+      }
+    } else {
+      if (!model?.trim()) {
+        alert("Please fill in Model.");
+        return;
+      }
+      if (isGolfEquipment && !handed) {
+        alert("Please select Right handed or Left handed.");
+        return;
+      }
     }
     onSubmit({
       category,
       brand,
-      model,
+      ...(isStructured
+        ? { model: null as string | null, item_type: itemType || null, size: isClothing ? size || null : null, colour: colour.trim() || null }
+        : { model: model.trim(), item_type: null, size: null, colour: null }),
       condition,
       description,
       price,
@@ -284,29 +342,92 @@ export function ListingForm({
           <SearchableSelect
             options={categories}
             value={category}
-            onChange={setCategory}
+            onChange={(c) => {
+              setCategory(c);
+              if (!isClothingCategory(c) && !isAccessoriesCategory(c)) {
+                setItemType("");
+                setSize("");
+                setColour("");
+              } else {
+                setModel("");
+              }
+            }}
             placeholder="Select category"
             label="Category"
             required
           />
           <SearchableSelect
-            options={brands}
+            options={brandsOptions}
             value={brand}
             onChange={setBrand}
             placeholder="Select brand"
             label="Brand"
             required
           />
-          <SearchableSelect
-            ref={modelSelectRef}
-            options={brand ? MODELS_BY_BRAND[brand] ?? [] : []}
-            value={model}
-            onChange={setModel}
-            placeholder="e.g. Stealth 2 Plus"
-            label="Model"
-            required
-            allowCustom
-          />
+          {isClothing && (
+            <>
+              <SearchableSelect
+                options={[...CLOTHING_TYPES]}
+                value={itemType}
+                onChange={setItemType}
+                placeholder="e.g. Polo, Trousers"
+                label="Clothing type"
+                required
+              />
+              <SearchableSelect
+                options={sizeOptions}
+                value={size}
+                onChange={setSize}
+                placeholder={itemType === "Shoes" ? "UK size" : "Size"}
+                label="Size"
+                required
+              />
+              <div>
+                <label className="block text-sm font-medium text-mowing-green mb-1">Colour (optional)</label>
+                <input
+                  type="text"
+                  value={colour}
+                  onChange={(e) => setColour(e.target.value)}
+                  placeholder="e.g. Navy, White"
+                  className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
+                />
+              </div>
+            </>
+          )}
+          {isAccessories && (
+            <>
+              <SearchableSelect
+                options={[...ACCESSORY_ITEM_TYPES]}
+                value={itemType}
+                onChange={setItemType}
+                placeholder="e.g. Range Finder, Golf Bag"
+                label="Item type"
+                required
+              />
+              <div>
+                <label className="block text-sm font-medium text-mowing-green mb-1">Model (optional)</label>
+                <input
+                  type="text"
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                  placeholder="e.g. Bushnell Tour V5"
+                  className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
+                />
+              </div>
+            </>
+          )}
+          {!isStructured && (
+            <SearchableSelect
+              ref={modelSelectRef}
+              options={brand ? MODELS_BY_BRAND[brand] ?? [] : []}
+              value={model}
+              onChange={setModel}
+              placeholder="e.g. Stealth 2 Plus"
+              label="Model"
+              required
+              allowCustom
+            />
+          )}
         </div>
       </section>
 
@@ -428,7 +549,7 @@ export function ListingForm({
           <button
             type="button"
             onClick={handleImproveWithAI}
-            disabled={enhanceLoading || !category || !brand || !model.trim() || !condition || submitting}
+            disabled={enhanceLoading || isStructured || !category || !brand || !model.trim() || !condition || submitting}
             className="text-xs font-medium text-mowing-green underline hover:no-underline disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {enhanceLoading ? "Improving…" : "Improve with AI"}
@@ -448,7 +569,13 @@ export function ListingForm({
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="e.g. Ping G425 Max Driver – 10.5° – Excellent"
+          placeholder={
+            isClothing
+              ? "e.g. Nike Golf Polo – Medium – Navy"
+              : isAccessories
+                ? "e.g. Bushnell Tour V5 Range Finder"
+                : "e.g. Ping G425 Max Driver – 10.5° – Excellent"
+          }
           className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
         />
       </section>

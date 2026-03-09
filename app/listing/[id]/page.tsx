@@ -4,6 +4,7 @@ import { getListingById, getListingByIdAdmin } from "@/lib/listings";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { calcOrderBreakdown, formatPence } from "@/lib/pricing";
+import { getListingDisplayTitle, getListingMetaParts } from "@/lib/listing-display";
 import { BuyButton } from "./BuyButton";
 import { MakeOfferButton } from "./MakeOfferButton";
 import { ListingImageGallery } from "./ListingImageGallery";
@@ -51,6 +52,13 @@ export default async function ListingPage({
     imagePaths.length > 0 ? imagePaths : ["/placeholder-listing.svg"];
   const { itemPence, authenticityPence, shippingPence, totalPence } =
     calcOrderBreakdown(listing.price);
+  const displayTitle = getListingDisplayTitle(listing);
+  const metaParts = getListingMetaParts(listing);
+  const structuredMeta = [
+    listing.item_type?.trim(),
+    listing.size?.trim(),
+    listing.colour?.trim(),
+  ].filter(Boolean) as string[];
 
   let sellerCanAcceptPayment = false;
   let sellerDisplayName: string | null = null;
@@ -75,7 +83,7 @@ export default async function ListingPage({
     <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-4">
-          <ListingImageGallery imageUrls={imageUrls} alt={listing.model} />
+          <ListingImageGallery imageUrls={imageUrls} alt={displayTitle} />
         </div>
 
         <div>
@@ -83,12 +91,17 @@ export default async function ListingPage({
             {listing.category} · {listing.brand}
           </p>
           <h1 className="text-2xl sm:text-3xl font-bold text-mowing-green mt-1">
-            {listing.model}
+            {displayTitle}
           </h1>
           <p className="text-mowing-green/80 mt-2">
-            {listing.condition}
+            {metaParts.join(" · ")}
             {listing.handed && ` · ${listing.handed === "left" ? "Left" : "Right"} handed`}
           </p>
+          {structuredMeta.length > 0 && (
+            <p className="text-sm text-mowing-green/80">
+              {structuredMeta.join(" · ")}
+            </p>
+          )}
           {(listing.shaft || listing.degree || listing.shaft_flex) && (
             <p className="mt-2 text-sm text-mowing-green/80">
               {[

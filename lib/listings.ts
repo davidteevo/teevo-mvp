@@ -13,6 +13,8 @@ export interface Filters {
   shaftFlex?: string;
   degree?: string;
   handed?: string;
+  item_type?: string;
+  size?: string;
 }
 
 const LISTINGS_GRID_LIMIT = 60;
@@ -30,7 +32,7 @@ async function getVerifiedListingsUncached(filters?: Filters) {
   let query = supabase
     .from("listings")
     .select(
-      "id, user_id, category, brand, model, condition, description, price, shaft, degree, shaft_flex, handed, status, flagged, created_at, updated_at, listing_images ( id, storage_path, sort_order ), users ( display_name )"
+      "id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, handed, item_type, size, colour, status, flagged, created_at, updated_at, listing_images ( id, storage_path, sort_order ), users ( display_name )"
     )
     .eq("status", "verified")
     .order("created_at", { ascending: false })
@@ -55,8 +57,14 @@ async function getVerifiedListingsUncached(filters?: Filters) {
     const term = escapeLike(raw);
     const pattern = `%${term}%`;
     query = query.or(
-      `model.ilike.${pattern},brand.ilike.${pattern},description.ilike.${pattern},shaft.ilike.${pattern},shaft_flex.ilike.${pattern},degree.ilike.${pattern}`
+      `model.ilike.${pattern},brand.ilike.${pattern},title.ilike.${pattern},description.ilike.${pattern},shaft.ilike.${pattern},shaft_flex.ilike.${pattern},degree.ilike.${pattern},item_type.ilike.${pattern},size.ilike.${pattern},colour.ilike.${pattern}`
     );
+  }
+  if (filters?.item_type?.trim()) {
+    query = query.ilike("item_type", `%${escapeLike(filters.item_type.trim())}%`);
+  }
+  if (filters?.size?.trim()) {
+    query = query.eq("size", filters.size.trim());
   }
   if (filters?.shaft?.trim()) {
     query = query.ilike("shaft", `%${escapeLike(filters.shaft.trim())}%`);
@@ -88,6 +96,8 @@ export function getVerifiedListings(filters?: Filters) {
     filters?.shaftFlex ?? "",
     filters?.degree ?? "",
     filters?.handed ?? "",
+    filters?.item_type ?? "",
+    filters?.size ?? "",
   ].join("-");
   return unstable_cache(
     () => getVerifiedListingsUncached(filters),
@@ -100,7 +110,7 @@ async function getListingByIdUncached(id: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
-    .select("id, user_id, category, brand, model, condition, description, price, shaft, degree, shaft_flex, handed, status, created_at, listing_images ( id, storage_path, sort_order )")
+    .select("id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, handed, item_type, size, colour, status, flagged, created_at, updated_at, listing_images ( id, storage_path, sort_order )")
     .eq("id", id)
     .single();
   if (error) throw error;
@@ -117,7 +127,7 @@ async function getListingByIdAdminUncached(id: string) {
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("listings")
-    .select("id, user_id, category, brand, model, condition, description, price, shaft, degree, shaft_flex, handed, status, created_at, listing_images ( id, storage_path, sort_order )")
+    .select("id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, handed, item_type, size, colour, status, flagged, created_at, updated_at, listing_images ( id, storage_path, sort_order )")
     .eq("id", id)
     .single();
   if (error) throw error;

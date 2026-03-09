@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { formatPrice } from "@/lib/format";
+import { getListingDisplayTitle } from "@/lib/listing-display";
+import type { Listing } from "@/types/database";
 import { AdminListingActions } from "./AdminListingActions";
 import { AdminListingFeedback } from "./AdminListingFeedback";
 
@@ -24,7 +26,7 @@ export default async function AdminListingDetailPage({
   const { data: listing, error } = await admin
     .from("listings")
     .select(`
-      id, user_id, category, brand, model, condition, price, description, shaft, degree, shaft_flex, handed, status, created_at, admin_feedback,
+      id, user_id, category, brand, model, title, condition, price, description, shaft, degree, shaft_flex, handed, item_type, size, colour, status, created_at, admin_feedback,
       listing_images(storage_path, sort_order),
       users!user_id(id, email, role, created_at)
     `)
@@ -48,6 +50,12 @@ export default async function AdminListingDetailPage({
     (a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order
   );
   const imageUrls = images.map((img: { storage_path: string }) => imageUrl(img.storage_path));
+  const displayTitle = getListingDisplayTitle(listing as unknown as Listing);
+  const structuredMeta = [
+    (listing as { item_type?: string | null }).item_type?.trim(),
+    (listing as { size?: string | null }).size?.trim(),
+    (listing as { colour?: string | null }).colour?.trim(),
+  ].filter(Boolean) as string[];
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -69,7 +77,7 @@ export default async function AdminListingDetailPage({
               {imageUrls[0] ? (
                 <img
                   src={imageUrls[0]}
-                  alt={listing.model}
+                  alt={displayTitle}
                   className="w-full h-full object-contain bg-white"
                 />
               ) : (
@@ -109,12 +117,17 @@ export default async function AdminListingDetailPage({
                   {listing.category} · {listing.brand}
                 </p>
                 <h1 className="text-2xl font-bold text-mowing-green mt-1">
-                  {listing.model}
+                  {displayTitle}
                 </h1>
                 <p className="text-mowing-green/80 mt-1">
                   {listing.condition}
                   {listing.handed && ` · ${listing.handed === "left" ? "Left" : "Right"} handed`}
                 </p>
+                {structuredMeta.length > 0 && (
+                  <p className="mt-1 text-sm text-mowing-green/80">
+                    {structuredMeta.join(" · ")}
+                  </p>
+                )}
                 {(listing.shaft || listing.degree || listing.shaft_flex) && (
                   <p className="mt-2 text-sm text-mowing-green/80">
                     {[
