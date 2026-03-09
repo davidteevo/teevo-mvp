@@ -32,20 +32,6 @@ export async function POST(
   if (!Number.isInteger(amountPence) || amountPence <= 0) {
     return NextResponse.json({ error: "amountPence must be a positive integer" }, { status: 400 });
   }
-  // #region agent log
-  fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "1dbfd9" },
-    body: JSON.stringify({
-      sessionId: "1dbfd9",
-      location: "app/api/conversations/[id]/offers/route.ts:POST-entry",
-      message: "POST offers entered",
-      data: { conversationId, amountPence },
-      timestamp: Date.now(),
-      hypothesisId: "H1",
-    }),
-  }).catch(() => {});
-  // #endregion
 
   const admin = createAdminClient();
   const { data: conv } = await admin
@@ -77,20 +63,6 @@ export async function POST(
   const expiresAt = new Date();
   expiresAt.setHours(expiresAt.getHours() + OFFER_EXPIRY_HOURS);
   const initiatedBy = isBuyer ? "buyer" : "seller";
-  // #region agent log
-  fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "1dbfd9" },
-    body: JSON.stringify({
-      sessionId: "1dbfd9",
-      location: "app/api/conversations/[id]/offers/route.ts:before-insert",
-      message: "about to insert offer with initiated_by",
-      data: { conversationId, initiatedBy },
-      timestamp: Date.now(),
-      hypothesisId: "H1",
-    }),
-  }).catch(() => {});
-  // #endregion
 
   const { data: offer, error: offerErr } = await admin
     .from("offers")
@@ -108,20 +80,6 @@ export async function POST(
     .single();
 
   if (offerErr) {
-    // #region agent log
-    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "1dbfd9" },
-      body: JSON.stringify({
-        sessionId: "1dbfd9",
-        location: "app/api/conversations/[id]/offers/route.ts:insert-error",
-        message: "offer insert failed",
-        data: { conversationId, errorMessage: offerErr.message, code: offerErr.code },
-        timestamp: Date.now(),
-        hypothesisId: "H1",
-      }),
-    }).catch(() => {});
-    // #endregion
     return NextResponse.json({ error: offerErr.message }, { status: 500 });
   }
 

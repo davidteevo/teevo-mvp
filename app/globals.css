@@ -17,6 +17,11 @@ body {
   color: var(--mowing-green);
 }
 
+/* Hide site footer when conversation input is focused so only the compose bar sits above the keyboard on mobile */
+body.conversation-compose-focused footer {
+  display: none;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
