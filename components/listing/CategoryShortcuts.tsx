@@ -5,10 +5,12 @@ import type { ListingCategory } from "@/types/database";
 
 const CATEGORIES: { value: ListingCategory; label: string }[] = [
   { value: "Driver", label: "Driver" },
-  { value: "Irons", label: "Iron Sets" },
-  { value: "Putter", label: "Putters" },
-  { value: "Wedges", label: "Wedges" },
   { value: "Woods", label: "Fairway Woods" },
+  { value: "Driving Irons", label: "Driving Irons" },
+  { value: "Hybrids", label: "Hybrids" },
+  { value: "Irons", label: "Iron Sets" },
+  { value: "Wedges", label: "Wedges" },
+  { value: "Putter", label: "Putters" },
   { value: "Bag", label: "Bags" },
   { value: "Clothing", label: "Clothing" },
   { value: "Accessories", label: "Accessories" },

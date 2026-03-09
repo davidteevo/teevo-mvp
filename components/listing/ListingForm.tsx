@@ -17,7 +17,7 @@ import {
 export type SubmitPhase = "creating" | "upload_urls" | "compressing" | "uploading" | "saving";
 export type SubmitStatus = { phase: SubmitPhase; current?: number; total?: number } | null;
 
-const GOLF_EQUIPMENT_CATEGORIES = ["Driver", "Woods", "Irons", "Wedges", "Putter"];
+const GOLF_EQUIPMENT_CATEGORIES = ["Driver", "Woods", "Driving Irons", "Hybrids", "Irons", "Wedges", "Putter"];
 const IMAGE_SLOT_LABELS_GOLF = ["Front", "Back", "Sole", "Shaft", "Grip", "Other"];
 
 const MODELS_BY_BRAND: Record<string, string[]> = {
@@ -147,7 +147,8 @@ export function ListingForm({
     }
   }, [isClothing, itemType]);
 
-  const isDriverOrWoods = category === "Driver" || category === "Woods";
+  const categoriesWithWoodsSpecs = ["Driver", "Woods", "Driving Irons", "Hybrids"];
+  const isDriverOrWoods = categoriesWithWoodsSpecs.includes(category);
   const isGolfEquipment = GOLF_EQUIPMENT_CATEGORIES.includes(category);
 
   useEffect(() => {

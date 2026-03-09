@@ -120,6 +120,8 @@ export function categoryToParcelPreset(category: string | null | undefined): Par
   switch (category) {
     case "Driver":
     case "Woods":
+    case "Driving Irons":
+    case "Hybrids":
       return ParcelPreset.GOLF_DRIVER;
     case "Irons":
       return ParcelPreset.IRON_SET;

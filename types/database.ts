@@ -3,6 +3,8 @@ export type UserRole = "buyer" | "seller" | "admin";
 export type ListingCategory =
   | "Driver"
   | "Woods"
+  | "Driving Irons"
+  | "Hybrids"
   | "Irons"
   | "Wedges"
   | "Putter"

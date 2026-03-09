@@ -6,6 +6,8 @@
 export const CLUB_CATEGORIES = [
   "Driver",
   "Woods",
+  "Driving Irons",
+  "Hybrids",
   "Irons",
   "Wedges",
   "Putter",
