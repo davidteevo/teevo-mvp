@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { ListingForm, type SubmitStatus } from "@/components/listing/ListingForm";
 import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
+import { compressListingMain, compressListingThumb } from "@/lib/image-compression";
 
 const LISTINGS_BUCKET = "listings";
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -116,54 +117,70 @@ function SellPageContent() {
         throw new Error(urlsData.error ?? "Failed to get upload URLs");
       }
       const uploads = urlsData.uploads as { path: string; token: string }[] | undefined;
-      if (!Array.isArray(uploads) || uploads.length !== images.length) {
+      const expectedUploads = images.length * 2; // main + thumb per image
+      if (!Array.isArray(uploads) || uploads.length !== expectedUploads) {
         throw new Error("Invalid upload URLs response");
       }
 
-      // 3. Upload each image via signed URL (native fetch to avoid Supabase client hang)
-      const paths: string[] = [];
       const allowedExt = ["jpg", "jpeg", "png", "gif", "webp"];
-      const total = images.length;
+      const mainPaths: string[] = [];
       if (!SUPABASE_URL) throw new Error("Missing Supabase URL");
+
       for (let i = 0; i < images.length; i++) {
         if (signal.aborted) throw new Error("Upload cancelled");
-        setSubmitStatus({ phase: "uploading", current: i + 1, total });
         const file = images[i];
         if (!file?.size) continue;
         const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
         if (!allowedExt.includes(ext)) continue;
-        const { path, token } = uploads[i];
-        const uploadUrl = `${SUPABASE_URL}/storage/v1/object/upload/sign/${LISTINGS_BUCKET}/${path}?token=${encodeURIComponent(token)}`;
-        const formData = new FormData();
-        formData.append("cacheControl", "3600");
-        formData.append("", file);
-        const uploadRes = await fetch(uploadUrl, {
-          method: "PUT",
-          body: formData,
-          headers: { "x-upsert": "true" },
-          signal,
-        });
-        if (!uploadRes.ok) {
-          const errText = await uploadRes.text();
+
+        setSubmitStatus({ phase: "compressing", current: i + 1, total: images.length });
+        let mainBlob: Blob;
+        let thumbBlob: Blob;
+        try {
+          [mainBlob, thumbBlob] = await Promise.all([
+            compressListingMain(file),
+            compressListingThumb(file),
+          ]);
+        } catch (err) {
           throw new Error(
-            errText
-              ? `${errText.slice(0, 100)}`
-              : `Image ${i + 1} upload failed (${uploadRes.status}). Try again.`
+            err instanceof Error ? err.message : "Image compression failed. Try different photos."
           );
         }
-        paths.push(path);
+
+        setSubmitStatus({ phase: "uploading", current: i + 1, total: images.length });
+        const mainEntry = uploads[2 * i];
+        const thumbEntry = uploads[2 * i + 1];
+        const uploadOne = async (path: string, token: string, blob: Blob) => {
+          const uploadUrl = `${SUPABASE_URL}/storage/v1/object/upload/sign/${LISTINGS_BUCKET}/${path}?token=${encodeURIComponent(token)}`;
+          const formData = new FormData();
+          formData.append("cacheControl", "3600");
+          formData.append("", blob, path.split("/").pop() ?? "image.webp");
+          const res = await fetch(uploadUrl, {
+            method: "PUT",
+            body: formData,
+            headers: { "x-upsert": "true" },
+            signal,
+          });
+          if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(errText ? `${errText.slice(0, 100)}` : `Upload failed (${res.status}). Try again.`);
+          }
+        };
+        await uploadOne(mainEntry.path, mainEntry.token, mainBlob);
+        await uploadOne(thumbEntry.path, thumbEntry.token, thumbBlob);
+        mainPaths.push(mainEntry.path);
       }
 
-      if (paths.length < 5) {
+      if (mainPaths.length < 5) {
         throw new Error("At least 5 valid images (JPG, PNG, GIF, WebP) are required.");
       }
 
-      // 4. Register image paths with the API
+      // 4. Register main image paths with the API (thumb paths are derived by convention)
       setSubmitStatus({ phase: "saving" });
       const imagesRes = await fetch(`/api/listings/${listingId}/images`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paths }),
+        body: JSON.stringify({ paths: mainPaths }),
         signal,
       });
       const imagesData = await imagesRes.json().catch(() => ({}));

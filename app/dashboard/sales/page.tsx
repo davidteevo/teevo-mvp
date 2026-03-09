@@ -15,6 +15,7 @@ import {
   PACKAGING_PHOTO_LABELS,
   PACKAGING_PHOTO_COUNT,
 } from "@/lib/fulfilment";
+import { getListingImageUrl } from "@/lib/listing-images";
 
 const PACKAGING_BUCKET = "packaging-photos";
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -325,9 +326,7 @@ export default function DashboardSalesPage() {
             {transactions.map((t) => {
               const listing = t.listing;
               const imgPath = firstImagePath(listing?.listing_images);
-              const imageUrl = imgPath && process.env.NEXT_PUBLIC_SUPABASE_URL
-                ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listings/${imgPath}`
-                : "/placeholder-listing.svg";
+              const imageUrl = imgPath ? getListingImageUrl(imgPath, "thumb") : "/placeholder-listing.svg";
               const subtitle = [listing?.category, listing?.brand].filter(Boolean).join(" · ") || null;
               return (
                 <li key={t.id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4">

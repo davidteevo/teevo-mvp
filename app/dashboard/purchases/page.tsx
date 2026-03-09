@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { formatPrice } from "@/lib/format";
+import { getListingImageUrl } from "@/lib/listing-images";
 
 type ListingImage = { storage_path: string; sort_order: number };
 
@@ -99,9 +100,7 @@ export default function DashboardPurchasesPage() {
             {transactions.map((t) => {
               const listing = t.listing;
               const imgPath = firstImagePath(listing?.listing_images);
-              const imageUrl = imgPath && process.env.NEXT_PUBLIC_SUPABASE_URL
-                ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listings/${imgPath}`
-                : "/placeholder-listing.svg";
+              const imageUrl = imgPath ? getListingImageUrl(imgPath, "thumb") : "/placeholder-listing.svg";
               const subtitle = [listing?.category, listing?.brand].filter(Boolean).join(" · ") || null;
               return (
                 <li key={t.id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4">

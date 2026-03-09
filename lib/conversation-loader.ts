@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getListingImageUrl } from "@/lib/listing-images";
 
 export async function loadConversationPayload(
   conversationId: string,
@@ -52,7 +53,7 @@ export async function loadConversationPayload(
         status: (listingRow as { status: string }).status,
         condition: (listingRow as { condition?: string }).condition ?? null,
         imageUrl: firstImg
-          ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listings/${firstImg.storage_path}`
+          ? getListingImageUrl(firstImg.storage_path, "thumb", process.env.NEXT_PUBLIC_SUPABASE_URL)
           : null,
       }
     : null;

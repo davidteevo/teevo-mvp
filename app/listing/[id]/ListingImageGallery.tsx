@@ -140,6 +140,7 @@ export function ListingImageGallery({
                 fill
                 className="object-cover"
                 sizes="120px"
+                loading="lazy"
               />
             </button>
           ))}
@@ -197,6 +198,7 @@ export function ListingImageGallery({
                 className="object-contain select-none"
                 sizes="600px"
                 draggable={false}
+                loading="lazy"
               />
             </div>
           </div>
@@ -219,6 +221,7 @@ export function ListingImageGallery({
                     width={48}
                     height={48}
                     className="object-cover w-full h-full"
+                    loading="lazy"
                   />
                 </button>
               ))}

@@ -6,8 +6,9 @@ export const dynamic = "force-dynamic";
 
 /**
  * POST /api/listings/[id]/upload-urls
- * Body: JSON { count: number } (3–6)
- * Returns signed upload URLs so the client can upload without hitting Storage RLS.
+ * Body: JSON { count: number } (3–6) — number of images.
+ * Returns 2*count signed upload URLs: for each image i, main (i-main.webp) then thumb (i-thumb.webp).
+ * Client must upload in order: uploads[0]=main(0), uploads[1]=thumb(0), uploads[2]=main(1), ...
  * Verifies listing belongs to the authenticated user.
  */
 export async function POST(
@@ -51,25 +52,27 @@ export async function POST(
     const uploads: { path: string; token: string }[] = [];
 
     for (let i = 0; i < count; i++) {
-      const path = `${listingId}/${i}.jpg`;
-      const { data: signData, error: signErr } =
-        await bucket.createSignedUploadUrl(path, { upsert: true });
-      if (signErr) {
-        console.error("createSignedUploadUrl error:", signErr);
-        return NextResponse.json(
-          { error: signErr.message ?? "Failed to create upload URL" },
-          { status: 500 }
-        );
+      for (const suffix of ["-main.webp", "-thumb.webp"]) {
+        const path = `${listingId}/${i}${suffix}`;
+        const { data: signData, error: signErr } =
+          await bucket.createSignedUploadUrl(path, { upsert: true });
+        if (signErr) {
+          console.error("createSignedUploadUrl error:", signErr);
+          return NextResponse.json(
+            { error: signErr.message ?? "Failed to create upload URL" },
+            { status: 500 }
+          );
+        }
+        const token = signData?.token ?? (signData as { token?: string } | undefined)?.token;
+        if (!token || typeof token !== "string") {
+          console.error("createSignedUploadUrl: no token in response", signData);
+          return NextResponse.json(
+            { error: "Failed to create upload URL (no token)" },
+            { status: 500 }
+          );
+        }
+        uploads.push({ path, token });
       }
-      const token = signData?.token ?? (signData as { token?: string } | undefined)?.token;
-      if (!token || typeof token !== "string") {
-        console.error("createSignedUploadUrl: no token in response", signData);
-        return NextResponse.json(
-          { error: "Failed to create upload URL (no token)" },
-          { status: 500 }
-        );
-      }
-      uploads.push({ path, token });
     }
 
     return NextResponse.json({ uploads });

@@ -14,7 +14,7 @@ import {
   isAccessoriesCategory,
 } from "@/lib/listing-categories";
 
-export type SubmitPhase = "creating" | "upload_urls" | "uploading" | "saving";
+export type SubmitPhase = "creating" | "upload_urls" | "compressing" | "uploading" | "saving";
 export type SubmitStatus = { phase: SubmitPhase; current?: number; total?: number } | null;
 
 const GOLF_EQUIPMENT_CATEGORIES = ["Driver", "Woods", "Irons", "Wedges", "Putter"];
@@ -74,6 +74,10 @@ function getStatusLabel(status: NonNullable<SubmitStatus>): string {
       return "Creating listing…";
     case "upload_urls":
       return "Preparing upload…";
+    case "compressing":
+      return status.total != null && status.current != null
+        ? `Compressing image ${status.current} of ${status.total}…`
+        : "Compressing images…";
     case "uploading":
       return status.total != null && status.current != null
         ? `Uploading image ${status.current} of ${status.total}…`

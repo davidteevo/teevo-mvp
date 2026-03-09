@@ -4,6 +4,7 @@ import type { Listing } from "@/types/database";
 import { VerifiedBadge } from "@/components/trust/VerifiedBadge";
 import { PriceWithBreakdown } from "@/components/listing/PriceWithBreakdown";
 import { getListingDisplayTitle, getListingMetaParts } from "@/lib/listing-display";
+import { getListingImageUrl } from "@/lib/listing-images";
 
 /** Listing optionally with joined seller display name (from users relation). Supabase returns users as array for the join. */
 type ListingWithSeller = Listing & {
@@ -28,9 +29,7 @@ function sellerDisplayName(listing: ListingWithSeller): string | null {
 export function ListingCard({ listing, priority }: { listing: ListingWithSeller; priority?: boolean }) {
   const imgPath = firstImage(listing);
   const sellerName = sellerDisplayName(listing);
-  const imageUrl = imgPath
-    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listings/${imgPath}`
-    : "/placeholder-listing.svg";
+  const imageUrl = imgPath ? getListingImageUrl(imgPath, "thumb") : "/placeholder-listing.svg";
 
   const displayTitle = getListingDisplayTitle(listing);
   const metaParts = getListingMetaParts(listing);

@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { CheckCircle } from "lucide-react";
 import { track } from "@/lib/analytics";
 import { FoundingSellerBadge } from "@/components/trust/FoundingSellerBadge";
+import { getListingImageUrl } from "@/lib/listing-images";
 
 type ListingPreview = {
   id: string;
@@ -50,9 +51,7 @@ function SuccessContent() {
 
   const displayTitle = listing?.title?.trim() || (listing ? `${listing.brand} ${listing.model}`.trim() || listing.category : "");
   const imagePath = listing?.listing_images?.sort((a, b) => a.sort_order - b.sort_order)[0]?.storage_path;
-  const imageUrl = imagePath && process.env.NEXT_PUBLIC_SUPABASE_URL
-    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listings/${imagePath}`
-    : null;
+  const imageUrl = imagePath ? getListingImageUrl(imagePath, "thumb") : null;
   const statusLabel = listing?.status === "verified" ? "Live" : listing?.status === "rejected" ? "Rejected" : "Pending review";
 
   return (

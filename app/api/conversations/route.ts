@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { getOrCreateChatDisplayName } from "@/lib/chat-identity";
 import { loadConversationPayload } from "@/lib/conversation-loader";
+import { getListingImageUrl } from "@/lib/listing-images";
 import { trackMessagingEvent } from "@/lib/messaging-metrics";
 import { MessagingEventType } from "@/lib/messaging-metrics";
 
@@ -82,7 +83,7 @@ export async function GET(request: Request) {
     const firstImage = images.sort((a, b) => a.sort_order - b.sort_order)[0];
     const title = listing ? `${listing.brand} ${listing.model}` : "";
     const imagePath = firstImage
-      ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listings/${firstImage.storage_path}`
+      ? getListingImageUrl(firstImage.storage_path, "thumb", process.env.NEXT_PUBLIC_SUPABASE_URL)
       : null;
     const otherId = c.buyer_id === user.id ? c.seller_id : c.buyer_id;
     const last = lastByConv.get(c.id);

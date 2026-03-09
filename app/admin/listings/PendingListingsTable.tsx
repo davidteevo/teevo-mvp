@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/format";
 import { getListingDisplayTitle } from "@/lib/listing-display";
+import { getListingImageUrl } from "@/lib/listing-images";
 import type { PendingListing } from "@/lib/admin-data";
 import type { Listing } from "@/types/database";
 
@@ -14,8 +15,7 @@ export default function PendingListingsTable({ listings }: { listings: PendingLi
   useEffect(() => {
     setItems(listings);
   }, [listings]);
-  const imageUrl = (path: string) =>
-    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listings/${path}`;
+  const imageUrl = (path: string) => getListingImageUrl(path, "thumb");
 
   const action = async (id: string, type: "approve" | "reject" | "flag") => {
     const res = await fetch(`/api/admin/listings/${id}/${type}`, { method: "POST" });

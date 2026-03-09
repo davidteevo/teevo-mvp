@@ -5,6 +5,7 @@ import { createClient as createServerClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { calcOrderBreakdown, formatPence } from "@/lib/pricing";
 import { getListingDisplayTitle, getListingMetaParts } from "@/lib/listing-display";
+import { getListingImageUrl } from "@/lib/listing-images";
 import { BuyButton } from "./BuyButton";
 import { MakeOfferButton } from "./MakeOfferButton";
 import { ListingImageGallery } from "./ListingImageGallery";
@@ -45,12 +46,13 @@ export default async function ListingPage({
   const images = (listing.listing_images ?? []).sort(
     (a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order
   );
-  const imagePaths = images.map(
-    (img: { storage_path: string }) =>
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listings/${img.storage_path}`
-  );
+  const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const imageUrls =
-    imagePaths.length > 0 ? imagePaths : ["/placeholder-listing.svg"];
+    images.length > 0
+      ? images.map((img: { storage_path: string }) =>
+          getListingImageUrl(img.storage_path, "main", baseUrl)
+        )
+      : ["/placeholder-listing.svg"];
   const { itemPence, authenticityPence, shippingPence, totalPence } =
     calcOrderBreakdown(listing.price);
   const displayTitle = getListingDisplayTitle(listing);

@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * POST /api/listings/[id]/images
- * Body: JSON { paths: string[] } — storage paths under listings bucket (e.g. "listing-uuid/0.jpg")
+ * Body: JSON { paths: string[] } — storage paths under listings bucket (e.g. "listing-uuid/0-main.webp" or legacy "0.jpg")
  * Registers images after client uploads them directly to Supabase Storage. Verifies listing belongs to user.
  */
 export async function POST(
@@ -29,11 +29,13 @@ export async function POST(
       return NextResponse.json({ error: "Need 3–6 image paths" }, { status: 400 });
     }
 
-    // Validate every path: must be "listingId/filename" under this listing
+    // Validate every path: must be "listingId/filename" under this listing (.webp or legacy .jpg/.jpeg/.png/.gif)
     const prefix = `${listingId}/`;
-    const validPaths = paths.filter(
-      (p: unknown): p is string => typeof p === "string" && p.startsWith(prefix) && p.length > prefix.length
-    );
+    const validPaths = paths.filter((p: unknown): p is string => {
+      if (typeof p !== "string" || !p.startsWith(prefix) || p.length <= prefix.length) return false;
+      const name = p.slice(prefix.length);
+      return /\.(webp|jpg|jpeg|png|gif)$/i.test(name);
+    });
     if (validPaths.length !== paths.length) {
       return NextResponse.json(
         { error: "Invalid image path format; paths must be under this listing" },

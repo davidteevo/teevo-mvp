@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { formatPrice } from "@/lib/format";
 import { getListingDisplayTitle } from "@/lib/listing-display";
+import { getListingImageUrl } from "@/lib/listing-images";
 import type { Listing } from "@/types/database";
 import { AdminListingActions } from "./AdminListingActions";
 import { AdminListingFeedback } from "./AdminListingFeedback";
@@ -12,8 +13,8 @@ const admin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-function imageUrl(path: string) {
-  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listings/${path}`;
+function imageUrl(path: string, variant: "main" | "thumb" = "main") {
+  return getListingImageUrl(path, variant, process.env.NEXT_PUBLIC_SUPABASE_URL);
 }
 
 export default async function AdminListingDetailPage({
@@ -49,7 +50,7 @@ export default async function AdminListingDetailPage({
   const images = (listing.listing_images ?? []).sort(
     (a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order
   );
-  const imageUrls = images.map((img: { storage_path: string }) => imageUrl(img.storage_path));
+  const imageUrls = images.map((img: { storage_path: string }) => imageUrl(img.storage_path, "main"));
   const displayTitle = getListingDisplayTitle(listing as unknown as Listing);
   const structuredMeta = [
     (listing as { item_type?: string | null }).item_type?.trim(),
