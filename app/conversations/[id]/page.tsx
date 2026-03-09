@@ -21,7 +21,7 @@ export default async function ConversationPage({
   if (!id) notFound();
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6">
+    <div className="max-w-2xl mx-auto px-4 h-[calc(100vh-6rem)] flex flex-col min-h-0">
       <ConversationDetail conversationId={id} />
     </div>
   );

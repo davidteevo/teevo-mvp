@@ -62,6 +62,7 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
   const [sellerProposeAmount, setSellerProposeAmount] = useState("");
   const [sellerProposeLoading, setSellerProposeLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollYBeforeFocusRef = useRef<number>(0);
 
   const fetchConversation = async () => {
     try {
@@ -262,7 +263,7 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)] min-h-[400px]">
+    <div className="flex flex-col flex-1 min-h-0">
       <div className="flex-1 min-h-0 overflow-y-auto">
         <div className="shrink-0 mb-4">
           <Link href="/conversations" className="text-sm text-mowing-green/70 hover:text-mowing-green">
@@ -462,6 +463,16 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
             maxLength={2000}
             disabled={sending || listing?.status !== "verified"}
             className="flex-1 rounded-lg border border-mowing-green/30 bg-white px-4 py-3 text-mowing-green placeholder:text-mowing-green/50 disabled:opacity-70"
+            onPointerDown={() => {
+              scrollYBeforeFocusRef.current = typeof window !== "undefined" ? window.scrollY : 0;
+            }}
+            onFocus={() => {
+              const saved = scrollYBeforeFocusRef.current;
+              if (typeof window === "undefined") return;
+              requestAnimationFrame(() => {
+                window.scrollTo({ top: saved, left: 0 });
+              });
+            }}
           />
           <button
             type="submit"
