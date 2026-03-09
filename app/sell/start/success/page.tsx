@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle } from "lucide-react";
 import { track } from "@/lib/analytics";
+import { FoundingSellerBadge } from "@/components/trust/FoundingSellerBadge";
 
 type ListingPreview = {
   id: string;
@@ -23,6 +24,7 @@ function SuccessContent() {
   const listingId = searchParams.get("listingId");
   const [listing, setListing] = useState<ListingPreview | null>(null);
   const [loading, setLoading] = useState(!!listingId);
+  const [foundingSellerRank, setFoundingSellerRank] = useState<number | null>(null);
 
   useEffect(() => {
     if (!listingId) return;
@@ -35,6 +37,16 @@ function SuccessContent() {
       })
       .finally(() => setLoading(false));
   }, [listingId]);
+
+  useEffect(() => {
+    fetch("/api/user/profile", { credentials: "include" })
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        const rank = data?.profile?.founding_seller_rank;
+        setFoundingSellerRank(typeof rank === "number" ? rank : null);
+      })
+      .catch(() => {});
+  }, []);
 
   const displayTitle = listing?.title?.trim() || (listing ? `${listing.brand} ${listing.model}`.trim() || listing.category : "");
   const imagePath = listing?.listing_images?.sort((a, b) => a.sort_order - b.sort_order)[0]?.storage_path;
@@ -52,6 +64,11 @@ function SuccessContent() {
       <p className="mt-2 text-mowing-green/80">
         You&apos;re officially a Founding Seller.
       </p>
+      {foundingSellerRank != null && (
+        <p className="mt-2">
+          <FoundingSellerBadge rank={foundingSellerRank} />
+        </p>
+      )}
 
       {loading && (
         <p className="mt-6 text-mowing-green/60 text-sm">Loading your listing…</p>

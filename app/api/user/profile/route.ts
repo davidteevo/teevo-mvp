@@ -12,7 +12,7 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const fullSelect = "id, email, role, avatar_path, display_name, first_name, surname, location, handicap, handed, address_line1, address_line2, address_city, address_postcode, address_country, date_of_birth, created_at, updated_at";
+  const fullSelect = "id, email, role, avatar_path, display_name, first_name, surname, location, handicap, handed, address_line1, address_line2, address_city, address_postcode, address_country, date_of_birth, founding_seller_rank, created_at, updated_at";
   let { data: profile, error } = await supabase
     .from("users")
     .select(fullSelect)
@@ -23,7 +23,7 @@ export async function GET() {
     const coreSelect = "id, email, role, avatar_path, display_name, first_name, surname, location, handicap, handed, created_at, updated_at";
     const result = await supabase.from("users").select(coreSelect).eq("id", user.id).single();
     error = result.error;
-    profile = result.data ? { ...result.data, address_line1: null, address_line2: null, address_city: null, address_postcode: null, address_country: null, date_of_birth: null } : null;
+    profile = result.data ? { ...result.data, address_line1: null, address_line2: null, address_city: null, address_postcode: null, address_country: null, date_of_birth: null, founding_seller_rank: null } : null;
   }
 
   if (error) {

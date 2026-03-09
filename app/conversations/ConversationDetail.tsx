@@ -383,7 +383,9 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
       <p className="text-sm text-mowing-green/70 mb-2">Chat with {formatChatDisplayNameForUI(otherPartyChatDisplayName)}</p>
 
       {!BUYING_ENABLED && (
-        <p className="text-sm text-mowing-green/70 mb-4">Buying and offers open when we launch. You can still ask questions here.</p>
+        <div className="mb-4 rounded-xl bg-mowing-green/10 border border-mowing-green/20 px-4 py-3 text-center text-sm text-mowing-green/90">
+          Buying and offers open when we launch. You can still ask questions here.
+        </div>
       )}
 
       {BUYING_ENABLED && (

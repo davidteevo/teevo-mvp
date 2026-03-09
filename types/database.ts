@@ -64,6 +64,7 @@ export interface User {
   address_postcode: string | null;
   address_country: string | null;
   date_of_birth: string | null;
+  founding_seller_rank: number | null;
   created_at: string;
   updated_at: string;
 }

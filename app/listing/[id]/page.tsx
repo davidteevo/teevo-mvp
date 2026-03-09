@@ -8,6 +8,7 @@ import { getListingDisplayTitle, getListingMetaParts } from "@/lib/listing-displ
 import { BuyButton } from "./BuyButton";
 import { MakeOfferButton } from "./MakeOfferButton";
 import { ListingImageGallery } from "./ListingImageGallery";
+import { FoundingSellerBadge } from "@/components/trust/FoundingSellerBadge";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
@@ -62,13 +63,15 @@ export default async function ListingPage({
 
   let sellerCanAcceptPayment = false;
   let sellerDisplayName: string | null = null;
+  let sellerFoundingRank: number | null = null;
   const { data: seller } = await admin
     .from("users")
-    .select("stripe_account_id, display_name")
+    .select("stripe_account_id, display_name, founding_seller_rank")
     .eq("id", listing.user_id)
     .single();
   if (seller) {
     sellerDisplayName = seller.display_name?.trim() || null;
+    sellerFoundingRank = typeof seller.founding_seller_rank === "number" ? seller.founding_seller_rank : null;
     if (!isPurchasedView && seller.stripe_account_id) {
       try {
         const account = await stripe.accounts.retrieve(seller.stripe_account_id);
@@ -111,9 +114,14 @@ export default async function ListingPage({
               ].filter(Boolean).join(" · ")}
             </p>
           )}
-          {sellerDisplayName && (
-            <p className="mt-3 text-sm text-mowing-green/80">
-              Sold by <span className="font-medium text-mowing-green">{sellerDisplayName}</span>
+          {(sellerDisplayName || sellerFoundingRank != null) && (
+            <p className="mt-3 text-sm text-mowing-green/80 flex flex-wrap items-center gap-2">
+              {sellerDisplayName && (
+                <>
+                  Sold by <span className="font-medium text-mowing-green">{sellerDisplayName}</span>
+                </>
+              )}
+              {sellerFoundingRank != null && <FoundingSellerBadge rank={sellerFoundingRank} />}
             </p>
           )}
           <p className="mt-4 text-3xl font-bold text-mowing-green">

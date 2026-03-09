@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { OnboardingStripeBanner } from "@/components/dashboard/OnboardingStripeBanner";
+import { FoundingSellerBadge } from "@/components/trust/FoundingSellerBadge";
 import { Calendar, ClipboardCheck, MessageCircle, Package, PlusCircle, Send, ShoppingBag, ShoppingCart, TrendingUp, User } from "lucide-react";
 
 function FoundingSellerFeedback() {
@@ -146,7 +147,12 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-mowing-green">Dashboard</h1>
+      <div className="flex flex-wrap items-center gap-3">
+        <h1 className="text-2xl font-bold text-mowing-green">Dashboard</h1>
+        {profile?.founding_seller_rank != null && (
+          <FoundingSellerBadge rank={profile.founding_seller_rank} />
+        )}
+      </div>
       <p className="mt-1 text-mowing-green/80">Buy and sell from one account. Manage your listings and activity.</p>
 
       <OnboardingStripeBanner className="mt-6" />
