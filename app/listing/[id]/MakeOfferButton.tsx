@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 
+const BUYING_ENABLED = process.env.NEXT_PUBLIC_BUYING_ENABLED !== "false";
+
 /** Suggested offer amounts: 90%, 95%, and list price (rounded to whole pounds). */
 function suggestedAmountsPence(listingPricePence: number): number[] {
   const a = Math.round((listingPricePence * 0.9) / 100) * 100;
@@ -67,17 +69,29 @@ export function MakeOfferButton({
 
   const suggested = suggestedAmountsPence(listingPricePence);
 
+  const handleClick = () => {
+    if (!user) {
+      window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+      return;
+    }
+    if (!BUYING_ENABLED) {
+      openConversation();
+      return;
+    }
+    setModalOpen(true);
+  };
+
   return (
     <>
       <button
         type="button"
-        onClick={() => (user ? setModalOpen(true) : (window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`))}
+        onClick={handleClick}
         disabled={loading}
         className="w-full sm:w-auto rounded-xl border-2 border-mowing-green text-mowing-green px-8 py-4 text-lg font-semibold hover:bg-mowing-green/10 disabled:opacity-70"
       >
-        {loading ? "Opening…" : "Make offer / Ask seller"}
+        {loading ? "Opening…" : BUYING_ENABLED ? "Make offer / Ask seller" : "Ask seller"}
       </button>
-      {modalOpen && (
+      {modalOpen && BUYING_ENABLED && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
           onClick={() => !loading && setModalOpen(false)}

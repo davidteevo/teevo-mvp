@@ -53,6 +53,7 @@ type Payload = {
 };
 
 const POLL_INTERVAL_MS = 15000;
+const BUYING_ENABLED = process.env.NEXT_PUBLIC_BUYING_ENABLED !== "false";
 
 function formatMessageTimestamp(createdAt: string): string {
   const d = new Date(createdAt);
@@ -381,191 +382,199 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
 
       <p className="text-sm text-mowing-green/70 mb-2">Chat with {formatChatDisplayNameForUI(otherPartyChatDisplayName)}</p>
 
-      {/* Offer status line */}
-      {!acceptedOffer && (latestPendingFromBuyer || latestPendingFromSeller) && (
-        <p className="text-sm text-mowing-green/70 mb-2">
-          {latestPendingFromSeller
-            ? `Seller countered: £${(latestPendingFromSeller.amount_pence / 100).toFixed(2)}`
-            : latestPendingFromBuyer && isCurrentUserBuyer
-              ? `Active offer: £${(latestPendingFromBuyer.amount_pence / 100).toFixed(2)} — Waiting for seller response`
-              : latestPendingFromBuyer
-                ? `Buyer offered £${(latestPendingFromBuyer.amount_pence / 100).toFixed(2)}`
-                : null}
-        </p>
-      )}
-      {acceptedOffer && (
-        <p className="text-sm text-mowing-green/80 font-medium mb-2">Accepted, ready to checkout</p>
-      )}
-      {!acceptedOffer && pendingOffers.length === 0 && offers.some((o) => o.status === "expired") && (
-        <p className="text-sm text-mowing-green/60 mb-2">Offer expired</p>
+      {!BUYING_ENABLED && (
+        <p className="text-sm text-mowing-green/70 mb-4">Buying and offers open when we launch. You can still ask questions here.</p>
       )}
 
-      {/* Buy Now: always visible for buyer when listing verified (full price or accepted offer) */}
-      {listing?.status === "verified" && isCurrentUserBuyer && (
-        <div className="shrink-0 rounded-xl bg-mowing-green/15 border border-mowing-green/30 p-4 mb-4">
-          <p className="text-mowing-green/70 text-xs mb-2">Payments protected on Teevo</p>
-          {acceptedOffer ? (
-            <>
-              <p className="font-medium text-mowing-green mb-2">Offer accepted. Complete checkout to secure the item.</p>
-              <button
-                type="button"
-                onClick={() => handleBuyNow(acceptedOffer.id, acceptedOffer.amount_pence)}
-                className="rounded-xl bg-mowing-green text-off-white-pique px-6 py-3 font-semibold hover:opacity-90"
-              >
-                Buy for £{(acceptedOffer.amount_pence / 100).toFixed(2)}
-              </button>
-            </>
-          ) : (
-            <button
-              type="button"
-              onClick={() => handleBuyNow(null, listing.price)}
-              className="rounded-xl bg-mowing-green text-off-white-pique px-6 py-3 font-semibold hover:opacity-90 w-full sm:w-auto"
-            >
-              Buy for £{(listing.price / 100).toFixed(2)}
-            </button>
+      {BUYING_ENABLED && (
+        <>
+          {/* Offer status line */}
+          {!acceptedOffer && (latestPendingFromBuyer || latestPendingFromSeller) && (
+            <p className="text-sm text-mowing-green/70 mb-2">
+              {latestPendingFromSeller
+                ? `Seller countered: £${(latestPendingFromSeller.amount_pence / 100).toFixed(2)}`
+                : latestPendingFromBuyer && isCurrentUserBuyer
+                  ? `Active offer: £${(latestPendingFromBuyer.amount_pence / 100).toFixed(2)} — Waiting for seller response`
+                  : latestPendingFromBuyer
+                    ? `Buyer offered £${(latestPendingFromBuyer.amount_pence / 100).toFixed(2)}`
+                    : null}
+            </p>
           )}
-        </div>
-      )}
+          {acceptedOffer && (
+            <p className="text-sm text-mowing-green/80 font-medium mb-2">Accepted, ready to checkout</p>
+          )}
+          {!acceptedOffer && pendingOffers.length === 0 && offers.some((o) => o.status === "expired") && (
+            <p className="text-sm text-mowing-green/60 mb-2">Offer expired</p>
+          )}
 
-      {/* Offer CTAs: Seller sees Accept / Counter / Decline for buyer's pending; Buyer sees Withdraw for own pending, Accept/Counter/Withdraw for seller's counter */}
-      {!acceptedOffer && latestPendingFromBuyer && isCurrentUserBuyer === false && (
-        <div className="shrink-0 rounded-xl bg-mowing-green/10 border border-mowing-green/20 p-4 mb-4">
-          <p className="text-sm font-medium text-mowing-green mb-3">
-            Buyer offered £{(latestPendingFromBuyer.amount_pence / 100).toFixed(2)}
-          </p>
-          <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            disabled={!!actionLoading}
-            onClick={() => offerAction(latestPendingFromBuyer.id, "accept")}
-            className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-70"
-          >
-            Accept
-          </button>
-          <button
-            type="button"
-            disabled={!!actionLoading}
-            onClick={() => offerAction(latestPendingFromBuyer.id, "decline")}
-            className="rounded-lg border border-mowing-green/50 text-mowing-green px-4 py-2 text-sm font-medium hover:bg-mowing-green/10 disabled:opacity-70"
-          >
-            Decline
-          </button>
-          <div className="inline-flex items-center gap-2">
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder="Counter £"
-              value={counterAmount}
-              onChange={(e) => setCounterAmount(e.target.value)}
-              className="w-24 rounded border border-mowing-green/30 px-2 py-1.5 text-sm text-mowing-green"
-            />
-            <button
-              type="button"
-              disabled={!!actionLoading || !counterAmount}
-              onClick={() => handleCounter(latestPendingFromBuyer.id)}
-              className="rounded-lg border border-mowing-green/50 text-mowing-green px-4 py-2 text-sm font-medium hover:bg-mowing-green/10 disabled:opacity-70"
-            >
-              Counter
-            </button>
-          </div>
-          </div>
-        </div>
-      )}
-      {!acceptedOffer && latestPendingFromSeller && isCurrentUserBuyer === true && (
-        <div className="shrink-0 flex flex-wrap gap-2 mb-4">
-          <button
-            type="button"
-            disabled={!!actionLoading}
-            onClick={() => offerAction(latestPendingFromSeller.id, "accept")}
-            className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-70"
-          >
-            Accept £{(latestPendingFromSeller.amount_pence / 100).toFixed(2)}
-          </button>
-          <div className="inline-flex items-center gap-2">
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder="Counter £"
-              value={counterAmount}
-              onChange={(e) => setCounterAmount(e.target.value)}
-              className="w-24 rounded border border-mowing-green/30 px-2 py-1.5 text-sm text-mowing-green"
-            />
-            <button
-              type="button"
-              disabled={!!actionLoading || !counterAmount}
-              onClick={() => handleCounter(latestPendingFromSeller.id)}
-              className="rounded-lg border border-mowing-green/50 text-mowing-green px-4 py-2 text-sm font-medium hover:bg-mowing-green/10 disabled:opacity-70"
-            >
-              Counter
-            </button>
-          </div>
-        </div>
-      )}
-      {!acceptedOffer && latestPendingFromBuyer && isCurrentUserBuyer === true && (
-        <div className="shrink-0 mb-4">
-          <button
-            type="button"
-            disabled={!!actionLoading}
-            onClick={() => offerAction(latestPendingFromBuyer.id, "withdraw")}
-            className="rounded-lg border border-mowing-green/50 text-mowing-green px-4 py-2 text-sm font-medium hover:bg-mowing-green/10 disabled:opacity-70"
-          >
-            Withdraw my offer
-          </button>
-        </div>
-      )}
-
-      {/* Make an offer: seller (when no pending buyer offer) or buyer (when no pending offer from buyer) */}
-      {!acceptedOffer && listing?.status === "verified" && (isCurrentUserBuyer === false || (isCurrentUserBuyer === true && !latestPendingFromBuyer)) && (
-        <div className="shrink-0 rounded-xl bg-mowing-green/10 border border-mowing-green/20 p-4 mb-4">
-          <p className="text-sm font-medium text-mowing-green mb-2">Make an offer</p>
-          {suggestedOfferPounds.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-3">
-              {suggestedOfferPounds.map((p) => (
+          {/* Buy Now: always visible for buyer when listing verified (full price or accepted offer) */}
+          {listing?.status === "verified" && isCurrentUserBuyer && (
+            <div className="shrink-0 rounded-xl bg-mowing-green/15 border border-mowing-green/30 p-4 mb-4">
+              <p className="text-mowing-green/70 text-xs mb-2">Payments protected on Teevo</p>
+              {acceptedOffer ? (
+                <>
+                  <p className="font-medium text-mowing-green mb-2">Offer accepted. Complete checkout to secure the item.</p>
+                  <button
+                    type="button"
+                    onClick={() => handleBuyNow(acceptedOffer.id, acceptedOffer.amount_pence)}
+                    className="rounded-xl bg-mowing-green text-off-white-pique px-6 py-3 font-semibold hover:opacity-90"
+                  >
+                    Buy for £{(acceptedOffer.amount_pence / 100).toFixed(2)}
+                  </button>
+                </>
+              ) : (
                 <button
-                  key={p}
                   type="button"
-                  onClick={() =>
-                    isCurrentUserBuyer
-                      ? setBuyerOfferAmount(p)
-                      : setSellerProposeAmount(p)
-                  }
-                  className="rounded-lg border border-mowing-green/40 text-mowing-green px-3 py-1.5 text-sm font-medium hover:bg-mowing-green/10"
+                  onClick={() => handleBuyNow(null, listing.price)}
+                  className="rounded-xl bg-mowing-green text-off-white-pique px-6 py-3 font-semibold hover:opacity-90 w-full sm:w-auto"
                 >
-                  £{p}
+                  Buy for £{(listing.price / 100).toFixed(2)}
                 </button>
-              ))}
+              )}
             </div>
           )}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-mowing-green/80 text-sm">£</span>
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder="0.00"
-              value={isCurrentUserBuyer ? buyerOfferAmount : sellerProposeAmount}
-              onChange={(e) =>
-                isCurrentUserBuyer
-                  ? setBuyerOfferAmount(e.target.value)
-                  : setSellerProposeAmount(e.target.value)
-              }
-              className="w-24 rounded border border-mowing-green/30 px-2 py-2 text-sm text-mowing-green"
-            />
-            <button
-              type="button"
-              disabled={
-                (isCurrentUserBuyer ? buyerOfferLoading : sellerProposeLoading) ||
-                !(isCurrentUserBuyer ? buyerOfferAmount : sellerProposeAmount)
-              }
-              onClick={isCurrentUserBuyer ? handleBuyerMakeOffer : handleSellerPropose}
-              className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-70"
-            >
-              {(isCurrentUserBuyer ? buyerOfferLoading : sellerProposeLoading) ? "Sending…" : "Send offer"}
-            </button>
-          </div>
-        </div>
+
+          {/* Offer CTAs: Seller sees Accept / Counter / Decline for buyer's pending; Buyer sees Withdraw for own pending, Accept/Counter/Withdraw for seller's counter */}
+          {!acceptedOffer && latestPendingFromBuyer && isCurrentUserBuyer === false && (
+            <div className="shrink-0 rounded-xl bg-mowing-green/10 border border-mowing-green/20 p-4 mb-4">
+              <p className="text-sm font-medium text-mowing-green mb-3">
+                Buyer offered £{(latestPendingFromBuyer.amount_pence / 100).toFixed(2)}
+              </p>
+              <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                disabled={!!actionLoading}
+                onClick={() => offerAction(latestPendingFromBuyer.id, "accept")}
+                className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-70"
+              >
+                Accept
+              </button>
+              <button
+                type="button"
+                disabled={!!actionLoading}
+                onClick={() => offerAction(latestPendingFromBuyer.id, "decline")}
+                className="rounded-lg border border-mowing-green/50 text-mowing-green px-4 py-2 text-sm font-medium hover:bg-mowing-green/10 disabled:opacity-70"
+              >
+                Decline
+              </button>
+              <div className="inline-flex items-center gap-2">
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="Counter £"
+                  value={counterAmount}
+                  onChange={(e) => setCounterAmount(e.target.value)}
+                  className="w-24 rounded border border-mowing-green/30 px-2 py-1.5 text-sm text-mowing-green"
+                />
+                <button
+                  type="button"
+                  disabled={!!actionLoading || !counterAmount}
+                  onClick={() => handleCounter(latestPendingFromBuyer.id)}
+                  className="rounded-lg border border-mowing-green/50 text-mowing-green px-4 py-2 text-sm font-medium hover:bg-mowing-green/10 disabled:opacity-70"
+                >
+                  Counter
+                </button>
+              </div>
+              </div>
+            </div>
+          )}
+          {!acceptedOffer && latestPendingFromSeller && isCurrentUserBuyer === true && (
+            <div className="shrink-0 flex flex-wrap gap-2 mb-4">
+              <button
+                type="button"
+                disabled={!!actionLoading}
+                onClick={() => offerAction(latestPendingFromSeller.id, "accept")}
+                className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-70"
+              >
+                Accept £{(latestPendingFromSeller.amount_pence / 100).toFixed(2)}
+              </button>
+              <div className="inline-flex items-center gap-2">
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="Counter £"
+                  value={counterAmount}
+                  onChange={(e) => setCounterAmount(e.target.value)}
+                  className="w-24 rounded border border-mowing-green/30 px-2 py-1.5 text-sm text-mowing-green"
+                />
+                <button
+                  type="button"
+                  disabled={!!actionLoading || !counterAmount}
+                  onClick={() => handleCounter(latestPendingFromSeller.id)}
+                  className="rounded-lg border border-mowing-green/50 text-mowing-green px-4 py-2 text-sm font-medium hover:bg-mowing-green/10 disabled:opacity-70"
+                >
+                  Counter
+                </button>
+              </div>
+            </div>
+          )}
+          {!acceptedOffer && latestPendingFromBuyer && isCurrentUserBuyer === true && (
+            <div className="shrink-0 mb-4">
+              <button
+                type="button"
+                disabled={!!actionLoading}
+                onClick={() => offerAction(latestPendingFromBuyer.id, "withdraw")}
+                className="rounded-lg border border-mowing-green/50 text-mowing-green px-4 py-2 text-sm font-medium hover:bg-mowing-green/10 disabled:opacity-70"
+              >
+                Withdraw my offer
+              </button>
+            </div>
+          )}
+
+          {/* Make an offer: seller (when no pending buyer offer) or buyer (when no pending offer from buyer) */}
+          {!acceptedOffer && listing?.status === "verified" && (isCurrentUserBuyer === false || (isCurrentUserBuyer === true && !latestPendingFromBuyer)) && (
+            <div className="shrink-0 rounded-xl bg-mowing-green/10 border border-mowing-green/20 p-4 mb-4">
+              <p className="text-sm font-medium text-mowing-green mb-2">Make an offer</p>
+              {suggestedOfferPounds.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {suggestedOfferPounds.map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() =>
+                        isCurrentUserBuyer
+                          ? setBuyerOfferAmount(p)
+                          : setSellerProposeAmount(p)
+                      }
+                      className="rounded-lg border border-mowing-green/40 text-mowing-green px-3 py-1.5 text-sm font-medium hover:bg-mowing-green/10"
+                    >
+                      £{p}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-mowing-green/80 text-sm">£</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  value={isCurrentUserBuyer ? buyerOfferAmount : sellerProposeAmount}
+                  onChange={(e) =>
+                    isCurrentUserBuyer
+                      ? setBuyerOfferAmount(e.target.value)
+                      : setSellerProposeAmount(e.target.value)
+                  }
+                  className="w-24 rounded border border-mowing-green/30 px-2 py-2 text-sm text-mowing-green"
+                />
+                <button
+                  type="button"
+                  disabled={
+                    (isCurrentUserBuyer ? buyerOfferLoading : sellerProposeLoading) ||
+                    !(isCurrentUserBuyer ? buyerOfferAmount : sellerProposeAmount)
+                  }
+                  onClick={isCurrentUserBuyer ? handleBuyerMakeOffer : handleSellerPropose}
+                  className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-70"
+                >
+                  {(isCurrentUserBuyer ? buyerOfferLoading : sellerProposeLoading) ? "Sending…" : "Send offer"}
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
         {/* Message thread: bubbles + system messages */}
