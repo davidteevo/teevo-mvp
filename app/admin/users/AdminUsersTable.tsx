@@ -27,6 +27,37 @@ function compareUsers(a: AdminUser, b: AdminUser, sortKey: SortKey, sortAsc: boo
   return sortAsc ? cmp : -cmp;
 }
 
+function SortHeaderButton({
+  columnKey,
+  label,
+  activeKey,
+  asc,
+  onSort,
+}: {
+  columnKey: SortKey;
+  label: string;
+  activeKey: SortKey;
+  asc: boolean;
+  onSort: (key: SortKey) => void;
+}) {
+  return (
+    <th className="px-4 py-3 text-sm font-semibold text-mowing-green">
+      <button
+        type="button"
+        onClick={() => onSort(columnKey)}
+        className="flex items-center gap-1 hover:underline cursor-pointer text-left"
+      >
+        {label}
+        {activeKey === columnKey && (
+          <span className="text-mowing-green/70" aria-hidden>
+            {asc ? "↑" : "↓"}
+          </span>
+        )}
+      </button>
+    </th>
+  );
+}
+
 export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminUser[] }) {
   const [users, setUsers] = useState<AdminUser[]>(initialUsers);
   const [searchQuery, setSearchQuery] = useState("");
@@ -56,23 +87,6 @@ export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminU
       setSortAsc(key === "joined" ? false : true);
     }
   };
-
-  const SortHeader = ({ columnKey, label }: { columnKey: SortKey; label: string }) => (
-    <th className="px-4 py-3 text-sm font-semibold text-mowing-green">
-      <button
-        type="button"
-        onClick={() => handleSort(columnKey)}
-        className="flex items-center gap-1 hover:underline cursor-pointer text-left"
-      >
-        {label}
-        {sortKey === columnKey && (
-          <span className="text-mowing-green/70" aria-hidden>
-            {sortAsc ? "↑" : "↓"}
-          </span>
-        )}
-      </button>
-    </th>
-  );
 
   const deleteUser = async (userId: string, email: string) => {
     if (!confirm(`Permanently delete user ${email}? They will not be able to sign in again.`)) return;
@@ -109,6 +123,16 @@ export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminU
     }
   };
 
+  const searchInput = (
+    <input
+      type="search"
+      placeholder="Search by email"
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      className="w-full max-w-sm rounded-lg border border-mowing-green/30 bg-white px-3 py-2 text-sm text-mowing-green placeholder:text-mowing-green/50"
+    />
+  );
+
   if (users.length === 0) {
     return <div className="p-8 text-center text-mowing-green/80">No users yet.</div>;
   }
@@ -116,13 +140,7 @@ export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminU
   if (filteredAndSortedUsers.length === 0) {
     return (
       <div className="space-y-4">
-        <input
-          type="search"
-          placeholder="Search by email"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full max-w-sm rounded-lg border border-mowing-green/30 bg-white px-3 py-2 text-sm text-mowing-green placeholder:text-mowing-green/50"
-        />
+        {searchInput}
         <div className="p-8 text-center text-mowing-green/80">No users match your search.</div>
       </div>
     );
@@ -130,21 +148,15 @@ export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminU
 
   return (
     <div className="space-y-4">
-      <input
-        type="search"
-        placeholder="Search by email"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className="w-full max-w-sm rounded-lg border border-mowing-green/30 bg-white px-3 py-2 text-sm text-mowing-green placeholder:text-mowing-green/50"
-      />
+      {searchInput}
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-par-3-punch/20 bg-mowing-green/5">
-              <SortHeader columnKey="email" label="Email" />
-              <SortHeader columnKey="role" label="Role" />
-              <SortHeader columnKey="stripe" label="Stripe connected" />
-              <SortHeader columnKey="joined" label="Joined" />
+              <SortHeaderButton columnKey="email" label="Email" activeKey={sortKey} asc={sortAsc} onSort={handleSort} />
+              <SortHeaderButton columnKey="role" label="Role" activeKey={sortKey} asc={sortAsc} onSort={handleSort} />
+              <SortHeaderButton columnKey="stripe" label="Stripe connected" activeKey={sortKey} asc={sortAsc} onSort={handleSort} />
+              <SortHeaderButton columnKey="joined" label="Joined" activeKey={sortKey} asc={sortAsc} onSort={handleSort} />
               <th className="px-4 py-3 text-sm font-semibold text-mowing-green">Actions</th>
             </tr>
           </thead>
@@ -189,8 +201,9 @@ export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminU
                 </td>
               </tr>
             ))}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
