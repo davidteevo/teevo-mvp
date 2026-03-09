@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
+import { ALL_CATEGORIES, getConditionsForCategory, CONDITION_LABELS } from "@/lib/listing-categories";
 
 const CATEGORIES = [...ALL_CATEGORIES];
 
@@ -172,7 +172,14 @@ export default function SellEditPage() {
           <select
             required
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            onChange={(e) => {
+              const newCategory = e.target.value;
+              setCategory(newCategory);
+              const allowed = getConditionsForCategory(newCategory);
+              if (condition && !allowed.includes(condition)) {
+                setCondition("");
+              }
+            }}
             className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green"
           >
             {CATEGORIES.map((c) => (
@@ -190,9 +197,13 @@ export default function SellEditPage() {
             onChange={(e) => setCondition(e.target.value)}
             className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green"
           >
-            {CONDITIONS.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
+            {(() => {
+              const options = getConditionsForCategory(category);
+              const withCurrent = options.includes(condition) ? options : [condition, ...options];
+              return withCurrent.map((c) => (
+                <option key={c} value={c}>{CONDITION_LABELS[c] ?? c}</option>
+              ));
+            })()}
           </select>
         </div>
         <div>

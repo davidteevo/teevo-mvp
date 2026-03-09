@@ -121,6 +121,25 @@ export const CONDITIONS = [
 
 export type ListingConditionValue = (typeof CONDITIONS)[number];
 
+/** Condition options shown in the UI per category. Clothing: New with tags only for new; non-clothing: New only (no New with tags). No "New without tags" anywhere. */
+export function getConditionsForCategory(category: string): string[] {
+  if (category === CLOTHING_CATEGORY) {
+    return ["New with tags", "Excellent", "Good", "Used", "Fair"];
+  }
+  return ["New", "Excellent", "Good", "Used", "Fair"];
+}
+
+/** Display labels for condition values (avoids duplicate "Fair" from mapping Used → Fair). */
+export const CONDITION_LABELS: Record<string, string> = {
+  New: "Like new",
+  "New with tags": "New with tags",
+  "New without tags": "New without tags",
+  Excellent: "Excellent",
+  Good: "Good",
+  Used: "Used",
+  Fair: "Fair",
+};
+
 /** Whether category is clothing (structured path) */
 export function isClothingCategory(category: string): boolean {
   return category === CLOTHING_CATEGORY;

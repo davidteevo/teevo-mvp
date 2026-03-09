@@ -10,6 +10,8 @@ import {
   CLOTHING_BRANDS,
   ACCESSORY_BRANDS,
   getSizeOptionsForClothingType,
+  getConditionsForCategory,
+  CONDITION_LABELS,
   isClothingCategory,
   isAccessoriesCategory,
 } from "@/lib/listing-categories";
@@ -30,16 +32,6 @@ const MODELS_BY_BRAND: Record<string, string[]> = {
   Srixon: ["ZX5", "ZX7", "ZX7 MK II", "ZX5 MK II", "Z-Star", "Z-Star XV"],
   Wilson: ["Staff Model", "D9", "D7", "C300", "Infinite", "8802"],
   Other: [],
-};
-
-const CONDITION_LABELS: Record<string, string> = {
-  New: "Like new",
-  "New with tags": "New with tags",
-  "New without tags": "New without tags",
-  Excellent: "Excellent",
-  Good: "Good",
-  Used: "Fair",
-  Fair: "Fair",
 };
 
 interface ListingFormProps {
@@ -349,6 +341,10 @@ export function ListingForm({
             value={category}
             onChange={(c) => {
               setCategory(c);
+              const allowedConditions = getConditionsForCategory(c);
+              if (condition && !allowedConditions.includes(condition)) {
+                setCondition("");
+              }
               if (!isClothingCategory(c) && !isAccessoriesCategory(c)) {
                 setItemType("");
                 setSize("");
@@ -524,7 +520,7 @@ export function ListingForm({
           Condition *
         </label>
         <div className="flex flex-wrap gap-2" role="group" aria-label="Condition">
-          {conditions.map((c) => {
+          {getConditionsForCategory(category).map((c) => {
             const label = CONDITION_LABELS[c] ?? c;
             const selected = condition === c;
             return (

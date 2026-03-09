@@ -7,7 +7,7 @@ import { ImageUpload } from "@/components/listing/ImageUpload";
 import { track } from "@/lib/analytics";
 import { compressListingMain, compressListingThumb } from "@/lib/image-compression";
 
-import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
+import { ALL_CATEGORIES, getConditionsForCategory, CONDITION_LABELS } from "@/lib/listing-categories";
 
 const LISTINGS_BUCKET = "listings";
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -221,7 +221,14 @@ function SellStartContent() {
             <select
               required
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => {
+                const newCategory = e.target.value;
+                setCategory(newCategory);
+                const allowed = getConditionsForCategory(newCategory);
+                if (condition && !allowed.includes(condition)) {
+                  setCondition("");
+                }
+              }}
               className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green"
             >
               <option value="">Select</option>
@@ -241,8 +248,8 @@ function SellStartContent() {
               className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green"
             >
               <option value="">Select</option>
-              {CONDITIONS.map((c) => (
-                <option key={c} value={c}>{c}</option>
+              {getConditionsForCategory(category).map((c) => (
+                <option key={c} value={c}>{CONDITION_LABELS[c] ?? c}</option>
               ))}
             </select>
           </div>
