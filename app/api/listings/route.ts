@@ -8,7 +8,6 @@ import {
   CONDITIONS,
   CLOTHING_TYPES,
   ACCESSORY_ITEM_TYPES,
-  CLOTHING_BRANDS,
   ACCESSORY_BRANDS,
   getSizeOptionsForClothingType,
   isClothingCategory,
@@ -21,7 +20,6 @@ const ALLOWED_CATEGORIES_SET = new Set<string>(ALL_CATEGORIES);
 const ALLOWED_CONDITIONS_SET = new Set<string>(CONDITIONS);
 const CLOTHING_TYPES_SET = new Set<string>(CLOTHING_TYPES);
 const ACCESSORY_ITEM_TYPES_SET = new Set<string>(ACCESSORY_ITEM_TYPES);
-const CLOTHING_BRANDS_SET = new Set<string>(CLOTHING_BRANDS);
 const ACCESSORY_BRANDS_SET = new Set<string>(ACCESSORY_BRANDS);
 
 /**
@@ -81,7 +79,7 @@ export async function POST(request: Request) {
     }
 
     if (isClothingCategory(category)) {
-      if (!brand || !CLOTHING_BRANDS_SET.has(brand)) {
+      if (!brand || typeof brand !== "string" || !brand.trim()) {
         return NextResponse.json({ error: "Invalid brand for clothing" }, { status: 400 });
       }
       if (!item_type || !CLOTHING_TYPES_SET.has(item_type)) {

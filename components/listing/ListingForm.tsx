@@ -60,6 +60,7 @@ interface ListingFormProps {
   submitting: boolean;
   submitStatus?: SubmitStatus;
   clubCatalogue?: ClubCatalogue;
+  clothingBrands?: string[];
 }
 
 function getStatusLabel(status: NonNullable<SubmitStatus>): string {
@@ -92,6 +93,7 @@ export function ListingForm({
   submitting,
   submitStatus = null,
   clubCatalogue,
+  clothingBrands,
 }: ListingFormProps) {
   const [category, setCategory] = useState(initialCategory);
   const [brand, setBrand] = useState("");
@@ -125,7 +127,7 @@ export function ListingForm({
       ? clubCatalogue.brandsByCategory[category]
       : undefined;
   const brandsOptions = isClothing
-    ? [...CLOTHING_BRANDS]
+    ? (clothingBrands?.length ? [...clothingBrands, "Other"] : [...CLOTHING_BRANDS])
     : isAccessories
       ? [...ACCESSORY_BRANDS]
       : catalogueBrandsForCategory?.length
@@ -380,6 +382,7 @@ export function ListingForm({
             placeholder="Select brand"
             label="Brand"
             required
+            allowCustom={isClothing}
           />
           {isClothing && (
             <>

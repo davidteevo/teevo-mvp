@@ -18,9 +18,10 @@ const CLUB_BRANDS = [
 
 interface SellPageContentProps {
   clubCatalogue: ClubCatalogue;
+  clothingBrands?: string[];
 }
 
-export function SellPageContent({ clubCatalogue }: SellPageContentProps) {
+export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageContentProps) {
   const { user, loading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -245,6 +246,7 @@ export function SellPageContent({ clubCatalogue }: SellPageContentProps) {
         submitting={submitting}
         submitStatus={submitStatus}
         clubCatalogue={clubCatalogue}
+        clothingBrands={clothingBrands}
       />
     </div>
   );
