@@ -16,6 +16,7 @@ Automated emails fire from real user actions. Each send is recorded in `sent_ema
 | `seller.kyc_required` | KYC incomplete reminder | Seller | Alert | Not wired – needs Stripe `account.updated` |
 | `user.created` | Email verification | User | Alert | Supabase built-in (or custom hook) |
 | `auth.password_reset_requested` | Forgot password | User | Alert | Supabase built-in (or custom hook) |
+| `listing.pending` | New listing to verify | Admin | Alert | `POST /api/listings` |
 
 ## Idempotency
 
@@ -31,3 +32,4 @@ Run `docs/MIGRATION_sent_emails.sql` in Supabase to create the `sent_emails` tab
 
 - `RESEND_API_KEY` – required for sending (server-side only).
 - `NEXT_PUBLIC_APP_URL` – used for CTA links in emails.
+- `TEEVO_ADMIN_EMAILS` – comma-separated; first address receives admin alerts (e.g. new listing to verify).

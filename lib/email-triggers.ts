@@ -20,6 +20,7 @@ export const EmailTriggerType = {
   OFFER_ACCEPTED: "offer_accepted",
   OFFER_DECLINED: "offer_declined",
   OFFER_COUNTERED: "offer_countered",
+  NEW_LISTING_PENDING: "new_listing_pending",
 } as const;
 
 export type EmailTriggerTypeValue = (typeof EmailTriggerType)[keyof typeof EmailTriggerType];

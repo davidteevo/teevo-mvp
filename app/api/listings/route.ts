@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { categoryToParcelPreset } from "@/lib/shippo";
+import { ensureEmailSent, EmailTriggerType } from "@/lib/email-triggers";
 import {
   ALL_CATEGORIES,
   CONDITIONS,
@@ -158,6 +159,31 @@ export async function POST(request: Request) {
           .update({ founding_seller_rank: rank, updated_at: new Date().toISOString() })
           .eq("id", user.id)
           .or("founding_seller_rank.is.null,founding_seller_rank.gt." + rank);
+      }
+    }
+
+    const adminTo = process.env.TEEVO_ADMIN_EMAILS?.trim()?.split(",")[0]?.trim();
+    if (adminTo && adminTo !== "admin@example.com") {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+      const subtitle = [brand, title || model, category].filter(Boolean).join(" · ");
+      try {
+        await ensureEmailSent(admin, {
+          emailType: EmailTriggerType.NEW_LISTING_PENDING,
+          referenceId: listing.id,
+          referenceType: "listing",
+          to: adminTo,
+          subject: "Teevo: new listing to verify",
+          type: "alert",
+          variables: {
+            title: "New listing to verify",
+            subtitle: subtitle || "New listing",
+            body: "A new listing is pending verification.",
+            cta_link: appUrl ? `${appUrl}/admin/listings` : "#",
+            cta_text: "Review listings",
+          },
+        });
+      } catch (e) {
+        console.error("Failed to send new-listing admin email:", e);
       }
     }
 
