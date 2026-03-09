@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, ChevronDown, LayoutDashboard, Settings, LogOut, ShoppingCart, Tag, LayoutGrid, Shield, User } from "lucide-react";
+import { Menu, ChevronDown, LayoutDashboard, Settings, LogOut, ShoppingCart, Tag, LayoutGrid, MessageCircle, Shield, User } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 
@@ -300,7 +300,7 @@ export function Header() {
               Menu
             </p>
             {nav.map(({ href, label }) => {
-              const Icon = href === "/" ? ShoppingCart : href === "/sell" ? Tag : LayoutGrid;
+              const Icon = href === "/" ? ShoppingCart : href === "/sell" ? Tag : href === "/conversations" ? MessageCircle : LayoutGrid;
               return (
                 <Link
                   key={href}

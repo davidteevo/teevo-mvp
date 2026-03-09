@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { OnboardingStripeBanner } from "@/components/dashboard/OnboardingStripeBanner";
-import { Calendar, ClipboardCheck, Package, PlusCircle, Send, ShoppingBag, ShoppingCart, TrendingUp, User } from "lucide-react";
+import { Calendar, ClipboardCheck, MessageCircle, Package, PlusCircle, Send, ShoppingBag, ShoppingCart, TrendingUp, User } from "lucide-react";
 
 function FoundingSellerFeedback() {
   const [message, setMessage] = useState("");
@@ -82,7 +82,7 @@ function FoundingSellerFeedback() {
   );
 }
 
-type DashboardCounts = { listings: number; sales: number; purchases: number } | null;
+type DashboardCounts = { listings: number; sales: number; purchases: number; conversations: number } | null;
 
 export default function DashboardPage() {
   const { user, profile, role, loading, refreshProfile } = useAuth();
@@ -112,8 +112,9 @@ export default function DashboardPage() {
         fetch("/api/listings/mine").then((r) => r.json().then((d) => (d.listings ?? []).length)),
         fetch("/api/transactions?role=seller").then((r) => r.json().then((d) => (d.transactions ?? []).length)),
         fetch("/api/transactions?role=buyer").then((r) => r.json().then((d) => (d.transactions ?? []).length)),
+        fetch("/api/conversations").then((r) => r.json().then((d) => (d.conversations ?? []).length)),
       ])
-        .then(([listings, sales, purchases]) => setCounts({ listings, sales, purchases }))
+        .then(([listings, sales, purchases, conversations]) => setCounts({ listings, sales, purchases, conversations }))
         .catch(() => setCounts(null));
     };
     fetchCounts();
@@ -174,6 +175,23 @@ export default function DashboardPage() {
             <p className="font-semibold text-mowing-green">Profile</p>
             <p className="text-sm text-mowing-green/70">Photo, location, handicap</p>
           </div>
+        </Link>
+        <Link
+          href="/conversations"
+          className="flex items-center gap-4 rounded-xl border border-par-3-punch/20 bg-white p-4 hover:shadow-md transition-shadow relative"
+        >
+          <div className="rounded-lg bg-par-3-punch/20 p-3">
+            <MessageCircle className="h-6 w-6 text-mowing-green" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold text-mowing-green">Messages</p>
+            <p className="text-sm text-mowing-green/70">Chat with buyers and sellers</p>
+          </div>
+          {counts != null && counts.conversations > 0 && (
+            <span className="shrink-0 rounded-full bg-mowing-green/20 text-mowing-green px-2.5 py-0.5 text-sm font-medium">
+              {counts.conversations}
+            </span>
+          )}
         </Link>
         <Link
           href="/"
