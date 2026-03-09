@@ -15,6 +15,7 @@ import {
   isClothingCategory,
   isAccessoriesCategory,
 } from "@/lib/listing-categories";
+import type { ClubCatalogue } from "@/lib/club-catalogue";
 
 export type SubmitPhase = "creating" | "upload_urls" | "compressing" | "uploading" | "saving";
 export type SubmitStatus = { phase: SubmitPhase; current?: number; total?: number } | null;
@@ -58,6 +59,7 @@ interface ListingFormProps {
   }) => void;
   submitting: boolean;
   submitStatus?: SubmitStatus;
+  clubCatalogue?: ClubCatalogue;
 }
 
 function getStatusLabel(status: NonNullable<SubmitStatus>): string {
@@ -89,6 +91,7 @@ export function ListingForm({
   onSubmit,
   submitting,
   submitStatus = null,
+  clubCatalogue,
 }: ListingFormProps) {
   const [category, setCategory] = useState(initialCategory);
   const [brand, setBrand] = useState("");
@@ -116,11 +119,24 @@ export function ListingForm({
   const isClothing = isClothingCategory(category);
   const isAccessories = isAccessoriesCategory(category);
   const isStructured = isClothing || isAccessories;
+  const isClubCategory = GOLF_EQUIPMENT_CATEGORIES.includes(category);
+  const catalogueBrandsForCategory =
+    clubCatalogue && isClubCategory && category
+      ? clubCatalogue.brandsByCategory[category]
+      : undefined;
   const brandsOptions = isClothing
     ? [...CLOTHING_BRANDS]
     : isAccessories
       ? [...ACCESSORY_BRANDS]
-      : brands;
+      : catalogueBrandsForCategory?.length
+        ? [...catalogueBrandsForCategory, "Other"]
+        : brands;
+  const modelOptions =
+    !isStructured && brand
+      ? clubCatalogue && isClubCategory && category
+        ? clubCatalogue.modelsByCategoryAndBrand[category]?.[brand] ?? MODELS_BY_BRAND[brand] ?? []
+        : MODELS_BY_BRAND[brand] ?? []
+      : [];
   const sizeOptions = isClothing && itemType ? getSizeOptionsForClothingType(itemType) : [];
 
   useEffect(() => {
@@ -420,7 +436,7 @@ export function ListingForm({
           {!isStructured && (
             <SearchableSelect
               ref={modelSelectRef}
-              options={brand ? MODELS_BY_BRAND[brand] ?? [] : []}
+              options={modelOptions}
               value={model}
               onChange={setModel}
               placeholder="e.g. Stealth 2 Plus"
