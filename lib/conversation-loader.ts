@@ -4,6 +4,20 @@ export async function loadConversationPayload(
   conversationId: string,
   currentUserId: string
 ) {
+  // #region agent log
+  fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "1dbfd9" },
+    body: JSON.stringify({
+      sessionId: "1dbfd9",
+      location: "conversation-loader.ts:entry",
+      message: "loadConversationPayload called",
+      data: { conversationId },
+      timestamp: Date.now(),
+      hypothesisId: "H2",
+    }),
+  }).catch(() => {});
+  // #endregion
   const admin = createAdminClient();
   const { data: conv, error: convErr } = await admin
     .from("conversations")
@@ -35,11 +49,39 @@ export async function loadConversationPayload(
       ? (await admin.from("users").select("id, chat_display_name").in("id", senderIds)).data ?? []
       : [];
   const senderMap = new Map(senderList.map((s) => [s.id, s.chat_display_name]));
-  const { data: offers } = await admin
+  // #region agent log
+  fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "1dbfd9" },
+    body: JSON.stringify({
+      sessionId: "1dbfd9",
+      location: "conversation-loader.ts:before-offers-select",
+      message: "about to select offers with initiated_by",
+      data: { conversationId },
+      timestamp: Date.now(),
+      hypothesisId: "H2",
+    }),
+  }).catch(() => {});
+  // #endregion
+  const { data: offers, error: offersErr } = await admin
     .from("offers")
     .select("id, amount_pence, status, expires_at, counter_offer_id, created_at, buyer_id, seller_id, initiated_by")
     .eq("conversation_id", conversationId)
     .order("created_at", { ascending: false });
+  // #region agent log
+  fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "1dbfd9" },
+    body: JSON.stringify({
+      sessionId: "1dbfd9",
+      location: "conversation-loader.ts:after-offers-select",
+      message: offersErr ? "offers select failed" : "offers select ok",
+      data: { conversationId, error: offersErr?.message, code: offersErr?.code },
+      timestamp: Date.now(),
+      hypothesisId: "H2",
+    }),
+  }).catch(() => {});
+  // #endregion
 
   const listingImages = (listingRow as { listing_images?: { storage_path: string; sort_order: number }[] } | null)?.listing_images ?? [];
   const firstImg = listingImages.sort((a, b) => a.sort_order - b.sort_order)[0];

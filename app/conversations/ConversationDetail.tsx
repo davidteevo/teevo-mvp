@@ -110,6 +110,25 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const scrollYBeforeFocusRef = useRef<number>(0);
 
+  // #region agent log
+  useEffect(() => {
+    if (typeof window === "undefined" || !payload) return;
+    const log = () => {
+      const main = document.querySelector("main");
+      const footer = document.querySelector("footer");
+      const wrapper = scrollContainerRef.current?.parentElement;
+      const bodyScrollHeight = document.body.scrollHeight;
+      const innerHeight = window.innerHeight;
+      const footerRect = footer ? (footer as HTMLElement).getBoundingClientRect() : null;
+      const footerInView = footerRect ? footerRect.top < innerHeight && footerRect.bottom > 0 : null;
+      fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "47baef" }, body: JSON.stringify({ sessionId: "47baef", hypothesisId: "H1", location: "ConversationDetail.tsx:mount", message: "Layout heights", data: { bodyScrollHeight, innerHeight, bodyOverflow: bodyScrollHeight > innerHeight, mainHeight: main?.clientHeight ?? null, wrapperHeight: wrapper?.clientHeight ?? null, footerTop: footerRect?.top ?? null, footerInView }, timestamp: Date.now() }) }).catch(() => {});
+    };
+    log();
+    const t = setTimeout(log, 400);
+    return () => clearTimeout(t);
+  }, [payload]);
+  // #endregion
+
   const fetchConversation = async () => {
     try {
       const res = await fetch(`/api/conversations/${conversationId}`);
@@ -629,12 +648,26 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
             className="flex-1 min-w-0 rounded-lg border border-mowing-green/30 bg-white px-4 py-3 text-mowing-green placeholder:text-mowing-green/60 disabled:opacity-60 disabled:cursor-not-allowed"
             onPointerDown={() => {
               scrollYBeforeFocusRef.current = typeof window !== "undefined" ? window.scrollY : 0;
+              // #region agent log
+              if (typeof window !== "undefined") {
+                const footer = document.querySelector("footer");
+                const r = footer ? (footer as HTMLElement).getBoundingClientRect() : null;
+                fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "47baef" }, body: JSON.stringify({ sessionId: "47baef", hypothesisId: "H2", location: "ConversationDetail.tsx:onPointerDown", message: "Before focus", data: { scrollY: window.scrollY, innerHeight: window.innerHeight, bodyScrollHeight: document.body.scrollHeight, footerTop: r?.top ?? null, footerInView: r ? r.top < window.innerHeight && r.bottom > 0 : null }, timestamp: Date.now() }) }).catch(() => {});
+              }
+              // #endregion
             }}
             onFocus={() => {
               const saved = scrollYBeforeFocusRef.current;
               if (typeof window === "undefined") return;
               requestAnimationFrame(() => {
                 window.scrollTo({ top: saved, left: 0 });
+                // #region agent log
+                setTimeout(() => {
+                  const footer = document.querySelector("footer");
+                  const r = footer ? (footer as HTMLElement).getBoundingClientRect() : null;
+                  fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "47baef" }, body: JSON.stringify({ sessionId: "47baef", hypothesisId: "H2", location: "ConversationDetail.tsx:onFocus:after", message: "After focus", data: { scrollY: window.scrollY, saved, innerHeight: window.innerHeight, bodyScrollHeight: document.body.scrollHeight, footerTop: r?.top ?? null, footerInView: r ? r.top < window.innerHeight && r.bottom > 0 : null }, timestamp: Date.now() }) }).catch(() => {});
+                }, 150);
+                // #endregion
               });
             }}
           />
