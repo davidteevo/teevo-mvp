@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/format";
@@ -7,19 +8,25 @@ import type { PendingListing } from "@/lib/admin-data";
 
 export default function PendingListingsTable({ listings }: { listings: PendingListing[] }) {
   const router = useRouter();
+  const [items, setItems] = useState<PendingListing[]>(listings);
+  useEffect(() => {
+    setItems(listings);
+  }, [listings]);
   const imageUrl = (path: string) =>
     `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listings/${path}`;
 
   const action = async (id: string, type: "approve" | "reject" | "flag") => {
     const res = await fetch(`/api/admin/listings/${id}/${type}`, { method: "POST" });
-    if (res.ok) router.refresh();
-    else {
-      const data = await res.json();
-      alert(data.error ?? "Failed");
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      setItems((prev) => prev.filter((l) => l.id !== id));
+      router.refresh();
+    } else {
+      alert((data as { error?: string }).error ?? "Failed");
     }
   };
 
-  if (listings.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="rounded-xl border border-par-3-punch/20 bg-white p-8 text-center text-mowing-green/80">
         No pending listings.
@@ -29,7 +36,7 @@ export default function PendingListingsTable({ listings }: { listings: PendingLi
 
   return (
     <div className="space-y-6">
-      {listings.map((l) => (
+      {items.map((l) => (
         <div key={l.id} className="rounded-xl border border-par-3-punch/20 bg-white overflow-hidden">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
             <Link href={`/admin/listings/${l.id}`} className="flex gap-2 overflow-x-auto group">

@@ -2,6 +2,9 @@ import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { Package, ShoppingCart, Users, TrendingUp, CheckCircle, ClipboardCheck } from "lucide-react";
 import { formatPrice } from "@/lib/format";
+import { AdminDashboardRefresh } from "./AdminDashboardRefresh";
+
+export const dynamic = "force-dynamic";
 
 const admin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -39,6 +42,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <div>
+      <AdminDashboardRefresh />
       <h1 className="text-2xl font-bold text-mowing-green">Admin dashboard</h1>
       <p className="mt-1 text-mowing-green/80">Approve listings, monitor metrics, manage users.</p>
 

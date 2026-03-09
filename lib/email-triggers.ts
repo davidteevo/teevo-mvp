@@ -15,6 +15,11 @@ export const EmailTriggerType = {
   EMAIL_VERIFICATION: "email_verification",
   FORGOT_PASSWORD: "forgot_password",
   LISTING_EDITS_REQUESTED: "listing_edits_requested",
+  MESSAGE_RECEIVED: "message_received",
+  OFFER_MADE: "offer_made",
+  OFFER_ACCEPTED: "offer_accepted",
+  OFFER_DECLINED: "offer_declined",
+  OFFER_COUNTERED: "offer_countered",
 } as const;
 
 export type EmailTriggerTypeValue = (typeof EmailTriggerType)[keyof typeof EmailTriggerType];
@@ -28,7 +33,7 @@ export async function ensureEmailSent(
   opts: {
     emailType: EmailTriggerTypeValue;
     referenceId: string;
-    referenceType?: "transaction" | "user" | "listing";
+    referenceType?: "transaction" | "user" | "listing" | "message" | "offer";
     recipientId?: string | null;
     to: string;
     subject: string;

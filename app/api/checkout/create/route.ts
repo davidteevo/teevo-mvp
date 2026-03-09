@@ -25,6 +25,7 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => ({}));
   const listingId = body.listingId;
+  const acceptedOfferId = body.acceptedOfferId ?? body.accepted_offer_id;
   if (!listingId) {
     return NextResponse.json({ error: "listingId required" }, { status: 400 });
   }
@@ -41,6 +42,7 @@ export async function POST(request: Request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
+  let listingPricePence: number;
   const { data: listing, error: listErr } = await admin
     .from("listings")
     .select("id, user_id, price, status")
@@ -49,6 +51,20 @@ export async function POST(request: Request) {
 
   if (listErr || !listing || listing.status !== "verified") {
     return NextResponse.json({ error: "Listing not found or not available" }, { status: 404 });
+  }
+
+  if (acceptedOfferId) {
+    const { data: offer } = await admin
+      .from("offers")
+      .select("id, listing_id, buyer_id, amount_pence, status")
+      .eq("id", acceptedOfferId)
+      .single();
+    if (!offer || offer.buyer_id !== user.id || offer.status !== "accepted" || offer.listing_id !== listingId) {
+      return NextResponse.json({ error: "Invalid or expired offer" }, { status: 400 });
+    }
+    listingPricePence = offer.amount_pence;
+  } else {
+    listingPricePence = listing.price;
   }
 
   const { data: seller } = await admin.from("users").select("stripe_account_id").eq("id", listing.user_id).single();
@@ -68,7 +84,7 @@ export async function POST(request: Request) {
 
   const { url } = await createCheckoutSession({
     listingId,
-    listingPricePence: listing.price,
+    listingPricePence,
     sellerId: listing.user_id,
     sellerStripeAccountId: seller.stripe_account_id,
     buyerId: user.id,
@@ -76,6 +92,7 @@ export async function POST(request: Request) {
     origin,
     buyerPostcode: typeof buyerPostcode === "string" ? buyerPostcode : undefined,
     shippingOption: typeof shippingOption === "string" ? shippingOption : undefined,
+    ...(acceptedOfferId && { acceptedOfferId: String(acceptedOfferId) }),
   });
 
   if (!url) {

@@ -23,6 +23,7 @@ const nav = [
   { href: "/", label: "Browse" },
   { href: "/sell", label: "Sell" },
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/conversations", label: "Messages" },
 ];
 
 export function Header() {

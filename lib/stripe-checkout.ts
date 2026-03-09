@@ -15,6 +15,8 @@ export type CreateCheckoutParams = {
   buyerPostcode?: string;
   /** Shipping option id e.g. "tracked" (optional, stored in metadata) */
   shippingOption?: string;
+  /** Accepted offer id when checkout is from an accepted offer (for analytics) */
+  acceptedOfferId?: string;
 };
 
 /**
@@ -33,6 +35,7 @@ export async function createCheckoutSession(params: CreateCheckoutParams): Promi
     origin,
     buyerPostcode,
     shippingOption,
+    acceptedOfferId,
   } = params;
 
   const { itemPence, authenticityPence, shippingPence } = calcOrderBreakdown(listingPricePence);
@@ -80,6 +83,7 @@ export async function createCheckoutSession(params: CreateCheckoutParams): Promi
       sellerId,
       ...(buyerPostcode != null && buyerPostcode !== "" && { buyerPostcode: String(buyerPostcode).slice(0, 32) }),
       ...(shippingOption != null && shippingOption !== "" && { shippingOption: String(shippingOption).slice(0, 32) }),
+      ...(acceptedOfferId != null && acceptedOfferId !== "" && { offerId: String(acceptedOfferId).slice(0, 36) }),
     },
   });
 

@@ -5,6 +5,7 @@ import { createClient as createServerClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { calcOrderBreakdown, formatPence } from "@/lib/pricing";
 import { BuyButton } from "./BuyButton";
+import { MakeOfferButton } from "./MakeOfferButton";
 import { ListingImageGallery } from "./ListingImageGallery";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
@@ -144,13 +145,16 @@ export default async function ListingPage({
           )}
 
           {!isPurchasedView && listing.status !== "sold" && (
-            <div className="mt-8">
+            <div className="mt-8 space-y-3">
               <BuyButton
                 listingId={listing.id}
                 price={listing.price}
                 totalPence={totalPence}
                 sellerCanAcceptPayment={sellerCanAcceptPayment}
               />
+              {user?.id !== listing.user_id && (
+                <MakeOfferButton listingId={listing.id} listingPricePence={listing.price} />
+              )}
             </div>
           )}
         </div>

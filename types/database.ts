@@ -20,6 +20,23 @@ export type TransactionStatus =
   | "refunded"
   | "dispute";
 
+export type MessageType =
+  | "text"
+  | "offer"
+  | "offer_accepted"
+  | "offer_declined"
+  | "offer_countered"
+  | "offer_withdrawn"
+  | "offer_expired";
+
+export type OfferStatus =
+  | "pending"
+  | "accepted"
+  | "declined"
+  | "countered"
+  | "withdrawn"
+  | "expired";
+
 export interface User {
   id: string;
   email: string;
@@ -27,6 +44,7 @@ export interface User {
   stripe_account_id: string | null;
   avatar_path: string | null;
   display_name: string | null;
+  chat_display_name: string | null;
   first_name: string | null;
   surname: string | null;
   location: string | null;
@@ -77,4 +95,37 @@ export interface Transaction {
   created_at: string;
   updated_at: string;
   listing?: Listing;
+}
+
+export interface Conversation {
+  id: string;
+  listing_id: string;
+  buyer_id: string;
+  seller_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Message {
+  id: string;
+  conversation_id: string;
+  sender_id: string | null;
+  body: string | null;
+  message_type: MessageType;
+  offer_id: string | null;
+  created_at: string;
+}
+
+export interface Offer {
+  id: string;
+  conversation_id: string;
+  listing_id: string;
+  buyer_id: string;
+  seller_id: string;
+  amount_pence: number;
+  status: OfferStatus;
+  expires_at: string;
+  counter_offer_id: string | null;
+  created_at: string;
+  updated_at: string;
 }
