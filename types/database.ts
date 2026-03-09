@@ -6,7 +6,6 @@ export type ListingCategory =
   | "Irons"
   | "Wedges"
   | "Putter"
-  | "Apparel"
   | "Bag"
   | "Clothing"
   | "Accessories";

@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS public.users (
 CREATE TABLE IF NOT EXISTS public.listings (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
-  category TEXT NOT NULL CHECK (category IN ('Driver', 'Woods', 'Irons', 'Wedges', 'Putter', 'Apparel', 'Bag')),
+  category TEXT NOT NULL CHECK (category IN ('Driver', 'Woods', 'Irons', 'Wedges', 'Putter', 'Bag', 'Clothing', 'Accessories')),
   brand TEXT NOT NULL,
   model TEXT NOT NULL,
   "condition" TEXT NOT NULL CHECK ("condition" IN ('New', 'Excellent', 'Good', 'Used')),

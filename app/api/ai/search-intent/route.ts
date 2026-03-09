@@ -1,9 +1,11 @@
 import { chatCompletionJson } from "@/lib/ai";
 import { NextResponse } from "next/server";
+import { ALL_CATEGORIES } from "@/lib/listing-categories";
 
 export const dynamic = "force-dynamic";
 
-const CATEGORIES = ["Driver", "Woods", "Irons", "Wedges", "Putter", "Apparel", "Bag"];
+const CATEGORIES = [...ALL_CATEGORIES];
+const CATEGORIES_SET = new Set<string>(CATEGORIES);
 const BRANDS = ["Titleist", "Callaway", "TaylorMade", "Ping", "Cobra", "Mizuno", "Srixon", "Wilson", "Other"];
 const SHAFT_FLEX = ["Senior", "Regular", "Stiff", "X-Stiff", "Other"];
 
@@ -71,7 +73,7 @@ export async function POST(request: Request) {
 
     const filters = result.filters;
     const category =
-      typeof filters.category === "string" && CATEGORIES.includes(filters.category)
+      typeof filters.category === "string" && CATEGORIES_SET.has(filters.category)
         ? filters.category
         : undefined;
     const brand =

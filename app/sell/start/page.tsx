@@ -6,12 +6,13 @@ import { useAuth } from "@/lib/auth-context";
 import { ImageUpload } from "@/components/listing/ImageUpload";
 import { track } from "@/lib/analytics";
 
+import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
+
 const LISTINGS_BUCKET = "listings";
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const SUBMIT_TIMEOUT_MS = 120_000;
 
-const CATEGORIES = ["Driver", "Woods", "Irons", "Wedges", "Putter", "Apparel", "Bag"] as const;
-const CONDITIONS = ["New", "Excellent", "Good", "Fair", "Used"] as const;
+const CATEGORIES = ALL_CATEGORIES;
 const PARCEL_PRESET = "SMALL_ITEM";
 
 type SubmitPhase = "creating" | "upload_urls" | "uploading" | "saving";

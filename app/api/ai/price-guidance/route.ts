@@ -1,10 +1,11 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
+import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
 
 export const dynamic = "force-dynamic";
 
-const ALLOWED_CATEGORIES = ["Driver", "Woods", "Irons", "Wedges", "Putter", "Apparel", "Bag"];
-const ALLOWED_CONDITIONS = ["New", "Excellent", "Good", "Fair", "Used"];
+const ALLOWED_CATEGORIES_SET = new Set<string>(ALL_CATEGORIES);
+const ALLOWED_CONDITIONS_SET = new Set<string>(CONDITIONS);
 const MIN_SAMPLES_FOR_PLATFORM = 3;
 
 /**
@@ -20,7 +21,7 @@ export async function GET(request: Request) {
     const model = searchParams.get("model")?.trim();
     const condition = searchParams.get("condition")?.trim();
 
-    if (!category || !ALLOWED_CATEGORIES.includes(category)) {
+    if (!category || !ALLOWED_CATEGORIES_SET.has(category)) {
       return NextResponse.json({ error: "Invalid or missing category" }, { status: 400 });
     }
     if (!brand?.length) {
@@ -29,7 +30,7 @@ export async function GET(request: Request) {
     if (!model?.length) {
       return NextResponse.json({ error: "Missing model" }, { status: 400 });
     }
-    if (!condition || !ALLOWED_CONDITIONS.includes(condition)) {
+    if (!condition || !ALLOWED_CONDITIONS_SET.has(condition)) {
       return NextResponse.json({ error: "Invalid or missing condition" }, { status: 400 });
     }
 

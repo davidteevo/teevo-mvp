@@ -15,12 +15,9 @@ export const CLUB_CATEGORIES = [
 export const CLOTHING_CATEGORY = "Clothing" as const;
 export const ACCESSORIES_CATEGORY = "Accessories" as const;
 
-export const APPAREL_LEGACY = "Apparel" as const;
-
-/** All primary categories: clubs, legacy Apparel, Clothing, Accessories */
+/** All primary categories: clubs, Clothing, Accessories */
 export const ALL_CATEGORIES = [
   ...CLUB_CATEGORIES,
-  APPAREL_LEGACY,
   CLOTHING_CATEGORY,
   ACCESSORIES_CATEGORY,
 ] as const;

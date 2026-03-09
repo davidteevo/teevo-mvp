@@ -9,7 +9,7 @@ ALTER TABLE public.listings ALTER COLUMN model DROP NOT NULL;
 
 ALTER TABLE public.listings DROP CONSTRAINT IF EXISTS listings_category_check;
 ALTER TABLE public.listings ADD CONSTRAINT listings_category_check
-  CHECK (category IN ('Driver', 'Woods', 'Irons', 'Wedges', 'Putter', 'Apparel', 'Bag', 'Clothing', 'Accessories'));
+  CHECK (category IN ('Driver', 'Woods', 'Irons', 'Wedges', 'Putter', 'Bag', 'Clothing', 'Accessories'));
 
 ALTER TABLE public.listings DROP CONSTRAINT IF EXISTS listings_condition_check;
 ALTER TABLE public.listings ADD CONSTRAINT listings_condition_check

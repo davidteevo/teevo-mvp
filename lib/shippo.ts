@@ -127,7 +127,6 @@ export function categoryToParcelPreset(category: string | null | undefined): Par
       return ParcelPreset.SMALL_ITEM;
     case "Putter":
       return ParcelPreset.PUTTER;
-    case "Apparel":
     case "Bag":
     case "Clothing":
     case "Accessories":

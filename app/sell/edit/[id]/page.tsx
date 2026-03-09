@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
+import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
 
-const CATEGORIES = ["Driver", "Woods", "Irons", "Wedges", "Putter", "Apparel", "Bag"];
-const CONDITIONS = ["New", "Excellent", "Good", "Fair", "Used"];
+const CATEGORIES = [...ALL_CATEGORIES];
 
 type Listing = {
   id: string;
