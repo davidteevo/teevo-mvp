@@ -60,7 +60,7 @@ function LoginForm() {
   };
 
   return (
-    <div className="max-w-sm mx-auto px-4 py-12 relative">
+    <div className="w-full max-w-md mx-auto px-5 sm:px-6 py-12 relative">
       {loading && (
         <div
           className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-off-white-pique"
@@ -103,7 +103,7 @@ function LoginForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
-            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full min-h-[48px] rounded-xl border border-mowing-green/30 bg-white px-4 py-3 text-base text-mowing-green placeholder:text-mowing-green/50 disabled:opacity-60 disabled:cursor-not-allowed touch-manipulation"
           />
         </div>
         <div>
@@ -124,7 +124,7 @@ function LoginForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
-            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full min-h-[48px] rounded-xl border border-mowing-green/30 bg-white px-4 py-3 text-base text-mowing-green placeholder:text-mowing-green/50 disabled:opacity-60 disabled:cursor-not-allowed touch-manipulation"
           />
         </div>
         <button
@@ -147,7 +147,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="max-w-sm mx-auto px-4 py-12 text-center text-mowing-green/80">Loading…</div>}>
+    <Suspense fallback={<div className="w-full max-w-md mx-auto px-5 sm:px-6 py-12 text-center text-mowing-green/80">Loading…</div>}>
       <LoginForm />
     </Suspense>
   );

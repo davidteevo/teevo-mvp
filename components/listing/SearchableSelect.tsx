@@ -96,22 +96,6 @@ export const SearchableSelect = forwardRef<SearchableSelectHandle, SearchableSel
         }}
         onFocus={() => setOpen(true)}
         onKeyDown={(e) => {
-          // #region agent log
-          if (e.key === " ") {
-            fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-              method: "POST",
-              headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "478e94" },
-              body: JSON.stringify({
-                sessionId: "478e94",
-                location: "SearchableSelect.tsx:combobox onKeyDown",
-                message: "Space keydown on combobox",
-                data: { key: e.key, targetTag: (e.target as HTMLElement)?.tagName, isInput: e.target === inputRef.current, defaultPrevented: e.defaultPrevented },
-                timestamp: Date.now(),
-                hypothesisId: "H1",
-              }),
-            }).catch(() => {});
-          }
-          // #endregion
           const isFromInput = e.target === inputRef.current;
           if (!isFromInput && (e.key === "Enter" || e.key === " " || e.key === "ArrowDown")) {
             e.preventDefault();
@@ -127,22 +111,6 @@ export const SearchableSelect = forwardRef<SearchableSelectHandle, SearchableSel
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setOpen(true)}
             onKeyDown={(e) => {
-              // #region agent log
-              if (e.key === " ") {
-                fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "478e94" },
-                  body: JSON.stringify({
-                    sessionId: "478e94",
-                    location: "SearchableSelect.tsx:input onKeyDown",
-                    message: "Space keydown on input",
-                    data: { key: e.key, queryLen: query.length },
-                    timestamp: Date.now(),
-                    hypothesisId: "H2",
-                  }),
-                }).catch(() => {});
-              }
-              // #endregion
               if (e.key === "Enter" && allowCustom && filtered.length === 0 && query.trim()) {
                 e.preventDefault();
                 onChange(query.trim());
