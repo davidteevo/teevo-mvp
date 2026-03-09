@@ -18,11 +18,12 @@ export async function loadConversationPayload(
 
   const { data: listingRow } = await admin
     .from("listings")
-    .select("id, brand, model, price, status, listing_images(storage_path, sort_order)")
+    .select("id, brand, model, price, status, condition, listing_images(storage_path, sort_order)")
     .eq("id", conv.listing_id)
     .single();
   const otherId = conv.buyer_id === currentUserId ? conv.seller_id : conv.buyer_id;
   const { data: otherUser } = await admin.from("users").select("chat_display_name").eq("id", otherId).single();
+  const { data: sellerUser } = await admin.from("users").select("location").eq("id", conv.seller_id).single();
   const { data: messages } = await admin
     .from("messages")
     .select("id, sender_id, body, message_type, offer_id, created_at")
@@ -48,11 +49,14 @@ export async function loadConversationPayload(
         title: `${(listingRow as { brand: string }).brand} ${(listingRow as { model: string }).model}`,
         price: (listingRow as { price: number }).price,
         status: (listingRow as { status: string }).status,
+        condition: (listingRow as { condition?: string }).condition ?? null,
         imageUrl: firstImg
           ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listings/${firstImg.storage_path}`
           : null,
       }
     : null;
+
+  const sellerLocation = (sellerUser as { location?: string } | null)?.location?.trim() ?? null;
 
   return {
     conversation: {
@@ -64,6 +68,7 @@ export async function loadConversationPayload(
       updatedAt: conv.updated_at,
     },
     listing: listingPayload,
+    sellerLocation,
     otherPartyChatDisplayName: otherUser?.chat_display_name?.trim() ?? "Teevo user",
     messages: (messages ?? []).map((m) => ({
       id: m.id,

@@ -4,12 +4,14 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
+import { formatChatDisplayNameForUI } from "@/lib/chat-identity";
 
 type Listing = {
   id: string;
   title: string;
   price: number;
   status: string;
+  condition?: string | null;
   imageUrl: string | null;
 };
 
@@ -43,12 +45,53 @@ type Payload = {
     sellerId: string;
   };
   listing: Listing | null;
+  sellerLocation?: string | null;
   otherPartyChatDisplayName: string;
   messages: Message[];
   offers: Offer[];
 };
 
 const POLL_INTERVAL_MS = 15000;
+
+function formatMessageTimestamp(createdAt: string): string {
+  const d = new Date(createdAt);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const msgDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const diffDays = Math.floor((today.getTime() - msgDay.getTime()) / 86400000);
+  const timeStr = d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false });
+  if (diffDays === 0) return `Today ${timeStr}`;
+  if (diffDays === 1) return `Yesterday ${timeStr}`;
+  if (diffDays < 7) return `${timeStr}`;
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" }) + " " + timeStr;
+}
+
+const OFF_PLATFORM_REGEX =
+  /(\+?\d[\d\s-]{10,})|([\w.-]+@[\w.-]+\.\w+)|(instagram\.com|@[\w.]+\b.*insta|whatsapp|message me (off|outside)|text me at|call me at)/i;
+
+function suggestsOffPlatformContact(text: string): boolean {
+  return OFF_PLATFORM_REGEX.test(text);
+}
+
+function getSystemMessageDisplay(m: Message): string {
+  if (m.body?.trim()) return m.body;
+  switch (m.messageType) {
+    case "offer":
+      return "Offer sent";
+    case "offer_accepted":
+      return "Offer accepted. Complete checkout to secure the item.";
+    case "offer_declined":
+      return "Offer declined.";
+    case "offer_countered":
+      return "Counter offer sent.";
+    case "offer_withdrawn":
+      return "Offer withdrawn.";
+    case "offer_expired":
+      return "This offer has expired.";
+    default:
+      return m.messageType?.replace(/_/g, " ") ?? "System";
+  }
+}
 
 export function ConversationDetail({ conversationId }: { conversationId: string }) {
   const [payload, setPayload] = useState<Payload | null>(null);
@@ -61,7 +104,9 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
   const [counterAmount, setCounterAmount] = useState("");
   const [sellerProposeAmount, setSellerProposeAmount] = useState("");
   const [sellerProposeLoading, setSellerProposeLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [buyerOfferAmount, setBuyerOfferAmount] = useState("");
+  const [buyerOfferLoading, setBuyerOfferLoading] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const scrollYBeforeFocusRef = useRef<number>(0);
 
   const fetchConversation = async () => {
@@ -90,7 +135,10 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
   }, [conversationId]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+    }
   }, [payload?.messages?.length]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -180,14 +228,15 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
     }
   };
 
-  const handleBuyAcceptedOffer = async (offerId: string, amountPence: number) => {
+  const handleBuyNow = async (offerId: string | null, amountPence: number) => {
+    if (!payload?.listing?.id) return;
     try {
       const res = await fetch("/api/checkout/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          listingId: payload?.listing?.id,
-          acceptedOfferId: offerId,
+          listingId: payload.listing.id,
+          ...(offerId && { acceptedOfferId: offerId }),
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -219,7 +268,7 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
     );
   }
 
-  const { conversation, listing, otherPartyChatDisplayName, messages, offers } = payload;
+  const { conversation, listing, sellerLocation, otherPartyChatDisplayName, messages, offers } = payload;
   const acceptedOffer = offers.find((o) => o.status === "accepted");
   const pendingOffers = offers.filter((o) => o.status === "pending");
   const pendingFromSeller = pendingOffers.find(
@@ -234,14 +283,14 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
   const { user } = useAuth();
   const isCurrentUserBuyer = user?.id === conversation.buyerId;
 
-  const handleSellerPropose = async () => {
-    const pence = Math.round(parseFloat(sellerProposeAmount) * 100);
+  const sendOffer = async (amountPounds: string, setLoading: (v: boolean) => void, setAmount: (v: string) => void) => {
+    const pence = Math.round(parseFloat(amountPounds) * 100);
     if (!Number.isInteger(pence) || pence <= 0 || !listing) return;
     if (pence > listing.price) {
       alert("Offer cannot exceed listing price");
       return;
     }
-    setSellerProposeLoading(true);
+    setLoading(true);
     try {
       const res = await fetch(`/api/conversations/${conversationId}/offers`, {
         method: "POST",
@@ -253,26 +302,40 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
         alert(data.error ?? "Failed to send offer");
         return;
       }
-      setSellerProposeAmount("");
+      setAmount("");
       await fetchConversation();
     } catch {
       alert("Failed to send offer");
     } finally {
-      setSellerProposeLoading(false);
+      setLoading(false);
     }
   };
 
+  const handleSellerPropose = () =>
+    sendOffer(sellerProposeAmount, setSellerProposeLoading, setSellerProposeAmount);
+  const handleBuyerMakeOffer = () =>
+    sendOffer(buyerOfferAmount, setBuyerOfferLoading, setBuyerOfferAmount);
+
+  const suggestedOfferPounds =
+    listing && listing.price > 0
+      ? [
+          ((listing.price * 0.9) / 100).toFixed(2),
+          ((listing.price * 0.95) / 100).toFixed(2),
+          (listing.price / 100).toFixed(2),
+        ]
+      : [];
+
   return (
     <div className="flex flex-col flex-1 min-h-0">
-      <div className="flex-1 min-h-0 overflow-y-auto">
-        <div className="shrink-0 mb-4">
+      <div ref={scrollContainerRef} className="flex-1 min-h-0 overflow-y-auto">
+        <div className="shrink-0 mb-2">
           <Link href="/conversations" className="text-sm text-mowing-green/70 hover:text-mowing-green">
             ← Back to messages
           </Link>
         </div>
 
         {listing && (
-        <div className="shrink-0 flex gap-3 p-3 rounded-xl border border-mowing-green/20 bg-mowing-green/5 mb-4">
+        <div className="sticky top-0 z-10 shrink-0 flex gap-3 p-3 rounded-xl border border-mowing-green/20 bg-mowing-green/5 mb-4 bg-off-white-pique/95 backdrop-blur-sm">
           <Link href={`/listing/${listing.id}`} className="shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-mowing-green/10">
             {listing.imageUrl ? (
               <Image src={listing.imageUrl} alt="" width={64} height={64} className="w-full h-full object-cover" />
@@ -280,11 +343,20 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
               <span className="flex w-full h-full items-center justify-center text-mowing-green/50 text-xs">No image</span>
             )}
           </Link>
-          <div className="min-w-0 flex-1">
-            <Link href={`/listing/${listing.id}`} className="font-medium text-mowing-green hover:underline truncate block">
+          <div className="min-w-0 flex-1 space-y-0.5">
+            <Link href={`/listing/${listing.id}`} className="font-semibold text-mowing-green hover:underline truncate block text-base">
               {listing.title}
             </Link>
-            <p className="text-mowing-green font-semibold">£{(listing.price / 100).toFixed(2)}</p>
+            <p className="text-mowing-green font-semibold">Listed for £{(listing.price / 100).toFixed(2)}</p>
+            {listing.condition && (
+              <p className="text-mowing-green/70 text-sm">Condition: {listing.condition}</p>
+            )}
+            {sellerLocation && (
+              <p className="text-mowing-green/70 text-sm">Location: {sellerLocation}</p>
+            )}
+            {listing.status === "verified" && (
+              <p className="text-mowing-green/60 text-xs">Verified listing</p>
+            )}
           </div>
           <Link
             href={`/listing/${listing.id}`}
@@ -295,19 +367,51 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
         </div>
       )}
 
-      <p className="text-sm text-mowing-green/70 mb-2">Chat with {otherPartyChatDisplayName}</p>
+      <p className="text-sm text-mowing-green/70 mb-2">Chat with {formatChatDisplayNameForUI(otherPartyChatDisplayName)}</p>
 
-      {/* Accepted offer CTA */}
-      {acceptedOffer && listing?.status === "verified" && isCurrentUserBuyer && (
+      {/* Offer status line */}
+      {!acceptedOffer && (latestPendingFromBuyer || latestPendingFromSeller) && (
+        <p className="text-sm text-mowing-green/70 mb-2">
+          {latestPendingFromSeller
+            ? `Seller countered: £${(latestPendingFromSeller.amount_pence / 100).toFixed(2)}`
+            : latestPendingFromBuyer && isCurrentUserBuyer
+              ? `Active offer: £${(latestPendingFromBuyer.amount_pence / 100).toFixed(2)} — Waiting for seller response`
+              : latestPendingFromBuyer
+                ? `Buyer offered £${(latestPendingFromBuyer.amount_pence / 100).toFixed(2)}`
+                : null}
+        </p>
+      )}
+      {acceptedOffer && (
+        <p className="text-sm text-mowing-green/80 font-medium mb-2">Accepted, ready to checkout</p>
+      )}
+      {!acceptedOffer && pendingOffers.length === 0 && offers.some((o) => o.status === "expired") && (
+        <p className="text-sm text-mowing-green/60 mb-2">Offer expired</p>
+      )}
+
+      {/* Buy Now: always visible for buyer when listing verified (full price or accepted offer) */}
+      {listing?.status === "verified" && isCurrentUserBuyer && (
         <div className="shrink-0 rounded-xl bg-mowing-green/15 border border-mowing-green/30 p-4 mb-4">
-          <p className="font-medium text-mowing-green mb-2">Offer accepted. Complete purchase.</p>
-          <button
-            type="button"
-            onClick={() => handleBuyAcceptedOffer(acceptedOffer.id, acceptedOffer.amount_pence)}
-            className="rounded-xl bg-mowing-green text-off-white-pique px-6 py-3 font-semibold hover:opacity-90"
-          >
-            Buy for £{(acceptedOffer.amount_pence / 100).toFixed(2)}
-          </button>
+          <p className="text-mowing-green/70 text-xs mb-2">Payments protected on Teevo</p>
+          {acceptedOffer ? (
+            <>
+              <p className="font-medium text-mowing-green mb-2">Offer accepted. Complete checkout to secure the item.</p>
+              <button
+                type="button"
+                onClick={() => handleBuyNow(acceptedOffer.id, acceptedOffer.amount_pence)}
+                className="rounded-xl bg-mowing-green text-off-white-pique px-6 py-3 font-semibold hover:opacity-90"
+              >
+                Buy for £{(acceptedOffer.amount_pence / 100).toFixed(2)}
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => handleBuyNow(null, listing.price)}
+              className="rounded-xl bg-mowing-green text-off-white-pique px-6 py-3 font-semibold hover:opacity-90 w-full sm:w-auto"
+            >
+              Buy for £{(listing.price / 100).toFixed(2)}
+            </button>
+          )}
         </div>
       )}
 
@@ -400,61 +504,116 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
         </div>
       )}
 
-      {/* Seller: propose a price (send offer in return so buyer can accept from chat) */}
-      {!acceptedOffer && isCurrentUserBuyer === false && listing?.status === "verified" && (
-        <div className="shrink-0 flex flex-wrap items-center gap-2 mb-4">
-          <span className="text-sm text-mowing-green/80">Propose price:</span>
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="£"
-            value={sellerProposeAmount}
-            onChange={(e) => setSellerProposeAmount(e.target.value)}
-            className="w-24 rounded border border-mowing-green/30 px-2 py-1.5 text-sm text-mowing-green"
-          />
-          <button
-            type="button"
-            disabled={sellerProposeLoading || !sellerProposeAmount}
-            onClick={handleSellerPropose}
-            className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-70"
-          >
-            {sellerProposeLoading ? "Sending…" : "Send offer"}
-          </button>
+      {/* Make an offer: seller (when no pending buyer offer) or buyer (when no pending offer from buyer) */}
+      {!acceptedOffer && listing?.status === "verified" && (isCurrentUserBuyer === false || (isCurrentUserBuyer === true && !latestPendingFromBuyer)) && (
+        <div className="shrink-0 rounded-xl bg-mowing-green/10 border border-mowing-green/20 p-4 mb-4">
+          <p className="text-sm font-medium text-mowing-green mb-2">Make an offer</p>
+          {suggestedOfferPounds.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-3">
+              {suggestedOfferPounds.map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() =>
+                    isCurrentUserBuyer
+                      ? setBuyerOfferAmount(p)
+                      : setSellerProposeAmount(p)
+                  }
+                  className="rounded-lg border border-mowing-green/40 text-mowing-green px-3 py-1.5 text-sm font-medium hover:bg-mowing-green/10"
+                >
+                  £{p}
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-mowing-green/80 text-sm">£</span>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder="0.00"
+              value={isCurrentUserBuyer ? buyerOfferAmount : sellerProposeAmount}
+              onChange={(e) =>
+                isCurrentUserBuyer
+                  ? setBuyerOfferAmount(e.target.value)
+                  : setSellerProposeAmount(e.target.value)
+              }
+              className="w-24 rounded border border-mowing-green/30 px-2 py-2 text-sm text-mowing-green"
+            />
+            <button
+              type="button"
+              disabled={
+                (isCurrentUserBuyer ? buyerOfferLoading : sellerProposeLoading) ||
+                !(isCurrentUserBuyer ? buyerOfferAmount : sellerProposeAmount)
+              }
+              onClick={isCurrentUserBuyer ? handleBuyerMakeOffer : handleSellerPropose}
+              className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-70"
+            >
+              {(isCurrentUserBuyer ? buyerOfferLoading : sellerProposeLoading) ? "Sending…" : "Send offer"}
+            </button>
+          </div>
         </div>
       )}
 
-        {/* Message thread */}
+        {/* Message thread: bubbles + system messages */}
         <div className="space-y-3 mb-4">
-          {messages.map((m) => (
-            <div key={m.id} className="text-sm">
-              {m.messageType === "text" ? (
-                <>
-                  <span className="font-medium text-mowing-green/80">
-                    {m.senderChatDisplayName ?? "Teevo"}
+          {messages.map((m) => {
+            const isFromCurrentUser = m.senderId === user?.id;
+            if (m.messageType !== "text") {
+              return (
+                <div key={m.id} className="flex justify-center">
+                  <p className="text-center text-sm text-mowing-green/70 bg-mowing-green/5 rounded-lg px-4 py-2 max-w-[90%]">
+                    {getSystemMessageDisplay(m)}
+                  </p>
+                </div>
+              );
+            }
+            return (
+              <div
+                key={m.id}
+                className={`flex ${isFromCurrentUser ? "justify-end" : "justify-start"}`}
+              >
+                <div
+                  className={`max-w-[85%] rounded-2xl px-4 py-2 ${
+                    isFromCurrentUser
+                      ? "bg-mowing-green text-off-white-pique"
+                      : "bg-mowing-green/15 text-mowing-green"
+                  }`}
+                >
+                  {!isFromCurrentUser && (
+                    <span className="font-medium text-mowing-green/90 text-xs block mb-0.5">
+                      {formatChatDisplayNameForUI(m.senderChatDisplayName ?? null)}
+                    </span>
+                  )}
+                  <p className="text-sm whitespace-pre-wrap">{m.body}</p>
+                  <span
+                    className={`text-xs mt-1 block ${isFromCurrentUser ? "text-off-white-pique/80" : "text-mowing-green/60"}`}
+                  >
+                    {formatMessageTimestamp(m.createdAt)}
                   </span>
-                  <span className="text-mowing-green/60 ml-1 text-xs">
-                    {new Date(m.createdAt).toLocaleString()}
-                  </span>
-                  <p className="mt-0.5 text-mowing-green whitespace-pre-wrap">{m.body}</p>
-                </>
-              ) : (
-                <p className="text-mowing-green/80 italic">
-                  {m.body ?? m.messageType}
-                </p>
-              )}
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
+                </div>
+              </div>
+            );
+          })}
+          <div />
         </div>
       </div>
 
       {/* Compose: always visible, sticky at bottom */}
-      <div className="sticky bottom-0 shrink-0 bg-off-white-pique pt-2 border-t border-mowing-green/20">
+      <div className="sticky bottom-0 shrink-0 bg-off-white-pique pt-2 pb-2 border-t border-mowing-green/20">
+        <p className="text-mowing-green/60 text-xs mb-2">
+          Keep payments and messaging on Teevo to stay protected. Transactions made outside Teevo are not protected. Payments protected on Teevo.
+        </p>
         {listing?.status !== "verified" && listing !== null && (
           <p className="text-mowing-green/70 text-sm mb-2">Listing no longer available for new messages.</p>
         )}
-        <form onSubmit={handleSendMessage} className="flex gap-2">
+        {messageBody.trim() && suggestsOffPlatformContact(messageBody) && (
+          <p className="text-amber-700 bg-amber-100 border border-amber-300 rounded-lg px-3 py-2 text-sm mb-2" role="alert">
+            Avoid sharing contact details; keep the conversation on Teevo to stay protected.
+          </p>
+        )}
+        <form onSubmit={handleSendMessage} className="flex gap-3 items-end">
           <input
             type="text"
             value={messageBody}
@@ -462,7 +621,7 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
             placeholder="Type a message…"
             maxLength={2000}
             disabled={sending || listing?.status !== "verified"}
-            className="flex-1 rounded-lg border border-mowing-green/30 bg-white px-4 py-3 text-mowing-green placeholder:text-mowing-green/50 disabled:opacity-70"
+            className="flex-1 min-w-0 rounded-lg border border-mowing-green/30 bg-white px-4 py-3 text-mowing-green placeholder:text-mowing-green/60 disabled:opacity-60 disabled:cursor-not-allowed"
             onPointerDown={() => {
               scrollYBeforeFocusRef.current = typeof window !== "undefined" ? window.scrollY : 0;
             }}
@@ -477,7 +636,7 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
           <button
             type="submit"
             disabled={sending || !messageBody.trim() || listing?.status !== "verified"}
-            className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-3 font-medium hover:opacity-90 disabled:opacity-70"
+            className="shrink-0 rounded-lg bg-mowing-green text-off-white-pique px-5 py-3 font-medium hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             Send
           </button>

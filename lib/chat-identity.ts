@@ -49,3 +49,16 @@ export async function getOrCreateChatDisplayName(userId: string): Promise<string
 export function formatChatDisplayName(chatDisplayName: string | null): string {
   return chatDisplayName?.trim() || "Teevo user";
 }
+
+/**
+ * Softer display name for UI: teevo_golfer_123456 -> Golfer_123456; keeps anonymity.
+ */
+export function formatChatDisplayNameForUI(chatDisplayName: string | null): string {
+  const raw = chatDisplayName?.trim();
+  if (!raw) return "Teevo user";
+  const match = raw.match(/^teevo_golfer_(\d+)$/i);
+  if (match) return `Golfer_${match[1]}`;
+  const sellerMatch = raw.match(/^teevo_seller_(\d+)$/i);
+  if (sellerMatch) return `Seller_${sellerMatch[1]}`;
+  return raw;
+}
