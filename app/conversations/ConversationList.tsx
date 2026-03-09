@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { FullScreenLoading } from "@/components/ui/FullScreenLoading";
 
 type ConversationItem = {
   id: string;
@@ -48,7 +49,11 @@ export function ConversationList() {
 
   if (loading) {
     return (
-      <p className="text-mowing-green/70 text-sm">Loading conversations…</p>
+      <FullScreenLoading
+        title="Loading conversations"
+        subtitle="Fetching your messages…"
+        ariaLabel="Loading conversations"
+      />
     );
   }
   if (error) {

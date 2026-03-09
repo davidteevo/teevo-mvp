@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
 import { formatChatDisplayNameForUI } from "@/lib/chat-identity";
+import { FullScreenLoading } from "@/components/ui/FullScreenLoading";
 
 type Listing = {
   id: string;
@@ -252,7 +253,11 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
 
   if (loading && !payload) {
     return (
-      <p className="text-mowing-green/70 text-sm">Loading conversation…</p>
+      <FullScreenLoading
+        title="Loading conversation"
+        subtitle="Opening your chat…"
+        ariaLabel="Loading conversation"
+      />
     );
   }
   if (error || !payload) {
