@@ -22,7 +22,7 @@ export async function loadConversationPayload(
     .eq("id", conv.listing_id)
     .single();
   const otherId = conv.buyer_id === currentUserId ? conv.seller_id : conv.buyer_id;
-  const { data: otherUser } = await admin.from("users").select("chat_display_name").eq("id", otherId).single();
+  const { data: otherUser } = await admin.from("users").select("chat_display_name, display_name").eq("id", otherId).single();
   const { data: sellerUser } = await admin.from("users").select("location").eq("id", conv.seller_id).single();
   const { data: messages } = await admin
     .from("messages")
@@ -32,9 +32,10 @@ export async function loadConversationPayload(
   const senderIds = Array.from(new Set((messages ?? []).map((m) => m.sender_id).filter(Boolean))) as string[];
   const senderList =
     senderIds.length > 0
-      ? (await admin.from("users").select("id, chat_display_name").in("id", senderIds)).data ?? []
+      ? (await admin.from("users").select("id, chat_display_name, display_name").in("id", senderIds)).data ?? []
       : [];
   const senderMap = new Map(senderList.map((s) => [s.id, s.chat_display_name]));
+  const senderDisplayNameMap = new Map(senderList.map((s) => [s.id, (s as { display_name?: string | null }).display_name?.trim() ?? null]));
   const { data: offers } = await admin
     .from("offers")
     .select("id, amount_pence, status, expires_at, counter_offer_id, created_at, buyer_id, seller_id, initiated_by")
@@ -70,10 +71,12 @@ export async function loadConversationPayload(
     listing: listingPayload,
     sellerLocation,
     otherPartyChatDisplayName: otherUser?.chat_display_name?.trim() ?? "Teevo user",
+    otherPartyDisplayName: (otherUser as { display_name?: string | null } | null)?.display_name?.trim() ?? null,
     messages: (messages ?? []).map((m) => ({
       id: m.id,
       senderId: m.sender_id,
       senderChatDisplayName: m.sender_id ? (senderMap.get(m.sender_id) ?? "Teevo user") : null,
+      senderDisplayName: m.sender_id ? senderDisplayNameMap.get(m.sender_id) ?? null : null,
       body: m.body,
       messageType: m.message_type,
       offerId: m.offer_id,

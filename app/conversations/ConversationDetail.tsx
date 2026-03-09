@@ -20,6 +20,7 @@ type Message = {
   id: string;
   senderId: string | null;
   senderChatDisplayName: string | null;
+  senderDisplayName?: string | null;
   body: string | null;
   messageType: string;
   offerId: string | null;
@@ -48,6 +49,7 @@ type Payload = {
   listing: Listing | null;
   sellerLocation?: string | null;
   otherPartyChatDisplayName: string;
+  otherPartyDisplayName?: string | null;
   messages: Message[];
   offers: Offer[];
 };
@@ -281,7 +283,7 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
     );
   }
 
-  const { conversation, listing, sellerLocation, otherPartyChatDisplayName, messages, offers } = payload;
+  const { conversation, listing, sellerLocation, otherPartyChatDisplayName, otherPartyDisplayName, messages, offers } = payload;
   const acceptedOffer = offers.find((o) => o.status === "accepted");
   const pendingOffers = offers.filter((o) => o.status === "pending");
   const pendingFromSeller = pendingOffers.find(
@@ -380,7 +382,7 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
         </div>
       )}
 
-      <p className="text-sm text-mowing-green/70 mb-2">Chat with {formatChatDisplayNameForUI(otherPartyChatDisplayName)}</p>
+      <p className="text-sm text-mowing-green/70 mb-2">Chat with {otherPartyDisplayName || formatChatDisplayNameForUI(otherPartyChatDisplayName)}</p>
 
       {!BUYING_ENABLED && (
         <div className="mb-4 rounded-xl bg-mowing-green/10 border border-mowing-green/20 px-4 py-3 text-center text-sm text-mowing-green/90">
@@ -606,7 +608,7 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
                 >
                   {!isFromCurrentUser && (
                     <span className="font-medium text-mowing-green/90 text-xs block mb-0.5">
-                      {formatChatDisplayNameForUI(m.senderChatDisplayName ?? null)}
+                      {m.senderDisplayName || formatChatDisplayNameForUI(m.senderChatDisplayName ?? null)}
                     </span>
                   )}
                   <p className="text-sm whitespace-pre-wrap">{m.body}</p>

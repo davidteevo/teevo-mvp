@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { FullScreenLoading } from "@/components/ui/FullScreenLoading";
+import { formatChatDisplayNameForUI } from "@/lib/chat-identity";
 
 type ConversationItem = {
   id: string;
@@ -13,6 +14,7 @@ type ConversationItem = {
   listingImageUrl: string | null;
   listingStatus: string | null;
   otherPartyChatDisplayName: string;
+  otherPartyDisplayName?: string | null;
   lastMessagePreview: string | null;
   lastActivityAt: string;
   updatedAt: string;
@@ -99,7 +101,7 @@ export function ConversationList() {
                 {c.listingTitle || "Listing"}
               </p>
               <p className="text-sm text-mowing-green/70 truncate">
-                {c.otherPartyChatDisplayName}
+                {c.otherPartyDisplayName || formatChatDisplayNameForUI(c.otherPartyChatDisplayName)}
               </p>
               {c.lastMessagePreview && (
                 <p className="text-sm text-mowing-green/60 truncate mt-0.5">

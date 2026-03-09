@@ -54,10 +54,11 @@ export async function GET(request: Request) {
 
   const { data: users } = await admin
     .from("users")
-    .select("id, chat_display_name")
+    .select("id, chat_display_name, display_name")
     .in("id", Array.from(new Set(otherPartyIds)));
 
   const userMap = new Map((users ?? []).map((u) => [u.id, u.chat_display_name]));
+  const displayNameMap = new Map((users ?? []).map((u) => [u.id, (u as { display_name?: string | null }).display_name?.trim() ?? null]));
 
   const { data: lastMessages } = await admin
     .from("messages")
@@ -93,6 +94,7 @@ export async function GET(request: Request) {
       listingImageUrl: imagePath,
       listingStatus: listing?.status ?? null,
       otherPartyChatDisplayName: userMap.get(otherId) ?? "Teevo user",
+      otherPartyDisplayName: displayNameMap.get(otherId) ?? null,
       lastMessagePreview: last?.body?.slice(0, 80) ?? null,
       lastActivityAt: last?.created_at ?? c.updated_at,
       updatedAt: c.updated_at,
