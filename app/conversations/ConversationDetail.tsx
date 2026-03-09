@@ -224,7 +224,10 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
   const pendingFromSeller = pendingOffers.find(
     (o) => (o as Offer).initiated_by === "seller" || offers.some((x) => x.counter_offer_id === o.id)
   );
-  const pendingFromBuyer = pendingOffers.find((o) => (o as Offer).initiated_by !== "seller");
+  const pendingFromBuyer = pendingOffers.find((o) => {
+    const by = (o as Offer).initiated_by;
+    return by === "buyer" || by == null;
+  });
   const latestPendingFromBuyer = pendingFromBuyer;
   const latestPendingFromSeller = pendingFromSeller;
   const { user } = useAuth();
@@ -309,7 +312,11 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
 
       {/* Offer CTAs: Seller sees Accept / Counter / Decline for buyer's pending; Buyer sees Withdraw for own pending, Accept/Counter/Withdraw for seller's counter */}
       {!acceptedOffer && latestPendingFromBuyer && isCurrentUserBuyer === false && (
-        <div className="shrink-0 flex flex-wrap gap-2 mb-4">
+        <div className="shrink-0 rounded-xl bg-mowing-green/10 border border-mowing-green/20 p-4 mb-4">
+          <p className="text-sm font-medium text-mowing-green mb-3">
+            Buyer offered £{(latestPendingFromBuyer.amount_pence / 100).toFixed(2)}
+          </p>
+          <div className="flex flex-wrap gap-2">
           <button
             type="button"
             disabled={!!actionLoading}
@@ -344,6 +351,7 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
             >
               Counter
             </button>
+          </div>
           </div>
         </div>
       )}
