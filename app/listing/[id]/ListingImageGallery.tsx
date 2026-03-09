@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import { ZoomIn, ZoomOut, X } from "lucide-react";
 import { VerifiedBadge } from "@/components/trust/VerifiedBadge";
@@ -8,6 +8,7 @@ import { VerifiedBadge } from "@/components/trust/VerifiedBadge";
 const ZOOM_LEVELS = [1, 1.5, 2, 2.5, 3];
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 3;
+const SWIPE_THRESHOLD_PX = 50;
 
 export function ListingImageGallery({
   imageUrls,
@@ -19,9 +20,66 @@ export function ListingImageGallery({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [zoomOpen, setZoomOpen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
+  const touchStartX = useRef<number | null>(null);
+  const mouseStartX = useRef<number | null>(null);
+  const swipeHandled = useRef(false);
 
   const mainUrl = imageUrls[selectedIndex] ?? imageUrls[0];
   const hasMultiple = imageUrls.length > 1;
+
+  const goPrev = useCallback(() => {
+    setSelectedIndex((i) => Math.max(0, i - 1));
+  }, []);
+  const goNext = useCallback(() => {
+    setSelectedIndex((i) => Math.min(imageUrls.length - 1, i + 1));
+  }, [imageUrls.length]);
+
+  const handleSwipeEnd = useCallback(
+    (deltaX: number) => {
+      if (!hasMultiple || Math.abs(deltaX) < SWIPE_THRESHOLD_PX) return false;
+      if (deltaX > 0) goPrev();
+      else goNext();
+      return true;
+    },
+    [hasMultiple, goPrev, goNext]
+  );
+
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    swipeHandled.current = false;
+  }, []);
+  const onTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (touchStartX.current === null) return;
+      const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+      touchStartX.current = null;
+      swipeHandled.current = handleSwipeEnd(deltaX);
+    },
+    [handleSwipeEnd]
+  );
+
+  const onMouseDown = useCallback((e: React.MouseEvent) => {
+    mouseStartX.current = e.clientX;
+    swipeHandled.current = false;
+  }, []);
+  const onMouseUp = useCallback(
+    (e: React.MouseEvent) => {
+      if (mouseStartX.current === null) return;
+      const deltaX = e.clientX - mouseStartX.current;
+      mouseStartX.current = null;
+      swipeHandled.current = handleSwipeEnd(deltaX);
+    },
+    [handleSwipeEnd]
+  );
+
+  const openZoom = useCallback(() => {
+    if (swipeHandled.current) {
+      swipeHandled.current = false;
+      return;
+    }
+    setZoomLevel(1);
+    setZoomOpen(true);
+  }, []);
 
   const zoomIn = useCallback(() => {
     setZoomLevel((z) => Math.min(MAX_ZOOM, ZOOM_LEVELS[ZOOM_LEVELS.indexOf(z) + 1] ?? z + 0.5));
@@ -30,19 +88,18 @@ export function ListingImageGallery({
     setZoomLevel((z) => Math.max(MIN_ZOOM, ZOOM_LEVELS[ZOOM_LEVELS.indexOf(z) - 1] ?? z - 0.5));
   }, []);
 
-  const openZoom = useCallback(() => {
-    setZoomLevel(1);
-    setZoomOpen(true);
-  }, []);
-
   if (!mainUrl) return null;
 
   return (
     <div className="space-y-4">
       <button
         type="button"
-        className="aspect-square relative rounded-xl overflow-hidden bg-mowing-green/5 group w-full block text-left"
+        className="aspect-square relative rounded-xl overflow-hidden bg-mowing-green/5 group w-full block text-left touch-pan-y"
         onClick={openZoom}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+        onMouseDown={onMouseDown}
+        onMouseUp={onMouseUp}
         aria-label="View full size"
       >
         <Image
