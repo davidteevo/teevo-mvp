@@ -54,7 +54,7 @@ export default function ResetPasswordPage() {
     const access_token = params.get("access_token");
     const refresh_token = params.get("refresh_token");
     const type = params.get("type");
-    const isRecoveryWithTokens = type === "recovery" && access_token && refresh_token;
+    const isRecoveryWithTokens = !!access_token && !!refresh_token;
     // #region agent log
     fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
       method: "POST",
@@ -77,9 +77,20 @@ export default function ResetPasswordPage() {
     // #endregion
 
     if (isRecoveryWithTokens) {
+      let settled = false;
+      const timeoutMs = 12000;
+      const timeoutId = window.setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        setHashError("Verification is taking too long. Please try again or request a new link.");
+        setRecoveryReady(false);
+      }, timeoutMs);
       supabase.auth
         .setSession({ access_token, refresh_token })
         .then(() => {
+          if (settled) return;
+          settled = true;
+          window.clearTimeout(timeoutId);
           // #region agent log
           fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
             method: "POST",
@@ -99,6 +110,9 @@ export default function ResetPasswordPage() {
           setRecoveryReady(true);
         })
         .catch((e) => {
+          if (settled) return;
+          settled = true;
+          window.clearTimeout(timeoutId);
           // #region agent log
           fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
             method: "POST",
@@ -126,6 +140,9 @@ export default function ResetPasswordPage() {
       });
     }
     checkReady();
+    const fallbackTimer = window.setTimeout(() => {
+      setRecoveryReady((prev) => (prev === null ? false : prev));
+    }, 8000);
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") checkReady();
     });
@@ -133,10 +150,14 @@ export default function ResetPasswordPage() {
       const t = setTimeout(checkReady, 400);
       return () => {
         clearTimeout(t);
+        clearTimeout(fallbackTimer);
         sub?.subscription?.unsubscribe();
       };
     }
-    return () => sub?.subscription?.unsubscribe();
+    return () => {
+      clearTimeout(fallbackTimer);
+      sub?.subscription?.unsubscribe();
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
