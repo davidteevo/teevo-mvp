@@ -25,7 +25,14 @@ export default function ResetPasswordPage() {
     const params = new URLSearchParams(hash || search);
     const err = params.get("error");
     const errDesc = params.get("error_description");
-    if (params.get("error") === "invalid_link") {
+    // If we already have a session, treat the link as valid regardless of error params.
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        sessionClientRef.current = supabase;
+        setRecoveryReady(true);
+      }
+    }).catch(() => {});
+    if (params.get("error") === "invalid_link" && !errDesc) {
       setHashError("Invalid or expired link.");
       setRecoveryReady(false);
       return;
@@ -52,7 +59,7 @@ export default function ResetPasswordPage() {
       }),
     }).catch(() => {});
     // #endregion
-    if (err || errDesc) {
+    if (!sessionClientRef.current && (err || errDesc)) {
       setHashError(errDesc || err || "Invalid or expired link.");
       setRecoveryReady(false);
       return;
