@@ -71,6 +71,13 @@ export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminU
   const [sortAsc, setSortAsc] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [createEmail, setCreateEmail] = useState("");
+  const [createFirstName, setCreateFirstName] = useState("");
+  const [createLastName, setCreateLastName] = useState("");
+  const [createPhone, setCreatePhone] = useState("");
+  const [createLoading, setCreateLoading] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -134,6 +141,45 @@ export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminU
     }
   };
 
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const email = createEmail.trim().toLowerCase();
+    if (!email) {
+      setCreateError("Email is required");
+      return;
+    }
+    setCreateError(null);
+    setCreateLoading(true);
+    try {
+      const res = await fetch("/api/admin/sellers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          first_name: createFirstName.trim() || null,
+          last_name: createLastName.trim() || null,
+          phone: createPhone.trim() || null,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setCreateEmail("");
+        setCreateFirstName("");
+        setCreateLastName("");
+        setCreatePhone("");
+        setShowCreateForm(false);
+        router.refresh();
+      } else if (res.status === 409) {
+        setCreateError(data.error ?? "User already exists with this email");
+        router.refresh();
+      } else {
+        setCreateError(data.error ?? "Failed to create user");
+      }
+    } finally {
+      setCreateLoading(false);
+    }
+  };
+
   const searchInput = (
     <input
       type="search"
@@ -144,13 +190,99 @@ export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminU
     />
   );
 
+  const createUserForm = (
+    <div className="rounded-xl border border-par-3-punch/20 bg-white p-4 mb-4">
+      <div className="flex items-center justify-between gap-4 mb-3">
+        <h2 className="text-sm font-semibold text-mowing-green">Create user</h2>
+        {!showCreateForm ? (
+          <button
+            type="button"
+            onClick={() => setShowCreateForm(true)}
+            className="rounded-lg bg-mowing-green text-white px-3 py-1.5 text-sm font-medium hover:bg-mowing-green/90"
+          >
+            Add user
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => { setShowCreateForm(false); setCreateError(null); }}
+            className="rounded-lg border border-mowing-green/30 px-3 py-1.5 text-sm text-mowing-green hover:bg-mowing-green/5"
+          >
+            Cancel
+          </button>
+        )}
+      </div>
+      {showCreateForm && (
+        <form onSubmit={handleCreateUser} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+          <div>
+            <label className="block text-xs font-medium text-mowing-green/70 mb-1">Email *</label>
+            <input
+              type="email"
+              value={createEmail}
+              onChange={(e) => setCreateEmail(e.target.value)}
+              required
+              className="w-full rounded-lg border border-mowing-green/20 px-3 py-2 text-sm text-mowing-green"
+              placeholder="user@example.com"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-mowing-green/70 mb-1">First name</label>
+            <input
+              type="text"
+              value={createFirstName}
+              onChange={(e) => setCreateFirstName(e.target.value)}
+              className="w-full rounded-lg border border-mowing-green/20 px-3 py-2 text-sm text-mowing-green"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-mowing-green/70 mb-1">Last name</label>
+            <input
+              type="text"
+              value={createLastName}
+              onChange={(e) => setCreateLastName(e.target.value)}
+              className="w-full rounded-lg border border-mowing-green/20 px-3 py-2 text-sm text-mowing-green"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-mowing-green/70 mb-1">Phone (optional)</label>
+            <input
+              type="tel"
+              value={createPhone}
+              onChange={(e) => setCreatePhone(e.target.value)}
+              className="w-full rounded-lg border border-mowing-green/20 px-3 py-2 text-sm text-mowing-green"
+            />
+          </div>
+          <div>
+            <button
+              type="submit"
+              disabled={createLoading}
+              className="w-full rounded-lg bg-mowing-green text-white px-3 py-2 text-sm font-medium hover:bg-mowing-green/90 disabled:opacity-50"
+            >
+              {createLoading ? "Creating…" : "Create user"}
+            </button>
+          </div>
+        </form>
+      )}
+      {showCreateForm && createError && (
+        <p className="mt-2 text-sm text-amber-600">{createError}</p>
+      )}
+    </div>
+  );
+
   if (users.length === 0) {
-    return <div className="p-8 text-center text-mowing-green/80">No users yet.</div>;
+    return (
+      <div className="space-y-4">
+        {createUserForm}
+        {searchInput}
+        <div className="p-8 text-center text-mowing-green/80">No users yet. Create one above.</div>
+      </div>
+    );
   }
 
   if (filteredAndSortedUsers.length === 0) {
     return (
       <div className="space-y-4">
+        {createUserForm}
         {searchInput}
         <div className="p-8 text-center text-mowing-green/80">No users match your search.</div>
       </div>
@@ -159,6 +291,7 @@ export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminU
 
   return (
     <div className="space-y-4">
+      {createUserForm}
       {searchInput}
       <div className="overflow-x-auto">
         <table className="w-full text-left">
