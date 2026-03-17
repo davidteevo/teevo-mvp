@@ -144,17 +144,26 @@ export async function POST(request: Request) {
       (linkData as { properties?: { hashed_token?: string }; hashed_token?: string })?.properties?.hashed_token ??
       (linkData as { hashed_token?: string })?.hashed_token;
 
-    let actionLink: string | undefined;
-    if (hashedToken) {
-      actionLink = `${appUrl}/api/auth/set-password?token_hash=${encodeURIComponent(hashedToken)}`;
-    } else {
-      const actionLinkFromResponse =
-        (linkData as { properties?: { action_link?: string }; action_link?: string })?.properties?.action_link ??
-        (linkData as { action_link?: string })?.action_link;
-      if (actionLinkFromResponse) {
-        const sep = actionLinkFromResponse.includes("?") ? "&" : "?";
-        actionLink = `${actionLinkFromResponse}${sep}redirect_to=${encodeURIComponent(`${appUrl}/login/reset-password`)}`;
+    const actionLinkFromResponse =
+      (linkData as { properties?: { action_link?: string }; action_link?: string })?.properties?.action_link ??
+      (linkData as { action_link?: string })?.action_link;
+
+    let tokenForApi: string | undefined = hashedToken;
+    if (!tokenForApi && actionLinkFromResponse) {
+      try {
+        const verifyUrl = new URL(actionLinkFromResponse);
+        tokenForApi = verifyUrl.searchParams.get("token") ?? undefined;
+      } catch {
+        // ignore
       }
+    }
+
+    let actionLink: string | undefined;
+    if (tokenForApi) {
+      actionLink = `${appUrl}/api/auth/set-password?token_hash=${encodeURIComponent(tokenForApi)}`;
+    } else if (actionLinkFromResponse) {
+      const sep = actionLinkFromResponse.includes("?") ? "&" : "?";
+      actionLink = `${actionLinkFromResponse}${sep}redirect_to=${encodeURIComponent(`${appUrl}/login/reset-password`)}`;
     }
 
     if (linkError || !actionLink) {
