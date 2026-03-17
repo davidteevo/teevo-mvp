@@ -26,7 +26,8 @@ export async function GET(request: Request) {
   }
 
   const cookieStore = await cookies();
-  const cookiesToSet: Array<{ name: string; value: string; options?: Record<string, unknown> }> = [];
+  type CookieEntry = { name: string; value: string; options?: Record<string, unknown> };
+  const cookiesToSet: CookieEntry[] = [];
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -35,7 +36,7 @@ export async function GET(request: Request) {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookies) {
+        setAll(cookies: CookieEntry[]) {
           cookiesToSet.push(...cookies);
           cookies.forEach(({ name, value, options }) =>
             cookieStore.set(name, value, options as Record<string, unknown>)
