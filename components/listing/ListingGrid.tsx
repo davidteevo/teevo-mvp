@@ -7,15 +7,33 @@ const PRIORITY_CARD_COUNT = 8;
 const SKELETON_CARD_COUNT = 8;
 
 async function GridInner({ searchParams }: { searchParams: Filters }) {
+  const showDebug = (searchParams as Record<string, unknown>).listing_debug === "1";
   let listings: Awaited<ReturnType<typeof getVerifiedListings>>;
   try {
     listings = await getVerifiedListings(searchParams);
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     console.error("[ListingGrid] getVerifiedListings failed:", message, e instanceof Error ? e.stack : "");
+    // #region agent log
+    try {
+      fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "7a6302" },
+        body: JSON.stringify({
+          sessionId: "7a6302",
+          location: "components/listing/ListingGrid.tsx:catch",
+          message: "getVerifiedListings threw",
+          data: { errorMessage: message },
+          hypothesisId: "L1",
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+    } catch (_) {}
+    // #endregion
     return (
       <div className="rounded-xl border border-par-3-punch/20 bg-white/60 p-8 text-center text-mowing-green">
         <p className="font-medium">Unable to load listings.</p>
+        {showDebug && <p className="mt-2 text-xs font-mono text-left break-all bg-black/10 p-2 rounded">{message}</p>}
         <p className="mt-2 text-sm text-mowing-green/80">
           Check server logs for details. You can also try <a href="/api/health" className="underline">/api/health</a> to debug.
         </p>
@@ -26,6 +44,7 @@ async function GridInner({ searchParams }: { searchParams: Filters }) {
     return (
       <div className="rounded-xl border border-par-3-punch/20 bg-white/60 p-12 text-center text-mowing-green/80 animate-fade-in">
         <p className="font-medium">No listings match your filters.</p>
+        {showDebug && <p className="mt-2 text-xs font-mono">Debug: 0 listings returned (no error).</p>}
         <p className="mt-2 text-sm">Try clearing filters or broadening your search.</p>
       </div>
     );
