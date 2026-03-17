@@ -25,6 +25,11 @@ export default function ResetPasswordPage() {
     const params = new URLSearchParams(hash || search);
     const err = params.get("error");
     const errDesc = params.get("error_description");
+    if (params.get("error") === "invalid_link") {
+      setHashError("Invalid or expired link.");
+      setRecoveryReady(false);
+      return;
+    }
     // #region agent log
     const hashKeys = Array.from(params.keys());
     fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {

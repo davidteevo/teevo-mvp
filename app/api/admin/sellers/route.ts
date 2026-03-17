@@ -132,51 +132,33 @@ export async function POST(request: Request) {
     }
 
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
-    const resetPath = `${appUrl}/login/reset-password`;
-    const callbackPath = `${appUrl}/login/reset-password/callback`;
-    // Redirect URL must be in Supabase Dashboard → Authentication → URL Configuration → Redirect URLs (add both reset-password and reset-password/callback)
 
-    // Generate recovery (set-password) link; we send it ourselves via Resend (no Supabase email).
-    // Redirect to callback first so we can turn hash into query (survives email-client redirects).
+    // Generate recovery link; use hashed_token for server-side verify (works with PKCE and when fragments are stripped).
     const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
       type: "recovery",
       email,
-      options: { redirectTo: callbackPath },
+      options: { redirectTo: `${appUrl}/login/reset-password` },
     });
 
-    let actionLinkFromResponse: string | undefined =
-      (linkData as { properties?: { action_link?: string }; action_link?: string })?.properties?.action_link ??
-      (linkData as { action_link?: string })?.action_link;
+    const hashedToken =
+      (linkData as { properties?: { hashed_token?: string }; hashed_token?: string })?.properties?.hashed_token ??
+      (linkData as { hashed_token?: string })?.hashed_token;
 
-    if (actionLinkFromResponse && !actionLinkFromResponse.includes("redirect_to=") && callbackPath) {
-      const sep = actionLinkFromResponse.includes("?") ? "&" : "?";
-      actionLinkFromResponse = `${actionLinkFromResponse}${sep}redirect_to=${encodeURIComponent(callbackPath)}`;
+    let actionLink: string | undefined;
+    if (hashedToken) {
+      actionLink = `${appUrl}/api/auth/set-password?token_hash=${encodeURIComponent(hashedToken)}`;
+    } else {
+      const actionLinkFromResponse =
+        (linkData as { properties?: { action_link?: string }; action_link?: string })?.properties?.action_link ??
+        (linkData as { action_link?: string })?.action_link;
+      if (actionLinkFromResponse) {
+        const sep = actionLinkFromResponse.includes("?") ? "&" : "?";
+        actionLink = `${actionLinkFromResponse}${sep}redirect_to=${encodeURIComponent(`${appUrl}/login/reset-password`)}`;
+      }
     }
-    // #region agent log
-    if (actionLinkFromResponse) {
-      const urlObj = new URL(actionLinkFromResponse);
-      fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "a0a29d" },
-        body: JSON.stringify({
-          sessionId: "a0a29d",
-          location: "app/api/admin/sellers/route.ts:recoveryLink",
-          message: "Recovery link built",
-          data: {
-            redirectToUsed: resetPath,
-            verifyHost: urlObj.origin,
-            hasRedirectInLink: actionLinkFromResponse.includes("redirect_to="),
-          },
-          timestamp: Date.now(),
-          hypothesisId: "H3",
-        }),
-      }).catch(() => {});
-    }
-    // #endregion
 
-    if (linkError || !actionLinkFromResponse) {
+    if (linkError || !actionLink) {
       console.error("generateLink error:", linkError);
-      // User exists in auth and public.users will be inserted; they can use "Forgot password" to get a link
       const now = new Date().toISOString();
       await admin.from("users").insert({
         id: newUserId,
@@ -202,8 +184,6 @@ export async function POST(request: Request) {
         warning: "User created but set-password link could not be generated. They can use Forgot password on the login page.",
       });
     }
-
-    const actionLink = actionLinkFromResponse;
     const firstName = first_name?.trim() || "there";
 
     try {
