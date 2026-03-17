@@ -131,9 +131,15 @@ export async function POST(request: Request) {
   }
 
   const { token_hash, redirect_to, email_action_type, token_new, token_hash_new, site_url } = email_data;
-  const appOrigin =
+  const fromPayload =
     (site_url ?? "").replace(/\/$/, "") ||
     (typeof redirect_to === "string" && /^https?:\/\//.test(redirect_to) ? new URL(redirect_to).origin : "");
+  /** Recovery link must point at the app, not Supabase. Supabase often sends its own URL in site_url/redirect_to. */
+  const supabaseOrigin = supabaseUrl ? new URL(supabaseUrl).origin : "";
+  const appOrigin =
+    (fromPayload && fromPayload !== supabaseOrigin && !fromPayload.includes("supabase.co"))
+      ? fromPayload
+      : (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "") || "http://localhost:3000";
 
   const buildVerifyUrl = (hash: string, type: string) =>
     `${supabaseUrl}/auth/v1/verify?token=${encodeURIComponent(hash)}&type=${encodeURIComponent(type)}&redirect_to=${encodeURIComponent(redirect_to)}`;
