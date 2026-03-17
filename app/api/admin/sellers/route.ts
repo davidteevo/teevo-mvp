@@ -139,7 +139,7 @@ export async function POST(request: Request) {
     const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
       type: "recovery",
       email,
-      options: { redirectTo: resetPath, redirect_to: resetPath },
+      options: { redirectTo: resetPath },
     });
 
     let actionLinkFromResponse: string | undefined =
