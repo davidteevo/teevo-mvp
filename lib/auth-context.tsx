@@ -19,6 +19,7 @@ interface AuthContextValue {
   loading: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  updateProfile: (updates: Partial<AppUser>) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -167,6 +168,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [supabase]);
 
+  const updateProfile = useCallback((updates: Partial<AppUser>) => {
+    setProfile((prev) => (prev ? { ...prev, ...updates } : null));
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -176,6 +181,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loading,
         signOut,
         refreshProfile,
+        updateProfile,
       }}
     >
       {children}

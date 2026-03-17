@@ -6,17 +6,22 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 
 const AVATAR_BUCKET = "avatars";
-function avatarApiSrc(avatarPath: string | null | undefined, retryKey?: number): string | null {
+function avatarApiSrc(avatarPath: string | null | undefined, retryKey?: number, cacheBust?: number): string | null {
   if (!avatarPath) return null;
-  return retryKey != null ? `/api/user/avatar?r=${retryKey}` : "/api/user/avatar";
+  const params = new URLSearchParams();
+  if (retryKey != null) params.set("r", String(retryKey));
+  if (cacheBust != null) params.set("v", String(cacheBust));
+  const qs = params.toString();
+  return `/api/user/avatar${qs ? `?${qs}` : ""}`;
 }
-function avatarPublicSrc(avatarPath: string | null | undefined): string | null {
+function avatarPublicSrc(avatarPath: string | null | undefined, cacheBust?: number): string | null {
   if (!avatarPath || !process.env.NEXT_PUBLIC_SUPABASE_URL) return null;
-  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${AVATAR_BUCKET}/${avatarPath}`;
+  const base = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${AVATAR_BUCKET}/${avatarPath}`;
+  return cacheBust != null ? `${base}?v=${cacheBust}` : base;
 }
 
 export default function ProfilePage() {
-  const { user, profile, loading: authLoading, refreshProfile } = useAuth();
+  const { user, profile, loading: authLoading, refreshProfile, updateProfile } = useAuth();
   const router = useRouter();
   const [firstName, setFirstName] = useState("");
   const [surname, setSurname] = useState("");
@@ -28,6 +33,8 @@ export default function ProfilePage() {
   const [avatarRetry, setAvatarRetry] = useState(0);
   const [avatarError, setAvatarError] = useState(false);
   const [publicAvatarError, setPublicAvatarError] = useState(false);
+  const [avatarMessage, setAvatarMessage] = useState("");
+  const [avatarVersion, setAvatarVersion] = useState(0);
   const [message, setMessage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const usePublicAvatar = avatarError && avatarRetry >= 1;
@@ -102,10 +109,20 @@ export default function ProfilePage() {
     }
   };
 
+  const MAX_AVATAR_BYTES = 4 * 1024 * 1024; // 4MB, match API
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      e.target.value = "";
+      return;
+    }
+    if (file.size > MAX_AVATAR_BYTES) {
+      setAvatarMessage("Image must be under 4MB");
+      e.target.value = "";
+      return;
+    }
     setAvatarUploading(true);
+    setAvatarMessage("");
     setMessage("");
     try {
       const formData = new FormData();
@@ -113,10 +130,13 @@ export default function ProfilePage() {
       const res = await fetch("/api/user/profile/avatar", { method: "POST", body: formData });
       const data = await res.json();
       if (res.ok) {
-        await refreshProfile();
-        setMessage("Photo updated.");
+        if (data.avatar_path) {
+          updateProfile({ avatar_path: data.avatar_path });
+          setAvatarVersion((v) => v + 1);
+        }
+        setAvatarMessage("Photo updated.");
       } else {
-        setMessage(data.error ?? "Failed to upload photo");
+        setAvatarMessage(data.error ?? "Failed to upload photo");
       }
     } finally {
       setAvatarUploading(false);
@@ -139,7 +159,7 @@ export default function ProfilePage() {
 
   const avatarSrcUrl =
     profile?.avatar_path && !(avatarError && !usePublicAvatar) && !publicAvatarError
-      ? (usePublicAvatar ? avatarPublicSrc(profile.avatar_path) : avatarApiSrc(profile.avatar_path, avatarRetry))
+      ? (usePublicAvatar ? avatarPublicSrc(profile.avatar_path, avatarVersion) : avatarApiSrc(profile.avatar_path, avatarRetry, avatarVersion))
       : null;
 
   return (
@@ -204,6 +224,11 @@ export default function ProfilePage() {
               >
                 {profile?.avatar_path ? "Change photo" : "Upload photo"}
               </button>
+              {avatarMessage && (
+                <p className={`mt-1.5 text-sm ${avatarMessage === "Photo updated." ? "text-par-3-punch" : "text-divot-pink"}`} role="alert">
+                  {avatarMessage}
+                </p>
+              )}
             </div>
           </div>
         </div>

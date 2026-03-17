@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -12,14 +13,130 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [recoveryReady, setRecoveryReady] = useState<boolean | null>(null);
+  const [hashError, setHashError] = useState<string | null>(null);
+  /** Same client that had setSession called, so updateUser has the session in memory (avoids "Auth session missing" when cookies don't persist). */
+  const sessionClientRef = useRef<SupabaseClient | null>(null);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
     const supabase = createClient();
-    // Supabase puts access_token and type=recovery in the URL hash; the client recovers the session when we call getSession
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      const hasRecoveryHash = typeof window !== "undefined" && /type=recovery/.test(window.location.hash);
-      setRecoveryReady(!!session || hasRecoveryHash);
+    const hash = window.location.hash.slice(1);
+    const params = new URLSearchParams(hash);
+    const err = params.get("error");
+    const errDesc = params.get("error_description");
+    // #region agent log
+    const hashKeys = Array.from(params.keys());
+    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "a0a29d" },
+      body: JSON.stringify({
+        sessionId: "a0a29d",
+        location: "app/login/reset-password/page.tsx:landed",
+        message: "Reset password page landed",
+        data: {
+          pathname: window.location.pathname,
+          origin: window.location.origin,
+          hasHash: hash.length > 0,
+          hashKeys,
+          error: err ?? null,
+          error_description: errDesc ?? null,
+        },
+        timestamp: Date.now(),
+        hypothesisId: "H1",
+      }),
+    }).catch(() => {});
+    // #endregion
+    if (err || errDesc) {
+      setHashError(errDesc || err || "Invalid or expired link.");
+      setRecoveryReady(false);
+      return;
+    }
+    const access_token = params.get("access_token");
+    const refresh_token = params.get("refresh_token");
+    const type = params.get("type");
+    const isRecoveryWithTokens = type === "recovery" && access_token && refresh_token;
+    // #region agent log
+    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "a0a29d" },
+      body: JSON.stringify({
+        sessionId: "a0a29d",
+        location: "app/login/reset-password/page.tsx:recoveryCheck",
+        message: "Recovery tokens check",
+        data: {
+          hasAccessToken: !!access_token,
+          accessTokenLen: access_token?.length ?? 0,
+          hasRefreshToken: !!refresh_token,
+          type,
+          isRecoveryWithTokens,
+        },
+        timestamp: Date.now(),
+        hypothesisId: "H2",
+      }),
+    }).catch(() => {});
+    // #endregion
+
+    if (isRecoveryWithTokens) {
+      supabase.auth
+        .setSession({ access_token, refresh_token })
+        .then(() => {
+          // #region agent log
+          fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "a0a29d" },
+            body: JSON.stringify({
+              sessionId: "a0a29d",
+              location: "app/login/reset-password/page.tsx:setSessionThen",
+              message: "setSession success",
+              data: {},
+              timestamp: Date.now(),
+              hypothesisId: "H3",
+            }),
+          }).catch(() => {});
+          // #endregion
+          sessionClientRef.current = supabase;
+          window.history.replaceState(null, "", window.location.pathname);
+          setRecoveryReady(true);
+        })
+        .catch((e) => {
+          // #region agent log
+          fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "a0a29d" },
+            body: JSON.stringify({
+              sessionId: "a0a29d",
+              location: "app/login/reset-password/page.tsx:setSessionCatch",
+              message: "setSession error",
+              data: { errorMessage: (e as Error)?.message ?? String(e) },
+              timestamp: Date.now(),
+              hypothesisId: "H4",
+            }),
+          }).catch(() => {});
+          // #endregion
+          setHashError(e?.message ?? "Could not restore session from link.");
+          setRecoveryReady(false);
+        });
+      return;
+    }
+
+    const hasRecoveryHash = /type=recovery/.test(window.location.hash) || /access_token=/.test(window.location.hash);
+    function checkReady() {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setRecoveryReady(!!session || hasRecoveryHash);
+      });
+    }
+    checkReady();
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") checkReady();
     });
+    if (hasRecoveryHash && !access_token) {
+      const t = setTimeout(checkReady, 400);
+      return () => {
+        clearTimeout(t);
+        sub?.subscription?.unsubscribe();
+      };
+    }
+    return () => sub?.subscription?.unsubscribe();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,7 +151,7 @@ export default function ResetPasswordPage() {
       return;
     }
     setLoading(true);
-    const supabase = createClient();
+    const supabase = sessionClientRef.current ?? createClient();
     const { error: err } = await supabase.auth.updateUser({ password });
     setLoading(false);
     if (err) {
@@ -57,8 +174,13 @@ export default function ResetPasswordPage() {
       <div className="max-w-sm mx-auto px-4 py-12">
         <h1 className="text-2xl font-bold text-mowing-green">Invalid or expired link</h1>
         <p className="mt-2 text-mowing-green/80 text-sm">
-          This reset link is invalid or has expired. Request a new one from the login page.
+          {hashError ?? "This reset link is invalid or has expired. Request a new one from the login page."}
         </p>
+        {hashError && (
+          <p className="mt-2 text-mowing-green/70 text-xs">
+            If you were invited by an admin, ask them to ensure your app’s set-password URL is in Supabase Dashboard → Authentication → URL Configuration → Redirect URLs (e.g. https://yourdomain.com/login/reset-password).
+          </p>
+        )}
         <p className="mt-6">
           <Link href="/login/forgot-password" className="text-par-3-punch hover:underline text-sm">
             Forgot password

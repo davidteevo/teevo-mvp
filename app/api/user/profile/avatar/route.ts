@@ -64,5 +64,5 @@ export async function POST(request: Request) {
   }
 
   const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${path}`;
-  return NextResponse.json({ ok: true, url });
+  return NextResponse.json({ ok: true, url, avatar_path: path });
 }

@@ -1,16 +1,23 @@
+import { randomBytes } from "crypto";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
+import { sendEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/** Secure random password for new user; never sent to the user (they set password via recovery link). */
+function generateTempPassword(): string {
+  return randomBytes(24).toString("hex");
+}
+
 /**
  * POST /api/admin/sellers
  * Admin-only. Body: first_name, last_name (surname), email, phone? (optional), admin_notes? (optional).
- * Creates auth user via inviteUserByEmail, inserts public.users with created_by_admin, logs to admin_actions.
- * If user with email already exists, returns 409 with existing user id.
+ * Creates auth user via createUser (no Supabase auth email), generates recovery link, sends invite via Resend.
+ * Avoids Supabase 2/hour email rate limit. If user with email already exists, returns 409 with existing user id.
  */
 export async function POST(request: Request) {
   try {
@@ -62,20 +69,26 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create auth user via invite (Supabase sends invite email; user sets password via link)
-    const { data: inviteData, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
-      data: {
+    // Create auth user with temp password (no Supabase email sent; we send via Resend)
+    const tempPassword = generateTempPassword();
+    const { data: createData, error: createError } = await admin.auth.admin.createUser({
+      email,
+      password: tempPassword,
+      email_confirm: true,
+      user_metadata: {
         first_name: first_name ?? undefined,
         surname: surname ?? undefined,
       },
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/login`,
     });
 
-    if (inviteError) {
-      // Duplicate: auth user might already exist from a previous invite
-      if (inviteError.message?.toLowerCase().includes("already") || inviteError.message?.toLowerCase().includes("exists")) {
-        const { data: authByEmail } = await admin.auth.admin.listUsers();
-        const match = authByEmail?.users?.find((u) => u.email?.toLowerCase() === email);
+    if (createError) {
+      // Duplicate: auth user might already exist
+      if (
+        createError.message?.toLowerCase().includes("already") ||
+        createError.message?.toLowerCase().includes("exists")
+      ) {
+        const { data: listData } = await admin.auth.admin.listUsers({ perPage: 1000 });
+        const match = listData?.users?.find((u) => u.email?.toLowerCase() === email);
         if (match) {
           const { data: pubUser } = await admin.from("users").select("id").eq("id", match.id).single();
           if (pubUser) {
@@ -84,7 +97,6 @@ export async function POST(request: Request) {
               { status: 409 }
             );
           }
-          // Auth user exists but no public.users row - insert one
           const now = new Date().toISOString();
           await admin.from("users").insert({
             id: match.id,
@@ -107,16 +119,131 @@ export async function POST(request: Request) {
           return NextResponse.json({ user_id: match.id, invited: false });
         }
       }
-      console.error("inviteUserByEmail error:", inviteError);
+      console.error("createUser error:", createError);
       return NextResponse.json(
-        { error: inviteError.message ?? "Failed to send invite" },
+        { error: createError.message ?? "Failed to create user" },
         { status: 500 }
       );
     }
 
-    const newUserId = inviteData?.user?.id;
+    const newUserId = createData?.user?.id;
     if (!newUserId) {
-      return NextResponse.json({ error: "Invite sent but no user id returned" }, { status: 500 });
+      return NextResponse.json({ error: "User created but no id returned" }, { status: 500 });
+    }
+
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
+    const resetPath = `${appUrl}/login/reset-password`;
+    // Redirect URL must be in Supabase Dashboard → Authentication → URL Configuration → Redirect URLs
+
+    // Generate recovery (set-password) link; we send it ourselves via Resend (no Supabase email)
+    const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+      type: "recovery",
+      email,
+      options: { redirectTo: resetPath, redirect_to: resetPath },
+    });
+
+    let actionLinkFromResponse: string | undefined =
+      (linkData as { properties?: { action_link?: string }; action_link?: string })?.properties?.action_link ??
+      (linkData as { action_link?: string })?.action_link;
+
+    if (actionLinkFromResponse && !actionLinkFromResponse.includes("redirect_to=") && resetPath) {
+      const sep = actionLinkFromResponse.includes("?") ? "&" : "?";
+      actionLinkFromResponse = `${actionLinkFromResponse}${sep}redirect_to=${encodeURIComponent(resetPath)}`;
+    }
+    // #region agent log
+    if (actionLinkFromResponse) {
+      const urlObj = new URL(actionLinkFromResponse);
+      fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "a0a29d" },
+        body: JSON.stringify({
+          sessionId: "a0a29d",
+          location: "app/api/admin/sellers/route.ts:recoveryLink",
+          message: "Recovery link built",
+          data: {
+            redirectToUsed: resetPath,
+            verifyHost: urlObj.origin,
+            hasRedirectInLink: actionLinkFromResponse.includes("redirect_to="),
+          },
+          timestamp: Date.now(),
+          hypothesisId: "H3",
+        }),
+      }).catch(() => {});
+    }
+    // #endregion
+
+    if (linkError || !actionLinkFromResponse) {
+      console.error("generateLink error:", linkError);
+      // User exists in auth and public.users will be inserted; they can use "Forgot password" to get a link
+      const now = new Date().toISOString();
+      await admin.from("users").insert({
+        id: newUserId,
+        email,
+        role: "seller",
+        first_name,
+        surname,
+        created_by_admin: true,
+        invited_at: now,
+        phone,
+        updated_at: now,
+      });
+      await admin.from("admin_actions").insert({
+        admin_id: adminUser.id,
+        action: "create_user",
+        target_type: "user",
+        target_id: newUserId,
+        payload: { admin_notes },
+      });
+      return NextResponse.json({
+        user_id: newUserId,
+        invited: false,
+        warning: "User created but set-password link could not be generated. They can use Forgot password on the login page.",
+      });
+    }
+
+    const actionLink = actionLinkFromResponse;
+    const firstName = first_name?.trim() || "there";
+
+    try {
+      await sendEmail({
+        type: "alert",
+        to: email,
+        subject: "You're invited to Teevo",
+        variables: {
+          title: "Set your password",
+          subtitle: "You've been invited to Teevo",
+          body: `Hi ${firstName}, click the button below to set your password and access your Teevo account.`,
+          cta_link: actionLink,
+          cta_text: "Set your password",
+        },
+      });
+    } catch (e) {
+      console.error("Invite email (Resend) failed:", e);
+      // Still create the user; they can use Forgot password
+      const now = new Date().toISOString();
+      await admin.from("users").insert({
+        id: newUserId,
+        email,
+        role: "seller",
+        first_name,
+        surname,
+        created_by_admin: true,
+        invited_at: now,
+        phone,
+        updated_at: now,
+      });
+      await admin.from("admin_actions").insert({
+        admin_id: adminUser.id,
+        action: "create_user",
+        target_type: "user",
+        target_id: newUserId,
+        payload: { admin_notes },
+      });
+      return NextResponse.json({
+        user_id: newUserId,
+        invited: false,
+        warning: "User created but invite email failed. They can use Forgot password on the login page.",
+      });
     }
 
     const now = new Date().toISOString();
