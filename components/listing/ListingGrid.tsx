@@ -12,7 +12,12 @@ async function GridInner({ searchParams }: { searchParams: Filters }) {
   try {
     listings = await getVerifiedListings(searchParams);
   } catch (e) {
-    const message = e instanceof Error ? e.message : String(e);
+    const message =
+      e instanceof Error
+        ? e.message
+        : typeof (e as { message?: string })?.message === "string"
+          ? (e as { message: string }).message
+          : String(e);
     console.error("[ListingGrid] getVerifiedListings failed:", message, e instanceof Error ? e.stack : "");
     // #region agent log
     try {
