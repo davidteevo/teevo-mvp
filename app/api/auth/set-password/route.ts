@@ -1,12 +1,17 @@
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
+
+const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN || undefined;
 
 /**
  * Server-side recovery: verify token_hash from generateLink (hashed_token) and set
  * session in cookies, then redirect to the reset-password page. Works with PKCE
  * and when email clients strip URL fragments.
+ * Cookies are set on the redirect response so the browser receives them (Next.js
+ * can drop cookies set via cookies() when returning a redirect).
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -20,7 +25,27 @@ export async function GET(request: Request) {
     return NextResponse.redirect(errorPath);
   }
 
-  const supabase = await createClient();
+  const cookieStore = await cookies();
+  const cookiesToSet: Array<{ name: string; value: string; options?: Record<string, unknown> }> = [];
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookies) {
+          cookiesToSet.push(...cookies);
+          cookies.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options as Record<string, unknown>)
+          );
+        },
+      },
+      ...(cookieDomain ? { cookieOptions: { domain: cookieDomain } } : {}),
+    }
+  );
+
   const { data, error } = await supabase.auth.verifyOtp({
     type: "recovery",
     token_hash,
@@ -45,5 +70,9 @@ export async function GET(request: Request) {
     return NextResponse.redirect(errorPath);
   }
 
-  return NextResponse.redirect(resetPath);
+  const response = NextResponse.redirect(resetPath, { status: 302 });
+  for (const { name, value, options } of cookiesToSet) {
+    response.cookies.set(name, value, (options ?? {}) as Parameters<typeof response.cookies.set>[2]);
+  }
+  return response;
 }
