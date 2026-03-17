@@ -14,7 +14,33 @@ export async function GET(request: Request) {
   let isNewUser = false;
   if (code) {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.exchangeCodeForSession(code);
+    const { data: { user }, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+    // #region agent log
+    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
+      body: JSON.stringify({
+        sessionId: "d1a7bb",
+        runId: "repro-1",
+        location: "app/auth/callback/route.ts:exchangeResult",
+        message: "auth callback exchangeCodeForSession result",
+        data: {
+          hasError: !!exchangeError,
+          isResetPasswordNext: next === "/login/reset-password" || next.startsWith("/login/reset-password"),
+        },
+        timestamp: Date.now(),
+        hypothesisId: "C1",
+      }),
+    }).catch(() => {});
+    // #endregion
+    if (exchangeError) {
+      const base = new URL(request.url).origin;
+      const isResetPassword = next === "/login/reset-password" || next.startsWith("/login/reset-password");
+      const redirectPath = isResetPassword
+        ? `${base}/login/reset-password?error=invalid_link`
+        : new URL(next, request.url).toString();
+      return NextResponse.redirect(redirectPath);
+    }
     if (user) {
       const admin = createServiceClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,

@@ -19,10 +19,21 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const supabase = createClient();
     const hash = window.location.hash.slice(1);
     const search = window.location.search.startsWith("?") ? window.location.search.slice(1) : window.location.search;
     const params = new URLSearchParams(hash || search);
+    const code = params.get("code");
+    const hasTokens = params.get("access_token") && params.get("refresh_token");
+
+    // PKCE: redirect first so server can exchange code (verifier in cookies). Do this before any async work.
+    if (code && !hasTokens) {
+      const base = window.location.origin;
+      const next = encodeURIComponent("/login/reset-password");
+      window.location.replace(`${base}/auth/callback?code=${encodeURIComponent(code)}&next=${next}`);
+      return;
+    }
+
+    const supabase = createClient();
     const err = params.get("error");
     const errDesc = params.get("error_description");
     const tokenHash = params.get("token_hash");
@@ -34,25 +45,26 @@ export default function ResetPasswordPage() {
       window.location.replace(`${base}/api/auth/set-password?token_hash=${encodeURIComponent(tokenHash)}`);
       return;
     }
+
     // If we already have a session, treat the link as valid regardless of error params.
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        sessionClientRef.current = supabase;
-        setRecoveryReady(true);
-      }
-    }).catch(() => {});
-    if (params.get("error") === "invalid_link" && !errDesc) {
-      setHashError("Invalid or expired link.");
-      setRecoveryReady(false);
-      return;
-    }
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        if (session) {
+          sessionClientRef.current = supabase;
+          setRecoveryReady(true);
+        }
+      })
+      .catch(() => {});
+
     // #region agent log
     const hashKeys = Array.from(params.keys());
     fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "a0a29d" },
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
       body: JSON.stringify({
-        sessionId: "a0a29d",
+        sessionId: "d1a7bb",
+        runId: "pre-fix",
         location: "app/login/reset-password/page.tsx:landed",
         message: "Reset password page landed",
         data: {
@@ -62,27 +74,74 @@ export default function ResetPasswordPage() {
           hashKeys,
           error: err ?? null,
           error_description: errDesc ?? null,
+          tokenHashPresent: !!tokenHash,
         },
         timestamp: Date.now(),
         hypothesisId: "H1",
       }),
     }).catch(() => {});
     // #endregion
+
+    if (params.get("error") === "invalid_link" && !errDesc) {
+      setHashError("Invalid or expired link.");
+      setRecoveryReady(false);
+      // #region agent log
+      fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
+        body: JSON.stringify({
+          sessionId: "d1a7bb",
+          runId: "pre-fix",
+          location: "app/login/reset-password/page.tsx:invalidLink",
+          message: "Reset password invalid link branch",
+          data: {
+            error: err ?? null,
+            error_description: errDesc ?? null,
+          },
+          timestamp: Date.now(),
+          hypothesisId: "H2",
+        }),
+      }).catch(() => {});
+      // #endregion
+      return;
+    }
+
     if (!sessionClientRef.current && (err || errDesc)) {
       setHashError(errDesc || err || "Invalid or expired link.");
       setRecoveryReady(false);
+      // #region agent log
+      fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
+        body: JSON.stringify({
+          sessionId: "d1a7bb",
+          runId: "pre-fix",
+          location: "app/login/reset-password/page.tsx:hashError",
+          message: "Hash error branch taken",
+          data: {
+            error: err ?? null,
+            error_description: errDesc ?? null,
+          },
+          timestamp: Date.now(),
+          hypothesisId: "H3",
+        }),
+      }).catch(() => {});
+      // #endregion
       return;
     }
+
     const access_token = params.get("access_token");
     const refresh_token = params.get("refresh_token");
     const type = params.get("type");
     const isRecoveryWithTokens = !!access_token && !!refresh_token;
+
     // #region agent log
     fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "a0a29d" },
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
       body: JSON.stringify({
-        sessionId: "a0a29d",
+        sessionId: "d1a7bb",
+        runId: "pre-fix",
         location: "app/login/reset-password/page.tsx:recoveryCheck",
         message: "Recovery tokens check",
         data: {
@@ -93,7 +152,7 @@ export default function ResetPasswordPage() {
           isRecoveryWithTokens,
         },
         timestamp: Date.now(),
-        hypothesisId: "H2",
+        hypothesisId: "H4",
       }),
     }).catch(() => {});
     // #endregion
@@ -119,14 +178,15 @@ export default function ResetPasswordPage() {
           // #region agent log
           fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
             method: "POST",
-            headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "a0a29d" },
+            headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
             body: JSON.stringify({
-              sessionId: "a0a29d",
+              sessionId: "d1a7bb",
+              runId: "pre-fix",
               location: "app/login/reset-password/page.tsx:setSessionThen",
               message: "setSession success",
               data: {},
               timestamp: Date.now(),
-              hypothesisId: "H3",
+              hypothesisId: "H5",
             }),
           }).catch(() => {});
           // #endregion
@@ -141,14 +201,15 @@ export default function ResetPasswordPage() {
           // #region agent log
           fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
             method: "POST",
-            headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "a0a29d" },
+            headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
             body: JSON.stringify({
-              sessionId: "a0a29d",
+              sessionId: "d1a7bb",
+              runId: "pre-fix",
               location: "app/login/reset-password/page.tsx:setSessionCatch",
               message: "setSession error",
               data: { errorMessage: (e as Error)?.message ?? String(e) },
               timestamp: Date.now(),
-              hypothesisId: "H4",
+              hypothesisId: "H6",
             }),
           }).catch(() => {});
           // #endregion
@@ -198,7 +259,46 @@ export default function ResetPasswordPage() {
     }
     setLoading(true);
     const supabase = sessionClientRef.current ?? createClient();
+    // #region agent log
+    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
+      body: JSON.stringify({
+        sessionId: "d1a7bb",
+        runId: "pre-fix",
+        location: "app/login/reset-password/page.tsx:handleSubmit:beforeUpdate",
+        message: "Submitting password update",
+        data: {
+          passwordLength: password.length,
+          hasSessionClient: !!sessionClientRef.current,
+        },
+        timestamp: Date.now(),
+        hypothesisId: "H7",
+      }),
+    }).catch(() => {});
+    // #endregion
+
     const { error: err } = await supabase.auth.updateUser({ password });
+
+    // #region agent log
+    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
+      body: JSON.stringify({
+        sessionId: "d1a7bb",
+        runId: "pre-fix",
+        location: "app/login/reset-password/page.tsx:handleSubmit:afterUpdate",
+        message: "Password update response",
+        data: {
+          hasError: !!err,
+          errorMessage: err?.message ?? null,
+        },
+        timestamp: Date.now(),
+        hypothesisId: "H8",
+      }),
+    }).catch(() => {});
+    // #endregion
+
     setLoading(false);
     if (err) {
       setError(err.message);
@@ -208,9 +308,12 @@ export default function ResetPasswordPage() {
   };
 
   if (recoveryReady === null) {
+    const hasCodeInUrl =
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).get("code");
     return (
       <div className="max-w-sm mx-auto px-4 py-12 text-center text-mowing-green/80">
-        Loading…
+        {hasCodeInUrl ? "Redirecting…" : "Loading…"}
       </div>
     );
   }
@@ -223,9 +326,14 @@ export default function ResetPasswordPage() {
           {hashError ?? "This reset link is invalid or has expired. Request a new one from the login page."}
         </p>
         {hashError && (
-          <p className="mt-2 text-mowing-green/70 text-xs">
-            If you were invited by an admin, ask them to ensure your app’s set-password URL is in Supabase Dashboard → Authentication → URL Configuration → Redirect URLs (e.g. https://yourdomain.com/login/reset-password).
-          </p>
+          <>
+            <p className="mt-2 text-mowing-green/70 text-xs">
+              <strong>Using the Send Email Hook?</strong> The reset link is set in <code className="bg-mowing-green/10 px-0.5 rounded">app/api/auth/send-email/route.ts</code>. For <code className="bg-mowing-green/10 px-0.5 rounded">recovery</code>, use <code className="bg-mowing-green/10 px-0.5 rounded">cta_link: buildRecoveryLink()</code>. Restart or redeploy, then request a new reset email. See <code className="bg-mowing-green/10 px-0.5 rounded">docs/SEND_EMAIL_HOOK_CHECKLIST.md</code>.
+            </p>
+            <p className="mt-1.5 text-mowing-green/60 text-xs">
+              Not using the hook? Supabase → URL Configuration: set Site URL to your app. Email Templates → Reset Password: use the token_hash link (no {`{{ .ConfirmationURL }}`}). If the link in the email is still <code className="bg-mowing-green/10 px-0.5 rounded">supabase.co/auth/v1/verify</code>, use Resend via SMTP so the dashboard template is used, or test with built-in email.
+            </p>
+          </>
         )}
         <p className="mt-6">
           <Link href="/login/forgot-password" className="text-par-3-punch hover:underline text-sm">

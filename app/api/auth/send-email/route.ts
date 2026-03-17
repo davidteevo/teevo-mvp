@@ -72,9 +72,9 @@ export async function POST(request: Request) {
     // #region agent log
     fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "a0a29d" },
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
       body: JSON.stringify({
-        sessionId: "a0a29d",
+        sessionId: "d1a7bb",
         location: "app/api/auth/send-email/route.ts:verifyFailed",
         message: "Send email hook verification failed",
         data: { errorMessage: e instanceof Error ? e.message : String(e) },
@@ -93,9 +93,9 @@ export async function POST(request: Request) {
   // #region agent log
   fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
     method: "POST",
-    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "a0a29d" },
+    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
     body: JSON.stringify({
-      sessionId: "a0a29d",
+      sessionId: "d1a7bb",
       location: "app/api/auth/send-email/route.ts:payload",
       message: "Send email hook payload",
       data: {
@@ -130,10 +130,17 @@ export async function POST(request: Request) {
     firstName = getFirstNameFromMetadata(user);
   }
 
-  const { token_hash, redirect_to, email_action_type, token_new, token_hash_new } = email_data;
+  const { token_hash, redirect_to, email_action_type, token_new, token_hash_new, site_url } = email_data;
+  const appOrigin =
+    (site_url ?? "").replace(/\/$/, "") ||
+    (typeof redirect_to === "string" && /^https?:\/\//.test(redirect_to) ? new URL(redirect_to).origin : "");
 
   const buildVerifyUrl = (hash: string, type: string) =>
     `${supabaseUrl}/auth/v1/verify?token=${encodeURIComponent(hash)}&type=${encodeURIComponent(type)}&redirect_to=${encodeURIComponent(redirect_to)}`;
+
+  /** For recovery, use app set-password URL so we can verify token_hash server-side (no PKCE). */
+  const buildRecoveryLink = () =>
+    `${appOrigin}/api/auth/set-password?token_hash=${encodeURIComponent(token_hash)}`;
 
   const sendViaResend = async (
     to: string,
@@ -164,6 +171,22 @@ export async function POST(request: Request) {
       );
     }
   } else if (email_action_type === "recovery") {
+    const recoveryLink = buildRecoveryLink();
+    // #region agent log
+    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
+      body: JSON.stringify({
+        sessionId: "d1a7bb",
+        runId: "reset-debug",
+        location: "app/api/auth/send-email/route.ts:recovery",
+        message: "Send email hook sending recovery with app link",
+        data: { appOrigin, linkStartsWithApp: /^https?:\/\//.test(appOrigin) && !recoveryLink.includes("supabase.co") },
+        timestamp: Date.now(),
+        hypothesisId: "R1",
+      }),
+    }).catch(() => {});
+    // #endregion
     try {
       await sendViaResend(
         email,
@@ -172,7 +195,7 @@ export async function POST(request: Request) {
           title: "Reset your password",
           subtitle: "You requested a password reset",
           body: `Hi ${firstName}, click the button below to set a new password. If you didn't request this, you can ignore this email.`,
-          cta_link: buildVerifyUrl(token_hash, email_action_type),
+          cta_link: recoveryLink,
           cta_text: "Reset password",
         }
       );

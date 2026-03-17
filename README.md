@@ -20,6 +20,7 @@ Liquidity-first MVP for a UK-based golf equipment marketplace. Sellers list item
    - Run the SQL in `docs/DATABASE_SCHEMA.sql` in the SQL Editor.
    - Create a storage bucket named `listings` and set it to **public** (or add a policy to allow public read for listing images).
    - In Authentication → Providers, enable Email (email-only for MVP).
+   - For **Forgot password** to work, the reset email must use a token-hash link. See **`docs/PASSWORD_RESET_SUPABASE.md`** for step-by-step setup (SMTP so the dashboard template is used, URL config, template body, and testing). If the link in the email is still `supabase.co/auth/v1/verify`, the template is not in use—follow that doc.
    - Copy project URL and anon key; create a service role key for server-side admin and webhooks.
 
 3. **Stripe**

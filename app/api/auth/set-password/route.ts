@@ -7,11 +7,11 @@ export const dynamic = "force-dynamic";
 const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN || undefined;
 
 /**
- * Server-side recovery: verify token_hash from generateLink (hashed_token) and set
- * session in cookies, then redirect to the reset-password page. Works with PKCE
- * and when email clients strip URL fragments.
- * Cookies are set on the redirect response so the browser receives them (Next.js
- * can drop cookies set via cookies() when returning a redirect).
+ * Server-side recovery: verify token_hash and set session in cookies, then redirect
+ * to the reset-password page. Works for (1) recovery emails when the Supabase
+ * "Reset Password" email template uses a token-hash link, and (2) admin invite
+ * links (generateLink). Use the server client so tokens from Supabase recovery
+ * emails (no PKCE verifier needed) are verified correctly.
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -22,6 +22,21 @@ export async function GET(request: Request) {
 
   if (!token_hash) {
     console.error("[set-password] Missing token_hash in URL");
+    // #region agent log
+    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
+      body: JSON.stringify({
+        sessionId: "d1a7bb",
+        runId: "repro-1",
+        location: "app/api/auth/set-password/route.ts:noTokenHash",
+        message: "set-password called without token_hash",
+        data: {},
+        timestamp: Date.now(),
+        hypothesisId: "S1",
+      }),
+    }).catch(() => {});
+    // #endregion
     return NextResponse.redirect(errorPath);
   }
 
@@ -54,11 +69,44 @@ export async function GET(request: Request) {
 
   if (error) {
     console.error("[set-password] verifyOtp failed:", error.message);
+    // #region agent log
+    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
+      body: JSON.stringify({
+        sessionId: "d1a7bb",
+        runId: "repro-1",
+        location: "app/api/auth/set-password/route.ts:verifyOtpError",
+        message: "verifyOtp failed in set-password route",
+        data: {
+          hasError: true,
+          errorMessage: error.message,
+        },
+        timestamp: Date.now(),
+        hypothesisId: "S2",
+      }),
+    }).catch(() => {});
+    // #endregion
     return NextResponse.redirect(errorPath);
   }
 
   if (!data?.session) {
     console.error("[set-password] verifyOtp ok but no session in response");
+    // #region agent log
+    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
+      body: JSON.stringify({
+        sessionId: "d1a7bb",
+        runId: "repro-1",
+        location: "app/api/auth/set-password/route.ts:noSession",
+        message: "verifyOtp returned no session",
+        data: {},
+        timestamp: Date.now(),
+        hypothesisId: "S3",
+      }),
+    }).catch(() => {});
+    // #endregion
     return NextResponse.redirect(errorPath);
   }
 
@@ -67,9 +115,43 @@ export async function GET(request: Request) {
     refresh_token: data.session.refresh_token,
   });
   if (setError) {
-    console.error("[set-password] setSession after verifyOtp failed:", setError.message);
+    console.error("[set-password] setSession failed:", setError.message);
+    // #region agent log
+    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
+      body: JSON.stringify({
+        sessionId: "d1a7bb",
+        runId: "repro-1",
+        location: "app/api/auth/set-password/route.ts:setSessionError",
+        message: "setSession failed in set-password route",
+        data: {
+          hasError: true,
+          errorMessage: setError.message,
+        },
+        timestamp: Date.now(),
+        hypothesisId: "S4",
+      }),
+    }).catch(() => {});
+    // #endregion
     return NextResponse.redirect(errorPath);
   }
+
+  // #region agent log
+  fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
+    body: JSON.stringify({
+      sessionId: "d1a7bb",
+      runId: "repro-1",
+      location: "app/api/auth/set-password/route.ts:success",
+      message: "set-password verifyOtp + setSession success, redirecting to reset-password",
+      data: {},
+      timestamp: Date.now(),
+      hypothesisId: "S5",
+    }),
+  }).catch(() => {});
+  // #endregion
 
   const response = NextResponse.redirect(resetPath, { status: 302 });
   for (const { name, value, options } of cookiesToSet) {
