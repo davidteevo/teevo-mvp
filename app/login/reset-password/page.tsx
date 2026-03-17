@@ -25,6 +25,15 @@ export default function ResetPasswordPage() {
     const params = new URLSearchParams(hash || search);
     const err = params.get("error");
     const errDesc = params.get("error_description");
+    const tokenHash = params.get("token_hash");
+
+    // If we arrived here directly with token_hash (e.g. from email link), send it to
+    // the server API which will create the session and redirect back.
+    if (tokenHash && !hash && !params.get("access_token") && !params.get("refresh_token")) {
+      const base = window.location.origin;
+      window.location.replace(`${base}/api/auth/set-password?token_hash=${encodeURIComponent(tokenHash)}`);
+      return;
+    }
     // If we already have a session, treat the link as valid regardless of error params.
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
