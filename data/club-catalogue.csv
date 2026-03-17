@@ -33,18 +33,18 @@ Irons,Titleist,T300,2019
 Irons,Titleist,T350,2023
 Irons,Titleist,CB,2019
 Irons,Titleist,MB,2019
-Wedge,Titleist,Vokey SM5,2014
-Wedge,Titleist,Vokey SM6,2016
-Wedge,Titleist,Vokey SM7,2018
-Wedge,Titleist,Vokey SM8,2020
-Wedge,Titleist,Vokey SM9,2022
-Wedge,Titleist,Vokey SM10,2024
-Driving Iron,Titleist,712U,2012
-Driving Iron,Titleist,716 T-MB,2015
-Driving Iron,Titleist,U500,2019
-Driving Iron,Titleist,U510,2019
-Driving Iron,Titleist,T200 Utility,2021
-Driving Iron,Titleist,U505,2023
+Wedges,Titleist,Vokey SM5,2014
+Wedges,Titleist,Vokey SM6,2016
+Wedges,Titleist,Vokey SM7,2018
+Wedges,Titleist,Vokey SM8,2020
+Wedges,Titleist,Vokey SM9,2022
+Wedges,Titleist,Vokey SM10,2024
+Driving Irons,Titleist,712U,2012
+Driving Irons,Titleist,716 T-MB,2015
+Driving Irons,Titleist,U500,2019
+Driving Irons,Titleist,U510,2019
+Driving Irons,Titleist,T200 Utility,2021
+Driving Irons,Titleist,U505,2023
 Driver,TaylorMade,R11,2011
 Driver,TaylorMade,R11S,2012
 Driver,TaylorMade,RocketBallz,2012
@@ -71,14 +71,14 @@ Irons,TaylorMade,P7MC,2020
 Irons,TaylorMade,P7MB,2020
 Irons,TaylorMade,Stealth Irons,2022
 Irons,TaylorMade,Qi Irons,2024
-Wedge,TaylorMade,Milled Grind MG,2018
-Wedge,TaylorMade,Milled Grind MG2,2019
-Wedge,TaylorMade,Milled Grind MG3,2021
-Wedge,TaylorMade,Milled Grind MG4,2023
-Driving Iron,TaylorMade,UDI,2014
-Driving Iron,TaylorMade,SIM UDI,2020
-Driving Iron,TaylorMade,P790 UDI,2017
-Driving Iron,TaylorMade,Stealth UDI,2022
+Wedges,TaylorMade,Milled Grind MG,2018
+Wedges,TaylorMade,Milled Grind MG2,2019
+Wedges,TaylorMade,Milled Grind MG3,2021
+Wedges,TaylorMade,Milled Grind MG4,2023
+Driving Irons,TaylorMade,UDI,2014
+Driving Irons,TaylorMade,SIM UDI,2020
+Driving Irons,TaylorMade,P790 UDI,2017
+Driving Irons,TaylorMade,Stealth UDI,2022
 Driver,Callaway,Razr Fit,2012
 Driver,Callaway,X Hot,2013
 Driver,Callaway,Big Bertha Alpha,2014
@@ -100,13 +100,13 @@ Irons,Callaway,X Forged,2018
 Irons,Callaway,Rogue Irons,2018
 Irons,Callaway,Mavrik Irons,2020
 Irons,Callaway,Paradym Irons,2023
-Wedge,Callaway,Mack Daddy 2,2014
-Wedge,Callaway,Mack Daddy 3,2016
-Wedge,Callaway,Jaws,2019
-Wedge,Callaway,Jaws Raw,2022
-Driving Iron,Callaway,X Forged UT,2017
-Driving Iron,Callaway,Apex UT,2019
-Driving Iron,Callaway,Apex UW,2021
+Wedges,Callaway,Mack Daddy 2,2014
+Wedges,Callaway,Mack Daddy 3,2016
+Wedges,Callaway,Jaws,2019
+Wedges,Callaway,Jaws Raw,2022
+Driving Irons,Callaway,X Forged UT,2017
+Driving Irons,Callaway,Apex UT,2019
+Driving Irons,Callaway,Apex UW,2021
 Driver,Ping,G20,2011
 Driver,Ping,G25,2013
 Driver,Ping,G30,2014
@@ -125,14 +125,14 @@ Irons,Ping,G30 Irons,2014
 Irons,Ping,G400 Irons,2017
 Irons,Ping,G410 Irons,2019
 Irons,Ping,G425 Irons,2021
-Wedge,Ping,Glide,2015
-Wedge,Ping,Glide 2.0,2017
-Wedge,Ping,Glide 3.0,2019
-Wedge,Ping,Glide 4.0,2022
-Driving Iron,Ping,Rapture DI,2014
-Driving Iron,Ping,G Crossover,2016
-Driving Iron,Ping,G410 Crossover,2019
-Driving Iron,Ping,iCrossover,2022
+Wedges,Ping,Glide,2015
+Wedges,Ping,Glide 2.0,2017
+Wedges,Ping,Glide 3.0,2019
+Wedges,Ping,Glide 4.0,2022
+Driving Irons,Ping,Rapture DI,2014
+Driving Irons,Ping,G Crossover,2016
+Driving Irons,Ping,G410 Crossover,2019
+Driving Irons,Ping,iCrossover,2022
 Driver,Cobra,AMP Cell,2013
 Driver,Cobra,Bio Cell,2014
 Driver,Cobra,Fly Z,2015
@@ -152,11 +152,11 @@ Irons,Cobra,Forged TEC X,2022
 Irons,Cobra,SpeedZone Irons,2020
 Irons,Cobra,LTDx Irons,2022
 Irons,Cobra,Darkspeed Irons,2024
-Wedge,Cobra,Trusty Rusty,2014
-Wedge,Cobra,King Wedge,2016
-Wedge,Cobra,Snakebite,2021
-Driving Iron,Cobra,King Utility,2017
-Driving Iron,Cobra,King Tec Utility,2023
+Wedges,Cobra,Trusty Rusty,2014
+Wedges,Cobra,King Wedge,2016
+Wedges,Cobra,Snakebite,2021
+Driving Irons,Cobra,King Utility,2017
+Driving Irons,Cobra,King Tec Utility,2023
 Driver,Mizuno,JPX 850,2014
 Driver,Mizuno,JPX 900,2016
 Driver,Mizuno,ST180,2018
@@ -176,14 +176,14 @@ Irons,Mizuno,JPX 923 Forged,2022
 Irons,Mizuno,Pro 221,2021
 Irons,Mizuno,Pro 223,2021
 Irons,Mizuno,Pro 225,2021
-Wedge,Mizuno,T7,2016
-Wedge,Mizuno,T20,2019
-Wedge,Mizuno,T22,2021
-Wedge,Mizuno,T24,2023
-Driving Iron,Mizuno,MP-H4,2012
-Driving Iron,Mizuno,MP-H5,2014
-Driving Iron,Mizuno,MP-20 HMB,2019
-Driving Iron,Mizuno,Pro Fli-Hi,2021
+Wedges,Mizuno,T7,2016
+Wedges,Mizuno,T20,2019
+Wedges,Mizuno,T22,2021
+Wedges,Mizuno,T24,2023
+Driving Irons,Mizuno,MP-H4,2012
+Driving Irons,Mizuno,MP-H5,2014
+Driving Irons,Mizuno,MP-20 HMB,2019
+Driving Irons,Mizuno,Pro Fli-Hi,2021
 Driver,Srixon,Z545,2014
 Driver,Srixon,Z565,2016
 Driver,Srixon,Z585,2018
@@ -200,13 +200,13 @@ Irons,Srixon,ZX5,2020
 Irons,Srixon,ZX7,2020
 Irons,Srixon,ZX5 Mk II,2022
 Irons,Srixon,ZX7 Mk II,2022
-Wedge,Srixon,RTX 2.0,2014
-Wedge,Srixon,RTX 3,2017
-Wedge,Srixon,RTX ZipCore,2020
-Wedge,Srixon,RTX 6 ZipCore,2023
-Driving Iron,Srixon,Z U45,2015
-Driving Iron,Srixon,Z U65,2017
-Driving Iron,Srixon,ZX Utility,2020
+Wedges,Srixon,RTX 2.0,2014
+Wedges,Srixon,RTX 3,2017
+Wedges,Srixon,RTX ZipCore,2020
+Wedges,Srixon,RTX 6 ZipCore,2023
+Driving Irons,Srixon,Z U45,2015
+Driving Irons,Srixon,Z U65,2017
+Driving Irons,Srixon,ZX Utility,2020
 Driver,Wilson,C200,2016
 Driver,Wilson,D200,2015
 Driver,Wilson,D300,2017
@@ -218,5 +218,396 @@ Irons,Wilson,D7 Irons,2019
 Irons,Wilson,D9 Irons,2021
 Irons,Wilson,Staff Model CB,2020
 Irons,Wilson,Staff Model Blade,2020
+Wedges,Wilson,Staff Model Wedge,2020
+Driving Irons,Wilson,Staff Model Utility,2022
+Driver,Adams,XTD Ti,2014
+Driver,Adams,Blue,2015
+Fairway Wood,Adams,Tight Lies Fairway,2014
+Hybrid,Adams,Idea Super Hybrid,2014
+Hybrid,Adams,Tight Lies Hybrid,2014
+Irons,Adams,CB2,2012
+Irons,Adams,Blue Irons,2015
+Driving Irons,Adams,DHY,2014
+Irons,Ben Hogan,Ft. Worth 15,2015
+Irons,Ben Hogan,PTx,2017
+Irons,Ben Hogan,GS53,2019
+Irons,Ben Hogan,PTx Pro,2020
+Irons,Ben Hogan,Fort Worth CB,2024
+Driving Irons,Ben Hogan,UiHi,2017
+Wedge,Ben Hogan,Equalizer,2015
+Wedge,Ben Hogan,TK,2019
+Driver,Ben Sayers,M8 Driver,2021
+Fairway Wood,Ben Sayers,M8 Fairway,2021
+Hybrid,Ben Sayers,M8 Hybrid,2021
+Irons,Ben Sayers,M8 Irons,2021
+Wedge,Ben Sayers,M8 Wedge,2021
+Driver,Bridgestone,JGR Driver,2017
+Driver,Bridgestone,Tour B JGR,2020
+Driver,Bridgestone,B1 Driver,2022
+Driver,Bridgestone,B2 Driver,2022
+Fairway Wood,Bridgestone,Tour B JGR Fairway,2020
+Hybrid,Bridgestone,Tour B JGR Hybrid,2020
+Irons,Bridgestone,J15 CB,2014
+Irons,Bridgestone,Tour B HF3,2020
+Irons,Bridgestone,221CB,2022
+Wedge,Bridgestone,BRM2,2022
+Driver,Callaway,Elyte,2025
+Driver,Callaway,Elyte Triple Diamond,2025
+Driver,Callaway,Elyte X,2025
+Fairway Wood,Callaway,Elyte Fairway,2025
+Hybrid,Callaway,Elyte Hybrid,2025
+Irons,Callaway,Elyte Irons,2025
+Wedge,Callaway,Mack Daddy 2,2014
+Wedge,Callaway,Mack Daddy 3,2016
+Wedge,Callaway,Jaws,2019
+Wedge,Callaway,Jaws Raw,2022
+Wedge,Callaway,Opus,2024
+Driver,Cleveland,Launcher XL,2022
+Fairway Wood,Cleveland,Launcher XL Fairway,2022
+Hybrid,Cleveland,Launcher XL Halo,2022
+Hybrid,Cleveland,Halo XL Hy-Wood,2024
+Irons,Cleveland,Launcher XL Irons,2022
+Irons,Cleveland,Halo XL Full-Face,2024
+Driving Irons,Cleveland,UHX Utility,2019
+Wedge,Cleveland,CBX ZipCore,2020
+Wedge,Cleveland,RTX 6 ZipCore,2023
+Wedge,Cleveland,Smart Sole Full-Face,2024
+Driver,Cobra,DS-Adapt,2025
+Driver,Cobra,DS-Adapt LS,2025
+Driver,Cobra,DS-Adapt Max-K,2025
+Driver,Cobra,DS-Adapt X,2025
+Fairway Wood,Cobra,DS-Adapt Fairway,2025
+Hybrid,Cobra,DS-Adapt Hybrid,2025
+Irons,Cobra,King Tec,2023
+Irons,Cobra,3DP Tour,2025
+Wedge,Cobra,Trusty Rusty,2014
+Wedge,Cobra,King Wedge,2016
+Wedge,Cobra,Snakebite,2021
+Driver,Edel,SMS Driver,2022
+Fairway Wood,Edel,SMS Fairway,2022
+Hybrid,Edel,SMS Hybrid,2022
+Irons,Edel,SMS Irons,2023
+Wedge,Edel,SMS Wedge,2021
+Driver,Epon,AF-157,2020
+Fairway Wood,Epon,AF-257 Fairway,2020
+Hybrid,Epon,AF-957 Hybrid,2020
+Irons,Epon,AF-305,2018
+Irons,Epon,AF-506,2020
+Irons,Epon,AF-Tour CB2,2023
+Wedge,Epon,Tour Wedge,2021
+Driver,Forgan,F100 Driver,2021
+Fairway Wood,Forgan,F100 Fairway,2021
+Hybrid,Forgan,F100 Hybrid,2021
+Irons,Forgan,F100 Irons,2021
+Wedge,Forgan,F100 Wedge,2021
+Irons,Fourteen,TB-5 Forged,2020
+Irons,Fourteen,TB-7 Forged,2023
+Wedge,Fourteen,RM-11,2012
+Wedge,Fourteen,RM-22,2014
+Wedge,Fourteen,RM-4,2020
+Wedge,Fourteen,DJ-5,2022
+Irons,Haywood,Signature,2021
+Irons,Haywood,CB/MB,2023
+Driving Irons,Haywood,Driving Iron,2023
+Wedge,Haywood,Signature Wedge,2022
+Driver,Honma,XP-1,2019
+Driver,Honma,TR20 460,2020
+Driver,Honma,T//World GS,2021
+Driver,Honma,TW757,2022
+Driver,Honma,Beres 09,2024
+Fairway Wood,Honma,T//World GS Fairway,2021
+Hybrid,Honma,T//World GS Hybrid,2021
+Irons,Honma,TR20 P,2020
+Irons,Honma,TR20 V,2020
+Irons,Honma,TW757 P,2022
+Irons,Honma,Beres 09 Irons,2024
+Driver,John Letters,T9+ Driver,2020
+Fairway Wood,John Letters,T9+ Fairway,2020
+Hybrid,John Letters,T9+ Hybrid,2020
+Irons,John Letters,T9+ Irons,2020
+Wedge,John Letters,T9+ Wedge,2020
+Fairway Wood,Kasco,UFO Air Fairway,2024
+Hybrid,Kasco,UFO Speed,2022
+Hybrid,Kasco,UFO Air,2024
+Irons,Kasco,Dolphin Iron DI,2022
+Wedge,Kasco,Dolphin Wedge,2021
+Driver,Katana,Voltio Ninja 880Hi,2017
+Driver,Katana,Voltio IV,2020
+Fairway Wood,Katana,Voltio Fairway,2020
+Hybrid,Katana,Voltio Hybrid,2020
+Irons,Katana,Sword Sniper,2018
+Irons,Katana,Voltio Ninja Irons,2020
+Driver,Krank,Formula Fire,2017
+Driver,Krank,Formula X Extreme,2022
+Fairway Wood,Krank,Formula Fairway,2022
+Driver,Lynx,Predator,2018
+Fairway Wood,Lynx,Predator Fairway,2018
+Hybrid,Lynx,Predator Hybrid,2018
+Irons,Lynx,Black Cat,2021
+Irons,Lynx,Boom Boom,2023
+Wedge,Lynx,Prowler VT,2023
+Driver,MacGregor,V-Foil Speed,2020
+Fairway Wood,MacGregor,V-Foil Fairway,2020
+Hybrid,MacGregor,V-Foil Hybrid,2020
+Irons,MacGregor,VIP,2019
+Irons,MacGregor,V-Foil Irons,2020
+Wedge,MacGregor,VIP Wedge,2020
+Driver,Majesty,Prestigio XI,2019
+Driver,Majesty,Royale,2023
+Driver,Majesty,Prestigio 13,2024
+Fairway Wood,Majesty,Royale Fairway,2023
+Hybrid,Majesty,Royale Hybrid,2023
+Irons,Majesty,Royale Irons,2023
+Irons,Majesty,Prestigio Irons,2024
+Driver,Maltby,KE4 Tour TC,2021
+Fairway Wood,Maltby,KE4 Fairway,2021
+Hybrid,Maltby,KE4 Hybrid,2021
+Irons,Maltby,TS-1,2019
+Irons,Maltby,KE4 Max,2020
+Irons,Maltby,TS3,2023
+Wedge,Maltby,TSW,2020
+Irons,Miura,CB-301,2019
+Irons,Miura,MC-502,2019
+Irons,Miura,TC-201,2019
+Irons,Miura,KM-700,2020
+Irons,Miura,PI-401,2023
+Driving Irons,Miura,IC-601,2022
+Wedge,Miura,Tour Wedge,2021
+Driver,Mizuno,ST-Max 230,2024
+Fairway Wood,Mizuno,ST-Max Fairway,2024
+Hybrid,Mizuno,ST-Max Hybrid,2024
+Irons,Mizuno,Pro 245,2023
+Irons,Mizuno,JPX 925 Forged,2024
+Irons,Mizuno,Pro S-3,2024
+Wedge,Mizuno,T7,2016
+Wedge,Mizuno,T20,2019
+Wedge,Mizuno,T22,2021
+Wedge,Mizuno,T24,2023
+Wedge,Mizuno,Pro T-1,2024
+Wedge,Mizuno,Pro T-3,2024
+Irons,New Level,902,2020
+Irons,New Level,902 OS,2021
+Irons,New Level,623M,2022
+Irons,New Level,480-DB,2024
+Driving Irons,New Level,NLU-01,2023
+Wedge,New Level,NLH-01,2022
+Driver,Nike,VR_S Covert,2013
+Driver,Nike,Covert 2.0,2014
+Driver,Nike,Vapor Flex,2015
+Driver,Nike,Vapor Fly,2016
+Fairway Wood,Nike,Vapor Speed Fairway,2015
+Hybrid,Nike,Vapor Fly Hybrid,2016
+Irons,Nike,Vapor Pro,2015
+Irons,Nike,Vapor Fly Irons,2016
+Driver,ONOFF,AKA Driver,2022
+Driver,ONOFF,KURO Driver,2023
+Fairway Wood,ONOFF,AKA Fairway,2022
+Hybrid,ONOFF,AKA Utility,2022
+Irons,ONOFF,AKA Irons,2022
+Irons,ONOFF,Forged KURO,2023
+Wedge,ONOFF,Forged Wedge,2023
+Driver,Orlimar,Escape Driver,2021
+Fairway Wood,Orlimar,Escape Fairway,2021
+Hybrid,Orlimar,Escape Hybrid,2021
+Irons,Orlimar,Escape HL,2021
+Driving Irons,Orlimar,Escape Driving Iron,2022
+Driver,PRGR,RS Driver,2016
+Driver,PRGR,RS F,2018
+Driver,PRGR,RS JUST,2022
+Fairway Wood,PRGR,RS Fairway,2022
+Hybrid,PRGR,RS Utility,2022
+Irons,PRGR,01 Irons,2023
+Irons,PRGR,02 Irons,2023
+Wedge,PRGR,0 Wedge,2023
+Driver,PXG,0811 X,2017
+Driver,PXG,0811 XF,2020
+Driver,PXG,Black Ops,2024
+Fairway Wood,PXG,0341 X,2017
+Fairway Wood,PXG,Black Ops Fairway,2024
+Hybrid,PXG,0317 X,2017
+Hybrid,PXG,Black Ops Hybrid,2024
+Irons,PXG,0311 P,2016
+Irons,PXG,0311 XP,2016
+Irons,PXG,0317 T,2022
+Driving Irons,PXG,0317 X Driving Iron,2022
+Wedge,PXG,Sugar Daddy,2022
+Driver,Ping,G440 LST,2025
+Driver,Ping,G440 MAX,2025
+Driver,Ping,G440 SFT,2025
+Fairway Wood,Ping,G440 Fairway,2025
+Hybrid,Ping,G440 Hybrid,2025
+Irons,Ping,G440 Irons,2025
+Irons,Ping,i240,2025
+Wedge,Ping,Glide,2015
+Wedge,Ping,Glide 2.0,2017
+Wedge,Ping,Glide 3.0,2019
+Wedge,Ping,Glide 4.0,2022
+Wedge,Ping,s159,2024
+Driver,PowerBilt,Air Force One DFX,2014
+Driver,PowerBilt,TPS Supertech,2020
+Fairway Wood,PowerBilt,TPS Fairway,2020
+Hybrid,PowerBilt,TPS Hybrid,2020
+Irons,PowerBilt,TPS Irons,2020
+Irons,ProtoConcept,C01,2020
+Irons,ProtoConcept,C03,2020
+Irons,ProtoConcept,C05,2021
+Irons,ProtoConcept,C07,2023
+Driving Irons,ProtoConcept,C01D,2021
+Wedge,ProtoConcept,Forged Wedge,2023
+Driver,Ram,FX Driver,2022
+Fairway Wood,Ram,FX Fairway,2022
+Hybrid,Ram,FX Hybrid,2022
+Irons,Ram,FX77,2022
+Wedge,Ram,Laser Face,2023
+Driver,Robin,The Driver,2021
+Fairway Wood,Robin,The Fairway,2021
+Hybrid,Robin,The Hybrid,2021
+Irons,Robin,The Irons,2021
+Wedge,Robin,The Wedge,2021
+Driver,Ryoma,D-1 MAXIMA,2016
+Driver,Ryoma,MAXIMA III,2023
+Fairway Wood,Ryoma,F Fairway,2023
+Hybrid,Ryoma,U Utility,2023
+Irons,Ryoma,Maxima Irons,2023
+Driver,Srixon,ZXi,2025
+Driver,Srixon,ZXi LS,2025
+Fairway Wood,Srixon,ZXi Fairway,2025
+Hybrid,Srixon,ZXi Hybrid,2025
+Irons,Srixon,ZXi5,2025
+Irons,Srixon,ZXi7,2025
+Driving Irons,Srixon,ZXiU,2025
+Wedge,Srixon,RTX 2.0,2014
+Wedge,Srixon,RTX 3,2017
+Wedge,Srixon,RTX ZipCore,2020
+Wedge,Srixon,RTX 6 ZipCore,2023
+Driver,Stix,Perform Driver,2022
+Fairway Wood,Stix,Perform Fairway,2022
+Hybrid,Stix,Perform Hybrid,2022
+Irons,Stix,Perform Irons,2022
+Wedge,Stix,Perform Wedge,2022
+Driver,Strata,Plus Driver,2019
+Fairway Wood,Strata,Plus Fairway,2019
+Hybrid,Strata,Plus Hybrid,2019
+Irons,Strata,Plus Irons,2019
+Wedge,Strata,Plus Wedge,2019
+Driver,Sub 70,849D,2020
+Fairway Wood,Sub 70,939X Fairway,2021
+Hybrid,Sub 70,949X Hybrid,2021
+Irons,Sub 70,639 MB,2020
+Irons,Sub 70,659 CB,2020
+Irons,Sub 70,699,2020
+Driving Irons,Sub 70,699U,2023
+Wedge,Sub 70,JB,2021
+Irons,Takomo,101,2021
+Irons,Takomo,201,2022
+Irons,Takomo,101T,2023
+Irons,Takomo,301 CB,2024
+Driving Irons,Takomo,Utility Iron 201,2024
+Wedge,Takomo,Skyforger,2024
+Driver,TaylorMade,Qi35,2025
+Driver,TaylorMade,Qi35 LS,2025
+Driver,TaylorMade,Qi35 Max,2025
+Fairway Wood,TaylorMade,Qi35 Fairway,2025
+Hybrid,TaylorMade,Qi35 Rescue,2025
+Irons,TaylorMade,Qi Max,2024
+Wedge,TaylorMade,Milled Grind MG,2018
+Wedge,TaylorMade,Milled Grind MG2,2019
+Wedge,TaylorMade,Milled Grind MG3,2021
+Wedge,TaylorMade,Milled Grind MG4,2023
+Wedge,TaylorMade,Hi-Toe 4,2024
+Driver,Titleist,GT1,2024
+Fairway Wood,Titleist,GT1 Fairway,2024
+Hybrid,Titleist,GT1 Hybrid,2024
+Irons,Titleist,T150,2023
+Irons,Titleist,T250,2024
+Driving Irons,Titleist,T250•U,2024
+Wedge,Titleist,Vokey SM5,2014
+Wedge,Titleist,Vokey SM6,2016
+Wedge,Titleist,Vokey SM7,2018
+Wedge,Titleist,Vokey SM8,2020
+Wedge,Titleist,Vokey SM9,2022
+Wedge,Titleist,Vokey SM10,2024
+Wedge,Titleist,SM10,2024
+Driver,Tommy Armour,845 MAX Driver,2021
+Fairway Wood,Tommy Armour,845 MAX Fairway,2021
+Hybrid,Tommy Armour,845 MAX Hybrid,2021
+Irons,Tommy Armour,845 MAX Irons,2021
+Wedge,Tommy Armour,Atomic Wedge,2023
+Driver,Top Flite,XL Driver,2022
+Fairway Wood,Top Flite,XL Fairway,2022
+Hybrid,Top Flite,XL Hybrid,2022
+Irons,Top Flite,XL Irons,2022
+Wedge,Top Flite,XL Wedge,2022
+Driver,Tour Edge,Exotics EXS,2018
+Driver,Tour Edge,Exotics C721,2021
+Driver,Tour Edge,Exotics E723,2023
+Driver,Tour Edge,Exotics E725,2025
+Fairway Wood,Tour Edge,Exotics C721 Fairway,2021
+Fairway Wood,Tour Edge,Exotics E723 Fairway,2023
+Hybrid,Tour Edge,Exotics C723 Hybrid,2023
+Hybrid,Tour Edge,Hot Launch C523 Hybrid,2023
+Irons,Tour Edge,Hot Launch E522 Irons,2022
+Irons,Tour Edge,Exotics C723 Irons,2023
+Wedge,Tour Edge,Template Wedge,2024
+Irons,Vega,VDC-01,2022
+Irons,Vega,Mizar Pro,2023
+Irons,Vega,VM-02,2024
+Wedge,Vega,VW-18,2022
+Wedge,Vega,VM Wedge,2024
+Driver,Vice Golf,VGD01,2025
+Fairway Wood,Vice Golf,VGF01,2025
+Hybrid,Vice Golf,VGH01,2025
+Irons,Vice Golf,VGI01,2025
+Wedge,Vice Golf,VGW01,2025
+Driver,Wilson,Dynapower Carbon,2024
+Driver,Wilson,Dynapower Max,2024
+Fairway Wood,Wilson,Dynapower Fairway,2024
+Hybrid,Wilson,Dynapower Hybrid,2024
+Irons,Wilson,Dynapower Forged,2024
+Irons,Wilson,Dynapower Max,2024
 Wedge,Wilson,Staff Model Wedge,2020
-Driving Iron,Wilson,Staff Model Utility,2022
+Wedge,Wilson,Staff Model ZM,2024
+Driver,XXIO,XXIO Prime 11,2020
+Driver,XXIO,XXIO Prime 12,2022
+Driver,XXIO,XXIO 13 Driver,2024
+Driver,XXIO,XXIO X Driver,2024
+Fairway Wood,XXIO,XXIO 13 Fairway,2024
+Hybrid,XXIO,XXIO 13 Hybrid,2024
+Irons,XXIO,XXIO Prime 12 Irons,2022
+Irons,XXIO,XXIO 13 Irons,2024
+Wedge,XXIO,XXIO Prime Wedge,2022
+Driver,Yamaha,RMX 216,2016
+Driver,Yamaha,RMX 218,2018
+Driver,Yamaha,RMX 120,2020
+Driver,Yamaha,RMX VD/M,2024
+Fairway Wood,Yamaha,RMX Fairway,2024
+Hybrid,Yamaha,RMX Utility,2024
+Irons,Yamaha,RMX 118,2018
+Irons,Yamaha,RMX VD,2024
+Wedge,Vice Golf,VGW01,2025
+Driver,Wilson,Dynapower Carbon,2024
+Driver,Wilson,Dynapower Max,2024
+Fairway Wood,Wilson,Dynapower Fairway,2024
+Hybrid,Wilson,Dynapower Hybrid,2024
+Irons,Wilson,Dynapower Forged,2024
+Irons,Wilson,Dynapower Max,2024
+Driving Irons,Wilson,Staff Model Utility,2022
+Wedge,Wilson,Staff Model Wedge,2020
+Wedge,Wilson,Staff Model ZM,2024
+Driver,XXIO,XXIO Prime 11,2020
+Driver,XXIO,XXIO Prime 12,2022
+Driver,XXIO,XXIO 13 Driver,2024
+Driver,XXIO,XXIO X Driver,2024
+Fairway Wood,XXIO,XXIO 13 Fairway,2024
+Hybrid,XXIO,XXIO 13 Hybrid,2024
+Irons,XXIO,XXIO Prime 12 Irons,2022
+Irons,XXIO,XXIO 13 Irons,2024
+Wedge,XXIO,XXIO Prime Wedge,2022
+Driver,Yamaha,RMX 216,2016
+Driver,Yamaha,RMX 218,2018
+Driver,Yamaha,RMX 120,2020
+Driver,Yamaha,RMX VD/M,2024
+Fairway Wood,Yamaha,RMX Fairway,2024
+Hybrid,Yamaha,RMX Utility,2024
+Irons,Yamaha,RMX 118,2018
+Irons,Yamaha,RMX VD,2024

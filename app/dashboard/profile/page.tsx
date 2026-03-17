@@ -157,7 +157,13 @@ export default function ProfilePage() {
             <div className="relative shrink-0">
               <div className="h-24 w-24 rounded-full bg-mowing-green/10 border-2 border-par-3-punch/30 overflow-hidden flex items-center justify-center">
                 {avatarUploading ? (
-                  <span className="text-mowing-green/60 text-sm">Uploading…</span>
+                  <div className="flex flex-col items-center justify-center gap-1.5" role="status" aria-live="polite">
+                    <div className="relative h-10 w-10 shrink-0">
+                      <div className="absolute inset-0 rounded-full border-2 border-mowing-green/15" />
+                      <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-mowing-green border-r-mowing-green/40 animate-spin" style={{ animationDuration: "0.9s" }} />
+                    </div>
+                    <span className="text-mowing-green/60 text-sm">Uploading…</span>
+                  </div>
                 ) : avatarSrcUrl ? (
                   <img
                     src={avatarSrcUrl}
