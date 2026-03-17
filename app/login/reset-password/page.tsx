@@ -21,7 +21,8 @@ export default function ResetPasswordPage() {
     if (typeof window === "undefined") return;
     const supabase = createClient();
     const hash = window.location.hash.slice(1);
-    const params = new URLSearchParams(hash);
+    const search = window.location.search.startsWith("?") ? window.location.search.slice(1) : window.location.search;
+    const params = new URLSearchParams(hash || search);
     const err = params.get("error");
     const errDesc = params.get("error_description");
     // #region agent log
@@ -77,6 +78,9 @@ export default function ResetPasswordPage() {
     // #endregion
 
     if (isRecoveryWithTokens) {
+      if (hash && !search) {
+        window.history.replaceState(null, "", window.location.pathname + "?" + hash);
+      }
       let settled = false;
       const timeoutMs = 12000;
       const timeoutId = window.setTimeout(() => {

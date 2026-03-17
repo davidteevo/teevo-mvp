@@ -133,22 +133,24 @@ export async function POST(request: Request) {
 
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
     const resetPath = `${appUrl}/login/reset-password`;
-    // Redirect URL must be in Supabase Dashboard → Authentication → URL Configuration → Redirect URLs
+    const callbackPath = `${appUrl}/login/reset-password/callback`;
+    // Redirect URL must be in Supabase Dashboard → Authentication → URL Configuration → Redirect URLs (add both reset-password and reset-password/callback)
 
-    // Generate recovery (set-password) link; we send it ourselves via Resend (no Supabase email)
+    // Generate recovery (set-password) link; we send it ourselves via Resend (no Supabase email).
+    // Redirect to callback first so we can turn hash into query (survives email-client redirects).
     const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
       type: "recovery",
       email,
-      options: { redirectTo: resetPath },
+      options: { redirectTo: callbackPath },
     });
 
     let actionLinkFromResponse: string | undefined =
       (linkData as { properties?: { action_link?: string }; action_link?: string })?.properties?.action_link ??
       (linkData as { action_link?: string })?.action_link;
 
-    if (actionLinkFromResponse && !actionLinkFromResponse.includes("redirect_to=") && resetPath) {
+    if (actionLinkFromResponse && !actionLinkFromResponse.includes("redirect_to=") && callbackPath) {
       const sep = actionLinkFromResponse.includes("?") ? "&" : "?";
-      actionLinkFromResponse = `${actionLinkFromResponse}${sep}redirect_to=${encodeURIComponent(resetPath)}`;
+      actionLinkFromResponse = `${actionLinkFromResponse}${sep}redirect_to=${encodeURIComponent(callbackPath)}`;
     }
     // #region agent log
     if (actionLinkFromResponse) {
