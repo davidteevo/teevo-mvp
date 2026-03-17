@@ -131,7 +131,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "User created but no id returned" }, { status: 500 });
     }
 
-    const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
+    const rawAppUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
+    const appUrl =
+      rawAppUrl && !rawAppUrl.toLowerCase().includes("placeholder")
+        ? rawAppUrl
+        : "https://app.teevohq.com";
 
     // Generate recovery link; use hashed_token for server-side verify (works with PKCE and when fragments are stripped).
     const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
