@@ -27,7 +27,7 @@ export default async function AdminListingDetailPage({
   const { data: listing, error } = await admin
     .from("listings")
     .select(`
-      id, user_id, category, brand, model, title, condition, price, description, shaft, degree, shaft_flex, handed, item_type, size, colour, status, created_at, admin_feedback,
+      id, user_id, category, brand, model, title, condition, price, description, shaft, degree, shaft_flex, handed, item_type, size, colour, status, created_at, admin_feedback, created_on_behalf, created_by_admin_id,
       listing_images(storage_path, sort_order),
       users!user_id(id, email, role, created_at)
     `)
@@ -112,6 +112,11 @@ export default async function AdminListingDetailPage({
           </div>
 
           <div>
+            {(listing as { created_on_behalf?: boolean }).created_on_behalf && sellerData && (
+              <p className="text-sm text-mowing-green/60 mb-2">
+                Created by admin on behalf of {sellerData.email}
+              </p>
+            )}
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm text-mowing-green/70 uppercase tracking-wide">

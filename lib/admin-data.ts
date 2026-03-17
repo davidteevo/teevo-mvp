@@ -61,6 +61,9 @@ export type PendingListing = {
   item_type: string | null;
   size: string | null;
   colour: string | null;
+  created_on_behalf?: boolean;
+  created_by_admin_id?: string | null;
+  seller_email?: string | null;
   listing_images?: { storage_path: string; sort_order: number }[];
 };
 
@@ -68,11 +71,21 @@ export async function getPendingListings(): Promise<PendingListing[]> {
   const admin = adminClient();
   const { data, error } = await admin
     .from("listings")
-    .select("id, user_id, category, brand, model, title, condition, price, description, status, created_at, item_type, size, colour, listing_images(storage_path, sort_order)")
+    .select("id, user_id, category, brand, model, title, condition, price, description, status, created_at, item_type, size, colour, created_on_behalf, created_by_admin_id, listing_images(storage_path, sort_order)")
     .eq("status", "pending")
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
-  return (data ?? []) as PendingListing[];
+  const rows = (data ?? []) as PendingListing[];
+  const userIds = Array.from(new Set(rows.map((r) => r.user_id)));
+  let emailByUserId: Record<string, string> = {};
+  if (userIds.length > 0) {
+    const { data: users } = await admin.from("users").select("id, email").in("id", userIds);
+    emailByUserId = (users ?? []).reduce((acc: Record<string, string>, u: { id: string; email: string }) => {
+      acc[u.id] = u.email;
+      return acc;
+    }, {});
+  }
+  return rows.map((r) => ({ ...r, seller_email: emailByUserId[r.user_id] ?? null }));
 }
 
 export type AllListing = {
@@ -90,13 +103,15 @@ export type AllListing = {
   size: string | null;
   colour: string | null;
   seller_email: string | null;
+  created_on_behalf?: boolean;
+  created_by_admin_id?: string | null;
 };
 
 export async function getAllListings(opts: { q?: string; status?: string }): Promise<AllListing[]> {
   const admin = adminClient();
   let query = admin
     .from("listings")
-    .select("id, user_id, category, brand, model, title, condition, price, status, created_at, item_type, size, colour")
+    .select("id, user_id, category, brand, model, title, condition, price, status, created_at, item_type, size, colour, created_on_behalf, created_by_admin_id")
     .order("created_at", { ascending: false });
   if (opts.status && ["pending", "verified", "rejected", "sold"].includes(opts.status)) {
     query = query.eq("status", opts.status);

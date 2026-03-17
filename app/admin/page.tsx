@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
-import { Package, ShoppingCart, Users, TrendingUp, CheckCircle, ClipboardCheck } from "lucide-react";
+import { Package, ShoppingCart, Users, TrendingUp, CheckCircle, ClipboardCheck, PlusCircle } from "lucide-react";
 import { formatPrice } from "@/lib/format";
 import { AdminDashboardRefresh } from "./AdminDashboardRefresh";
 
@@ -147,6 +147,18 @@ export default async function AdminDashboardPage() {
             <div>
               <p className="font-semibold text-mowing-green">Manage users</p>
               <p className="text-sm text-mowing-green/70 mt-0.5">{usersCount} users</p>
+            </div>
+          </Link>
+          <Link
+            href="/admin/create-listing"
+            className="rounded-xl border border-par-3-punch/20 bg-white p-6 hover:shadow-md transition-shadow flex items-start gap-4"
+          >
+            <div className="rounded-lg bg-golden-tee/20 p-3">
+              <PlusCircle className="h-6 w-6 text-mowing-green" />
+            </div>
+            <div>
+              <p className="font-semibold text-mowing-green">Create listing on behalf</p>
+              <p className="text-sm text-mowing-green/70 mt-0.5">Add seller and publish a listing for them</p>
             </div>
           </Link>
         </div>

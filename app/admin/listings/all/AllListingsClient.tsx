@@ -101,6 +101,11 @@ export default function AllListingsClient({ listings }: { listings: AllListing[]
                       <Link href={`/admin/listings/${l.id}`} className="font-medium text-mowing-green hover:underline">
                         {getListingDisplayTitle(l as unknown as Listing)}
                       </Link>
+                      {l.created_on_behalf && (
+                        <span className="block text-xs text-mowing-green/60 mt-0.5">
+                          Created by admin on behalf of {l.seller_email ?? "seller"}
+                        </span>
+                      )}
                     </td>
                     <td className="p-3 text-mowing-green/80">{l.category} · {l.brand}</td>
                     <td className="p-3">{formatPrice(l.price)}</td>

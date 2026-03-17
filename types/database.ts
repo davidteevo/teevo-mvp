@@ -67,6 +67,9 @@ export interface User {
   address_country: string | null;
   date_of_birth: string | null;
   founding_seller_rank: number | null;
+  created_by_admin?: boolean;
+  invited_at?: string | null;
+  phone?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -90,6 +93,8 @@ export interface Listing {
   colour: string | null;
   status: ListingStatus;
   flagged: boolean;
+  created_by_admin_id?: string | null;
+  created_on_behalf?: boolean;
   created_at: string;
   updated_at: string;
   listing_images?: { id: string; storage_path: string; sort_order: number }[];

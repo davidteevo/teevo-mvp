@@ -50,8 +50,15 @@ export async function POST(
       .eq("id", listingId)
       .single();
 
-    if (listErr || !listing || listing.user_id !== user.id) {
+    if (listErr || !listing) {
       return NextResponse.json({ error: "Listing not found" }, { status: 404 });
+    }
+    const isOwner = listing.user_id === user.id;
+    if (!isOwner) {
+      const { data: profile } = await admin.from("users").select("role").eq("id", user.id).single();
+      if (profile?.role !== "admin") {
+        return NextResponse.json({ error: "Listing not found" }, { status: 404 });
+      }
     }
 
     await admin.from("listing_images").delete().eq("listing_id", listingId);

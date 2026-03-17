@@ -58,6 +58,11 @@ export default function PendingListingsTable({ listings }: { listings: PendingLi
               <Link href={`/admin/listings/${l.id}`} className="font-semibold text-mowing-green hover:underline">
                 {getListingDisplayTitle(l as unknown as Listing)}
               </Link>
+              {l.created_on_behalf && (
+                <p className="text-xs text-mowing-green/60 mt-0.5">
+                  Created by admin on behalf of {l.seller_email ?? "seller"}
+                </p>
+              )}
               <p className="text-sm text-mowing-green/70">{l.category} · {l.brand} · {l.condition}</p>
               <p className="font-semibold text-mowing-green mt-1">{formatPrice(l.price)}</p>
               {l.description && <p className="text-sm text-mowing-green/80 mt-2 line-clamp-2">{l.description}</p>}
