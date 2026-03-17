@@ -153,13 +153,21 @@ export async function POST(request: Request) {
       (linkData as { action_link?: string })?.action_link;
 
     let tokenForApi: string | undefined = hashedToken;
+    let tokenSource: "hashed_token" | "action_link" | null = hashedToken ? "hashed_token" : null;
     if (!tokenForApi && actionLinkFromResponse) {
       try {
         const verifyUrl = new URL(actionLinkFromResponse);
-        tokenForApi = verifyUrl.searchParams.get("token") ?? undefined;
+        tokenForApi =
+          verifyUrl.searchParams.get("token_hash") ??
+          verifyUrl.searchParams.get("token") ??
+          undefined;
+        if (tokenForApi) tokenSource = "action_link";
       } catch {
         // ignore
       }
+    }
+    if (tokenSource) {
+      console.log("[admin/sellers] Invite link using token from:", tokenSource);
     }
 
     let actionLink: string | undefined;
