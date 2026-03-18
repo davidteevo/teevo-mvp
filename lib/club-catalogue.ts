@@ -8,13 +8,25 @@ import path from "path";
 
 const CATALOGUE_FILENAMES = ["club-catalogue.csv", "Club-Catalogue.csv"] as const;
 
-/** Map CSV category values to app CLUB_CATEGORIES */
+/**
+ * Map CSV "Club Type / Category" values to app sell-form categories
+ * (Driver, Woods, Driving Irons, Hybrids, Irons, Wedges, Putter).
+ */
 const CATEGORY_MAP: Record<string, string> = {
   Driver: "Driver",
   Irons: "Irons",
   Wedge: "Wedges",
+  Wedges: "Wedges",
+  Putter: "Putter",
+  Hybrid: "Hybrids",
+  Hybrids: "Hybrids",
+  "Fairway Wood": "Woods",
+  "Fairway Woods": "Woods",
+  Wood: "Woods",
+  Woods: "Woods",
   "Utility / Driving Iron": "Driving Irons",
   "Driving Iron": "Driving Irons",
+  "Driving Irons": "Driving Irons",
 };
 
 export type ClubCatalogue = {
