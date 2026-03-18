@@ -14,6 +14,7 @@ const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN || undefined;
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const token_hash = searchParams.get("token_hash");
+  const confirm = searchParams.get("confirm") === "1";
   /** Redirect to canonical app URL so we never send users to a deploy-preview origin. */
   const base =
     (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "") ||
@@ -41,6 +42,22 @@ export async function GET(request: Request) {
     // #endregion
     return NextResponse.redirect(errorPathWithReason("Missing link token"));
   }
+
+  // #region agent log
+  fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
+    body: JSON.stringify({
+      sessionId: "d1a7bb",
+      runId: "repro-2",
+      location: "app/api/auth/set-password/route.ts:entry",
+      message: "set-password entry",
+      data: { isPkce: token_hash.startsWith("pkce_"), confirm },
+      timestamp: Date.now(),
+      hypothesisId: "SP0",
+    }),
+  }).catch(() => {});
+  // #endregion
 
   /** PKCE recovery: server verifyOtp cannot complete without code_verifier; use Supabase verify → code → callback. */
   if (token_hash.startsWith("pkce_")) {
@@ -95,6 +112,53 @@ export async function GET(request: Request) {
         btn.addEventListener('click', function(){
           btn.disabled = true;
           window.location.href = ${JSON.stringify(verifyUrl)};
+        });
+      })();
+    </script>
+  </body>
+</html>`;
+    return new NextResponse(html, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "no-store, max-age=0",
+      },
+    });
+  }
+
+  // Non-PKCE tokens are also one-time and can be consumed by email link scanners.
+  // Require a human confirmation before verifying and consuming the token.
+  if (!confirm) {
+    const u = new URL(request.url);
+    u.searchParams.set("confirm", "1");
+    const confirmUrl = u.toString();
+    const html = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Continue password reset</title>
+    <style>
+      body{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;max-width:560px;margin:40px auto;padding:0 16px;color:#0b3d2e}
+      h1{font-size:22px;margin:0 0 8px}
+      p{line-height:1.45;margin:10px 0;color:#0b3d2ecc}
+      button{background:#0b3d2e;color:#fff;border:0;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer}
+      button:disabled{opacity:.6;cursor:not-allowed}
+      .small{font-size:12px;color:#0b3d2e99;margin-top:14px}
+    </style>
+  </head>
+  <body>
+    <h1>Continue password reset</h1>
+    <p>To protect you, we only continue when you confirm. This prevents email scanners from consuming one-time links.</p>
+    <button id="continue">Continue</button>
+    <p class="small">If this doesn’t work, request a new reset email.</p>
+    <script>
+      (function(){
+        var btn = document.getElementById('continue');
+        btn.addEventListener('click', function(){
+          btn.disabled = true;
+          window.location.href = ${JSON.stringify(confirmUrl)};
         });
       })();
     </script>
