@@ -412,6 +412,15 @@ export function ListingForm({
                   shaft: shaft.trim() || undefined,
                   degree: degree.trim() || undefined,
                   shaft_flex: shaftFlex.trim() || undefined,
+                  lie_angle: (lieAnglePreset === "Other" ? lieAngleCustom : lieAnglePreset).trim() || undefined,
+                  club_length:
+                    (clubLengthPreset === "Other" ? clubLengthCustom : clubLengthPreset).trim() || undefined,
+                  shaft_weight: shaftWeight.trim() || undefined,
+                  shaft_material: shaftMaterial.trim() || undefined,
+                  grip_brand: gripBrand.trim() || undefined,
+                  grip_model: gripModel.trim() || undefined,
+                  grip_size: gripSize.trim() || undefined,
+                  grip_condition: gripCondition.trim() || undefined,
                 }
               : {}),
           };

@@ -43,6 +43,14 @@ interface EnhanceBody {
   shaft?: string;
   degree?: string;
   shaft_flex?: string;
+  lie_angle?: string;
+  club_length?: string;
+  shaft_weight?: string;
+  shaft_material?: string;
+  grip_brand?: string;
+  grip_model?: string;
+  grip_size?: string;
+  grip_condition?: string;
   item_type?: string;
   size?: string;
   colour?: string;
@@ -68,7 +76,7 @@ DESCRIPTION REWRITE RULES (you must follow these exactly):
 Example: Seller wrote "ping driver good condtion seling as upgrading to new model hardly used" → description: "Ping driver in good condition. Selling as I am upgrading to a new model; this one has been hardly used."
 
 You must return JSON only with these keys:
-- title: A concise listing title (e.g. "Ping G425 Max Driver – 10.5° – Regular Shaft – Excellent Condition"). Include brand, model, key spec if known, and condition. For categories Woods, Driving Irons, Hybrids, Irons, and Wedges, use the singular form in the title (e.g. "3 Wood", "Driving Iron", "Hybrid", "Iron", "Wedge") because each listing is for one club.
+- title: A concise listing title (e.g. "Ping G425 Max Driver – 10.5° – Regular Shaft – Excellent Condition"). Include brand, model, key spec if known (loft/lie, shaft, grip), and condition. For categories Woods, Driving Irons, Hybrids, Irons, and Wedges, use the singular form in the title (e.g. "3 Wood", "Driving Iron", "Hybrid", "Iron", "Wedge") because each listing is for one club.
 - description: The seller's text rewritten as one flowing, proofread paragraph. All spelling and grammar corrected; same meaning and facts.
 - shaft: Extract shaft model from the seller's text if mentioned; otherwise null.
 - degree: Extract loft/degree (e.g. "10.5") for club types (drivers, woods, irons, wedges, hybrids, driving irons) if mentioned; otherwise null.
@@ -98,7 +106,7 @@ Always return valid JSON. Use null for shaft, degree, shaft_flex.`;
 
 /**
  * POST /api/ai/enhance-listing
- * Body: { category?, brand?, model?, condition?, description?, title?, shaft?, degree?, shaft_flex?, item_type?, size?, colour? }
+ * Body: { category?, brand?, model?, condition?, description?, title?, shaft?, degree?, shaft_flex?, lie_angle?, club_length?, shaft_weight?, shaft_material?, grip_brand?, grip_model?, grip_size?, grip_condition?, item_type?, size?, colour? }
  * Returns AI-suggested title, description, and extracted specs. For clubs: model required. For Clothing/Accessories: item_type required.
  */
 export async function POST(request: Request) {
@@ -113,6 +121,14 @@ export async function POST(request: Request) {
     const shaft = typeof body.shaft === "string" ? body.shaft.trim() : "";
     const degree = typeof body.degree === "string" ? body.degree.trim() : "";
     const shaft_flex = typeof body.shaft_flex === "string" ? body.shaft_flex.trim() : "";
+    const lie_angle = typeof body.lie_angle === "string" ? body.lie_angle.trim() : "";
+    const club_length = typeof body.club_length === "string" ? body.club_length.trim() : "";
+    const shaft_weight = typeof body.shaft_weight === "string" ? body.shaft_weight.trim() : "";
+    const shaft_material = typeof body.shaft_material === "string" ? body.shaft_material.trim() : "";
+    const grip_brand = typeof body.grip_brand === "string" ? body.grip_brand.trim() : "";
+    const grip_model = typeof body.grip_model === "string" ? body.grip_model.trim() : "";
+    const grip_size = typeof body.grip_size === "string" ? body.grip_size.trim() : "";
+    const grip_condition = typeof body.grip_condition === "string" ? body.grip_condition.trim() : "";
     const item_type = typeof body.item_type === "string" ? body.item_type.trim() : "";
     const size = typeof body.size === "string" ? body.size.trim() : "";
     const colour = typeof body.colour === "string" ? body.colour.trim() : "";
@@ -160,6 +176,15 @@ export async function POST(request: Request) {
       !isStructured && shaft ? `Shaft: ${shaft}` : "",
       !isStructured && degree ? `Degree/loft: ${degree}` : "",
       !isStructured && shaft_flex ? `Shaft flex: ${shaft_flex}` : "",
+      !isStructured && lie_angle ? `Lie angle: ${lie_angle}` : "",
+      !isStructured && club_length ? `Club length: ${club_length}` : "",
+      !isStructured && shaft_weight ? `Shaft weight: ${shaft_weight}` : "",
+      !isStructured && shaft_material ? `Shaft material: ${shaft_material}` : "",
+      !isStructured && (grip_brand || grip_model)
+        ? `Grip: ${[grip_brand, grip_model].filter(Boolean).join(" ")}`
+        : "",
+      !isStructured && grip_size ? `Grip size: ${grip_size}` : "",
+      !isStructured && grip_condition ? `Grip condition: ${grip_condition}` : "",
     ]
       .filter(Boolean)
       .join("\n\n");
@@ -215,6 +240,14 @@ export async function POST(request: Request) {
     if (degree) fallbackParts.push(`Loft: ${degree}°.`);
     if (shaft) fallbackParts.push(`Shaft: ${shaft}.`);
     if (shaft_flex) fallbackParts.push(`Flex: ${shaft_flex}.`);
+    if (lie_angle) fallbackParts.push(`Lie: ${lie_angle}.`);
+    if (club_length) fallbackParts.push(`Length: ${club_length}.`);
+    if (shaft_weight) fallbackParts.push(`Shaft weight: ${shaft_weight}.`);
+    if (shaft_material) fallbackParts.push(`Shaft material: ${shaft_material}.`);
+    if (grip_brand || grip_model)
+      fallbackParts.push(`Grip: ${[grip_brand, grip_model].filter(Boolean).join(" ")}.`);
+    if (grip_size) fallbackParts.push(`Grip size: ${grip_size}.`);
+    if (grip_condition) fallbackParts.push(`Grip condition: ${grip_condition}.`);
     fallbackParts.push("Check photos for full details.");
     const fallbackDescription = fallbackParts.join(" ");
 
