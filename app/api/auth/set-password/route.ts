@@ -7,11 +7,9 @@ export const dynamic = "force-dynamic";
 const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN || undefined;
 
 /**
- * Server-side recovery: verify token_hash and set session in cookies, then redirect
- * to the reset-password page. Works for (1) recovery emails when the Supabase
- * "Reset Password" email template uses a token-hash link, and (2) admin invite
- * links (generateLink). Use the server client so tokens from Supabase recovery
- * emails (no PKCE verifier needed) are verified correctly.
+ * Recovery: (1) Non-PKCE token_hash → verifyOtp on server + set cookies.
+ * (2) PKCE tokens (prefix `pkce_`) → redirect to Supabase /auth/v1/verify so the
+ * browser completes code exchange (same browser as resetPasswordForEmail required).
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -44,6 +42,73 @@ export async function GET(request: Request) {
     return NextResponse.redirect(errorPathWithReason("Missing link token"));
   }
 
+  /** PKCE recovery: server verifyOtp cannot complete without code_verifier; use Supabase verify → code → callback. */
+  if (token_hash.startsWith("pkce_")) {
+    const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").replace(/\/$/, "");
+    if (!supabaseUrl) {
+      return NextResponse.redirect(errorPathWithReason("Server misconfiguration"));
+    }
+    const redirectTo = `${base}/login/reset-password`;
+    const verifyUrl = `${supabaseUrl}/auth/v1/verify?token=${encodeURIComponent(token_hash)}&type=${encodeURIComponent("recovery")}&redirect_to=${encodeURIComponent(redirectTo)}`;
+    // #region agent log
+    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
+      body: JSON.stringify({
+        sessionId: "d1a7bb",
+        runId: "pkce-redirect",
+        location: "app/api/auth/set-password/route.ts:pkceRedirect",
+        message: "Redirecting PKCE recovery to Supabase verify",
+        data: {},
+        timestamp: Date.now(),
+        hypothesisId: "PKCE1",
+      }),
+    }).catch(() => {});
+    // #endregion
+    // Avoid auto-redirect: email security scanners often prefetch links and would consume the one-time token.
+    // Only a real user click should initiate the Supabase verify request.
+    const html = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Continue password reset</title>
+    <style>
+      body{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;max-width:560px;margin:40px auto;padding:0 16px;color:#0b3d2e}
+      h1{font-size:22px;margin:0 0 8px}
+      p{line-height:1.45;margin:10px 0;color:#0b3d2ecc}
+      button{background:#0b3d2e;color:#fff;border:0;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer}
+      button:disabled{opacity:.6;cursor:not-allowed}
+      .small{font-size:12px;color:#0b3d2e99;margin-top:14px}
+      code{background:rgba(11,61,46,.08);padding:2px 6px;border-radius:8px}
+    </style>
+  </head>
+  <body>
+    <h1>Continue password reset</h1>
+    <p>To protect you, we only continue when you confirm. This prevents email scanners from consuming one-time links.</p>
+    <button id="continue">Continue</button>
+    <p class="small">If this doesn’t work, request a new reset email and open it in the same browser/device where you requested it.</p>
+    <script>
+      (function(){
+        var btn = document.getElementById('continue');
+        btn.addEventListener('click', function(){
+          btn.disabled = true;
+          window.location.href = ${JSON.stringify(verifyUrl)};
+        });
+      })();
+    </script>
+  </body>
+</html>`;
+    return new NextResponse(html, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "no-store, max-age=0",
+      },
+    });
+  }
+
   const cookieStore = await cookies();
   type CookieEntry = { name: string; value: string; options?: Record<string, unknown> };
   const cookiesToSet: CookieEntry[] = [];
@@ -66,19 +131,10 @@ export async function GET(request: Request) {
     }
   );
 
-  let result = await supabase.auth.verifyOtp({
+  const { data, error } = await supabase.auth.verifyOtp({
     type: "recovery",
     token_hash,
   });
-  // PKCE recovery tokens from the hook often have a "pkce_" prefix; some backends look up by hash only
-  if (result.error && token_hash.startsWith("pkce_")) {
-    const hashOnly = token_hash.slice(5);
-    result = await supabase.auth.verifyOtp({
-      type: "recovery",
-      token_hash: hashOnly,
-    });
-  }
-  const { data, error } = result;
 
   if (error) {
     console.error("[set-password] verifyOtp failed:", error.message);

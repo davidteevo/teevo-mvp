@@ -331,6 +331,11 @@ export default function ResetPasswordPage() {
             The link in the email is still the Supabase link, so reset never reaches your app.{" "}
             <strong>Enable the Send Email Hook</strong> in Supabase: Dashboard → Authentication → Hooks → Send Email → set the URL to your app origin + <code className="bg-mowing-green/10 px-0.5 rounded text-xs">/api/auth/send-email</code> (e.g. <code className="bg-mowing-green/10 px-0.5 rounded text-xs break-all">https://app.teevohq.com/api/auth/send-email</code>). Use the same secret as <code className="bg-mowing-green/10 px-0.5 rounded text-xs">SEND_EMAIL_HOOK_SECRET</code>. Redeploy if needed, then request a <strong>new</strong> reset email — the new link should start with your app URL, not supabase.co. See <code className="bg-mowing-green/10 px-0.5 rounded text-xs">docs/SEND_EMAIL_HOOK_CHECKLIST.md</code>.
           </p>
+        ) : hashError && /PKCE|same browser|Forgot password|code exchange|code verifier/i.test(hashError) ? (
+          <p className="mt-3 text-mowing-green/80 text-sm">
+            Password reset uses a secure step that is tied to the browser where you requested the link.{" "}
+            <strong>Request a new reset email</strong>, then open the link in the <strong>same browser</strong> (and device) where you used Forgot password — for example Safari on your phone if you requested it there, or Chrome on your laptop if you requested it there.
+          </p>
         ) : hashError ? (
           <>
             <p className="mt-2 text-mowing-green/70 text-xs">

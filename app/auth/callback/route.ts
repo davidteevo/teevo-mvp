@@ -34,10 +34,14 @@ export async function GET(request: Request) {
     }).catch(() => {});
     // #endregion
     if (exchangeError) {
-      const base = new URL(request.url).origin;
+      const base =
+        (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "") ||
+        new URL(request.url).origin;
       const isResetPassword = next === "/login/reset-password" || next.startsWith("/login/reset-password");
       const redirectPath = isResetPassword
-        ? `${base}/login/reset-password?error=invalid_link`
+        ? `${base}/login/reset-password?error=invalid_link&error_description=${encodeURIComponent(
+            `${exchangeError.message}. For password reset, open the email link in the same browser where you clicked Forgot password (PKCE).`
+          )}`
         : new URL(next, request.url).toString();
       return NextResponse.redirect(redirectPath);
     }

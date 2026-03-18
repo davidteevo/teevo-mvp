@@ -88,6 +88,8 @@ After any change to `app/api/auth/send-email/route.ts`:
 - **Local:** Restart the dev server.
 - **Production:** Redeploy so the new code is live.
 
+**PKCE recovery:** Reset links use `pkce_…` tokens. The app redirects you through Supabase verify, then your browser must complete the code exchange. **Open the reset link in the same browser (and device) where you clicked Forgot password** — otherwise you’ll see an invalid link error.
+
 Then request a **new** “Forgot password” email. The “Reset password” link in that email should be:
 
 - **Correct:** `http://localhost:3000/api/auth/set-password?token_hash=...` (or your production origin).
