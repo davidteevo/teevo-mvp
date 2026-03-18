@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -14,21 +13,23 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const supabase = createClient();
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${origin}/login/reset-password`,
-    });
-    setLoading(false);
-    if (err) {
-      const lower = err.message.toLowerCase();
-      setError(
-        lower.includes("rate") || lower.includes("rate limit") || lower.includes("too many requests")
-          ? "Too many attempts. Please wait a few minutes and try again. You can increase auth rate limits in Supabase Dashboard → Authentication → Rate Limits."
-          : err.message
-      );
+    try {
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      if (!res.ok) {
+        setError("Something went wrong. Please try again.");
+        setLoading(false);
+        return;
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
+      setLoading(false);
       return;
     }
+    setLoading(false);
     setSent(true);
   };
 
@@ -37,7 +38,7 @@ export default function ForgotPasswordPage() {
       <div className="max-w-sm mx-auto px-4 py-12">
         <h1 className="text-2xl font-bold text-mowing-green">Check your email</h1>
         <p className="mt-2 text-mowing-green/80 text-sm">
-          If an account exists for that address, we have sent a link to reset your password.
+          If an account exists for that address, we have sent a link to reset your password. You can open the link on any device or browser.
         </p>
         <p className="mt-4 text-mowing-green/80 text-sm">
           Did not get it? Check spam or{" "}
