@@ -17,6 +17,7 @@ const CATEGORY_TO_SINGULAR_TITLE: Record<string, string> = {
   Woods: "Wood",
   "Driving Irons": "Driving Iron",
   Hybrids: "Hybrid",
+  Irons: "Iron",
   Wedges: "Wedge",
 };
 
@@ -27,6 +28,7 @@ function ensureSingularTitle(title: string, category: string): string {
   t = t.replace(/\bDriving Irons\b/g, "Driving Iron");
   t = t.replace(/\bWoods\b/g, "Wood");
   t = t.replace(/\bHybrids\b/g, "Hybrid");
+  t = t.replace(/\bIrons\b/g, "Iron");
   t = t.replace(/\bWedges\b/g, "Wedge");
   return t;
 }
@@ -66,10 +68,10 @@ DESCRIPTION REWRITE RULES (you must follow these exactly):
 Example: Seller wrote "ping driver good condtion seling as upgrading to new model hardly used" → description: "Ping driver in good condition. Selling as I am upgrading to a new model; this one has been hardly used."
 
 You must return JSON only with these keys:
-- title: A concise listing title (e.g. "Ping G425 Max Driver – 10.5° – Regular Shaft – Excellent Condition"). Include brand, model, key spec if known, and condition. For categories Woods, Driving Irons, Hybrids, and Wedges, use the singular form in the title (e.g. "3 Wood", "Driving Iron", "Hybrid", "Wedge") because each listing is for one club.
+- title: A concise listing title (e.g. "Ping G425 Max Driver – 10.5° – Regular Shaft – Excellent Condition"). Include brand, model, key spec if known, and condition. For categories Woods, Driving Irons, Hybrids, Irons, and Wedges, use the singular form in the title (e.g. "3 Wood", "Driving Iron", "Hybrid", "Iron", "Wedge") because each listing is for one club.
 - description: The seller's text rewritten as one flowing, proofread paragraph. All spelling and grammar corrected; same meaning and facts.
 - shaft: Extract shaft model from the seller's text if mentioned; otherwise null.
-- degree: Extract loft/degree (e.g. "10.5") for drivers/woods if mentioned; otherwise null.
+- degree: Extract loft/degree (e.g. "10.5") for club types (drivers, woods, irons, wedges, hybrids, driving irons) if mentioned; otherwise null.
 - shaft_flex: One of "Senior", "Regular", "Stiff", "X-Stiff", "Other" if mentioned; otherwise null.
 - tags: Optional array of 2–5 searchable tags (e.g. "Forgiving", "High launch"). Use title case. Omit if not applicable.
 

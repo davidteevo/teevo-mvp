@@ -90,6 +90,38 @@ export async function PATCH(
   const shaft = typeof body.shaft === "string" ? body.shaft.trim() || null : undefined;
   const degree = typeof body.degree === "string" ? body.degree.trim() || null : undefined;
   const shaft_flex = typeof body.shaft_flex === "string" ? body.shaft_flex.trim() || null : undefined;
+  const lie_angle =
+    typeof body.lie_angle === "string" ? body.lie_angle.trim() || null : body.lie_angle === null ? null : undefined;
+  const club_length =
+    typeof body.club_length === "string"
+      ? body.club_length.trim() || null
+      : body.club_length === null
+        ? null
+        : undefined;
+  const shaft_weight =
+    typeof body.shaft_weight === "string"
+      ? body.shaft_weight.trim() || null
+      : body.shaft_weight === null
+        ? null
+        : undefined;
+  const shaft_material =
+    typeof body.shaft_material === "string"
+      ? body.shaft_material.trim() || null
+      : body.shaft_material === null
+        ? null
+        : undefined;
+  const grip_brand =
+    typeof body.grip_brand === "string" ? body.grip_brand.trim() || null : body.grip_brand === null ? null : undefined;
+  const grip_model =
+    typeof body.grip_model === "string" ? body.grip_model.trim() || null : body.grip_model === null ? null : undefined;
+  const grip_size =
+    typeof body.grip_size === "string" ? body.grip_size.trim() || null : body.grip_size === null ? null : undefined;
+  const grip_condition =
+    typeof body.grip_condition === "string"
+      ? body.grip_condition.trim() || null
+      : body.grip_condition === null
+        ? null
+        : undefined;
   const item_type = typeof body.item_type === "string" ? body.item_type.trim() || null : body.item_type === null ? null : undefined;
   const size = typeof body.size === "string" ? body.size.trim() || null : body.size === null ? null : undefined;
   const colour = typeof body.colour === "string" ? body.colour.trim() || null : body.colour === null ? null : undefined;
@@ -108,6 +140,14 @@ export async function PATCH(
   if (shaft !== undefined) updates.shaft = shaft;
   if (degree !== undefined) updates.degree = degree;
   if (shaft_flex !== undefined) updates.shaft_flex = shaft_flex;
+  if (lie_angle !== undefined) updates.lie_angle = lie_angle;
+  if (club_length !== undefined) updates.club_length = club_length;
+  if (shaft_weight !== undefined) updates.shaft_weight = shaft_weight;
+  if (shaft_material !== undefined) updates.shaft_material = shaft_material;
+  if (grip_brand !== undefined) updates.grip_brand = grip_brand;
+  if (grip_model !== undefined) updates.grip_model = grip_model;
+  if (grip_size !== undefined) updates.grip_size = grip_size;
+  if (grip_condition !== undefined) updates.grip_condition = grip_condition;
   if (item_type !== undefined) updates.item_type = item_type;
   if (size !== undefined) updates.size = size;
   if (colour !== undefined) updates.colour = colour;

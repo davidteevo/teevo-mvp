@@ -35,6 +35,14 @@ type ListingPayload = {
   shaft?: string;
   degree?: string;
   shaftFlex?: string;
+  lieAngle?: string;
+  clubLength?: string;
+  shaftWeight?: string;
+  shaftMaterial?: string;
+  gripBrand?: string;
+  gripModel?: string;
+  gripSize?: string;
+  gripCondition?: string;
   handed?: "left" | "right";
   item_type?: string | null;
   size?: string | null;
@@ -191,6 +199,14 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
           shaft: listingPayload.shaft || null,
           degree: listingPayload.degree || null,
           shaft_flex: listingPayload.shaftFlex || null,
+          lie_angle: listingPayload.lieAngle || null,
+          club_length: listingPayload.clubLength || null,
+          shaft_weight: listingPayload.shaftWeight || null,
+          shaft_material: listingPayload.shaftMaterial || null,
+          grip_brand: listingPayload.gripBrand || null,
+          grip_model: listingPayload.gripModel || null,
+          grip_size: listingPayload.gripSize || null,
+          grip_condition: listingPayload.gripCondition || null,
           handed: listingPayload.handed || null,
           item_type: listingPayload.item_type ?? null,
           size: listingPayload.size ?? null,

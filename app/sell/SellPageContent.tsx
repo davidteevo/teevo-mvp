@@ -58,6 +58,14 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
     shaft?: string;
     degree?: string;
     shaftFlex?: string;
+    lieAngle?: string;
+    clubLength?: string;
+    shaftWeight?: string;
+    shaftMaterial?: string;
+    gripBrand?: string;
+    gripModel?: string;
+    gripSize?: string;
+    gripCondition?: string;
     handed?: "left" | "right";
     item_type?: string | null;
     size?: string | null;
@@ -96,6 +104,14 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
           shaft: payload.shaft || null,
           degree: payload.degree || null,
           shaft_flex: payload.shaftFlex || null,
+            lie_angle: payload.lieAngle || null,
+            club_length: payload.clubLength || null,
+            shaft_weight: payload.shaftWeight || null,
+            shaft_material: payload.shaftMaterial || null,
+            grip_brand: payload.gripBrand || null,
+            grip_model: payload.gripModel || null,
+            grip_size: payload.gripSize || null,
+            grip_condition: payload.gripCondition || null,
           handed: payload.handed || null,
           item_type: payload.item_type ?? null,
           size: payload.size ?? null,

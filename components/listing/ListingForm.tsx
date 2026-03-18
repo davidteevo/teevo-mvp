@@ -51,6 +51,14 @@ interface ListingFormProps {
     shaft?: string;
     degree?: string;
     shaftFlex?: string;
+    lieAngle?: string;
+    clubLength?: string;
+    shaftWeight?: string;
+    shaftMaterial?: string;
+    gripBrand?: string;
+    gripModel?: string;
+    gripSize?: string;
+    gripCondition?: string;
     handed?: "left" | "right";
     item_type?: string | null;
     size?: string | null;
@@ -105,6 +113,16 @@ export function ListingForm({
   const [shaft, setShaft] = useState("");
   const [degree, setDegree] = useState("");
   const [shaftFlex, setShaftFlex] = useState("");
+  const [lieAnglePreset, setLieAnglePreset] = useState("");
+  const [lieAngleCustom, setLieAngleCustom] = useState("");
+  const [clubLengthPreset, setClubLengthPreset] = useState("");
+  const [clubLengthCustom, setClubLengthCustom] = useState("");
+  const [shaftWeight, setShaftWeight] = useState("");
+  const [shaftMaterial, setShaftMaterial] = useState("");
+  const [gripBrand, setGripBrand] = useState("");
+  const [gripModel, setGripModel] = useState("");
+  const [gripSize, setGripSize] = useState("");
+  const [gripCondition, setGripCondition] = useState("");
   const [handed, setHanded] = useState<"" | "left" | "right">("");
   const [itemType, setItemType] = useState("");
   const [size, setSize] = useState("");
@@ -117,6 +135,13 @@ export function ListingForm({
   const [stickyVisible, setStickyVisible] = useState(false);
   const [priceGuidance, setPriceGuidance] = useState<{ minPence: number; maxPence: number; source: string } | null>(null);
   const [priceGuidanceLoading, setPriceGuidanceLoading] = useState(false);
+  const [shaftOptions, setShaftOptions] = useState<string[]>([]);
+  const [shaftCatalogueLoading, setShaftCatalogueLoading] = useState(false);
+  const [gripCatalogue, setGripCatalogue] = useState<{
+    brands: string[];
+    modelsByBrand: Record<string, string[]>;
+  } | null>(null);
+  const [gripCatalogueLoading, setGripCatalogueLoading] = useState(false);
   const mainCtaRef = useRef<HTMLButtonElement>(null);
   const modelSelectRef = useRef<SearchableSelectHandle>(null);
 
@@ -145,13 +170,53 @@ export function ListingForm({
 
   const effectiveBrand = brand === "Other" ? otherBrandName.trim() : brand;
 
-  // Degree/loft and shaft details are only applicable for certain club types.
-  const categoriesWithWoodsSpecs = ["Driver", "Woods", "Driving Irons", "Hybrids"];
-  const isDriverOrWoods = categoriesWithWoodsSpecs.includes(category);
-
   useEffect(() => {
     setCategory((c) => (initialCategory && c === "" ? initialCategory : c));
   }, [initialCategory]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadCatalogues = async () => {
+      try {
+        setShaftCatalogueLoading(true);
+        setGripCatalogueLoading(true);
+        const [shaftRes, gripRes] = await Promise.all([
+          fetch("/api/club-specs/shafts"),
+          fetch("/api/club-specs/grips"),
+        ]);
+        if (!shaftRes.ok) throw new Error("Failed to load shafts catalogue");
+        if (!gripRes.ok) throw new Error("Failed to load grips catalogue");
+        const shaftData = (await shaftRes.json().catch(() => [])) as unknown;
+        const gripData = (await gripRes.json().catch(() => null)) as unknown;
+        if (cancelled) return;
+        setShaftOptions(Array.isArray(shaftData) ? shaftData.filter((s) => typeof s === "string") : []);
+        if (gripData && typeof gripData === "object") {
+          const g = gripData as { brands?: unknown; modelsByBrand?: unknown };
+          const brands = Array.isArray(g.brands) ? g.brands.filter((b) => typeof b === "string") : [];
+          const modelsByBrand: Record<string, string[]> =
+            g.modelsByBrand && typeof g.modelsByBrand === "object" ? (g.modelsByBrand as any) : {};
+          setGripCatalogue({ brands, modelsByBrand });
+        } else {
+          setGripCatalogue(null);
+        }
+      } catch {
+        // Non-blocking: allow manual/custom entry even if CSV-backed options fail.
+        if (!cancelled) {
+          setShaftOptions([]);
+          setGripCatalogue(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setShaftCatalogueLoading(false);
+          setGripCatalogueLoading(false);
+        }
+      }
+    };
+    loadCatalogues();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (brand && !isStructured) modelSelectRef.current?.focus();
@@ -168,13 +233,23 @@ export function ListingForm({
   const isGolfEquipment = GOLF_EQUIPMENT_CATEGORIES.includes(category);
 
   useEffect(() => {
-    if (!isDriverOrWoods) {
-      // Prevent stale spec values being submitted for club types that don't use them (e.g. Irons).
+    if (!isGolfEquipment) {
+      // Prevent stale spec values being submitted for non-golf categories.
       setShaft("");
       setDegree("");
       setShaftFlex("");
+      setLieAnglePreset("");
+      setLieAngleCustom("");
+      setClubLengthPreset("");
+      setClubLengthCustom("");
+      setShaftWeight("");
+      setShaftMaterial("");
+      setGripBrand("");
+      setGripModel("");
+      setGripSize("");
+      setGripCondition("");
     }
-  }, [isDriverOrWoods]);
+  }, [isGolfEquipment]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -275,10 +350,18 @@ export function ListingForm({
       description,
       price,
       ...(title.trim() && { title: title.trim() }),
-      ...(isDriverOrWoods && {
+      ...(isGolfEquipment && {
         shaft: shaft.trim() || undefined,
         degree: degree.trim() || undefined,
         shaftFlex: shaftFlex.trim() || undefined,
+        lieAngle: (lieAnglePreset === "Other" ? lieAngleCustom : lieAnglePreset).trim() || undefined,
+        clubLength: (clubLengthPreset === "Other" ? clubLengthCustom : clubLengthPreset).trim() || undefined,
+        shaftWeight: shaftWeight.trim() || undefined,
+        shaftMaterial: shaftMaterial.trim() || undefined,
+        gripBrand: gripBrand.trim() || undefined,
+        gripModel: gripModel.trim() || undefined,
+        gripSize: gripSize.trim() || undefined,
+        gripCondition: gripCondition.trim() || undefined,
       }),
       ...(isGolfEquipment && handed && { handed: handed as "left" | "right" }),
       images,
@@ -324,7 +407,7 @@ export function ListingForm({
             condition,
             description: description.trim() || undefined,
             title: title.trim() || undefined,
-            ...(isDriverOrWoods
+            ...(isGolfEquipment
               ? {
                   shaft: shaft.trim() || undefined,
                   degree: degree.trim() || undefined,
@@ -527,8 +610,8 @@ export function ListingForm({
         </div>
       </section>
 
-      {/* 4. Specs (optional, collapsible for Driver/Woods-style clubs) */}
-      {isDriverOrWoods && (
+      {/* 4. Specs (optional, collapsible for golf clubs) */}
+      {isGolfEquipment && (
         <section className="rounded-xl border border-mowing-green/20 bg-mowing-green/5 overflow-hidden">
           <button
             type="button"
@@ -541,25 +624,88 @@ export function ListingForm({
           {specsOpen && (
             <div className="px-4 pb-4 pt-0 space-y-4 border-t border-mowing-green/10">
               <div>
-                <label className="block text-sm font-medium text-mowing-green mb-1">Degree</label>
+                <label className="block text-sm font-medium text-mowing-green mb-1">Loft (degree)</label>
                 <input
                   type="text"
                   value={degree}
                   onChange={(e) => setDegree(e.target.value)}
-                  placeholder="e.g. 9.5, 10.5, 15"
+                  placeholder="e.g. 9°, 10.5°, 56°"
                   className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-mowing-green mb-1">Shaft model</label>
-                <input
-                  type="text"
+                <label className="block text-sm font-medium text-mowing-green mb-1">Lie angle</label>
+                <select
+                  value={lieAnglePreset}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setLieAnglePreset(v);
+                    if (v !== "Other") setLieAngleCustom("");
+                  }}
+                  className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green"
+                >
+                  <option value="">Select</option>
+                  <option value={'3° Flat'}>3° Flat</option>
+                  <option value={'2° Flat'}>2° Flat</option>
+                  <option value={'1° Flat'}>1° Flat</option>
+                  <option value="Standard">Standard</option>
+                  <option value={'1° Upright'}>1° Upright</option>
+                  <option value={'2° Upright'}>2° Upright</option>
+                  <option value={'3° Upright'}>3° Upright</option>
+                  <option value="Other">Other</option>
+                </select>
+                {lieAnglePreset === "Other" && (
+                  <input
+                    type="text"
+                    value={lieAngleCustom}
+                    onChange={(e) => setLieAngleCustom(e.target.value)}
+                    placeholder="e.g. 2.5° Upright"
+                    className="mt-2 w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
+                  />
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-mowing-green mb-1">Club length</label>
+                <select
+                  value={clubLengthPreset}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setClubLengthPreset(v);
+                    if (v !== "Other") setClubLengthCustom("");
+                  }}
+                  className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green"
+                >
+                  <option value="">Select</option>
+                  <option value={'-1"'}>-1"</option>
+                  <option value={'-0.5"'}>-0.5"</option>
+                  <option value="Standard">Standard</option>
+                  <option value={'+0.5"'}>+0.5"</option>
+                  <option value={'+1"'}>+1"</option>
+                  <option value="Other">Other</option>
+                </select>
+                {clubLengthPreset === "Other" && (
+                  <input
+                    type="text"
+                    value={clubLengthCustom}
+                    onChange={(e) => setClubLengthCustom(e.target.value)}
+                    placeholder={'e.g. +0.25"'}
+                    className="mt-2 w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
+                  />
+                )}
+              </div>
+
+              <div>
+                <SearchableSelect
+                  options={shaftOptions}
                   value={shaft}
-                  onChange={(e) => setShaft(e.target.value)}
-                  placeholder="e.g. Project X, Ventus Blue"
-                  className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
+                  onChange={setShaft}
+                  placeholder={shaftCatalogueLoading ? "Loading shaft options…" : "e.g. Fujikura Ventus Blue"}
+                  label="Shaft model"
+                  allowCustom
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-mowing-green mb-1">Shaft flex</label>
                 <select
@@ -573,6 +719,85 @@ export function ListingForm({
                   <option value="Stiff">Stiff</option>
                   <option value="X-Stiff">X-Stiff</option>
                   <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-mowing-green mb-1">Shaft weight</label>
+                <input
+                  type="text"
+                  value={shaftWeight}
+                  onChange={(e) => setShaftWeight(e.target.value)}
+                  placeholder="e.g. 65g, 85g"
+                  className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-mowing-green mb-1">Shaft material</label>
+                <select
+                  value={shaftMaterial}
+                  onChange={(e) => setShaftMaterial(e.target.value)}
+                  className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green"
+                >
+                  <option value="">Select</option>
+                  <option value="Graphite">Graphite</option>
+                  <option value="Steel">Steel</option>
+                </select>
+              </div>
+
+              <div>
+                <SearchableSelect
+                  options={gripCatalogue?.brands ?? []}
+                  value={gripBrand}
+                  onChange={setGripBrand}
+                  placeholder={gripCatalogueLoading ? "Loading grip brands…" : "e.g. Golf Pride"}
+                  label="Grip brand"
+                  allowCustom
+                />
+              </div>
+
+              <div>
+                <SearchableSelect
+                  options={gripCatalogue?.modelsByBrand?.[gripBrand] ?? []}
+                  value={gripModel}
+                  onChange={setGripModel}
+                  placeholder="e.g. Tour Velvet 360"
+                  label="Grip model"
+                  allowCustom
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-mowing-green mb-1">Grip size</label>
+                <select
+                  value={gripSize}
+                  onChange={(e) => setGripSize(e.target.value)}
+                  className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green"
+                >
+                  <option value="">Select</option>
+                  <option value="Standard">Standard</option>
+                  <option value="Midsize">Midsize</option>
+                  <option value="Oversize">Oversize</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-mowing-green mb-1">Grip condition</label>
+                <select
+                  value={gripCondition}
+                  onChange={(e) => setGripCondition(e.target.value)}
+                  className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green"
+                >
+                  <option value="">Select</option>
+                  {getConditionsForCategory(category).map((c) => {
+                    const label = CONDITION_LABELS[c] ?? c;
+                    return (
+                      <option key={c} value={c}>
+                        {label}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
             </div>

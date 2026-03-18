@@ -37,7 +37,22 @@ export function ListingCard({ listing, priority }: { listing: ListingWithSeller;
     listing.shaft?.trim(),
     listing.shaft_flex?.trim(),
     listing.degree?.trim() ? `${listing.degree}${String(listing.degree).trim().endsWith("°") ? "" : "°"}` : null,
+      listing.lie_angle?.trim()
+        ? (() => {
+            const lie = String(listing.lie_angle).trim();
+            const needsDegree = !lie.endsWith("°") && /[0-9]$/.test(lie);
+            return needsDegree ? `${lie}°` : lie;
+          })()
+        : null,
+    listing.club_length?.trim() || null,
+    listing.shaft_material?.trim() || null,
+    listing.shaft_weight?.trim() || null,
     listing.handed ? (listing.handed === "left" ? "Left" : "Right") + " handed" : null,
+    listing.grip_size?.trim()
+      ? listing.grip_condition?.trim()
+        ? `${listing.grip_size} (${listing.grip_condition})`
+        : listing.grip_size
+      : null,
   ].filter(Boolean) as string[];
   const specLine = specParts.length > 0 ? specParts.join(" · ") : null;
 

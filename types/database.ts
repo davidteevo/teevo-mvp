@@ -87,6 +87,14 @@ export interface Listing {
   shaft: string | null;
   degree: string | null;
   shaft_flex: string | null;
+  lie_angle: string | null;
+  club_length: string | null;
+  shaft_weight: string | null;
+  shaft_material: string | null;
+  grip_brand: string | null;
+  grip_model: string | null;
+  grip_size: string | null;
+  grip_condition: string | null;
   handed: "left" | "right" | null;
   item_type: string | null;
   size: string | null;

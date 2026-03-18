@@ -70,6 +70,17 @@ export async function POST(request: Request) {
     const degree = typeof body.degree === "string" ? body.degree.trim() || null : null;
     const shaft_flex =
       typeof body.shaft_flex === "string" ? body.shaft_flex.trim() || null : null;
+    const lie_angle = typeof body.lie_angle === "string" ? body.lie_angle.trim() || null : null;
+    const club_length = typeof body.club_length === "string" ? body.club_length.trim() || null : null;
+    const shaft_weight =
+      typeof body.shaft_weight === "string" ? body.shaft_weight.trim() || null : null;
+    const shaft_material =
+      typeof body.shaft_material === "string" ? body.shaft_material.trim() || null : null;
+    const grip_brand = typeof body.grip_brand === "string" ? body.grip_brand.trim() || null : null;
+    const grip_model = typeof body.grip_model === "string" ? body.grip_model.trim() || null : null;
+    const grip_size = typeof body.grip_size === "string" ? body.grip_size.trim() || null : null;
+    const grip_condition =
+      typeof body.grip_condition === "string" ? body.grip_condition.trim() || null : null;
     const handedRaw = body.handed;
     const handed =
       handedRaw === "left" || handedRaw === "right" ? handedRaw : null;
@@ -137,6 +148,14 @@ export async function POST(request: Request) {
         shaft,
         degree,
         shaft_flex,
+        lie_angle,
+        club_length,
+        shaft_weight,
+        shaft_material,
+        grip_brand,
+        grip_model,
+        grip_size,
+        grip_condition,
         handed,
         item_type: item_type ?? null,
         size: size ?? null,

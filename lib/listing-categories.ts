@@ -131,7 +131,7 @@ export function getConditionsForCategory(category: string): string[] {
 
 /** Display labels for condition values (avoids duplicate "Fair" from mapping Used → Fair). */
 export const CONDITION_LABELS: Record<string, string> = {
-  New: "Like new",
+  New: "New",
   "New with tags": "New with tags",
   "New without tags": "New without tags",
   Excellent: "Excellent",

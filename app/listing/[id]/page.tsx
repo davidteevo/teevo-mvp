@@ -111,12 +111,35 @@ export default async function ListingPage({
               {structuredMeta.join(" · ")}
             </p>
           )}
-          {(listing.shaft || listing.degree || listing.shaft_flex) && (
+          {(listing.shaft ||
+            listing.degree ||
+            listing.shaft_flex ||
+            listing.lie_angle ||
+            listing.club_length ||
+            listing.shaft_weight ||
+            listing.shaft_material ||
+            listing.grip_brand ||
+            listing.grip_model ||
+            listing.grip_size ||
+            listing.grip_condition) && (
             <p className="mt-2 text-sm text-mowing-green/80">
               {[
                 listing.shaft && `Shaft: ${listing.shaft}`,
                 listing.shaft_flex && `Flex: ${listing.shaft_flex}`,
                 listing.degree && `Loft: ${listing.degree}${String(listing.degree).trim().endsWith("°") ? "" : "°"}`,
+                listing.lie_angle &&
+                  (() => {
+                    const lie = String(listing.lie_angle).trim();
+                    const needsDegree = !lie.endsWith("°") && /[0-9]$/.test(lie);
+                    return `Lie: ${needsDegree ? `${lie}°` : lie}`;
+                  })(),
+                listing.club_length && `Length: ${listing.club_length}`,
+                listing.shaft_weight && `Shaft weight: ${listing.shaft_weight}`,
+                listing.shaft_material && `Shaft material: ${listing.shaft_material}`,
+                (listing.grip_brand || listing.grip_model) &&
+                  `Grip: ${[listing.grip_brand, listing.grip_model].filter(Boolean).join(" ")}`,
+                listing.grip_size && `Grip size: ${listing.grip_size}`,
+                listing.grip_condition && `Grip condition: ${listing.grip_condition}`,
               ].filter(Boolean).join(" · ")}
             </p>
           )}

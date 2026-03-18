@@ -32,7 +32,7 @@ async function getVerifiedListingsUncached(filters?: Filters) {
   let query = supabase
     .from("listings")
     .select(
-      "id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, handed, item_type, size, colour, status, flagged, created_at, updated_at, listing_images ( id, storage_path, sort_order ), users!user_id ( display_name )"
+      "id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, item_type, size, colour, status, flagged, created_at, updated_at, listing_images ( id, storage_path, sort_order ), users!user_id ( display_name )"
     )
     .eq("status", "verified")
     .is("archived_at", null)
@@ -111,7 +111,7 @@ async function getListingByIdUncached(id: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
-    .select("id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, handed, item_type, size, colour, status, flagged, created_at, updated_at, listing_images ( id, storage_path, sort_order )")
+    .select("id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, item_type, size, colour, status, flagged, created_at, updated_at, listing_images ( id, storage_path, sort_order )")
     .eq("id", id)
     .single();
   if (error) throw error;
@@ -128,7 +128,7 @@ async function getListingByIdAdminUncached(id: string) {
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("listings")
-    .select("id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, handed, item_type, size, colour, status, flagged, created_at, updated_at, listing_images ( id, storage_path, sort_order )")
+    .select("id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, item_type, size, colour, status, flagged, created_at, updated_at, listing_images ( id, storage_path, sort_order )")
     .eq("id", id)
     .single();
   if (error) throw error;
