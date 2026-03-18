@@ -1,10 +1,12 @@
 /**
- * Club catalogue: parses data/Club-Catalogue.csv and exposes brands/models
- * by category for the listing form. Server-side only (uses Node fs).
+ * Club catalogue: parses data/club-catalogue.csv (or legacy Club-Catalogue.csv)
+ * and exposes brands/models by category for the listing form. Server-side only.
  */
 
-import { readFileSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import path from "path";
+
+const CATALOGUE_FILENAMES = ["club-catalogue.csv", "Club-Catalogue.csv"] as const;
 
 /** Map CSV category values to app CLUB_CATEGORIES */
 const CATEGORY_MAP: Record<string, string> = {
@@ -25,17 +27,21 @@ function normalizeCategory(csvCategory: string): string {
 }
 
 /**
- * Parse data/Club-Catalogue.csv and return structure for the form.
+ * Parse club catalogue CSV and return structure for the form.
  * Call from Server Components or API routes only.
  */
 export function getClubCatalogue(): ClubCatalogue {
-  const csvPath = path.join(process.cwd(), "data", "Club-Catalogue.csv");
+  const dataDir = path.join(process.cwd(), "data");
+  const csvPath = CATALOGUE_FILENAMES.map((name) => path.join(dataDir, name)).find((p) =>
+    existsSync(p)
+  );
   let raw: string;
   try {
-    raw = readFileSync(csvPath, "utf-8");
+    raw = csvPath ? readFileSync(csvPath, "utf-8") : "";
   } catch {
     return { brandsByCategory: {}, modelsByCategoryAndBrand: {} };
   }
+  if (!raw) return { brandsByCategory: {}, modelsByCategoryAndBrand: {} };
 
   const lines = raw.split(/\r?\n/).filter((line) => line.trim());
   if (lines.length < 2) return { brandsByCategory: {}, modelsByCategoryAndBrand: {} };

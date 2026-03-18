@@ -97,6 +97,8 @@ export function ListingForm({
 }: ListingFormProps) {
   const [category, setCategory] = useState(initialCategory);
   const [brand, setBrand] = useState("");
+  /** When brand choice is "Other", user enters the actual brand here */
+  const [otherBrandName, setOtherBrandName] = useState("");
   const [model, setModel] = useState("");
   const [condition, setCondition] = useState("");
   const [title, setTitle] = useState("");
@@ -141,6 +143,12 @@ export function ListingForm({
       : [];
   const sizeOptions = isClothing && itemType ? getSizeOptionsForClothingType(itemType) : [];
 
+  const effectiveBrand = brand === "Other" ? otherBrandName.trim() : brand;
+
+  // Degree/loft and shaft details are only applicable for certain club types.
+  const categoriesWithWoodsSpecs = ["Driver", "Woods", "Driving Irons", "Hybrids"];
+  const isDriverOrWoods = categoriesWithWoodsSpecs.includes(category);
+
   useEffect(() => {
     setCategory((c) => (initialCategory && c === "" ? initialCategory : c));
   }, [initialCategory]);
@@ -157,9 +165,16 @@ export function ListingForm({
     }
   }, [isClothing, itemType]);
 
-  const categoriesWithWoodsSpecs = ["Driver", "Woods", "Driving Irons", "Hybrids"];
-  const isDriverOrWoods = categoriesWithWoodsSpecs.includes(category);
   const isGolfEquipment = GOLF_EQUIPMENT_CATEGORIES.includes(category);
+
+  useEffect(() => {
+    if (!isDriverOrWoods) {
+      // Prevent stale spec values being submitted for club types that don't use them (e.g. Irons).
+      setShaft("");
+      setDegree("");
+      setShaftFlex("");
+    }
+  }, [isDriverOrWoods]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -172,13 +187,13 @@ export function ListingForm({
   }, []);
 
   useEffect(() => {
-    if (isStructured || !category || !brand || !model.trim() || !condition) {
+    if (isStructured || !category || !effectiveBrand || !model.trim() || !condition) {
       setPriceGuidance(null);
       return;
     }
     let cancelled = false;
     setPriceGuidanceLoading(true);
-    const params = new URLSearchParams({ category, brand, model: model.trim(), condition });
+    const params = new URLSearchParams({ category, brand: effectiveBrand, model: model.trim(), condition });
     fetch(`/api/ai/price-guidance?${params}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
@@ -202,7 +217,7 @@ export function ListingForm({
     return () => {
       cancelled = true;
     };
-  }, [category, brand, model, condition, isStructured]);
+  }, [category, brand, otherBrandName, model, condition, isStructured]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -210,7 +225,15 @@ export function ListingForm({
       alert("Please upload 5 or 6 images (Front, Back, Sole, Shaft, Grip).");
       return;
     }
-    if (!category || !brand) {
+    if (!category) {
+      alert("Please select a category.");
+      return;
+    }
+    if (brand === "Other" && !otherBrandName.trim()) {
+      alert("Please enter the brand name.");
+      return;
+    }
+    if (!effectiveBrand) {
       alert("Please select Category and Brand.");
       return;
     }
@@ -244,7 +267,7 @@ export function ListingForm({
     }
     onSubmit({
       category,
-      brand,
+      brand: effectiveBrand,
       ...(isStructured
         ? { model: null as string | null, item_type: itemType || null, size: isClothing ? size || null : null, colour: colour.trim() || null }
         : { model: model.trim(), item_type: null, size: null, colour: null }),
@@ -264,13 +287,21 @@ export function ListingForm({
 
   const handleImproveWithAI = async () => {
     if (isStructured) {
-      if (!category || !brand || !itemType || !condition) {
+      if (!category || !effectiveBrand || !itemType || !condition) {
         alert("Please fill in Category, Brand, item type and Condition first.");
         return;
       }
+      if (brand === "Other" && !otherBrandName.trim()) {
+        alert("Please enter the brand name.");
+        return;
+      }
     } else {
-      if (!category || !brand || !model.trim() || !condition) {
+      if (!category || !effectiveBrand || !model.trim() || !condition) {
         alert("Please fill in Category, Brand, Model and Condition first.");
+        return;
+      }
+      if (brand === "Other" && !otherBrandName.trim()) {
+        alert("Please enter the brand name.");
         return;
       }
     }
@@ -279,7 +310,7 @@ export function ListingForm({
       const body: Record<string, string | undefined> = isStructured
         ? {
             category,
-            brand,
+            brand: effectiveBrand,
             condition,
             item_type: itemType,
             ...(isClothing ? { size: size || undefined, colour: colour.trim() || undefined } : { model: model.trim() || undefined }),
@@ -288,14 +319,18 @@ export function ListingForm({
           }
         : {
             category,
-            brand,
+            brand: effectiveBrand,
             model: model.trim(),
             condition,
             description: description.trim() || undefined,
             title: title.trim() || undefined,
-            shaft: shaft.trim() || undefined,
-            degree: degree.trim() || undefined,
-            shaft_flex: shaftFlex.trim() || undefined,
+            ...(isDriverOrWoods
+              ? {
+                  shaft: shaft.trim() || undefined,
+                  degree: degree.trim() || undefined,
+                  shaft_flex: shaftFlex.trim() || undefined,
+                }
+              : {}),
           };
       const res = await fetch("/api/ai/enhance-listing", {
         method: "POST",
@@ -379,6 +414,7 @@ export function ListingForm({
             value={category}
             onChange={(c) => {
               setCategory(c);
+              setOtherBrandName("");
               const allowedConditions = getConditionsForCategory(c);
               if (condition && !allowedConditions.includes(condition)) {
                 setCondition("");
@@ -398,12 +434,32 @@ export function ListingForm({
           <SearchableSelect
             options={brandsOptions}
             value={brand}
-            onChange={setBrand}
+            onChange={(b) => {
+              setBrand(b);
+              if (b !== "Other") setOtherBrandName("");
+            }}
             placeholder="Select brand"
             label="Brand"
             required
             allowCustom={isClothing}
           />
+          {brand === "Other" && (
+            <div>
+              <label htmlFor="listing-other-brand" className="block text-sm font-medium text-mowing-green mb-1">
+                Brand name <span className="text-red-600">*</span>
+              </label>
+              <input
+                id="listing-other-brand"
+                type="text"
+                value={otherBrandName}
+                onChange={(e) => setOtherBrandName(e.target.value)}
+                placeholder="e.g. Bettinardi, Sub 70, local brand"
+                className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
+                required
+                autoComplete="organization"
+              />
+            </div>
+          )}
           {isClothing && (
             <>
               <SearchableSelect
@@ -471,7 +527,7 @@ export function ListingForm({
         </div>
       </section>
 
-      {/* 4. Specs (optional, collapsible for Driver/Woods) */}
+      {/* 4. Specs (optional, collapsible for Driver/Woods-style clubs) */}
       {isDriverOrWoods && (
         <section className="rounded-xl border border-mowing-green/20 bg-mowing-green/5 overflow-hidden">
           <button
@@ -589,7 +645,14 @@ export function ListingForm({
           <button
             type="button"
             onClick={handleImproveWithAI}
-            disabled={enhanceLoading || !category || !brand || !condition || submitting || (isStructured ? !itemType : !model.trim())}
+            disabled={
+              enhanceLoading ||
+              !category ||
+              !effectiveBrand ||
+              !condition ||
+              submitting ||
+              (isStructured ? !itemType : !model.trim())
+            }
             className="text-xs font-medium text-mowing-green underline hover:no-underline disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {enhanceLoading ? "Improving…" : "Improve with AI"}

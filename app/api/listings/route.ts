@@ -8,7 +8,6 @@ import {
   CONDITIONS,
   CLOTHING_TYPES,
   ACCESSORY_ITEM_TYPES,
-  ACCESSORY_BRANDS,
   getSizeOptionsForClothingType,
   isClothingCategory,
   isAccessoriesCategory,
@@ -21,8 +20,6 @@ const ALLOWED_CATEGORIES_SET = new Set<string>(ALL_CATEGORIES);
 const ALLOWED_CONDITIONS_SET = new Set<string>(CONDITIONS);
 const CLOTHING_TYPES_SET = new Set<string>(CLOTHING_TYPES);
 const ACCESSORY_ITEM_TYPES_SET = new Set<string>(ACCESSORY_ITEM_TYPES);
-const ACCESSORY_BRANDS_SET = new Set<string>(ACCESSORY_BRANDS);
-
 /**
  * POST /api/listings
  * Body: JSON { category, brand, model?, title?, condition, description?, price (pence), imageCount (5–6), shaft?, degree?, shaft_flex?, item_type?, size?, colour? }
@@ -91,8 +88,8 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Invalid size for clothing type" }, { status: 400 });
       }
     } else if (isAccessoriesCategory(category)) {
-      if (!brand || !ACCESSORY_BRANDS_SET.has(brand)) {
-        return NextResponse.json({ error: "Invalid brand for accessories" }, { status: 400 });
+      if (!brand || typeof brand !== "string" || !brand.trim()) {
+        return NextResponse.json({ error: "Brand is required" }, { status: 400 });
       }
       if (!item_type || !ACCESSORY_ITEM_TYPES_SET.has(item_type)) {
         return NextResponse.json({ error: "Invalid item type for accessories" }, { status: 400 });
