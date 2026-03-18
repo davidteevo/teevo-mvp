@@ -71,7 +71,7 @@ function SignupForm() {
 
   if (emailVerificationSent) {
     return (
-      <div className="max-w-sm mx-auto px-4 py-12 text-center">
+      <div className="w-full max-w-md mx-auto px-5 sm:px-6 py-12 text-center">
         <div className="rounded-2xl bg-par-3-punch/10 border border-par-3-punch/30 p-8">
           <div className="mx-auto w-14 h-14 rounded-full bg-golden-tee/20 flex items-center justify-center">
             <Mail className="w-7 h-7 text-mowing-green" aria-hidden />
@@ -96,7 +96,7 @@ function SignupForm() {
   }
 
   return (
-    <div className="max-w-sm mx-auto px-4 py-12 relative">
+    <div className="w-full max-w-md mx-auto px-5 sm:px-6 py-12 relative">
       {loading && (
         <div
           className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-2xl bg-off-white-pique/95 backdrop-blur-sm"
@@ -132,7 +132,7 @@ function SignupForm() {
             onChange={(e) => setFirstName(e.target.value)}
             disabled={loading}
             placeholder="e.g. Alex"
-            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full min-h-[48px] rounded-xl border border-mowing-green/30 bg-white px-4 py-3 text-base text-mowing-green placeholder:text-mowing-green/50 disabled:opacity-60 disabled:cursor-not-allowed touch-manipulation"
           />
         </div>
         <div>
@@ -145,7 +145,7 @@ function SignupForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
-            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full min-h-[48px] rounded-xl border border-mowing-green/30 bg-white px-4 py-3 text-base text-mowing-green placeholder:text-mowing-green/50 disabled:opacity-60 disabled:cursor-not-allowed touch-manipulation"
           />
         </div>
         <div>
@@ -159,7 +159,7 @@ function SignupForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
-            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full min-h-[48px] rounded-xl border border-mowing-green/30 bg-white px-4 py-3 text-base text-mowing-green placeholder:text-mowing-green/50 disabled:opacity-60 disabled:cursor-not-allowed touch-manipulation"
           />
         </div>
         <button
@@ -182,7 +182,7 @@ function SignupForm() {
 
 export default function SignupPage() {
   return (
-    <Suspense fallback={<div className="max-w-sm mx-auto px-4 py-12 text-center text-mowing-green/80">Loading…</div>}>
+    <Suspense fallback={<div className="w-full max-w-md mx-auto px-5 sm:px-6 py-12 text-center text-mowing-green/80">Loading…</div>}>
       <SignupForm />
     </Suspense>
   );

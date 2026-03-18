@@ -169,7 +169,7 @@ export default function ResetPasswordPage() {
       typeof window !== "undefined" &&
       new URLSearchParams(window.location.search).get("code");
     return (
-      <div className="max-w-sm mx-auto px-4 py-12 text-center text-mowing-green/80">
+      <div className="w-full max-w-md mx-auto px-5 sm:px-6 py-12 text-center text-mowing-green/80">
         {hasCodeInUrl ? "Redirecting…" : "Loading…"}
       </div>
     );
@@ -178,7 +178,7 @@ export default function ResetPasswordPage() {
   if (recoveryReady === false) {
     const isGenericInvalidLink = hashError === "Invalid or expired link.";
     return (
-      <div className="max-w-sm mx-auto px-4 py-12">
+      <div className="w-full max-w-md mx-auto px-5 sm:px-6 py-12">
         <h1 className="text-2xl font-bold text-mowing-green">Invalid or expired link</h1>
         <p className="mt-2 text-mowing-green/80 text-sm">
           {hashError ?? "This reset link is invalid or has expired. Request a new one from the login page."}
@@ -217,7 +217,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="max-w-sm mx-auto px-4 py-12">
+    <div className="w-full max-w-md mx-auto px-5 sm:px-6 py-12">
       <h1 className="text-2xl font-bold text-mowing-green">Set new password</h1>
       <p className="mt-2 text-mowing-green/80 text-sm">
         Enter your new password below.
@@ -239,7 +239,7 @@ export default function ResetPasswordPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
-            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full min-h-[48px] rounded-xl border border-mowing-green/30 bg-white px-4 py-3 text-base text-mowing-green placeholder:text-mowing-green/50 disabled:opacity-60 disabled:cursor-not-allowed touch-manipulation"
           />
         </div>
         <div>
@@ -253,7 +253,7 @@ export default function ResetPasswordPage() {
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             disabled={loading}
-            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full min-h-[48px] rounded-xl border border-mowing-green/30 bg-white px-4 py-3 text-base text-mowing-green placeholder:text-mowing-green/50 disabled:opacity-60 disabled:cursor-not-allowed touch-manipulation"
           />
         </div>
         <button

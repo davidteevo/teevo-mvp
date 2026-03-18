@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { generateDisplayNameFromFirstName } from "@/lib/public-seller-name";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
@@ -46,11 +47,15 @@ export async function POST() {
     // Create on first Connect click if Stripe fails (e.g. rate limit)
   }
 
+  const first_name =
+    (user.user_metadata?.first_name as string | undefined)?.trim() || null;
   const { error } = await supabaseAdmin.from("users").insert({
     id: user.id,
     email: user.email ?? "",
     role: "seller",
     stripe_account_id,
+    first_name,
+    display_name: generateDisplayNameFromFirstName(first_name),
     updated_at,
   });
 

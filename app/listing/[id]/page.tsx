@@ -10,6 +10,7 @@ import { BuyButton } from "./BuyButton";
 import { MakeOfferButton } from "./MakeOfferButton";
 import { ListingImageGallery } from "./ListingImageGallery";
 import { FoundingSellerBadge } from "@/components/trust/FoundingSellerBadge";
+import { ensureDisplayNameForUser } from "@/lib/public-seller-name";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
@@ -73,6 +74,9 @@ export default async function ListingPage({
     .single();
   if (seller) {
     sellerDisplayName = seller.display_name?.trim() || null;
+    if (!sellerDisplayName) {
+      sellerDisplayName = await ensureDisplayNameForUser(listing.user_id);
+    }
     sellerFoundingRank = typeof seller.founding_seller_rank === "number" ? seller.founding_seller_rank : null;
     if (!isPurchasedView && seller.stripe_account_id) {
       try {

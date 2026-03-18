@@ -59,8 +59,7 @@ export async function PATCH(request: Request) {
     current?.first_name?.trim() ||
     "User";
   if (!current?.display_name?.trim()) {
-    const fourDigits = Math.floor(1000 + Math.random() * 9000);
-    updates.display_name = `${nameForDisplay} ${fourDigits}`;
+    updates.display_name = `${nameForDisplay} ${Math.floor(1000 + Math.random() * 9000)}`;
   }
 
   if (typeof body.first_name === "string") {
@@ -111,11 +110,11 @@ export async function PATCH(request: Request) {
   if (error && (error.message?.includes("column") && error.message?.includes("does not exist"))) {
     const coreUpdates: Record<string, unknown> = { updated_at: new Date().toISOString() };
     if (!current?.display_name?.trim()) {
-      const nameForDisplay =
+      const nameForCore =
         (typeof body.first_name === "string" ? body.first_name.trim() : null) ||
         current?.first_name?.trim() ||
         "User";
-      coreUpdates.display_name = `${nameForDisplay} ${Math.floor(1000 + Math.random() * 9000)}`;
+      coreUpdates.display_name = `${nameForCore} ${Math.floor(1000 + Math.random() * 9000)}`;
     }
     if (typeof body.first_name === "string") coreUpdates.first_name = body.first_name.trim() || null;
     if (typeof body.surname === "string") coreUpdates.surname = body.surname.trim() || null;

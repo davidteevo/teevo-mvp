@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
+import { generateDisplayNameFromFirstName } from "@/lib/public-seller-name";
 
 export const dynamic = "force-dynamic";
 
@@ -104,6 +105,7 @@ export async function POST(request: Request) {
             role: "seller",
             first_name,
             surname,
+            display_name: generateDisplayNameFromFirstName(first_name),
             created_by_admin: true,
             invited_at: now,
             phone,
@@ -187,6 +189,7 @@ export async function POST(request: Request) {
         role: "seller",
         first_name,
         surname,
+        display_name: generateDisplayNameFromFirstName(first_name),
         created_by_admin: true,
         invited_at: now,
         phone,
@@ -230,6 +233,7 @@ export async function POST(request: Request) {
         role: "seller",
         first_name,
         surname,
+        display_name: generateDisplayNameFromFirstName(first_name),
         created_by_admin: true,
         invited_at: now,
         phone,
@@ -256,6 +260,7 @@ export async function POST(request: Request) {
       role: "seller",
       first_name,
       surname,
+      display_name: generateDisplayNameFromFirstName(first_name),
       created_by_admin: true,
       invited_at: now,
       phone,

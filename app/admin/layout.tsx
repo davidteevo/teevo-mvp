@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import Link from "next/link";
+import { generateDisplayNameFromFirstName } from "@/lib/public-seller-name";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,7 @@ export default async function AdminLayout({
       id: user.id,
       email: user.email ?? "",
       role: "buyer",
+      display_name: generateDisplayNameFromFirstName(null),
       updated_at: new Date().toISOString(),
     });
     profile = (await admin.from("users").select("role").eq("id", user.id).single()).data ?? null;

@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
+import { generateDisplayNameFromFirstName } from "@/lib/public-seller-name";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
@@ -63,6 +64,7 @@ export async function GET(request: Request) {
           role: "seller",
           stripe_account_id,
           first_name,
+          display_name: generateDisplayNameFromFirstName(first_name),
           updated_at,
         });
       }

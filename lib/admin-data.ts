@@ -3,6 +3,7 @@
  * Uses service role; auth is enforced by admin layout.
  */
 import { createClient } from "@supabase/supabase-js";
+import { generateDisplayNameFromFirstName } from "@/lib/public-seller-name";
 
 function adminClient() {
   return createClient(
@@ -34,7 +35,13 @@ export async function getAdminUsers(): Promise<AdminUser[]> {
     if (existing) {
       await admin.from("users").update({ email, updated_at: now }).eq("id", id);
     } else {
-      await admin.from("users").insert({ id, email, role: "buyer", updated_at: now });
+      await admin.from("users").insert({
+        id,
+        email,
+        role: "buyer",
+        display_name: generateDisplayNameFromFirstName(null),
+        updated_at: now,
+      });
     }
   }
   const { data, error } = await admin

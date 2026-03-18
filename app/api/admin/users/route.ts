@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { generateDisplayNameFromFirstName } from "@/lib/public-seller-name";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +33,13 @@ export async function GET() {
     if (existing) {
       await admin.from("users").update({ email, updated_at: now }).eq("id", id);
     } else {
-      await admin.from("users").insert({ id, email, role: "buyer", updated_at: now });
+      await admin.from("users").insert({
+        id,
+        email,
+        role: "buyer",
+        display_name: generateDisplayNameFromFirstName(null),
+        updated_at: now,
+      });
     }
   }
 
