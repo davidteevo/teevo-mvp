@@ -2,12 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export default function ResetPasswordPage() {
-  const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -147,14 +145,21 @@ export default function ResetPasswordPage() {
     setLoading(true);
     const supabase = sessionClientRef.current ?? createClient();
 
-    const { error: err } = await supabase.auth.updateUser({ password });
-
-    setLoading(false);
-    if (err) {
-      setError(err.message);
-      return;
+    try {
+      const { error: err } = await supabase.auth.updateUser({ password });
+      if (err) {
+        setError(err.message);
+        return;
+      }
+      // Full navigation: router.replace often fails to update UI in mail in-app browsers
+      // after updateUser; hard redirect reliably shows the login page.
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      window.location.replace(`${origin}/login?message=password-updated`);
+    } catch (uncaught) {
+      setError(uncaught instanceof Error ? uncaught.message : "Update failed. Try again.");
+    } finally {
+      setLoading(false);
     }
-    router.replace("/login?message=password-updated");
   };
 
   if (recoveryReady === null) {
