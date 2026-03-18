@@ -42,7 +42,7 @@ async function GridInner({ searchParams }: { searchParams: Filters }) {
       <p className="text-sm text-mowing-green/70 mb-3">
         {atLimit ? "Showing up to 60 listings" : `${count} listing${count === 1 ? "" : "s"}`}
       </p>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 min-w-0 [&>*]:min-w-0">
         {listings.map((listing, index) => (
           <ListingCard key={listing.id} listing={listing} priority={index < PRIORITY_CARD_COUNT} />
         ))}
@@ -69,7 +69,7 @@ export function ListingGrid({ searchParams }: { searchParams: Filters }) {
   return (
     <Suspense
       fallback={
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 min-w-0 [&>*]:min-w-0">
           {Array.from({ length: SKELETON_CARD_COUNT }, (_, i) => (
             <SkeletonCard key={i} />
           ))}

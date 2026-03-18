@@ -37,7 +37,7 @@ export default async function HomePage({
 }) {
   const brandSuggestions = getFilterBrands();
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto min-w-0 w-full px-4 py-8 overflow-x-clip">
       {!buyingEnabled && (
         <div className="mb-4 rounded-xl bg-mowing-green/10 border border-mowing-green/20 px-4 py-3 text-center text-sm text-mowing-green/90">
           Teevo is launching soon. Sellers can list gear today. Buying opens shortly.

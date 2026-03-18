@@ -59,7 +59,7 @@ export function ListingCard({ listing, priority }: { listing: ListingWithSeller;
   return (
     <Link
       href={`/listing/${listing.id}`}
-      className="block rounded-lg border border-par-3-punch/20 bg-white overflow-hidden hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200"
+      className="block min-w-0 max-w-full rounded-lg border border-par-3-punch/20 bg-white overflow-hidden hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200"
     >
       <div className="aspect-[3/4] relative bg-mowing-green/5">
         <Image

@@ -416,8 +416,8 @@ export function HomeFilterBar({ brandSuggestions }: { brandSuggestions: string[]
 
   return (
     <>
-      <div className="sticky top-0 z-40 -mx-4 mb-4 border-b border-mowing-green/10 bg-[#fafaf8]/95 px-4 py-3 backdrop-blur-sm supports-[backdrop-filter]:bg-[#fafaf8]/85">
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      <div className="sticky top-0 z-40 mb-4 w-full min-w-0 max-w-full border-b border-mowing-green/10 bg-[#fafaf8]/95 py-3 backdrop-blur-sm supports-[backdrop-filter]:bg-[#fafaf8]/85">
+        <div className="flex w-full min-w-0 max-w-full gap-2 overflow-x-auto overflow-y-hidden pb-1 scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           <button
             type="button"
             className={barBtn(!!hasFilters)}
