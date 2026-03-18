@@ -143,16 +143,18 @@ export default function ResetPasswordPage() {
       return;
     }
     setLoading(true);
-    const supabase = sessionClientRef.current ?? createClient();
-
     try {
-      const { error: err } = await supabase.auth.updateUser({ password });
-      if (err) {
-        setError(err.message);
+      const res = await fetch("/api/auth/complete-reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+        credentials: "include",
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        setError(data.error ?? "Could not update password. Try again.");
         return;
       }
-      // Full navigation: router.replace often fails to update UI in mail in-app browsers
-      // after updateUser; hard redirect reliably shows the login page.
       const origin = typeof window !== "undefined" ? window.location.origin : "";
       window.location.replace(`${origin}/login?message=password-updated`);
     } catch (uncaught) {
