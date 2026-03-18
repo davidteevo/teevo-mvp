@@ -319,13 +319,19 @@ export default function ResetPasswordPage() {
   }
 
   if (recoveryReady === false) {
+    const isGenericInvalidLink = hashError === "Invalid or expired link.";
     return (
       <div className="max-w-sm mx-auto px-4 py-12">
         <h1 className="text-2xl font-bold text-mowing-green">Invalid or expired link</h1>
         <p className="mt-2 text-mowing-green/80 text-sm">
           {hashError ?? "This reset link is invalid or has expired. Request a new one from the login page."}
         </p>
-        {hashError && (
+        {isGenericInvalidLink ? (
+          <p className="mt-3 text-mowing-green/80 text-sm">
+            The link in the email is still the Supabase link, so reset never reaches your app.{" "}
+            <strong>Enable the Send Email Hook</strong> in Supabase: Dashboard → Authentication → Hooks → Send Email → set the URL to your app origin + <code className="bg-mowing-green/10 px-0.5 rounded text-xs">/api/auth/send-email</code> (e.g. <code className="bg-mowing-green/10 px-0.5 rounded text-xs break-all">https://app.teevohq.com/api/auth/send-email</code>). Use the same secret as <code className="bg-mowing-green/10 px-0.5 rounded text-xs">SEND_EMAIL_HOOK_SECRET</code>. Redeploy if needed, then request a <strong>new</strong> reset email — the new link should start with your app URL, not supabase.co. See <code className="bg-mowing-green/10 px-0.5 rounded text-xs">docs/SEND_EMAIL_HOOK_CHECKLIST.md</code>.
+          </p>
+        ) : hashError ? (
           <>
             <p className="mt-2 text-mowing-green/70 text-xs">
               <strong>Using the Send Email Hook?</strong> The reset link is set in <code className="bg-mowing-green/10 px-0.5 rounded">app/api/auth/send-email/route.ts</code>. For <code className="bg-mowing-green/10 px-0.5 rounded">recovery</code>, use <code className="bg-mowing-green/10 px-0.5 rounded">cta_link: buildRecoveryLink()</code>. Restart or redeploy, then request a new reset email. See <code className="bg-mowing-green/10 px-0.5 rounded">docs/SEND_EMAIL_HOOK_CHECKLIST.md</code>.
@@ -334,7 +340,7 @@ export default function ResetPasswordPage() {
               Not using the hook? Supabase → URL Configuration: set Site URL to your app. Email Templates → Reset Password: use the token_hash link (no {`{{ .ConfirmationURL }}`}). If the link in the email is still <code className="bg-mowing-green/10 px-0.5 rounded">supabase.co/auth/v1/verify</code>, use Resend via SMTP so the dashboard template is used, or test with built-in email.
             </p>
           </>
-        )}
+        ) : null}
         <p className="mt-6">
           <Link href="/login/forgot-password" className="text-par-3-punch hover:underline text-sm">
             Forgot password

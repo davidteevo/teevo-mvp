@@ -2,7 +2,7 @@
 
 Use this to confirm `app/api/auth/send-email/route.ts` is set up so **Reset password** emails contain your app link (not the Supabase verify URL).
 
-**If you see "Invalid or expired link" after clicking the reset link:** The email was almost certainly sent by Supabase’s default path (not this hook). Enable the Send Email hook (Step 3) and request a **new** reset email.
+**If you see "Invalid or expired link" after clicking the reset link:** The link you clicked was likely the Supabase one. That can happen if (1) the hook isn’t enabled, (2) the hook failed—wrong `SEND_EMAIL_HOOK_SECRET`, missing `RESEND_API_KEY`, or 500 from Resend—and Supabase sent its default email instead, or (3) `NEXT_PUBLIC_APP_URL` is not set in production so the recovery link pointed at localhost. **Check the link in the reset email:** if it starts with `https://...supabase.co/auth/v1/verify`, the hook didn’t send that email (or failed); if it starts with your app URL (e.g. `https://app.teevohq.com/api/auth/set-password`), the hook worked and the issue is later (e.g. token expired).
 
 ---
 
@@ -75,8 +75,9 @@ If the hook is disabled or points elsewhere, Supabase will send emails itself an
 
 Where the app runs (local or production), confirm:
 
-- **`RESEND_API_KEY`** – so the route can send via Resend.
-- **`SEND_EMAIL_HOOK_SECRET`** – same value as in Supabase for the Send Email hook.
+- **`RESEND_API_KEY`** – so the route can send via Resend. If missing, the hook returns 500 and Supabase may send the default email (wrong link).
+- **`SEND_EMAIL_HOOK_SECRET`** – same value as in Supabase for the Send Email hook. If wrong, the hook returns 401 and Supabase may send the default email (wrong link).
+- **`NEXT_PUBLIC_APP_URL`** – in **production** set to your app URL (e.g. `https://app.teevohq.com`, no trailing slash). The recovery link is built from this when Supabase sends its own URL in the payload; if unset, the link becomes `http://localhost:3000/...` and won’t work for production users.
 
 ---
 

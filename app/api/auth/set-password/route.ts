@@ -16,9 +16,13 @@ const cookieDomain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN || undefined;
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const token_hash = searchParams.get("token_hash");
-  const base = new URL(request.url).origin;
+  /** Redirect to canonical app URL so we never send users to a deploy-preview origin. */
+  const base =
+    (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "") ||
+    new URL(request.url).origin;
   const resetPath = `${base}/login/reset-password`;
-  const errorPath = `${base}/login/reset-password?error=invalid_link`;
+  const errorPathWithReason = (reason: string) =>
+    `${base}/login/reset-password?error=invalid_link&error_description=${encodeURIComponent(reason)}`;
 
   if (!token_hash) {
     console.error("[set-password] Missing token_hash in URL");
@@ -37,7 +41,7 @@ export async function GET(request: Request) {
       }),
     }).catch(() => {});
     // #endregion
-    return NextResponse.redirect(errorPath);
+    return NextResponse.redirect(errorPathWithReason("Missing link token"));
   }
 
   const cookieStore = await cookies();
@@ -62,10 +66,19 @@ export async function GET(request: Request) {
     }
   );
 
-  const { data, error } = await supabase.auth.verifyOtp({
+  let result = await supabase.auth.verifyOtp({
     type: "recovery",
     token_hash,
   });
+  // PKCE recovery tokens from the hook often have a "pkce_" prefix; some backends look up by hash only
+  if (result.error && token_hash.startsWith("pkce_")) {
+    const hashOnly = token_hash.slice(5);
+    result = await supabase.auth.verifyOtp({
+      type: "recovery",
+      token_hash: hashOnly,
+    });
+  }
+  const { data, error } = result;
 
   if (error) {
     console.error("[set-password] verifyOtp failed:", error.message);
@@ -87,7 +100,7 @@ export async function GET(request: Request) {
       }),
     }).catch(() => {});
     // #endregion
-    return NextResponse.redirect(errorPath);
+    return NextResponse.redirect(errorPathWithReason(error.message || "Verification failed"));
   }
 
   if (!data?.session) {
@@ -107,7 +120,7 @@ export async function GET(request: Request) {
       }),
     }).catch(() => {});
     // #endregion
-    return NextResponse.redirect(errorPath);
+    return NextResponse.redirect(errorPathWithReason("No session returned"));
   }
 
   const { error: setError } = await supabase.auth.setSession({
@@ -134,7 +147,7 @@ export async function GET(request: Request) {
       }),
     }).catch(() => {});
     // #endregion
-    return NextResponse.redirect(errorPath);
+    return NextResponse.redirect(errorPathWithReason(setError.message || "Session setup failed"));
   }
 
   // #region agent log

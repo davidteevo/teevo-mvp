@@ -37,9 +37,10 @@ function getFirstNameFromMetadata(user: HookPayload["user"]): string {
  * sent via Resend using lib/email.ts and the Alert template.
  *
  * Env:
- * - RESEND_API_KEY (required for lib/email)
+ * - RESEND_API_KEY (required for lib/email; if missing, hook returns 500 and Supabase may send default email)
  * - RESEND_FROM (optional, e.g. "Teevo <hello@yourdomain.com>")
- * - SEND_EMAIL_HOOK_SECRET (from Supabase Dashboard → Auth → Hooks → secret, format "v1,whsec_<base64>")
+ * - SEND_EMAIL_HOOK_SECRET (must match Supabase Auth Hooks secret; if wrong, hook returns 401 and Supabase may send default email with supabase.co link)
+ * - NEXT_PUBLIC_APP_URL (required in production for recovery link; e.g. https://app.teevohq.com)
  */
 export async function POST(request: Request) {
   if (!process.env.RESEND_API_KEY) {
@@ -134,10 +135,14 @@ export async function POST(request: Request) {
   const fromPayload =
     (site_url ?? "").replace(/\/$/, "") ||
     (typeof redirect_to === "string" && /^https?:\/\//.test(redirect_to) ? new URL(redirect_to).origin : "");
-  /** Recovery link must point at the app, not Supabase. Supabase often sends its own URL in site_url/redirect_to. */
+  /** Recovery link must point at the app, not Supabase or a deploy preview (e.g. 69b9a66b--ephemeral-zabaione.netlify.app). */
   const supabaseOrigin = supabaseUrl ? new URL(supabaseUrl).origin : "";
+  const isDeployPreview = fromPayload && /--.*\.netlify\.app/i.test(fromPayload);
   const appOrigin =
-    (fromPayload && fromPayload !== supabaseOrigin && !fromPayload.includes("supabase.co"))
+    (fromPayload &&
+      fromPayload !== supabaseOrigin &&
+      !fromPayload.includes("supabase.co") &&
+      !isDeployPreview)
       ? fromPayload
       : (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "") || "http://localhost:3000";
 
