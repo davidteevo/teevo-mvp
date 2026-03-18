@@ -39,22 +39,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true }, { status: 200 });
   }
 
-  // #region agent log
-  fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-    body: JSON.stringify({
-      sessionId: "d1a7bb",
-      runId: "repro-2",
-      location: "app/api/auth/forgot-password/route.ts:entry",
-      message: "forgot-password called",
-      data: { hasEmail: !!email },
-      timestamp: Date.now(),
-      hypothesisId: "FP0",
-    }),
-  }).catch(() => {});
-  // #endregion
-
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ ok: true }, { status: 200 });
   }
@@ -85,12 +69,12 @@ export async function POST(request: Request) {
         headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
         body: JSON.stringify({
           sessionId: "d1a7bb",
-          runId: "repro-2",
+          runId: "forgot-password",
+          hypothesisId: "FP1",
           location: "app/api/auth/forgot-password/route.ts:generateLinkError",
           message: "generateLink failed or returned no data",
-          data: { hasError: !!error },
+          data: { hasError: !!error, hasLinkData: !!linkData },
           timestamp: Date.now(),
-          hypothesisId: "FP1",
         }),
       }).catch(() => {});
       // #endregion
@@ -106,35 +90,34 @@ export async function POST(request: Request) {
         headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
         body: JSON.stringify({
           sessionId: "d1a7bb",
-          runId: "repro-2",
+          runId: "forgot-password",
+          hypothesisId: "FP2",
           location: "app/api/auth/forgot-password/route.ts:noToken",
-          message: "No token extractable from generateLink response",
+          message: "generateLink returned no usable token",
           data: {},
           timestamp: Date.now(),
-          hypothesisId: "FP2",
         }),
       }).catch(() => {});
       // #endregion
       return NextResponse.json({ ok: true }, { status: 200 });
     }
 
+    const cta_link = `${appUrl}/api/auth/set-password?token_hash=${encodeURIComponent(token)}`;
     // #region agent log
     fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
       body: JSON.stringify({
         sessionId: "d1a7bb",
-        runId: "repro-2",
-        location: "app/api/auth/forgot-password/route.ts:tokenReady",
-        message: "generateLink token extracted",
-        data: { isPkce: token.startsWith("pkce_") },
-        timestamp: Date.now(),
+        runId: "forgot-password",
         hypothesisId: "FP3",
+        location: "app/api/auth/forgot-password/route.ts:tokenReady",
+        message: "Forgot-password generated recovery token",
+        data: { isPkceToken: token.startsWith("pkce_") },
+        timestamp: Date.now(),
       }),
     }).catch(() => {});
     // #endregion
-
-    const cta_link = `${appUrl}/api/auth/set-password?token_hash=${encodeURIComponent(token)}`;
     const firstName =
       email.split("@")[0]?.split(/[._-]/)[0]?.replace(/[^a-zA-Z0-9]/g, "") || "there";
 
@@ -158,12 +141,12 @@ export async function POST(request: Request) {
       headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
       body: JSON.stringify({
         sessionId: "d1a7bb",
-        runId: "repro-2",
+        runId: "forgot-password",
+        hypothesisId: "FP4",
         location: "app/api/auth/forgot-password/route.ts:exception",
-        message: "Exception in forgot-password route",
+        message: "Forgot-password route exception",
         data: { errorMessage: e instanceof Error ? e.message : String(e) },
         timestamp: Date.now(),
-        hypothesisId: "FP4",
       }),
     }).catch(() => {});
     // #endregion

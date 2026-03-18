@@ -57,76 +57,15 @@ export default function ResetPasswordPage() {
       })
       .catch(() => {});
 
-    // #region agent log
-    const hashKeys = Array.from(params.keys());
-    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-      body: JSON.stringify({
-        sessionId: "d1a7bb",
-        runId: "pre-fix",
-        location: "app/login/reset-password/page.tsx:landed",
-        message: "Reset password page landed",
-        data: {
-          pathname: window.location.pathname,
-          origin: window.location.origin,
-          hasHash: hash.length > 0,
-          hashKeys,
-          error: err ?? null,
-          error_description: errDesc ?? null,
-          tokenHashPresent: !!tokenHash,
-        },
-        timestamp: Date.now(),
-        hypothesisId: "H1",
-      }),
-    }).catch(() => {});
-    // #endregion
-
     if (params.get("error") === "invalid_link" && !errDesc) {
       setHashError("Invalid or expired link.");
       setRecoveryReady(false);
-      // #region agent log
-      fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-        body: JSON.stringify({
-          sessionId: "d1a7bb",
-          runId: "pre-fix",
-          location: "app/login/reset-password/page.tsx:invalidLink",
-          message: "Reset password invalid link branch",
-          data: {
-            error: err ?? null,
-            error_description: errDesc ?? null,
-          },
-          timestamp: Date.now(),
-          hypothesisId: "H2",
-        }),
-      }).catch(() => {});
-      // #endregion
       return;
     }
 
     if (!sessionClientRef.current && (err || errDesc)) {
       setHashError(errDesc || err || "Invalid or expired link.");
       setRecoveryReady(false);
-      // #region agent log
-      fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-        body: JSON.stringify({
-          sessionId: "d1a7bb",
-          runId: "pre-fix",
-          location: "app/login/reset-password/page.tsx:hashError",
-          message: "Hash error branch taken",
-          data: {
-            error: err ?? null,
-            error_description: errDesc ?? null,
-          },
-          timestamp: Date.now(),
-          hypothesisId: "H3",
-        }),
-      }).catch(() => {});
-      // #endregion
       return;
     }
 
@@ -134,28 +73,6 @@ export default function ResetPasswordPage() {
     const refresh_token = params.get("refresh_token");
     const type = params.get("type");
     const isRecoveryWithTokens = !!access_token && !!refresh_token;
-
-    // #region agent log
-    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-      body: JSON.stringify({
-        sessionId: "d1a7bb",
-        runId: "pre-fix",
-        location: "app/login/reset-password/page.tsx:recoveryCheck",
-        message: "Recovery tokens check",
-        data: {
-          hasAccessToken: !!access_token,
-          accessTokenLen: access_token?.length ?? 0,
-          hasRefreshToken: !!refresh_token,
-          type,
-          isRecoveryWithTokens,
-        },
-        timestamp: Date.now(),
-        hypothesisId: "H4",
-      }),
-    }).catch(() => {});
-    // #endregion
 
     if (isRecoveryWithTokens) {
       if (hash && !search) {
@@ -175,21 +92,6 @@ export default function ResetPasswordPage() {
           if (settled) return;
           settled = true;
           window.clearTimeout(timeoutId);
-          // #region agent log
-          fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-            body: JSON.stringify({
-              sessionId: "d1a7bb",
-              runId: "pre-fix",
-              location: "app/login/reset-password/page.tsx:setSessionThen",
-              message: "setSession success",
-              data: {},
-              timestamp: Date.now(),
-              hypothesisId: "H5",
-            }),
-          }).catch(() => {});
-          // #endregion
           sessionClientRef.current = supabase;
           window.history.replaceState(null, "", window.location.pathname);
           setRecoveryReady(true);
@@ -198,21 +100,6 @@ export default function ResetPasswordPage() {
           if (settled) return;
           settled = true;
           window.clearTimeout(timeoutId);
-          // #region agent log
-          fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-            body: JSON.stringify({
-              sessionId: "d1a7bb",
-              runId: "pre-fix",
-              location: "app/login/reset-password/page.tsx:setSessionCatch",
-              message: "setSession error",
-              data: { errorMessage: (e as Error)?.message ?? String(e) },
-              timestamp: Date.now(),
-              hypothesisId: "H6",
-            }),
-          }).catch(() => {});
-          // #endregion
           setHashError(e?.message ?? "Could not restore session from link.");
           setRecoveryReady(false);
         });
@@ -259,45 +146,8 @@ export default function ResetPasswordPage() {
     }
     setLoading(true);
     const supabase = sessionClientRef.current ?? createClient();
-    // #region agent log
-    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-      body: JSON.stringify({
-        sessionId: "d1a7bb",
-        runId: "pre-fix",
-        location: "app/login/reset-password/page.tsx:handleSubmit:beforeUpdate",
-        message: "Submitting password update",
-        data: {
-          passwordLength: password.length,
-          hasSessionClient: !!sessionClientRef.current,
-        },
-        timestamp: Date.now(),
-        hypothesisId: "H7",
-      }),
-    }).catch(() => {});
-    // #endregion
 
     const { error: err } = await supabase.auth.updateUser({ password });
-
-    // #region agent log
-    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-      body: JSON.stringify({
-        sessionId: "d1a7bb",
-        runId: "pre-fix",
-        location: "app/login/reset-password/page.tsx:handleSubmit:afterUpdate",
-        message: "Password update response",
-        data: {
-          hasError: !!err,
-          errorMessage: err?.message ?? null,
-        },
-        timestamp: Date.now(),
-        hypothesisId: "H8",
-      }),
-    }).catch(() => {});
-    // #endregion
 
     setLoading(false);
     if (err) {

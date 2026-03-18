@@ -15,24 +15,6 @@ export async function GET(request: Request) {
   if (code) {
     const supabase = await createClient();
     const { data: { user }, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-    // #region agent log
-    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-      body: JSON.stringify({
-        sessionId: "d1a7bb",
-        runId: "repro-1",
-        location: "app/auth/callback/route.ts:exchangeResult",
-        message: "auth callback exchangeCodeForSession result",
-        data: {
-          hasError: !!exchangeError,
-          isResetPasswordNext: next === "/login/reset-password" || next.startsWith("/login/reset-password"),
-        },
-        timestamp: Date.now(),
-        hypothesisId: "C1",
-      }),
-    }).catch(() => {});
-    // #endregion
     if (exchangeError) {
       const base =
         (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "") ||

@@ -70,20 +70,6 @@ export async function POST(request: Request) {
     payload = wh.verify(rawBody, headers) as HookPayload;
   } catch (e) {
     console.error("Send email hook: verification failed", e);
-    // #region agent log
-    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-      body: JSON.stringify({
-        sessionId: "d1a7bb",
-        location: "app/api/auth/send-email/route.ts:verifyFailed",
-        message: "Send email hook verification failed",
-        data: { errorMessage: e instanceof Error ? e.message : String(e) },
-        timestamp: Date.now(),
-        hypothesisId: "H3",
-      }),
-    }).catch(() => {});
-    // #endregion
     return NextResponse.json(
       { error: { message: "Invalid signature", http_code: 401 } },
       { status: 401, headers: { "Content-Type": "application/json" } }
@@ -91,25 +77,6 @@ export async function POST(request: Request) {
   }
 
   const { user, email_data } = payload;
-  // #region agent log
-  fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-    body: JSON.stringify({
-      sessionId: "d1a7bb",
-      location: "app/api/auth/send-email/route.ts:payload",
-      message: "Send email hook payload",
-      data: {
-        email_action_type: (email_data as { email_action_type?: string })?.email_action_type,
-        hasUser: !!user,
-        hasEmailData: !!email_data,
-        userId: user?.id,
-      },
-      timestamp: Date.now(),
-      hypothesisId: "H1",
-    }),
-  }).catch(() => {});
-  // #endregion
   const email = user.email ?? user.user_metadata?.email;
   if (!email) {
     return NextResponse.json(
@@ -183,21 +150,6 @@ export async function POST(request: Request) {
     }
   } else if (email_action_type === "recovery") {
     const recoveryLink = buildRecoveryLink();
-    // #region agent log
-    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-      body: JSON.stringify({
-        sessionId: "d1a7bb",
-        runId: "reset-debug",
-        location: "app/api/auth/send-email/route.ts:recovery",
-        message: "Send email hook sending recovery with app link",
-        data: { appOrigin, linkStartsWithApp: /^https?:\/\//.test(appOrigin) && !recoveryLink.includes("supabase.co") },
-        timestamp: Date.now(),
-        hypothesisId: "R1",
-      }),
-    }).catch(() => {});
-    // #endregion
     try {
       await sendViaResend(
         email,
@@ -274,20 +226,6 @@ export async function POST(request: Request) {
     }
   } else {
     console.error("Send email hook: unsupported type", email_action_type);
-    // #region agent log
-    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "a0a29d" },
-      body: JSON.stringify({
-        sessionId: "a0a29d",
-        location: "app/api/auth/send-email/route.ts:unsupported",
-        message: "Send email hook returning 400 unsupported type",
-        data: { email_action_type },
-        timestamp: Date.now(),
-        hypothesisId: "H1",
-      }),
-    }).catch(() => {});
-    // #endregion
     return NextResponse.json(
       { error: { message: `Unsupported email_action_type: ${email_action_type}`, http_code: 400 } },
       { status: 400, headers: { "Content-Type": "application/json" } }
