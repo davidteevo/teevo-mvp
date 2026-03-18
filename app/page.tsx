@@ -1,8 +1,9 @@
 import { Suspense } from "react";
 import { ListingGrid } from "@/components/listing/ListingGrid";
-import { ListingFilters } from "@/components/listing/ListingFilters";
 import { SmartSearchHero } from "@/components/listing/SmartSearchHero";
-import { CategoryShortcuts } from "@/components/listing/CategoryShortcuts";
+import { HomeFilterBar } from "@/components/listing/HomeFilterBar";
+import { ActiveFilterChips } from "@/components/listing/ActiveFilterChips";
+import { getFilterBrands } from "@/lib/filter-brands";
 
 export type SearchParams = {
   category?: string;
@@ -13,24 +14,28 @@ export type SearchParams = {
   shaft?: string;
   shaftFlex?: string;
   degree?: string;
+  degreeMin?: string;
   handed?: string;
   item_type?: string;
   size?: string;
+  condition?: string;
+  sort?: string;
 };
 
-function FiltersFallback() {
+function FilterBarFallback() {
   return (
-    <div className="flex flex-wrap items-end gap-3 mb-4 py-2 animate-pulse h-10" aria-hidden />
+    <div className="mb-4 h-14 animate-pulse rounded-full bg-mowing-green/10" aria-hidden />
   );
 }
 
 const buyingEnabled = process.env.NEXT_PUBLIC_BUYING_ENABLED !== "false";
 
-export default function HomePage({
+export default async function HomePage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
+  const brandSuggestions = getFilterBrands();
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       {!buyingEnabled && (
@@ -49,15 +54,14 @@ export default function HomePage({
         <SmartSearchHero />
       </header>
 
-      {/* Category shortcuts */}
-      <CategoryShortcuts />
-
-      {/* Filters: compact, secondary */}
-      <Suspense fallback={<FiltersFallback />}>
-        <ListingFilters />
+      <Suspense fallback={<FilterBarFallback />}>
+        <HomeFilterBar brandSuggestions={brandSuggestions} />
       </Suspense>
 
-      {/* Listings grid */}
+      <Suspense fallback={null}>
+        <ActiveFilterChips />
+      </Suspense>
+
       <ListingGrid searchParams={searchParams} />
     </div>
   );

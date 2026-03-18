@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const PLACEHOLDER = "Search drivers, polos, rangefinders, FootJoy shoes...";
 const DEBOUNCE_MS = 250;
@@ -11,6 +11,7 @@ type Suggestion = { label: string; category: string; brand: string; model: strin
 
 export function SmartSearchHero() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
@@ -25,19 +26,15 @@ export function SmartSearchHero() {
 
   const applyFilters = useCallback(
     (filters: Record<string, string>) => {
-      const params = new URLSearchParams();
-      if (filters.category) params.set("category", filters.category);
-      if (filters.brand) params.set("brand", filters.brand);
-      if (filters.minPrice) params.set("minPrice", filters.minPrice);
-      if (filters.maxPrice) params.set("maxPrice", filters.maxPrice);
-      if (filters.search) params.set("search", filters.search);
-      if (filters.shaft) params.set("shaft", filters.shaft);
-      if (filters.shaftFlex) params.set("shaftFlex", filters.shaftFlex);
-      if (filters.degree) params.set("degree", filters.degree);
-      if (filters.handed) params.set("handed", filters.handed);
-      router.push(`/?${params.toString()}`);
+      const next = new URLSearchParams(searchParams.toString());
+      for (const [k, v] of Object.entries(filters)) {
+        if (v) next.set(k, v);
+        else next.delete(k);
+      }
+      const q = next.toString();
+      router.push(q ? `/?${q}` : "/");
     },
-    [router]
+    [router, searchParams]
   );
 
   const fetchSuggestions = useCallback(async (q: string) => {
