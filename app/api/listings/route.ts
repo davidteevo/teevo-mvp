@@ -13,6 +13,7 @@ import {
   isClothingCategory,
   isAccessoriesCategory,
 } from "@/lib/listing-categories";
+import { assignFoundingSellerRankIfEligible } from "@/lib/founding-seller-rank";
 
 export const dynamic = "force-dynamic";
 
@@ -142,23 +143,7 @@ export async function POST(request: Request) {
       await admin.from("users").update({ role: "seller", updated_at: new Date().toISOString() }).eq("id", user.id);
     }
 
-    if (profile?.founding_seller_rank == null) {
-      const { data: rankResult } = await admin.rpc("get_founding_seller_rank", { p_user_id: user.id });
-      const first = Array.isArray(rankResult) && rankResult.length > 0 ? rankResult[0] : rankResult;
-      const rank =
-        typeof first === "number"
-          ? first
-          : typeof first === "object" && first !== null
-            ? (first as Record<string, unknown>).get_founding_seller_rank ?? (first as Record<string, unknown>).rn ?? null
-            : null;
-      if (typeof rank === "number" && rank >= 1 && rank <= 100) {
-        await admin
-          .from("users")
-          .update({ founding_seller_rank: rank, updated_at: new Date().toISOString() })
-          .eq("id", user.id)
-          .or("founding_seller_rank.is.null,founding_seller_rank.gt." + rank);
-      }
-    }
+    await assignFoundingSellerRankIfEligible(admin, user.id, profile?.founding_seller_rank);
 
     const adminTo = process.env.TEEVO_ADMIN_EMAILS?.trim()?.split(",")[0]?.trim();
     if (adminTo && adminTo !== "admin@example.com") {
