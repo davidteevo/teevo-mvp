@@ -29,21 +29,6 @@ export async function GET(request: Request) {
 
   /** PKCE recovery: server verifyOtp cannot complete without code_verifier; use Supabase verify → code → callback. */
   if (token_hash.startsWith("pkce_")) {
-    // #region agent log
-    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-      body: JSON.stringify({
-        sessionId: "d1a7bb",
-        runId: "set-password",
-        hypothesisId: "SPK1",
-        location: "app/api/auth/set-password/route.ts:pkcePage",
-        message: "Serving PKCE continue page",
-        data: {},
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
     const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").replace(/\/$/, "");
     if (!supabaseUrl) {
       return NextResponse.redirect(errorPathWithReason("Server misconfiguration"));
@@ -123,41 +108,11 @@ export async function GET(request: Request) {
 
   if (error) {
     console.error("[set-password] verifyOtp failed:", error.message);
-    // #region agent log
-    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-      body: JSON.stringify({
-        sessionId: "d1a7bb",
-        runId: "set-password",
-        hypothesisId: "S2",
-        location: "app/api/auth/set-password/route.ts:verifyOtpError",
-        message: "verifyOtp failed in set-password route",
-        data: { errorMessage: error.message },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
     return NextResponse.redirect(errorPathWithReason(error.message || "Verification failed"));
   }
 
   if (!data?.session) {
     console.error("[set-password] verifyOtp ok but no session in response");
-    // #region agent log
-    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-      body: JSON.stringify({
-        sessionId: "d1a7bb",
-        runId: "set-password",
-        hypothesisId: "S3",
-        location: "app/api/auth/set-password/route.ts:noSession",
-        message: "verifyOtp returned no session",
-        data: {},
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
     return NextResponse.redirect(errorPathWithReason("No session returned"));
   }
 
@@ -167,39 +122,8 @@ export async function GET(request: Request) {
   });
   if (setError) {
     console.error("[set-password] setSession failed:", setError.message);
-    // #region agent log
-    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-      body: JSON.stringify({
-        sessionId: "d1a7bb",
-        runId: "set-password",
-        hypothesisId: "S4",
-        location: "app/api/auth/set-password/route.ts:setSessionError",
-        message: "setSession failed in set-password route",
-        data: { errorMessage: setError.message },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
     return NextResponse.redirect(errorPathWithReason(setError.message || "Session setup failed"));
   }
-
-  // #region agent log
-  fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-    body: JSON.stringify({
-      sessionId: "d1a7bb",
-      runId: "set-password",
-      hypothesisId: "S5",
-      location: "app/api/auth/set-password/route.ts:success",
-      message: "set-password verifyOtp + setSession success",
-      data: {},
-      timestamp: Date.now(),
-    }),
-  }).catch(() => {});
-  // #endregion
 
   const response = NextResponse.redirect(resetPath, { status: 302 });
   for (const { name, value, options } of cookiesToSet) {

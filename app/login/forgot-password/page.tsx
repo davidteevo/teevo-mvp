@@ -40,6 +40,9 @@ export default function ForgotPasswordPage() {
         <p className="mt-2 text-mowing-green/80 text-sm">
           If an account exists for that address, we have sent a link to reset your password. You can open the link on any device or browser.
         </p>
+        <p className="mt-3 text-mowing-green/70 text-xs">
+          If tapping the button in your mail app doesn’t work, copy the link and paste it into Safari or Chrome instead — in-app browsers sometimes block cookies or the reset flow.
+        </p>
         <p className="mt-4 text-mowing-green/80 text-sm">
           Did not get it? Check spam or{" "}
           <button

@@ -63,61 +63,16 @@ export async function POST(request: Request) {
     });
 
     if (error || !linkData) {
-      // #region agent log
-      fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-        body: JSON.stringify({
-          sessionId: "d1a7bb",
-          runId: "forgot-password",
-          hypothesisId: "FP1",
-          location: "app/api/auth/forgot-password/route.ts:generateLinkError",
-          message: "generateLink failed or returned no data",
-          data: { hasError: !!error, hasLinkData: !!linkData },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-      // #endregion
       return NextResponse.json({ ok: true }, { status: 200 });
     }
 
     const token = extractRecoveryToken(linkData);
     if (!token) {
       console.error("[forgot-password] No token from generateLink");
-      // #region agent log
-      fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-        body: JSON.stringify({
-          sessionId: "d1a7bb",
-          runId: "forgot-password",
-          hypothesisId: "FP2",
-          location: "app/api/auth/forgot-password/route.ts:noToken",
-          message: "generateLink returned no usable token",
-          data: {},
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-      // #endregion
       return NextResponse.json({ ok: true }, { status: 200 });
     }
 
     const cta_link = `${appUrl}/api/auth/set-password?token_hash=${encodeURIComponent(token)}`;
-    // #region agent log
-    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-      body: JSON.stringify({
-        sessionId: "d1a7bb",
-        runId: "forgot-password",
-        hypothesisId: "FP3",
-        location: "app/api/auth/forgot-password/route.ts:tokenReady",
-        message: "Forgot-password generated recovery token",
-        data: { isPkceToken: token.startsWith("pkce_") },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
     const firstName =
       email.split("@")[0]?.split(/[._-]/)[0]?.replace(/[^a-zA-Z0-9]/g, "") || "there";
 
@@ -135,21 +90,6 @@ export async function POST(request: Request) {
     });
   } catch (e) {
     console.error("[forgot-password]", e);
-    // #region agent log
-    fetch("http://127.0.0.1:7439/ingest/447ae8c2-01d2-435d-9b96-01ac58736e1d", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d1a7bb" },
-      body: JSON.stringify({
-        sessionId: "d1a7bb",
-        runId: "forgot-password",
-        hypothesisId: "FP4",
-        location: "app/api/auth/forgot-password/route.ts:exception",
-        message: "Forgot-password route exception",
-        data: { errorMessage: e instanceof Error ? e.message : String(e) },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
   }
 
   return NextResponse.json({ ok: true }, { status: 200 });
