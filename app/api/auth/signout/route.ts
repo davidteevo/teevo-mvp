@@ -49,12 +49,13 @@ export async function GET(request: NextRequest) {
   for (const { name } of allCookies) {
     if (name.startsWith("sb-")) sbNames.add(name);
   }
-  for (const name of sbNames) {
+  // Use Set.forEach instead of for..of so TS does not require downlevelIteration on older emit targets (e.g. Netlify build).
+  sbNames.forEach((name) => {
     response.cookies.set(name, "", { ...baseClear });
     if (cookieDomain) {
       response.cookies.set(name, "", { ...baseClear, domain: cookieDomain });
     }
-  }
+  });
 
   return response;
 }
