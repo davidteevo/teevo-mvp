@@ -5,6 +5,23 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
+/** Race a promise against a timeout so getSession() cannot hang the UI indefinitely. */
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const id = window.setTimeout(() => reject(new Error(message)), ms);
+    promise.then(
+      (value) => {
+        window.clearTimeout(id);
+        resolve(value);
+      },
+      (err: unknown) => {
+        window.clearTimeout(id);
+        reject(err);
+      }
+    );
+  });
+}
+
 function LoginForm() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") ?? "/dashboard";
@@ -50,13 +67,29 @@ function LoginForm() {
       setError(msg);
       return;
     }
-    // Let Supabase SSR persist session to cookies before full-page redirect (avoids session missing on app.teevohq.com)
-    await supabase.auth.getSession();
-    await new Promise((r) => setTimeout(r, 300));
-    setLoading(false);
-    const safePath = redirect.startsWith("/") && !redirect.startsWith("//") ? redirect : "/dashboard";
-    const origin = window.location.origin;
-    window.location.href = safePath.startsWith("http") ? safePath : `${origin}${safePath}`;
+    // Let Supabase SSR persist session to cookies before full-page redirect (avoids session missing on app.teevohq.com).
+    // try/finally ensures loading never sticks if getSession throws or hangs; timeout avoids indefinite wait (e.g. stale cookies).
+    try {
+      await withTimeout(
+        supabase.auth.getSession(),
+        12_000,
+        "Session sync timed out. Try clearing site data for this site or use Sign out, then log in again."
+      );
+      await new Promise((r) => setTimeout(r, 300));
+      const safePath = redirect.startsWith("/") && !redirect.startsWith("//") ? redirect : "/dashboard";
+      const origin = window.location.origin;
+      window.location.href = safePath.startsWith("http") ? safePath : `${origin}${safePath}`;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Could not finish signing in";
+      const lower = msg.toLowerCase();
+      const hint =
+        lower.includes("timed out") || lower.includes("network") || lower.includes("fetch")
+          ? " If this keeps happening, clear cookies and site data for this domain or visit /api/auth/signout then try again."
+          : "";
+      setError(`${msg}${hint}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
