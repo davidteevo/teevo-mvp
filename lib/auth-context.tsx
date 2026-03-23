@@ -24,11 +24,16 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-// Suppress AbortError from showing as unhandled runtime error (e.g. when navigating away during auth)
+// Suppress stray AbortError from showing as unhandled runtime error (e.g. fetch/nav edge cases)
 if (typeof window !== "undefined") {
   window.addEventListener("unhandledrejection", (event) => {
     const e = event.reason;
-    if ((e as Error)?.name === "AbortError" || (e instanceof Error && e.message?.includes("aborted"))) {
+    const msg = e instanceof Error ? e.message.toLowerCase() : "";
+    if (
+      (e as Error)?.name === "AbortError" ||
+      msg.includes("aborted") ||
+      msg.includes("signal is aborted")
+    ) {
       event.preventDefault();
     }
   });
