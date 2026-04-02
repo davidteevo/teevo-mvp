@@ -24,6 +24,21 @@ export default function RootLayout({
   return (
     <html lang="en" className="font-sans">
       <head>
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-CXFXS7S1M4"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-CXFXS7S1M4');
+`,
+          }}
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
