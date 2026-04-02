@@ -40,9 +40,16 @@ export async function createCheckoutSession(params: CreateCheckoutParams): Promi
 
   const { itemPence, authenticityPence, shippingPence } = calcOrderBreakdown(listingPricePence);
   const applicationFeeAmount = authenticityPence + shippingPence;
+  const baseOrigin = origin.replace(/\/$/, "");
+  const termsUrl = `${baseOrigin}/terms`;
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
+    custom_text: {
+      submit: {
+        message: `By completing this purchase, you agree to our [Terms & Conditions](${termsUrl}).`,
+      },
+    },
     payment_intent_data: {
       transfer_data: { destination: sellerStripeAccountId },
       application_fee_amount: applicationFeeAmount,

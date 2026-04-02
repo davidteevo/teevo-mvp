@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { ImageUpload } from "./ImageUpload";
 import { SearchableSelect, type SearchableSelectHandle } from "./SearchableSelect";
 import { ChevronDown, ChevronRight } from "lucide-react";
@@ -951,6 +952,13 @@ export function ListingForm({
       )}
 
       <div className="pt-2">
+        <p className="text-xs text-mowing-green/75 text-center leading-relaxed mb-3">
+          By listing an item, you agree to Teevo’s{" "}
+          <Link href="/terms" className="text-par-3-punch font-medium hover:underline">
+            Terms & Conditions
+          </Link>
+          .
+        </p>
         <button
           ref={mainCtaRef}
           type="submit"
@@ -967,6 +975,13 @@ export function ListingForm({
       {stickyVisible && (
         <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-mowing-green/20 bg-off-white-pique/95 backdrop-blur py-3 px-4">
           <div className="max-w-xl mx-auto">
+            <p className="text-[11px] text-mowing-green/75 text-center leading-relaxed mb-2">
+              By listing an item, you agree to Teevo’s{" "}
+              <Link href="/terms" className="text-par-3-punch font-medium hover:underline">
+                Terms & Conditions
+              </Link>
+              .
+            </p>
             <button
               type="submit"
               disabled={submitting}

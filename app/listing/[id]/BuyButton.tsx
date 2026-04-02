@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { ShippingService, type ShippingServiceType } from "@/lib/shippo";
 import { SHIPPING_FEE_GBP } from "@/lib/fulfilment";
@@ -218,6 +219,13 @@ export function BuyButton({
           ))}
         </select>
       </div>
+      <p className="text-xs text-mowing-green/75 leading-relaxed">
+        By completing this purchase, you agree to our{" "}
+        <Link href="/terms" className="text-par-3-punch font-medium hover:underline">
+          Terms & Conditions
+        </Link>
+        .
+      </p>
       <button
         type="button"
         onClick={handleBuy}

@@ -16,6 +16,7 @@ function SignupForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
+  const [acceptedLegal, setAcceptedLegal] = useState(false);
 
   // If user already has a session (e.g. stale after sign out, or they clicked Sign up while logged in), clear it so signup creates a fresh account
   useEffect(() => {
@@ -33,6 +34,10 @@ function SignupForm() {
     const first = firstName.trim();
     if (!first) {
       setError("Please enter your first name.");
+      return;
+    }
+    if (!acceptedLegal) {
+      setError("Please agree to the Terms & Conditions and Privacy Policy to create an account.");
       return;
     }
     setLoading(true);
@@ -161,6 +166,27 @@ function SignupForm() {
             disabled={loading}
             className="w-full min-h-[48px] rounded-xl border border-mowing-green/30 bg-white px-4 py-3 text-base text-mowing-green placeholder:text-mowing-green/50 disabled:opacity-60 disabled:cursor-not-allowed touch-manipulation"
           />
+        </div>
+        <div className="flex gap-3 items-start">
+          <input
+            id="accept-legal"
+            type="checkbox"
+            checked={acceptedLegal}
+            onChange={(e) => setAcceptedLegal(e.target.checked)}
+            disabled={loading}
+            className="mt-1 h-4 w-4 shrink-0 rounded border-mowing-green/40 text-mowing-green focus:ring-mowing-green"
+          />
+          <label htmlFor="accept-legal" className="text-sm text-mowing-green/90 leading-snug">
+            I agree to the{" "}
+            <Link href="/terms" className="text-par-3-punch font-medium hover:underline">
+              Terms & Conditions
+            </Link>{" "}
+            and{" "}
+            <Link href="/privacy" className="text-par-3-punch font-medium hover:underline">
+              Privacy Policy
+            </Link>
+            .
+          </label>
         </div>
         <button
           type="submit"

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { TrustStrip } from "./TrustStrip";
 
 export function Footer() {
   return (
@@ -9,7 +8,7 @@ export function Footer() {
           <p className="text-sm text-mowing-green/80">
             © {new Date().getFullYear()} Teevo. UK golf equipment marketplace.
           </p>
-          <div className="flex gap-6 text-sm">
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
             <Link href="/" className="text-mowing-green/80 hover:text-mowing-green">
               Browse
             </Link>
@@ -18,6 +17,12 @@ export function Footer() {
             </Link>
             <Link href="/dashboard" className="text-mowing-green/80 hover:text-mowing-green">
               Dashboard
+            </Link>
+            <Link href="/privacy" className="text-mowing-green/80 hover:text-mowing-green">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="text-mowing-green/80 hover:text-mowing-green">
+              Terms & Conditions
             </Link>
           </div>
         </div>
