@@ -1,6 +1,20 @@
 /**
  * Fulfilment and packaging constants. Buyer selects delivery; seller selects packaging.
+ * Provider mode (shippo | manual) lives in lib/fulfilment-providers.ts.
  */
+
+export {
+  FulfilmentMode,
+  type FulfilmentModeType,
+  MANUAL_COURIERS,
+  type ManualCourier,
+  hasShippingLabel,
+  getTrackingNumber,
+  getTrackingUrl,
+  getBuyerTrackingCta,
+  getPlatformFulfilmentMode,
+  setPlatformFulfilmentMode,
+} from "@/lib/fulfilment-providers";
 
 /** Shipping fee charged to buyer (flat rate MVP). */
 export const SHIPPING_FEE_GBP = 9.49;

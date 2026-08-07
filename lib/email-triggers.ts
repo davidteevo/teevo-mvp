@@ -1,4 +1,4 @@
-import type { EmailType } from "@/lib/email";
+import type { EmailAttachment, EmailType } from "@/lib/email";
 import { sendEmail } from "@/lib/email";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -8,6 +8,8 @@ export const EmailTriggerType = {
   ITEM_SOLD: "item_sold",
   PAYMENT_RECEIVED: "payment_received",
   SHIPPING_CONFIRMATION: "shipping_confirmation",
+  SHIPPING_LABEL_READY: "shipping_label_ready",
+  ITEM_DISPATCHED: "item_dispatched",
   FUNDS_RELEASED: "funds_released",
   REVIEW_REQUEST: "review_request",
   PAYOUT_CONFIRMATION: "payout_confirmation",
@@ -41,9 +43,20 @@ export async function ensureEmailSent(
     subject: string;
     type: EmailType;
     variables: Record<string, string>;
+    attachments?: EmailAttachment[];
   }
 ): Promise<boolean> {
-  const { emailType, referenceId, referenceType = "transaction", recipientId, to, subject, type, variables } = opts;
+  const {
+    emailType,
+    referenceId,
+    referenceType = "transaction",
+    recipientId,
+    to,
+    subject,
+    type,
+    variables,
+    attachments,
+  } = opts;
 
   const { data: existing } = await admin
     .from("sent_emails")
@@ -56,7 +69,7 @@ export async function ensureEmailSent(
     return false;
   }
 
-  await sendEmail({ type, to, subject, variables });
+  await sendEmail({ type, to, subject, variables, attachments });
 
   await admin.from("sent_emails").insert({
     email_type: emailType,

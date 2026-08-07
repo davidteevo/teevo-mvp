@@ -8,6 +8,8 @@ import type { Listing } from "@/types/database";
 import { AdminListingActions } from "./AdminListingActions";
 import { AdminListingFeedback } from "./AdminListingFeedback";
 
+export const dynamic = "force-dynamic";
+
 const admin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!

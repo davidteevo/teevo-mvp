@@ -51,6 +51,12 @@ function loadTemplate(type: EmailType): string {
   return fs.readFileSync(filePath, "utf8");
 }
 
+export type EmailAttachment = {
+  filename: string;
+  content: Buffer;
+  contentType?: string;
+};
+
 /**
  * Sends an email using a base template (transactional, standard, or alert).
  * Loads the template, replaces {{placeholder}} with variables, and sends via Resend.
@@ -60,11 +66,13 @@ export async function sendEmail({
   to,
   subject,
   variables = {},
+  attachments,
 }: {
   type: EmailType;
   to: string;
   subject: string;
   variables?: Record<string, string>;
+  attachments?: EmailAttachment[];
 }) {
   const rawHtml = loadTemplate(type);
   const html = render(rawHtml, variables);
@@ -80,6 +88,15 @@ export async function sendEmail({
     to: [to],
     subject: finalSubject,
     html,
+    ...(attachments?.length
+      ? {
+          attachments: attachments.map((a) => ({
+            filename: a.filename,
+            content: a.content,
+            contentType: a.contentType,
+          })),
+        }
+      : {}),
   });
 
   if (error) {

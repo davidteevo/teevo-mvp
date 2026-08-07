@@ -1,7 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type Stripe from "stripe";
 import { ShippingService, type ShippingServiceType } from "@/lib/shippo";
-import { SHIPPING_FEE_GBP, FulfilmentStatus } from "@/lib/fulfilment";
+import {
+  SHIPPING_FEE_GBP,
+  FulfilmentStatus,
+  getPlatformFulfilmentMode,
+} from "@/lib/fulfilment";
 import { ensureEmailSent, EmailTriggerType, formatGbp } from "@/lib/email-triggers";
 import { getAppUrl } from "@/lib/app-env";
 
@@ -55,6 +59,8 @@ export async function createTransactionAndSendEmails(
       ? (rawShipping as ShippingServiceType)
       : ShippingService.DPD_NEXT_DAY;
 
+  const fulfilment_mode = await getPlatformFulfilmentMode(admin);
+
   const { data: newTx, error: insertErr } = await admin
     .from("transactions")
     .insert({
@@ -67,6 +73,7 @@ export async function createTransactionAndSendEmails(
       status: "pending",
       order_state: "paid",
       fulfilment_status: FulfilmentStatus.PAID,
+      fulfilment_mode,
       buyer_postcode: addr?.postal_code ?? session.metadata?.buyerPostcode ?? null,
       shipping_option: session.metadata?.shippingOption ?? null,
       shipping_service,

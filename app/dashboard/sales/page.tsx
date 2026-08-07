@@ -8,12 +8,15 @@ import { useAuth } from "@/lib/auth-context";
 import { formatPrice } from "@/lib/format";
 import {
   FulfilmentStatus,
+  FulfilmentMode,
   ShippingPackage,
   BOX_TYPES,
   BOX_FEE_GBP,
   PackagingStatus,
   PACKAGING_PHOTO_LABELS,
   PACKAGING_PHOTO_COUNT,
+  hasShippingLabel,
+  getTrackingNumber,
 } from "@/lib/fulfilment";
 import { getListingImageUrl } from "@/lib/listing-images";
 
@@ -47,12 +50,17 @@ type Transaction = {
   amount: number;
   created_at: string;
   fulfilment_status?: string | null;
+  fulfilment_mode?: string | null;
   shipping_package?: string | null;
   box_fee_gbp?: number | null;
   box_type?: string | null;
   shippo_label_url?: string | null;
   shippo_qr_code_url?: string | null;
   shippo_tracking_number?: string | null;
+  shipping_label_url?: string | null;
+  courier?: string | null;
+  tracking_number?: string | null;
+  tracking_url?: string | null;
   packaging_photos?: string[] | null;
   packaging_status?: string | null;
   packaging_review_notes?: string | null;
@@ -369,7 +377,7 @@ export default function DashboardSalesPage() {
                     {(t.fulfilment_status === FulfilmentStatus.PAID || t.fulfilment_status == null) &&
                       !t.shipping_package &&
                       t.status === "pending" &&
-                      !t.shippo_label_url && (
+                      !hasShippingLabel(t) && (
                         <div className="w-full sm:w-auto rounded-lg border border-golden-tee/30 bg-golden-tee/10 p-3 space-y-2">
                           <p className="text-sm font-medium text-mowing-green">Prepare your item for dispatch</p>
                           <div className="flex flex-wrap gap-2">
@@ -407,7 +415,7 @@ export default function DashboardSalesPage() {
                     {t.shipping_package &&
                       (t.packaging_status === PackagingStatus.REJECTED || t.packaging_status == null) &&
                       t.status === "pending" &&
-                      !t.shippo_label_url && (
+                      !hasShippingLabel(t) && (
                         <div className="w-full sm:w-auto rounded-lg border border-mowing-green/30 bg-mowing-green/5 p-3 space-y-2">
                           <p className="text-sm font-medium text-mowing-green">Upload packaging photos</p>
                           {t.packaging_status === PackagingStatus.REJECTED && (t.review_notes ?? t.packaging_review_notes) && (
@@ -488,7 +496,8 @@ export default function DashboardSalesPage() {
                     {(t.packaging_status === PackagingStatus.VERIFIED ||
                       t.fulfilment_status === FulfilmentStatus.PACKAGING_VERIFIED) &&
                       t.status === "pending" &&
-                      !t.shippo_label_url && (
+                      !hasShippingLabel(t) &&
+                      t.fulfilment_mode !== FulfilmentMode.MANUAL && (
                         <span className="inline-flex flex-col items-start gap-1">
                           <button
                             type="button"
@@ -504,6 +513,37 @@ export default function DashboardSalesPage() {
                             </p>
                           )}
                         </span>
+                      )}
+                    {(t.packaging_status === PackagingStatus.VERIFIED ||
+                      t.fulfilment_status === FulfilmentStatus.PACKAGING_VERIFIED) &&
+                      t.status === "pending" &&
+                      !hasShippingLabel(t) &&
+                      t.fulfilment_mode === FulfilmentMode.MANUAL && (
+                        <div className="w-full sm:w-auto max-w-md rounded-lg border border-golden-tee/30 bg-golden-tee/10 px-4 py-3">
+                          <p className="text-sm font-medium text-mowing-green">Preparing your shipping label</p>
+                          <p className="mt-1 text-sm text-mowing-green/80">
+                            We&apos;re preparing your tracked shipping label. You&apos;ll receive an email shortly with your
+                            shipping label and tracking details.
+                          </p>
+                        </div>
+                      )}
+                    {t.status === "pending" &&
+                      t.fulfilment_mode === FulfilmentMode.MANUAL &&
+                      !!t.shipping_label_url && (
+                        <div className="w-full sm:w-auto max-w-md rounded-lg border border-mowing-green/20 bg-mowing-green/5 px-4 py-3 space-y-2">
+                          <p className="text-sm font-medium text-mowing-green">Shipping label sent</p>
+                          <p className="text-sm text-mowing-green/80">
+                            Your shipping label and tracking details have been emailed to you. Please print the label,
+                            attach it securely to your parcel, then drop it off with the courier.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => markShipped(t.id)}
+                            className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium hover:opacity-90"
+                          >
+                            Mark as shipped
+                          </button>
+                        </div>
                       )}
                     {t.status === "pending" && t.shippo_label_url && (
                       <button
@@ -545,9 +585,10 @@ export default function DashboardSalesPage() {
                         {t.shippo_qr_code_url ? "Download label PDF" : "Download label"}
                       </a>
                     )}
-                    {t.shippo_tracking_number && (
+                    {getTrackingNumber(t) && (
                       <span className="text-sm text-mowing-green/70" title="Tracking number">
-                        Track: {t.shippo_tracking_number}
+                        Track: {getTrackingNumber(t)}
+                        {t.courier ? ` (${t.courier})` : ""}
                       </span>
                     )}
                     <Link

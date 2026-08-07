@@ -35,7 +35,7 @@ export async function POST(
     const admin = createAdminClient();
     const { data: tx, error: txErr } = await admin
       .from("transactions")
-      .select("id, seller_id, listing_id, buyer_name, buyer_address_line1, buyer_address_line2, buyer_city, buyer_postcode, buyer_country, shippo_label_url, shipping_service, fulfilment_status")
+      .select("id, seller_id, listing_id, buyer_name, buyer_address_line1, buyer_address_line2, buyer_city, buyer_postcode, buyer_country, shippo_label_url, shipping_service, fulfilment_status, fulfilment_mode")
       .eq("id", transactionId)
       .single();
 
@@ -44,6 +44,12 @@ export async function POST(
     }
     if (tx.seller_id !== user.id) {
       return NextResponse.json({ error: "Not your sale" }, { status: 403 });
+    }
+    if (tx.fulfilment_mode === "manual") {
+      return NextResponse.json(
+        { error: "Shipping label will be prepared by Teevo. Please wait for your label email." },
+        { status: 400 }
+      );
     }
     if (tx.shippo_label_url) {
       return NextResponse.json(

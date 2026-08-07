@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { formatPrice } from "@/lib/format";
 import { getListingImageUrl } from "@/lib/listing-images";
+import { getTrackingNumber, getTrackingUrl } from "@/lib/fulfilment";
 
 type ListingImage = { storage_path: string; sort_order: number };
 
@@ -16,6 +17,10 @@ type Transaction = {
   status: string;
   amount: number;
   created_at: string;
+  courier?: string | null;
+  tracking_number?: string | null;
+  tracking_url?: string | null;
+  shippo_tracking_number?: string | null;
   listing?: {
     model: string;
     category: string;
@@ -102,54 +107,76 @@ export default function DashboardPurchasesPage() {
               const imgPath = firstImagePath(listing?.listing_images);
               const imageUrl = imgPath ? getListingImageUrl(imgPath, "thumb") : "/placeholder-listing.svg";
               const subtitle = [listing?.category, listing?.brand].filter(Boolean).join(" · ") || null;
+              const trackingNumber = getTrackingNumber(t);
+              const trackingUrl = getTrackingUrl(t);
               return (
                 <li key={t.id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4">
-                  <Link
-                    href={`/listing/${t.listing_id}`}
-                    className="flex flex-1 min-w-0 gap-4 rounded-lg hover:bg-mowing-green/5 -m-2 p-2 transition-colors"
-                  >
-                    <div className="relative w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-mowing-green/10">
-                      <Image
-                        src={imageUrl}
-                        alt={listing?.model ?? "Listing"}
-                        fill
-                        className="object-cover"
-                        sizes="64px"
-                      />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium text-mowing-green truncate">
-                        {listing?.model ?? "Item"}
-                      </p>
-                      {subtitle && (
-                        <p className="text-sm text-mowing-green/70 truncate">{subtitle}</p>
-                      )}
-                      <p className="text-sm text-mowing-green/60 mt-0.5">
-                        {formatPrice(t.amount)} · {t.status}
-                      </p>
-                      {t.created_at && (
-                        <p className="text-xs text-mowing-green/50 mt-0.5">
-                          Purchased {formatDateTime(t.created_at)}
-                        </p>
-                      )}
-                    </div>
-                  </Link>
-                  <div className="flex items-center gap-2 shrink-0">
-                    {t.status === "shipped" && (
-                      <button
-                        type="button"
-                        onClick={() => confirmReceipt(t.id)}
-                        className="rounded-lg bg-par-3-punch text-white px-4 py-2 text-sm font-medium hover:opacity-90"
-                      >
-                        I received it
-                      </button>
-                    )}
+                  <div className="flex flex-1 min-w-0 gap-4">
                     <Link
                       href={`/listing/${t.listing_id}`}
-                      className="rounded-lg border border-par-3-punch/30 text-par-3-punch px-4 py-2 text-sm font-medium hover:bg-par-3-punch/10 transition-colors"
+                      className="flex flex-1 min-w-0 gap-4 rounded-lg hover:bg-mowing-green/5 -m-2 p-2 transition-colors"
                     >
-                      View listing
+                      <div className="relative w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-mowing-green/10">
+                        <Image
+                          src={imageUrl}
+                          alt={listing?.model ?? "Listing"}
+                          fill
+                          className="object-cover"
+                          sizes="64px"
+                        />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-mowing-green truncate">
+                          {listing?.model ?? "Item"}
+                        </p>
+                        {subtitle && (
+                          <p className="text-sm text-mowing-green/70 truncate">{subtitle}</p>
+                        )}
+                        <p className="text-sm text-mowing-green/60 mt-0.5">
+                          {formatPrice(t.amount)} · {t.status === "shipped" ? "Shipped" : t.status}
+                        </p>
+                        {t.created_at && (
+                          <p className="text-xs text-mowing-green/50 mt-0.5">
+                            Purchased {formatDateTime(t.created_at)}
+                          </p>
+                        )}
+                      </div>
                     </Link>
+                  </div>
+                  <div className="flex flex-col sm:items-end gap-2 shrink-0">
+                    {t.status === "shipped" && (trackingNumber || trackingUrl || t.courier) && (
+                      <div className="text-sm text-mowing-green/80 space-y-0.5 sm:text-right">
+                        {t.courier && <p>Courier: {t.courier}</p>}
+                        {trackingNumber && <p>Tracking: {trackingNumber}</p>}
+                        {trackingUrl && (
+                          <a
+                            href={trackingUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex text-par-3-punch font-medium hover:underline"
+                          >
+                            Track Parcel
+                          </a>
+                        )}
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2">
+                      {t.status === "shipped" && (
+                        <button
+                          type="button"
+                          onClick={() => confirmReceipt(t.id)}
+                          className="rounded-lg bg-par-3-punch text-white px-4 py-2 text-sm font-medium hover:opacity-90"
+                        >
+                          I received it
+                        </button>
+                      )}
+                      <Link
+                        href={`/listing/${t.listing_id}`}
+                        className="rounded-lg border border-par-3-punch/30 text-par-3-punch px-4 py-2 text-sm font-medium hover:bg-par-3-punch/10 transition-colors"
+                      >
+                        View listing
+                      </Link>
+                    </div>
                   </div>
                 </li>
               );

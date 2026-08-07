@@ -1,9 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-import { FulfilmentStatus } from "@/lib/fulfilment";
+import {
+  FulfilmentStatus,
+  getBuyerTrackingCta,
+  getTrackingNumber,
+} from "@/lib/fulfilment";
 import { ensureEmailSent, EmailTriggerType } from "@/lib/email-triggers";
-
 import { getAppUrl } from "@/lib/app-env";
 
 const appUrl = getAppUrl();
@@ -30,7 +33,9 @@ export async function POST(
 
   const { data: tx } = await admin
     .from("transactions")
-    .select("seller_id, buyer_id, listing_id, status, shippo_tracking_number")
+    .select(
+      "seller_id, buyer_id, listing_id, status, shippo_tracking_number, courier, tracking_number, tracking_url"
+    )
     .eq("id", id)
     .single();
 
@@ -57,28 +62,58 @@ export async function POST(
   }
 
   const { data: buyer } = await admin.from("users").select("email").eq("id", tx.buyer_id).single();
+  const { data: seller } = await admin.from("users").select("email").eq("id", tx.seller_id).single();
   const { data: listing } = await admin.from("listings").select("brand, model").eq("id", tx.listing_id).single();
   const itemName = listing ? `${listing.brand} ${listing.model}` : "Your item";
-  const trackingLink = tx.shippo_tracking_number
-    ? `https://track.dpd.co.uk/status/${tx.shippo_tracking_number}`
-    : `${appUrl}/dashboard/purchases`;
+  const orderShort = id.slice(0, 8);
+  const trackingNumber = getTrackingNumber(tx);
+  const trackingLink = getBuyerTrackingCta(tx);
+
   if (buyer?.email) {
+    const bodyLines = [
+      `Order #${orderShort} · ${itemName}`,
+      ``,
+      `Your order is on its way.`,
+    ];
+    if (tx.courier) bodyLines.push(`Courier: ${tx.courier}`);
+    if (trackingNumber) bodyLines.push(`Tracking number: ${trackingNumber}`);
+
     await ensureEmailSent(admin, {
       emailType: EmailTriggerType.SHIPPING_CONFIRMATION,
       referenceId: id,
       recipientId: tx.buyer_id,
       to: buyer.email,
-      subject: `Shipped: ${itemName}`,
+      subject: `Your Teevo order has been dispatched`,
       type: "transactional",
       variables: {
-        title: "Your order has shipped",
-        subtitle: "Track your delivery below.",
-        body: `Order #${id.slice(0, 8)} · ${itemName}`,
-        order_number: id.slice(0, 8),
+        title: "Your order has been dispatched",
+        subtitle: "Your order is on its way.",
+        body: bodyLines.join("\n"),
+        order_number: orderShort,
         cta_link: trackingLink,
-        cta_text: "Track delivery",
+        cta_text: "Track Parcel",
       },
     }).catch((e) => console.error("Shipping confirmation email failed", e));
   }
+
+  if (seller?.email) {
+    await ensureEmailSent(admin, {
+      emailType: EmailTriggerType.ITEM_DISPATCHED,
+      referenceId: id,
+      recipientId: tx.seller_id,
+      to: seller.email,
+      subject: `Your item has now been dispatched`,
+      type: "transactional",
+      variables: {
+        title: "Item dispatched",
+        subtitle: "Your item has now been dispatched.",
+        body: `Order #${orderShort} · ${itemName}`,
+        order_number: orderShort,
+        cta_link: `${appUrl}/dashboard/sales`,
+        cta_text: "View sales",
+      },
+    }).catch((e) => console.error("Item dispatched email failed", e));
+  }
+
   return NextResponse.json({ ok: true });
 }
