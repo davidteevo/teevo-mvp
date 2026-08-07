@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { FulfilmentStatus, PackagingStatus } from "@/lib/fulfilment";
+import { notifyAdminPackagingSubmitted } from "@/lib/fulfilment-emails";
 
 export const dynamic = "force-dynamic";
 
@@ -47,7 +48,7 @@ export async function POST(
     const admin = createAdminClient();
     const { data: tx, error: txErr } = await admin
       .from("transactions")
-      .select("id, seller_id, shipping_package, packaging_status, fulfilment_status")
+      .select("id, seller_id, listing_id, shipping_package, packaging_status, fulfilment_status")
       .eq("id", transactionId)
       .single();
 
@@ -98,6 +99,12 @@ export async function POST(
         { status: 500 }
       );
     }
+
+    await notifyAdminPackagingSubmitted(admin, {
+      transactionId,
+      listingId: tx.listing_id,
+      sellerId: tx.seller_id,
+    });
 
     return NextResponse.json({ ok: true });
   } catch (e) {

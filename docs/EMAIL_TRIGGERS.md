@@ -17,6 +17,10 @@ Automated emails fire from real user actions. Each send is recorded in `sent_ema
 | `user.created` | Email verification | User | Alert | Supabase built-in (or custom hook) |
 | `auth.password_reset_requested` | Forgot password | User | Alert | Supabase built-in (or custom hook) |
 | `listing.pending` | New listing to verify | Admin | Alert | `POST /api/listings` |
+| `packaging.submitted` | Packaging photos to review | Admin | Alert | `POST …/packaging-photos/submit` |
+| `packaging.approved` | Packaging approved | Seller | Transactional | `POST …/packaging-photos/verify` |
+| `packaging.rejected` | Packaging needs attention | Seller | Transactional | `POST …/packaging-photos/reject` |
+| `packaging.approved` (manual) | Shipping label needed | Admin | Alert | `POST …/packaging-photos/verify` when `fulfilment_mode=manual` |
 
 ## Idempotency
 

@@ -2,6 +2,11 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { FulfilmentStatus, PackagingStatus } from "@/lib/fulfilment";
+import { FulfilmentMode } from "@/lib/fulfilment-providers";
+import {
+  notifyAdminManualLabelNeeded,
+  notifySellerPackagingApproved,
+} from "@/lib/fulfilment-emails";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +37,7 @@ export async function POST(
 
     const { data: tx, error: txErr } = await admin
       .from("transactions")
-      .select("id, packaging_status")
+      .select("id, seller_id, listing_id, packaging_status, fulfilment_mode")
       .eq("id", transactionId)
       .single();
 
@@ -59,6 +64,21 @@ export async function POST(
         updated_at: now,
       })
       .eq("id", transactionId);
+
+    await notifySellerPackagingApproved(admin, {
+      transactionId,
+      listingId: tx.listing_id,
+      sellerId: tx.seller_id,
+      fulfilmentMode: tx.fulfilment_mode,
+    });
+
+    if (tx.fulfilment_mode === FulfilmentMode.MANUAL) {
+      await notifyAdminManualLabelNeeded(admin, {
+        transactionId,
+        listingId: tx.listing_id,
+        sellerId: tx.seller_id,
+      });
+    }
 
     return NextResponse.json({ ok: true });
   } catch (e) {
