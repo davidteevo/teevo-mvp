@@ -40,7 +40,7 @@ export async function GET(request: Request) {
         isNewUser = true;
         let stripe_account_id: string | null = null;
         try {
-          const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+          const appUrl = getAppUrl();
           const account = await stripe.accounts.create({
             type: "express",
             country: "GB",

@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { generateDisplayNameFromFirstName } from "@/lib/public-seller-name";
+import { getAppUrl } from "@/lib/app-env";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
@@ -31,7 +32,7 @@ export async function POST() {
 
   let stripe_account_id: string | null = null;
   try {
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+    const appUrl = getAppUrl();
     const account = await stripe.accounts.create({
       type: "express",
       country: "GB",
