@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { createCheckoutSession } from "@/lib/stripe-checkout";
+import { getAppUrl } from "@/lib/app-env";
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Seller has not set up payouts" }, { status: 400 });
   }
 
-  const origin = request.headers.get("origin") || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const origin = request.headers.get("origin") || getAppUrl();
 
   const { url } = await createCheckoutSession({
     listingId,

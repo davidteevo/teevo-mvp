@@ -45,6 +45,8 @@ Liquidity-first MVP for a UK-based golf equipment marketplace. Sellers list item
 
 ## Docs
 
+- **`docs/STAGING_AND_DEPLOY.md`** – Staging (`test.teevohq.com`) + production deploy workflow
+- **`docs/DEPLOY_NETLIFY.md`** – Netlify production setup
 - **`docs/SETUP_SUPABASE_STRIPE.md`** – **Detailed Supabase & Stripe setup** (start here for env and config)
 - `docs/ARCHITECTURE.md` – System architecture
 - `docs/API_ROUTES.md` – API route plan
@@ -61,7 +63,10 @@ Liquidity-first MVP for a UK-based golf equipment marketplace. Sellers list item
 - **Off-White Pique** `#FDFCF5` – background
 - **Divot Pink** `#FF8A8A` – pop
 
-## Deploy (Vercel)
+## Deploy (Netlify)
 
-- Connect repo; set all env vars.
-- Stripe webhook URL: `https://your-vercel-url.vercel.app/api/webhooks/stripe`.
+- Production: push/merge to **`main`** → existing Netlify site → `https://app.teevohq.com`
+- Staging: push/merge to **`staging`** → separate Netlify site → `https://test.teevohq.com`
+- Set env vars per environment (see `docs/STAGING_AND_DEPLOY.md`). Never put Stripe live or production Supabase keys on staging.
+- Stripe webhook (production): `https://app.teevohq.com/api/webhooks/stripe`
+- Stripe webhook (staging): `https://test.teevohq.com/api/webhooks/stripe` (test mode)

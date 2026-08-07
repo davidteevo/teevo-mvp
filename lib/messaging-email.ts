@@ -2,7 +2,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { ensureEmailSent } from "@/lib/email-triggers";
 import { EmailTriggerType } from "@/lib/email-triggers";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "http://localhost:3000";
+import { getAppUrl } from "@/lib/app-env";
+
+const APP_URL = getAppUrl();
 
 /**
  * Send "new message" email to the other party. Call after inserting a text message.

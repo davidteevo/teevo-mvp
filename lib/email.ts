@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import fs from "fs";
 import path from "path";
+import { isStaging } from "@/lib/app-env";
 
 /**
  * Single entrypoint for sending email via the Resend platform.
@@ -9,6 +10,7 @@ import path from "path";
  */
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const RESEND_FROM = process.env.RESEND_FROM?.trim() || "Teevo <hello@teevohq.com>";
+const STAGING_SUBJECT_PREFIX = "[TEEVO TEST]";
 
 function getResend(): Resend {
   if (!RESEND_API_KEY) {
@@ -67,11 +69,16 @@ export async function sendEmail({
   const rawHtml = loadTemplate(type);
   const html = render(rawHtml, variables);
 
+  let finalSubject = subject;
+  if (isStaging() && !subject.startsWith(STAGING_SUBJECT_PREFIX)) {
+    finalSubject = `${STAGING_SUBJECT_PREFIX} ${subject}`;
+  }
+
   const resend = getResend();
   const { error } = await resend.emails.send({
     from: RESEND_FROM,
     to: [to],
-    subject,
+    subject: finalSubject,
     html,
   });
 

@@ -3,8 +3,9 @@ import type Stripe from "stripe";
 import { ShippingService, type ShippingServiceType } from "@/lib/shippo";
 import { SHIPPING_FEE_GBP, FulfilmentStatus } from "@/lib/fulfilment";
 import { ensureEmailSent, EmailTriggerType, formatGbp } from "@/lib/email-triggers";
+import { getAppUrl } from "@/lib/app-env";
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "https://app.teevohq.com";
+const appUrl = getAppUrl();
 
 function getPaymentIntentId(value: unknown): string | undefined {
   if (value == null) return undefined;

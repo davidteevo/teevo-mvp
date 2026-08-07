@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
+import { getAppUrl } from "@/lib/app-env";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
@@ -17,8 +18,8 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json().catch(() => ({}));
-  const returnUrl = body.returnUrl ?? `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/dashboard`;
-  const refreshUrl = body.refreshUrl ?? `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/dashboard`;
+  const returnUrl = body.returnUrl ?? `${getAppUrl()}/dashboard`;
+  const refreshUrl = body.refreshUrl ?? `${getAppUrl()}/dashboard`;
 
   const admin = createAdminClient();
   const { data: profile } = await admin
@@ -60,7 +61,7 @@ export async function POST(request: Request) {
     if (address) individual.address = address;
     if (dob) individual.dob = dob;
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+    const appUrl = getAppUrl();
     const account = await stripe.accounts.create({
       type: "express",
       country: "GB",

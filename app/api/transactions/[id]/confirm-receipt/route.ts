@@ -3,7 +3,9 @@ import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { ensureEmailSent, EmailTriggerType, formatGbp } from "@/lib/email-triggers";
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "https://app.teevohq.com";
+import { getAppUrl } from "@/lib/app-env";
+
+const appUrl = getAppUrl();
 
 export const dynamic = "force-dynamic";
 

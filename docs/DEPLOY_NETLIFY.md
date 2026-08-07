@@ -73,6 +73,7 @@ Add the same variables you use in `.env.local`:
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key | `pk_live_...` or `pk_test_...` |
 | `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret for **this** Netlify URL | `whsec_...` |
 | `NEXT_PUBLIC_APP_URL` | Full URL of your main app | `https://app.teevohq.com` or `https://teevo-mvp.netlify.app` |
+| `NEXT_PUBLIC_APP_ENV` | App environment | `production` (use `staging` only on the staging Netlify site — see `docs/STAGING_AND_DEPLOY.md`) |
 | `NEXT_PUBLIC_ADMIN_DOMAIN` | (Optional) Admin-only domain; see [Admin domain](#admin-domain-adminteevohqcom) | `admin.teevohq.com` |
 | `NEXT_PUBLIC_COOKIE_DOMAIN` | (Optional) Shared auth cookie domain so app + admin stay logged in; use when using admin subdomain | `.teevohq.com` |
 | `RESEND_API_KEY` | Resend API key (for auth emails + transactional emails) | `re_...` |

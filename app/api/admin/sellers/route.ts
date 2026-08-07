@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
 import { generateDisplayNameFromFirstName } from "@/lib/public-seller-name";
+import { getAppUrl } from "@/lib/app-env";
 
 export const dynamic = "force-dynamic";
 
@@ -133,11 +134,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "User created but no id returned" }, { status: 500 });
     }
 
-    const rawAppUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
-    const appUrl =
-      rawAppUrl && !rawAppUrl.toLowerCase().includes("placeholder")
-        ? rawAppUrl
-        : "https://app.teevohq.com";
+    const rawAppUrl = getAppUrl();
+    const appUrl = rawAppUrl.toLowerCase().includes("placeholder")
+      ? "https://app.teevohq.com"
+      : rawAppUrl;
 
     // Generate recovery link; use hashed_token for server-side verify (works with PKCE and when fragments are stripped).
     const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({

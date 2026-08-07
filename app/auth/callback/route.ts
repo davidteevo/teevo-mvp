@@ -3,6 +3,7 @@ import { createClient as createServiceClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { generateDisplayNameFromFirstName } from "@/lib/public-seller-name";
+import { getAppUrl } from "@/lib/app-env";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
@@ -17,9 +18,7 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { data: { user }, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
     if (exchangeError) {
-      const base =
-        (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "") ||
-        new URL(request.url).origin;
+      const base = getAppUrl() || new URL(request.url).origin;
       const isResetPassword = next === "/login/reset-password" || next.startsWith("/login/reset-password");
       const redirectPath = isResetPassword
         ? `${base}/login/reset-password?error=invalid_link&error_description=${encodeURIComponent(

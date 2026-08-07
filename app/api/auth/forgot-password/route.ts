@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getAppUrl } from "@/lib/app-env";
 
 export const dynamic = "force-dynamic";
 
@@ -48,11 +49,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true }, { status: 200 });
   }
 
-  const rawApp = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
-  const appUrl =
-    rawApp && !rawApp.toLowerCase().includes("placeholder")
-      ? rawApp
-      : "https://app.teevohq.com";
+  const rawApp = getAppUrl();
+  const appUrl = rawApp.toLowerCase().includes("placeholder")
+    ? "https://app.teevohq.com"
+    : rawApp;
 
   try {
     const admin = createAdminClient();

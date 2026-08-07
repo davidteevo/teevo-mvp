@@ -4,6 +4,7 @@ import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { createCheckoutSession } from "@/lib/stripe-checkout";
 import { ShippingService, type ShippingServiceType } from "@/lib/shippo";
+import { getAppUrl } from "@/lib/app-env";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
@@ -81,7 +82,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Seller payouts not available" }, { status: 400 });
   }
 
-  const origin = request.headers.get("origin") || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const origin = request.headers.get("origin") || getAppUrl();
 
   const { url } = await createCheckoutSession({
     listingId,

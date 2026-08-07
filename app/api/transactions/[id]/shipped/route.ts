@@ -4,7 +4,9 @@ import { NextResponse } from "next/server";
 import { FulfilmentStatus } from "@/lib/fulfilment";
 import { ensureEmailSent, EmailTriggerType } from "@/lib/email-triggers";
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "https://app.teevohq.com";
+import { getAppUrl } from "@/lib/app-env";
+
+const appUrl = getAppUrl();
 
 export const dynamic = "force-dynamic";
 

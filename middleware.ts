@@ -1,8 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
+import { getAppUrl } from "@/lib/app-env";
 
 const ADMIN_DOMAIN = process.env.NEXT_PUBLIC_ADMIN_DOMAIN;
-const MAIN_SITE_URL = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "https://app.teevohq.com";
+const MAIN_SITE_URL = getAppUrl();
 
 // Paths that must stay on admin host (auth + admin UI). Everything else on admin host goes to main app.
 const ALLOWED_ON_ADMIN = ["/admin", "/login", "/signup", "/auth"];

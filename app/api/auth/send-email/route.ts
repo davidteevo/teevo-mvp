@@ -2,6 +2,7 @@ import { Webhook } from "standardwebhooks";
 import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getAppUrl } from "@/lib/app-env";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "") ?? "";
 
@@ -111,7 +112,7 @@ export async function POST(request: Request) {
       !fromPayload.includes("supabase.co") &&
       !isDeployPreview)
       ? fromPayload
-      : (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "") || "http://localhost:3000";
+      : getAppUrl();
 
   const buildVerifyUrl = (hash: string, type: string) =>
     `${supabaseUrl}/auth/v1/verify?token=${encodeURIComponent(hash)}&type=${encodeURIComponent(type)}&redirect_to=${encodeURIComponent(redirect_to)}`;

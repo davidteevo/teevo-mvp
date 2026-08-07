@@ -3,7 +3,11 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { TrustStrip } from "@/components/layout/TrustStrip";
+import { StagingBanner } from "@/components/layout/StagingBanner";
 import { AuthProvider } from "@/lib/auth-context";
+import { getAppEnv, isProduction, isStaging } from "@/lib/app-env";
+
+const appEnv = getAppEnv();
 
 export const metadata: Metadata = {
   title: "Teevo | The Smarter Golf Gear Marketplace",
@@ -12,6 +16,9 @@ export const metadata: Metadata = {
     icon: "/favicon.png",
     apple: "/favicon.png",
   },
+  ...(isStaging() || appEnv === "development"
+    ? { robots: { index: false, follow: false } }
+    : {}),
 };
 
 export const dynamic = "force-dynamic";
@@ -21,24 +28,30 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const loadAnalytics = isProduction();
+
   return (
     <html lang="en" className="font-sans">
       <head>
-        <script
-          async
-          src="https://www.googletagmanager.com/gtag/js?id=G-CXFXS7S1M4"
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
+        {loadAnalytics ? (
+          <>
+            <script
+              async
+              src="https://www.googletagmanager.com/gtag/js?id=G-CXFXS7S1M4"
+            />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
   gtag('config', 'G-CXFXS7S1M4');
 `,
-          }}
-        />
+              }}
+            />
+          </>
+        ) : null}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
@@ -47,6 +60,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col antialiased">
+        <StagingBanner />
         <AuthProvider>
           <TrustStrip />
         <Header />

@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { getAppUrl } from "@/lib/app-env";
 
 export const dynamic = "force-dynamic";
 
@@ -15,9 +16,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const token_hash = searchParams.get("token_hash");
   /** Redirect to canonical app URL so we never send users to a deploy-preview origin. */
-  const base =
-    (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "") ||
-    new URL(request.url).origin;
+  const base = getAppUrl() || new URL(request.url).origin;
   const resetPath = `${base}/login/reset-password`;
   const errorPathWithReason = (reason: string) =>
     `${base}/login/reset-password?error=invalid_link&error_description=${encodeURIComponent(reason)}`;
