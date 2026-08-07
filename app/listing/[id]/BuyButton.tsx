@@ -4,7 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { ShippingService, type ShippingServiceType } from "@/lib/shippo";
-import { SHIPPING_FEE_GBP } from "@/lib/fulfilment";
+import {
+  FulfilmentMode,
+  SHIPPING_FEE_GBP,
+  type FulfilmentModeType,
+} from "@/lib/fulfilment";
 
 const DELIVERY_OPTIONS: { value: ShippingServiceType; label: string }[] = [
   { value: ShippingService.DPD_NEXT_DAY, label: `DPD Next Day · £${SHIPPING_FEE_GBP.toFixed(2)}` },
@@ -18,16 +22,20 @@ export function BuyButton({
   price,
   totalPence,
   sellerCanAcceptPayment = true,
+  fulfilmentMode = FulfilmentMode.SHIPPO,
 }: {
   listingId: string;
   price: number;
   totalPence?: number;
   /** False when the seller has not completed Stripe Connect payouts setup */
   sellerCanAcceptPayment?: boolean;
+  /** Platform fulfilment mode; manual hides carrier service picker */
+  fulfilmentMode?: FulfilmentModeType;
 }) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [deliveryService, setDeliveryService] = useState<ShippingServiceType>(ShippingService.DPD_NEXT_DAY);
+  const isManualFulfilment = fulfilmentMode === FulfilmentMode.MANUAL;
 
   const [modalOpen, setModalOpen] = useState(false);
   const [notifyEmail, setNotifyEmail] = useState("");
@@ -45,7 +53,11 @@ export function BuyButton({
       const res = await fetch("/api/checkout/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ listingId, shippingService: deliveryService }),
+        body: JSON.stringify({
+          listingId,
+          // Manual mode has no buyer service choice; checkout defaults shipping_service server-side.
+          ...(isManualFulfilment ? {} : { shippingService: deliveryService }),
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error ?? "Checkout failed");
@@ -202,23 +214,35 @@ export function BuyButton({
 
   return (
     <div className="space-y-3">
-      <div>
-        <label htmlFor="delivery" className="block text-sm font-medium text-mowing-green mb-1">
-          Delivery
-        </label>
-        <select
-          id="delivery"
-          value={deliveryService}
-          onChange={(e) => setDeliveryService(e.target.value as ShippingServiceType)}
-          className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green"
-        >
-          {DELIVERY_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-      </div>
+      {isManualFulfilment ? (
+        <div className="rounded-lg border border-mowing-green/20 bg-mowing-green/5 px-4 py-3">
+          <p className="text-sm font-medium text-mowing-green">Secure Tracked Delivery</p>
+          <p className="mt-1 text-sm text-mowing-green/80">
+            Your order will be dispatched once the seller has securely packaged your item.
+          </p>
+          <p className="mt-2 text-xs text-mowing-green/60">
+            Tracked shipping · £{SHIPPING_FEE_GBP.toFixed(2)}
+          </p>
+        </div>
+      ) : (
+        <div>
+          <label htmlFor="delivery" className="block text-sm font-medium text-mowing-green mb-1">
+            Delivery
+          </label>
+          <select
+            id="delivery"
+            value={deliveryService}
+            onChange={(e) => setDeliveryService(e.target.value as ShippingServiceType)}
+            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green"
+          >
+            {DELIVERY_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
       <p className="text-xs text-mowing-green/75 leading-relaxed">
         By completing this purchase, you agree to our{" "}
         <Link href="/terms" className="text-par-3-punch font-medium hover:underline">

@@ -11,6 +11,7 @@ import { MakeOfferButton } from "./MakeOfferButton";
 import { ListingImageGallery } from "./ListingImageGallery";
 import { FoundingSellerBadge } from "@/components/trust/FoundingSellerBadge";
 import { ensureDisplayNameForUser } from "@/lib/public-seller-name";
+import { getPlatformFulfilmentMode } from "@/lib/fulfilment";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
@@ -24,11 +25,12 @@ export default async function ListingPage({
   const { data: { user } } = await supabase.auth.getUser();
 
   const admin = createAdminClient();
-  const [listingResult, txResult] = await Promise.all([
+  const [listingResult, txResult, fulfilmentMode] = await Promise.all([
     getListingById(id).then((l) => ({ listing: l, err: null })).catch((err) => ({ listing: null, err })),
     user?.id
       ? admin.from("transactions").select("id").eq("listing_id", id).eq("buyer_id", user.id).single().then(({ data }) => data)
       : Promise.resolve(null),
+    getPlatformFulfilmentMode(admin),
   ]);
 
   let listing = listingResult.listing;
@@ -201,6 +203,7 @@ export default async function ListingPage({
                 price={listing.price}
                 totalPence={totalPence}
                 sellerCanAcceptPayment={sellerCanAcceptPayment}
+                fulfilmentMode={fulfilmentMode}
               />
               {user?.id !== listing.user_id && (
                 <MakeOfferButton listingId={listing.id} listingPricePence={listing.price} />
