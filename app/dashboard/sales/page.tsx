@@ -372,7 +372,7 @@ export default function DashboardSalesPage() {
               const imageUrl = imgPath ? getListingImageUrl(imgPath, "thumb") : "/placeholder-listing.svg";
               const subtitle = [listing?.category, listing?.brand].filter(Boolean).join(" · ") || null;
               return (
-                <li key={t.id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4">
+                <li key={t.id} className="flex flex-col gap-4 p-4">
                   <Link
                     href={`/listing/${t.listing_id}`}
                     className="flex flex-1 min-w-0 gap-4 rounded-lg hover:bg-mowing-green/5 -m-2 p-2 transition-colors"
@@ -410,24 +410,24 @@ export default function DashboardSalesPage() {
                       )}
                     </div>
                   </Link>
-                  <div className="flex flex-wrap items-center gap-2 shrink-0">
+                  <div className="flex flex-col gap-3 w-full min-w-0">
                     {(t.fulfilment_status === FulfilmentStatus.PAID || t.fulfilment_status == null) &&
                       !t.shipping_package &&
                       t.status === "pending" &&
                       !hasShippingLabel(t) && (
-                        <div className="w-full sm:w-auto rounded-lg border border-golden-tee/30 bg-golden-tee/10 p-3 space-y-2">
+                        <div className="w-full rounded-lg border border-golden-tee/30 bg-golden-tee/10 p-3 space-y-2">
                           <p className="text-sm font-medium text-mowing-green">Prepare your item for dispatch</p>
-                          <div className="flex flex-wrap gap-2">
+                          <div className="flex flex-col gap-2">
                             <button
                               type="button"
                               onClick={() => submitPackaging(t.id, ShippingPackage.SELLER_PACKS)}
                               disabled={packagingSubmittingId === t.id}
-                              className="rounded-lg bg-mowing-green text-off-white-pique px-3 py-1.5 text-sm font-medium hover:opacity-90 disabled:opacity-70"
+                              className="rounded-lg bg-mowing-green text-off-white-pique px-3 py-1.5 text-sm font-medium hover:opacity-90 disabled:opacity-70 w-fit"
                             >
                               I have suitable packaging (free)
                             </button>
                             {starterPackEnabled ? (
-                              <div className="w-full rounded-lg border border-mowing-green/20 bg-white/70 p-3 space-y-2">
+                              <div className="w-full rounded-lg border border-mowing-green/20 bg-white p-3 space-y-2">
                                 <p className="text-sm font-medium text-mowing-green">Your Teevo Starter Pack</p>
                                 <p className="text-sm text-mowing-green/80">
                                   Your shipping box is on us. We&apos;ll send you suitable packaging for your club so you can get it safely to your buyer.
@@ -443,7 +443,7 @@ export default function DashboardSalesPage() {
                                 </button>
                               </div>
                             ) : (
-                              <div className="flex gap-2 items-center">
+                              <div className="flex gap-2 items-center flex-wrap">
                                 <select
                                   value={teevoBoxType}
                                   onChange={(e) => setTeevoBoxType(e.target.value)}
