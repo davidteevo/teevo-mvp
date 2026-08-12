@@ -10,6 +10,7 @@ import {
   FulfilmentStatus,
   FulfilmentMode,
   ShippingPackage,
+  PackagingSource,
   BOX_TYPES,
   BOX_FEE_GBP,
   PackagingStatus,
@@ -67,6 +68,9 @@ type Transaction = {
   review_notes?: string | null;
   reviewed_by?: string | null;
   reviewed_at?: string | null;
+  packaging_source?: string | null;
+  packaging_requested_at?: string | null;
+  starter_pack_dispatched_at?: string | null;
   listing?: {
     model: string;
     category: string;
@@ -99,6 +103,7 @@ export default function DashboardSalesPage() {
   const [packagingPhotoFiles, setPackagingPhotoFiles] = useState<Record<string, (File | null)[]>>({});
   const [teevoBoxType, setTeevoBoxType] = useState<string>(BOX_TYPES[0]);
   const [labelErrorById, setLabelErrorById] = useState<Record<string, string>>({});
+  const [starterPackEnabled, setStarterPackEnabled] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) router.replace(`/login?redirect=${encodeURIComponent("/dashboard/sales")}`);
@@ -109,7 +114,10 @@ export default function DashboardSalesPage() {
     const fetchTransactions = () => {
       fetch("/api/transactions?role=seller")
         .then((r) => r.json())
-        .then((data) => setTransactions(data.transactions ?? []))
+        .then((data) => {
+          setTransactions(data.transactions ?? []);
+          setStarterPackEnabled(data.free_starter_pack_enabled === true);
+        })
         .catch(() => setTransactions([]));
     };
     fetchTransactions();
@@ -143,16 +151,22 @@ export default function DashboardSalesPage() {
     }
   };
 
-  const submitPackaging = async (id: string, shippingPackage: string, boxType?: string) => {
+  const submitPackaging = async (
+    id: string,
+    shippingPackage: string,
+    opts?: { boxType?: string; starterPack?: boolean }
+  ) => {
     setPackagingSubmittingId(id);
     try {
       const res = await fetch(`/api/transactions/${id}/packaging`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
-          shippingPackage === ShippingPackage.TEEVO_BOX
-            ? { shipping_package: shippingPackage, box_type: boxType ?? teevoBoxType }
-            : { shipping_package: shippingPackage }
+          opts?.starterPack
+            ? { shipping_package: ShippingPackage.TEEVO_BOX, starter_pack: true }
+            : shippingPackage === ShippingPackage.TEEVO_BOX
+              ? { shipping_package: shippingPackage, box_type: opts?.boxType ?? teevoBoxType }
+              : { shipping_package: shippingPackage }
         ),
       });
       const data = await res.json().catch(() => ({}));
@@ -162,10 +176,31 @@ export default function DashboardSalesPage() {
             t.id === id
               ? {
                   ...t,
-                  fulfilment_status: FulfilmentStatus.PACKAGING_SUBMITTED,
-                  shipping_package: shippingPackage,
-                  box_type: shippingPackage === ShippingPackage.TEEVO_BOX ? (boxType ?? teevoBoxType) : null,
-                  box_fee_gbp: shippingPackage === ShippingPackage.TEEVO_BOX ? BOX_FEE_GBP[(boxType ?? teevoBoxType) as keyof typeof BOX_FEE_GBP] : null,
+                  fulfilment_status: data.fulfilment_status ?? (
+                    opts?.starterPack ? t.fulfilment_status : FulfilmentStatus.PACKAGING_SUBMITTED
+                  ),
+                  shipping_package: data.shipping_package ?? shippingPackage,
+                  packaging_source: data.packaging_source ?? (
+                    opts?.starterPack
+                      ? PackagingSource.TEEVO_STARTER_PACK
+                      : shippingPackage === ShippingPackage.TEEVO_BOX
+                        ? PackagingSource.TEEVO_PAID
+                        : PackagingSource.SELLER_OWN
+                  ),
+                  box_type: data.box_type ?? (
+                    shippingPackage === ShippingPackage.TEEVO_BOX && !opts?.starterPack
+                      ? (opts?.boxType ?? teevoBoxType)
+                      : t.box_type
+                  ),
+                  box_fee_gbp: data.box_fee_gbp ?? (
+                    opts?.starterPack
+                      ? 0
+                      : shippingPackage === ShippingPackage.TEEVO_BOX
+                        ? BOX_FEE_GBP[(opts?.boxType ?? teevoBoxType) as keyof typeof BOX_FEE_GBP]
+                        : null
+                  ),
+                  packaging_requested_at: data.packaging_requested_at ?? t.packaging_requested_at,
+                  starter_pack_dispatched_at: data.starter_pack_dispatched_at ?? t.starter_pack_dispatched_at,
                 }
               : t
           )
@@ -366,7 +401,9 @@ export default function DashboardSalesPage() {
                           Sold {formatDateTime(t.created_at)}
                         </p>
                       )}
-                      {t.shipping_package === ShippingPackage.TEEVO_BOX && t.box_fee_gbp != null && (
+                      {t.shipping_package === ShippingPackage.TEEVO_BOX &&
+                        t.box_fee_gbp != null &&
+                        Number(t.box_fee_gbp) > 0 && (
                         <p className="text-xs text-mowing-green/60 mt-0.5">
                           Box fee £{Number(t.box_fee_gbp).toFixed(2)} deducted from your payout
                         </p>
@@ -389,34 +426,71 @@ export default function DashboardSalesPage() {
                             >
                               I have suitable packaging (free)
                             </button>
-                            <div className="flex gap-2 items-center">
-                              <select
-                                value={teevoBoxType}
-                                onChange={(e) => setTeevoBoxType(e.target.value)}
-                                className="rounded border border-mowing-green/30 bg-white px-2 py-1.5 text-sm text-mowing-green"
-                              >
-                                {BOX_TYPES.map((b) => (
-                                  <option key={b} value={b}>{BOX_LABELS[b] ?? b}</option>
-                                ))}
-                              </select>
-                              <button
-                                type="button"
-                                onClick={() => submitPackaging(t.id, ShippingPackage.TEEVO_BOX)}
-                                disabled={packagingSubmittingId === t.id}
-                                className="rounded-lg border border-par-3-punch/50 text-par-3-punch px-3 py-1.5 text-sm font-medium hover:bg-par-3-punch/10 disabled:opacity-70"
-                              >
-                                Send me a Teevo box
-                              </button>
-                            </div>
+                            {starterPackEnabled ? (
+                              <div className="w-full rounded-lg border border-mowing-green/20 bg-white/70 p-3 space-y-2">
+                                <p className="text-sm font-medium text-mowing-green">Your Teevo Starter Pack</p>
+                                <p className="text-sm text-mowing-green/80">
+                                  Your shipping box is on us. We&apos;ll send you suitable packaging for your club so you can get it safely to your buyer.
+                                </p>
+                                <p className="text-sm font-semibold text-mowing-green">£0 — Free</p>
+                                <button
+                                  type="button"
+                                  onClick={() => submitPackaging(t.id, ShippingPackage.TEEVO_BOX, { starterPack: true })}
+                                  disabled={packagingSubmittingId === t.id}
+                                  className="rounded-lg border border-par-3-punch/50 text-par-3-punch px-3 py-1.5 text-sm font-medium hover:bg-par-3-punch/10 disabled:opacity-70"
+                                >
+                                  Request my free box
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex gap-2 items-center">
+                                <select
+                                  value={teevoBoxType}
+                                  onChange={(e) => setTeevoBoxType(e.target.value)}
+                                  className="rounded border border-mowing-green/30 bg-white px-2 py-1.5 text-sm text-mowing-green"
+                                >
+                                  {BOX_TYPES.map((b) => (
+                                    <option key={b} value={b}>{BOX_LABELS[b] ?? b}</option>
+                                  ))}
+                                </select>
+                                <button
+                                  type="button"
+                                  onClick={() => submitPackaging(t.id, ShippingPackage.TEEVO_BOX)}
+                                  disabled={packagingSubmittingId === t.id}
+                                  className="rounded-lg border border-par-3-punch/50 text-par-3-punch px-3 py-1.5 text-sm font-medium hover:bg-par-3-punch/10 disabled:opacity-70"
+                                >
+                                  Send me a Teevo box
+                                </button>
+                              </div>
+                            )}
                           </div>
-                          <p className="text-xs text-mowing-green/60">Box cost is deducted from your payout. Buyer is not charged.</p>
+                          {!starterPackEnabled && (
+                            <p className="text-xs text-mowing-green/60">Box cost is deducted from your payout. Buyer is not charged.</p>
+                          )}
+                        </div>
+                      )}
+                    {t.packaging_source === PackagingSource.TEEVO_STARTER_PACK &&
+                      !t.starter_pack_dispatched_at &&
+                      t.status === "pending" &&
+                      !hasShippingLabel(t) && (
+                        <div className="w-full sm:w-auto max-w-md rounded-lg border border-golden-tee/30 bg-golden-tee/10 px-4 py-3">
+                          <p className="text-sm font-medium text-mowing-green">Your free box is being prepared</p>
+                          <p className="mt-1 text-sm text-mowing-green/80">
+                            We&apos;re preparing your Teevo Starter Pack. Once it has been dispatched you can package your club and upload photos here.
+                          </p>
                         </div>
                       )}
                     {t.shipping_package &&
+                      !(t.packaging_source === PackagingSource.TEEVO_STARTER_PACK && !t.starter_pack_dispatched_at) &&
                       (t.packaging_status === PackagingStatus.REJECTED || t.packaging_status == null) &&
                       t.status === "pending" &&
                       !hasShippingLabel(t) && (
                         <div className="w-full sm:w-auto rounded-lg border border-mowing-green/30 bg-mowing-green/5 p-3 space-y-2">
+                          {t.packaging_source === PackagingSource.TEEVO_STARTER_PACK && t.starter_pack_dispatched_at && (
+                            <p className="text-xs text-mowing-green/80">
+                              Your Teevo Starter Pack is on its way. Once it arrives, package your club and upload photos below.
+                            </p>
+                          )}
                           <p className="text-sm font-medium text-mowing-green">Upload packaging photos</p>
                           {t.packaging_status === PackagingStatus.REJECTED && (t.review_notes ?? t.packaging_review_notes) && (
                             <p className="text-xs text-red-600 bg-red-50 rounded px-2 py-1">

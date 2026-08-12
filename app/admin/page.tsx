@@ -19,6 +19,7 @@ export default async function AdminDashboardPage() {
     gmvRes,
     usersRes,
     packagingRes,
+    starterPackRes,
   ] = await Promise.all([
     admin.from("listings").select("id", { count: "exact", head: true }).eq("status", "pending"),
     admin.from("listings").select("id, status", { count: "exact" }),
@@ -26,6 +27,11 @@ export default async function AdminDashboardPage() {
     admin.from("transactions").select("amount").in("status", ["complete", "shipped"]),
     admin.from("users").select("id, role", { count: "exact" }),
     admin.from("transactions").select("id, packaging_photos").or("packaging_status.eq.SUBMITTED,packaging_status.is.null"),
+    admin
+      .from("transactions")
+      .select("id", { count: "exact", head: true })
+      .eq("packaging_source", "TEEVO_STARTER_PACK")
+      .is("starter_pack_dispatched_at", null),
   ]);
 
   const pendingCount = pendingRes.count ?? 0;
@@ -39,6 +45,7 @@ export default async function AdminDashboardPage() {
     const photos = (t as { packaging_photos?: unknown }).packaging_photos;
     return Array.isArray(photos) && photos.length >= 3;
   }).length;
+  const starterPackPendingCount = starterPackRes.count ?? 0;
 
   return (
     <div>
@@ -68,6 +75,16 @@ export default async function AdminDashboardPage() {
             <p className="mt-2 text-2xl font-bold text-mowing-green">{packagingPendingCount}</p>
             <Link href="/dashboard/admin/packaging" className="mt-2 inline-block text-sm text-par-3-punch hover:underline">
               Verify packaging photos →
+            </Link>
+          </div>
+          <div className="rounded-xl border border-par-3-punch/20 bg-white p-5">
+            <div className="flex items-center gap-2 text-mowing-green/70">
+              <Package className="h-5 w-5" />
+              <span className="text-sm font-medium">Starter Packs</span>
+            </div>
+            <p className="mt-2 text-2xl font-bold text-mowing-green">{starterPackPendingCount}</p>
+            <Link href="/admin/starter-packs" className="mt-2 inline-block text-sm text-par-3-punch hover:underline">
+              Boxes to ship →
             </Link>
           </div>
           <div className="rounded-xl border border-par-3-punch/20 bg-white p-5">

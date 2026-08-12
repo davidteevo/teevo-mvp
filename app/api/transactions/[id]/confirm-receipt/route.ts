@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { ensureEmailSent, EmailTriggerType, formatGbp } from "@/lib/email-triggers";
+import { PackagingSource, STARTER_PACK_EVENTS, trackServerEvent } from "@/lib/starter-pack";
 
 import { getAppUrl } from "@/lib/app-env";
 
@@ -29,7 +30,7 @@ export async function POST(
 
   const { data: tx } = await admin
     .from("transactions")
-    .select("buyer_id, seller_id, listing_id, amount, status")
+    .select("buyer_id, seller_id, listing_id, amount, status, packaging_source")
     .eq("id", id)
     .single();
 
@@ -75,6 +76,12 @@ export async function POST(
         cta_text: "View sales",
       },
     }).catch((e) => console.error("Funds released email failed", e));
+  }
+  if (tx.packaging_source === PackagingSource.TEEVO_STARTER_PACK) {
+    await trackServerEvent(admin, STARTER_PACK_EVENTS.ORDER_COMPLETED, {
+      userId: tx.buyer_id,
+      properties: { transaction_id: id, seller_id: tx.seller_id },
+    });
   }
   return NextResponse.json({ ok: true });
 }

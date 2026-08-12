@@ -127,6 +127,7 @@ Staging site → **Site configuration** → **Visitor access** (or **Password pr
 - `docs/MIGRATION_transactions_all_webhook_columns.sql`
 - `docs/MIGRATION_sent_emails.sql`
 - `docs/MIGRATION_events.sql`
+- `docs/MIGRATION_starter_pack.sql`
 
 3. **Authentication → URL Configuration**
    - **Site URL:** `https://test.teevohq.com`

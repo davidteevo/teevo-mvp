@@ -28,6 +28,9 @@ export const EmailTriggerType = {
   PACKAGING_REJECTED: "packaging_rejected",
   PACKAGING_SUBMITTED_ADMIN: "packaging_submitted_admin",
   MANUAL_LABEL_NEEDED_ADMIN: "manual_label_needed_admin",
+  STARTER_PACK_REQUESTED: "starter_pack_requested",
+  STARTER_PACK_REQUESTED_ADMIN: "starter_pack_requested_admin",
+  STARTER_PACK_DISPATCHED: "starter_pack_dispatched",
 } as const;
 
 export type EmailTriggerTypeValue = (typeof EmailTriggerType)[keyof typeof EmailTriggerType];

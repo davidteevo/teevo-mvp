@@ -21,6 +21,9 @@ Automated emails fire from real user actions. Each send is recorded in `sent_ema
 | `packaging.approved` | Packaging approved | Seller | Transactional | `POST …/packaging-photos/verify` |
 | `packaging.rejected` | Packaging needs attention | Seller | Transactional | `POST …/packaging-photos/reject` |
 | `packaging.approved` (manual) | Shipping label needed | Admin | Alert | `POST …/packaging-photos/verify` when `fulfilment_mode=manual` |
+| `starter_pack.requested` | Your free Teevo Starter Pack is being prepared | Seller | Transactional | `POST …/packaging` with `starter_pack: true` |
+| `starter_pack.requested` | ACTION REQUIRED: New Teevo Starter Pack Request | Admin | Alert | Same, after persist |
+| `starter_pack.dispatched` | Your Teevo Starter Pack is on its way | Seller | Transactional | `POST …/starter-pack/dispatch` |
 
 ## Idempotency
 

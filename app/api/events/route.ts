@@ -12,6 +12,12 @@ const ALLOWED_EVENTS = [
   "seller_listing_completed",
   "seller_listing_photo_upload",
   "seller_listing_published",
+  "starter_pack_enabled",
+  "starter_pack_disabled",
+  "starter_pack_requested",
+  "starter_pack_admin_notification_sent",
+  "starter_pack_dispatched",
+  "starter_pack_order_completed",
 ] as const;
 
 export type AllowedEventName = (typeof ALLOWED_EVENTS)[number];

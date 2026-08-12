@@ -16,6 +16,13 @@ export {
   setPlatformFulfilmentMode,
 } from "@/lib/fulfilment-providers";
 
+export {
+  PackagingSource,
+  type PackagingSourceType,
+  categoryToBoxType,
+  isFreeStarterPackEnabled,
+} from "@/lib/starter-pack";
+
 /** Shipping fee charged to buyer (flat rate MVP). */
 export const SHIPPING_FEE_GBP = 9.49;
 
@@ -52,6 +59,13 @@ export const BOX_FEE_GBP: Record<BoxType, number> = {
 export function getBoxFeeGbp(boxType: BoxType): number {
   return BOX_FEE_GBP[boxType] ?? 4.99;
 }
+
+export const BOX_TYPE_LABELS: Record<BoxType, string> = {
+  DRIVER_BOX: "Driver box",
+  IRON_SET_BOX: "Iron set box",
+  PUTTER_BOX: "Putter box",
+  SMALL_BOX: "Small box",
+};
 
 /** Packaging photo review status (manual review MVP). */
 export const PackagingStatus = {

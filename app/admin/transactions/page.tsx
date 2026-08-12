@@ -31,6 +31,11 @@ export default async function AdminTransactionsPage({ searchParams }: Props) {
                   <p className="text-xs text-mowing-green/60">
                     {t.id.slice(0, 8)}… · {formatPrice(t.amount)} · {t.status}
                   </p>
+                  {t.packaging_source === "TEEVO_STARTER_PACK" && (
+                    <span className="mt-1 inline-flex items-center rounded-full border border-par-3-punch/30 bg-off-white-pique px-2 py-0.5 text-xs font-medium text-mowing-green">
+                      Starter Pack — {t.starter_pack_dispatched_at ? "Dispatched" : "Free Box"}
+                    </span>
+                  )}
                 </div>
                 <span className="text-sm text-mowing-green/70">
                   {new Date(t.created_at).toLocaleDateString()}

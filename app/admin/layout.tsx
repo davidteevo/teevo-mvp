@@ -61,6 +61,9 @@ export default async function AdminLayout({
           <Link href="/admin/users" className="text-mowing-green font-medium hover:underline">
             Users
           </Link>
+          <Link href="/admin/starter-packs" className="text-mowing-green font-medium hover:underline">
+            Starter Packs
+          </Link>
           <Link href="/admin/fulfilment" className="text-mowing-green font-medium hover:underline">
             Awaiting labels
           </Link>

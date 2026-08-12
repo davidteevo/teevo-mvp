@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
+import { isFreeStarterPackEnabled } from "@/lib/starter-pack";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ export async function GET(request: Request) {
   let query = admin
     .from("transactions")
     .select(
-      "id, listing_id, buyer_id, seller_id, amount, status, order_state, shipped_at, completed_at, created_at, shippo_label_url, shippo_qr_code_url, shippo_tracking_number, fulfilment_status, fulfilment_mode, courier, tracking_number, tracking_url, shipping_label_url, shipping_package, box_fee_gbp, box_type, shipping_service, shipping_fee_gbp, packaging_photos, packaging_status, packaging_review_notes, review_notes, reviewed_by, reviewed_at, listing:listings(model, category, brand, listing_images(storage_path, sort_order))"
+      "id, listing_id, buyer_id, seller_id, amount, status, order_state, shipped_at, completed_at, created_at, shippo_label_url, shippo_qr_code_url, shippo_tracking_number, fulfilment_status, fulfilment_mode, courier, tracking_number, tracking_url, shipping_label_url, shipping_package, box_fee_gbp, box_type, shipping_service, shipping_fee_gbp, packaging_photos, packaging_status, packaging_review_notes, review_notes, reviewed_by, reviewed_at, packaging_source, packaging_requested_at, starter_pack_dispatched_at, starter_pack_admin_notified_at, listing:listings(model, category, brand, listing_images(storage_path, sort_order))"
     )
     .order("created_at", { ascending: false });
 
@@ -33,9 +34,15 @@ export async function GET(request: Request) {
     query = query.or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`);
   }
 
-  const { data, error } = await query;
+  const [{ data, error }, freeStarterPackEnabled] = await Promise.all([
+    query,
+    role === "seller" ? isFreeStarterPackEnabled(admin) : Promise.resolve(false),
+  ]);
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-  return NextResponse.json({ transactions: data ?? [] });
+  return NextResponse.json({
+    transactions: data ?? [],
+    ...(role === "seller" ? { free_starter_pack_enabled: freeStarterPackEnabled } : {}),
+  });
 }

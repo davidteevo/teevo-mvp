@@ -157,6 +157,8 @@ export type AdminTransaction = {
   shipped_at: string | null;
   completed_at: string | null;
   created_at: string;
+  packaging_source?: string | null;
+  starter_pack_dispatched_at?: string | null;
   listing?: { model: string };
 };
 
@@ -164,7 +166,7 @@ export async function getAdminTransactions(status?: string): Promise<AdminTransa
   const admin = adminClient();
   let query = admin
     .from("transactions")
-    .select("id, listing_id, buyer_id, seller_id, amount, status, shipped_at, completed_at, created_at, listing:listings(model)")
+    .select("id, listing_id, buyer_id, seller_id, amount, status, shipped_at, completed_at, created_at, packaging_source, starter_pack_dispatched_at, listing:listings(model)")
     .order("created_at", { ascending: false });
   if (status) query = query.eq("status", status);
   const { data, error } = await query;

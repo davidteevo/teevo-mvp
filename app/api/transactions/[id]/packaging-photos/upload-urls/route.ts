@@ -35,7 +35,7 @@ export async function POST(
     const admin = createAdminClient();
     const { data: tx, error: txErr } = await admin
       .from("transactions")
-      .select("id, seller_id, fulfilment_status, shipping_package, packaging_status")
+      .select("id, seller_id, fulfilment_status, shipping_package, packaging_status, packaging_source, starter_pack_dispatched_at")
       .eq("id", transactionId)
       .single();
 
@@ -48,6 +48,12 @@ export async function POST(
     if (!tx.shipping_package) {
       return NextResponse.json(
         { error: "Choose packaging type first (Prepare your item for dispatch)" },
+        { status: 400 }
+      );
+    }
+    if (tx.packaging_source === "TEEVO_STARTER_PACK" && !tx.starter_pack_dispatched_at) {
+      return NextResponse.json(
+        { error: "Wait until your free Teevo box has been dispatched before uploading photos" },
         { status: 400 }
       );
     }
