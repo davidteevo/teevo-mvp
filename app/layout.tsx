@@ -4,6 +4,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { TrustStrip } from "@/components/layout/TrustStrip";
 import { StagingBanner } from "@/components/layout/StagingBanner";
+import { ViewportOverflowProbe } from "@/components/debug/ViewportOverflowProbe";
 import { Suspense } from "react";
 import { AuthProvider } from "@/lib/auth-context";
 import { WatchlistProvider } from "@/lib/watchlist-context";
@@ -33,6 +34,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const loadAnalytics = isProduction();
+  const showOverflowProbe = !isProduction();
 
   return (
     <html lang="en" className="font-sans">
@@ -64,6 +66,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col antialiased">
+        {showOverflowProbe ? <ViewportOverflowProbe /> : null}
         <StagingBanner />
         <AuthProvider>
           <WatchlistProvider>
