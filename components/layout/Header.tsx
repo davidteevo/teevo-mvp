@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, ChevronDown, LayoutDashboard, Settings, LogOut, ShoppingCart, Tag, LayoutGrid, MessageCircle, Shield, User, Bell, Heart } from "lucide-react";
+import { Menu, X, ChevronDown, LayoutDashboard, Settings, LogOut, ShoppingCart, Tag, LayoutGrid, MessageCircle, Shield, User, Bell, Heart } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
@@ -37,6 +37,7 @@ export function Header() {
   const [avatarError, setAvatarError] = useState(false);
   const [publicAvatarError, setPublicAvatarError] = useState(false);
   const accountRef = useRef<HTMLDivElement>(null);
+  const scrollLockYRef = useRef(0);
   const usePublicAvatar = avatarError && avatarRetry >= 1;
 
   useEffect(() => {
@@ -51,6 +52,36 @@ export function Header() {
     document.addEventListener("click", close);
     return () => document.removeEventListener("click", close);
   }, []);
+
+  // Lock background page scroll while mobile menu is open (iOS-safe).
+  useEffect(() => {
+    if (!menuOpen) return;
+    const body = document.body;
+    const html = document.documentElement;
+    scrollLockYRef.current = window.scrollY;
+    const y = scrollLockYRef.current;
+    const prev = {
+      bodyOverflow: body.style.overflow,
+      bodyPosition: body.style.position,
+      bodyTop: body.style.top,
+      bodyWidth: body.style.width,
+      htmlOverflow: html.style.overflow,
+    };
+    body.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.top = `-${y}px`;
+    body.style.width = "100%";
+    html.style.overflow = "hidden";
+
+    return () => {
+      body.style.overflow = prev.bodyOverflow;
+      body.style.position = prev.bodyPosition;
+      body.style.top = prev.bodyTop;
+      body.style.width = prev.bodyWidth;
+      html.style.overflow = prev.htmlOverflow;
+      window.scrollTo(0, y);
+    };
+  }, [menuOpen]);
 
   return (
     <header className="sticky top-0 z-50 bg-off-white-pique border-b border-par-3-punch/20">
@@ -227,16 +258,45 @@ export function Header() {
             type="button"
             className="sm:hidden p-2 text-mowing-green"
             onClick={() => setMenuOpen((o) => !o)}
-            aria-label="Toggle menu"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
           >
-            <Menu className="h-5 w-5" />
+            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </div>
 
       {menuOpen && (
-        <div className="sm:hidden border-t border-par-3-punch/20 bg-white shadow-lg">
-          <div className="max-w-6xl mx-auto px-4 py-4 flex flex-col gap-1">
+        <div
+          className="sm:hidden fixed inset-0 z-[60] flex flex-col bg-white"
+          style={{ height: "100dvh" }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Navigation menu"
+        >
+          <div className="flex shrink-0 items-center justify-between border-b border-par-3-punch/20 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+            <Link href="/" className="flex items-center gap-2 shrink-0" onClick={() => setMenuOpen(false)}>
+              <Image
+                src="/logo-text.png"
+                alt="Teevo"
+                width={140}
+                height={44}
+                className="h-9 w-auto"
+              />
+            </Link>
+            <button
+              type="button"
+              className="p-2 text-mowing-green"
+              onClick={() => setMenuOpen(false)}
+              aria-label="Close menu"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <div
+            className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 [-webkit-overflow-scrolling:touch] pb-[max(1rem,env(safe-area-inset-bottom))]"
+          >
+            <div className="mx-auto flex max-w-6xl flex-col gap-1">
             {user && (
               <>
                 <div className="rounded-xl bg-mowing-green/5 border border-mowing-green/10 p-3 mb-2">
@@ -368,6 +428,26 @@ export function Header() {
                 </Link>
               </>
             )}
+            {!user && (
+              <>
+                <div className="my-2 h-px bg-par-3-punch/20" />
+                <Link
+                  href="/login"
+                  className="flex items-center gap-3 rounded-lg py-3 px-3 text-mowing-green font-medium hover:bg-mowing-green/5 active:bg-mowing-green/10 transition-colors"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/signup"
+                  className="mt-1 flex items-center justify-center rounded-xl bg-mowing-green px-3 py-3 text-sm font-semibold text-off-white-pique hover:opacity-90"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Sign up
+                </Link>
+              </>
+            )}
+            </div>
           </div>
         </div>
       )}
