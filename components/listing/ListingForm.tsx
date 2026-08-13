@@ -17,7 +17,9 @@ import {
   isAccessoriesCategory,
 } from "@/lib/listing-categories";
 import type { ClubCatalogue } from "@/lib/club-catalogue";
-import { ListingSubmitLoading } from "./ListingSubmitLoading";
+import { ListingSubmitLoading, type ListingSubmitProgress } from "./ListingSubmitLoading";
+
+export type { ListingSubmitProgress };
 
 const GOLF_EQUIPMENT_CATEGORIES = ["Driver", "Woods", "Driving Irons", "Hybrids", "Irons", "Wedges", "Putter"];
 const IMAGE_SLOT_LABELS_GOLF = ["Front", "Back", "Sole", "Shaft", "Grip", "Other"];
@@ -65,6 +67,7 @@ interface ListingFormProps {
     images: File[];
   }) => void;
   submitting: boolean;
+  submitProgress?: ListingSubmitProgress | null;
   clubCatalogue?: ClubCatalogue;
   clothingBrands?: string[];
 }
@@ -76,6 +79,7 @@ export function ListingForm({
   initialCategory = "",
   onSubmit,
   submitting,
+  submitProgress = null,
   clubCatalogue,
   clothingBrands,
 }: ListingFormProps) {
@@ -893,7 +897,7 @@ export function ListingForm({
         />
       </section>
 
-      {submitting && <ListingSubmitLoading />}
+      {submitting && <ListingSubmitLoading progress={submitProgress} />}
 
       <div className="pt-2">
         <p className="text-xs text-mowing-green/75 text-center leading-relaxed mb-3">

@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import { ListingForm } from "@/components/listing/ListingForm";
-import { ListingSubmitLoading } from "@/components/listing/ListingSubmitLoading";
+import { ListingSubmitLoading, type ListingSubmitProgress } from "@/components/listing/ListingSubmitLoading";
 import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
 import { compressListingMain, compressListingThumb } from "@/lib/image-compression";
 import type { ClubCatalogue } from "@/lib/club-catalogue";
@@ -70,6 +70,7 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
   const [listingPayload, setListingPayload] = useState<ListingPayload | null>(null);
   const [adminNotes, setAdminNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [submitProgress, setSubmitProgress] = useState<ListingSubmitProgress | null>(null);
   const [success, setSuccess] = useState<{ listingId: string; notificationSent: boolean } | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -181,6 +182,8 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
     setStep(4);
 
     try {
+      const total = images.length + 3;
+      setSubmitProgress({ current: 1, total });
       const createRes = await fetch("/api/admin/listings/on-behalf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -221,6 +224,7 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
       const notificationSent = createData.notification_sent === true;
       if (!listingId) throw new Error("No listing id returned");
 
+      setSubmitProgress({ current: 2, total });
       const urlsRes = await fetch(`/api/listings/${listingId}/upload-urls`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -248,6 +252,7 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
         const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
         if (!allowedExt.includes(ext)) continue;
 
+        setSubmitProgress({ current: 3 + i, total });
         let mainBlob: Blob;
         let thumbBlob: Blob;
         try {
@@ -288,6 +293,7 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
         throw new Error("At least 5 valid images are required.");
       }
 
+      setSubmitProgress({ current: total, total });
       const imagesRes = await fetch(`/api/listings/${listingId}/images`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -312,6 +318,7 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
       window.clearTimeout(timeoutId);
       abortRef.current = null;
       setSubmitting(false);
+      setSubmitProgress(null);
     }
   };
 
@@ -349,7 +356,7 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
 
   return (
     <div className="max-w-xl mx-auto space-y-8">
-      {submitting && <ListingSubmitLoading />}
+      {submitting && <ListingSubmitLoading progress={submitProgress} />}
       <div>
         <h1 className="text-2xl font-bold text-mowing-green">Create listing on behalf of seller</h1>
         <p className="mt-1 text-mowing-green/80 text-sm">

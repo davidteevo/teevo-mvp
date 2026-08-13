@@ -4,7 +4,7 @@ import { Suspense, useState, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { ImageUpload } from "@/components/listing/ImageUpload";
-import { ListingSubmitLoading } from "@/components/listing/ListingSubmitLoading";
+import { ListingSubmitLoading, type ListingSubmitProgress } from "@/components/listing/ListingSubmitLoading";
 import { track } from "@/lib/analytics";
 import { compressListingMain, compressListingThumb } from "@/lib/image-compression";
 
@@ -29,6 +29,7 @@ function SellStartContent() {
   const [price, setPrice] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [submitProgress, setSubmitProgress] = useState<ListingSubmitProgress | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   // Fire seller_listing_started once when landing (and optional new=1 for signup complete)
@@ -65,7 +66,9 @@ function SellStartContent() {
       if (Number.isNaN(pricePence) || pricePence <= 0) throw new Error("Invalid price");
       if (images.length < 5 || images.length > 6) throw new Error("Upload 5–6 images");
 
+      const total = images.length + 3;
       track("seller_listing_completed");
+      setSubmitProgress({ current: 1, total });
       const createRes = await fetch("/api/listings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -87,6 +90,7 @@ function SellStartContent() {
       const listingId = createData.id as string;
       if (!listingId) throw new Error("No listing id returned");
 
+      setSubmitProgress({ current: 2, total });
       const urlsRes = await fetch(`/api/listings/${listingId}/upload-urls`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -110,6 +114,7 @@ function SellStartContent() {
         const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
         if (!allowedExt.includes(ext)) continue;
 
+        setSubmitProgress({ current: 3 + i, total });
         let mainBlob: Blob;
         let thumbBlob: Blob;
         try {
@@ -144,6 +149,7 @@ function SellStartContent() {
       }
       if (mainPaths.length < 5) throw new Error("At least 5 valid images (JPG, PNG, GIF, WebP) are required.");
 
+      setSubmitProgress({ current: total, total });
       const imagesRes = await fetch(`/api/listings/${listingId}/images`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -184,6 +190,7 @@ function SellStartContent() {
       window.clearTimeout(timeoutId);
       abortRef.current = null;
       setSubmitting(false);
+      setSubmitProgress(null);
     }
   };
 
@@ -359,7 +366,7 @@ function SellStartContent() {
             Check similar listings for guidance.
           </p>
 
-          {submitting && <ListingSubmitLoading />}
+          {submitting && <ListingSubmitLoading progress={submitProgress} />}
 
           <div className="flex gap-3">
             <button

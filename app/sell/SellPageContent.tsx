@@ -3,7 +3,7 @@
 import { useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { ListingForm } from "@/components/listing/ListingForm";
+import { ListingForm, type ListingSubmitProgress } from "@/components/listing/ListingForm";
 import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
 import { compressListingMain, compressListingThumb } from "@/lib/image-compression";
 import type { ClubCatalogue } from "@/lib/club-catalogue";
@@ -31,6 +31,7 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
       ? categoryFromUrl
       : "";
   const [submitting, setSubmitting] = useState(false);
+  const [submitProgress, setSubmitProgress] = useState<ListingSubmitProgress | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   if (loading) {
@@ -86,7 +87,10 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
         throw new Error("Please upload 5 or 6 images (Front, Back, Sole, Shaft, Grip).");
       }
 
+      const total = images.length + 3;
+
       // 1. Create listing (metadata only — no image bytes through API, so no body size limit)
+      setSubmitProgress({ current: 1, total });
       const createRes = await fetch("/api/listings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -125,6 +129,7 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
       if (!listingId) throw new Error("No listing id returned");
 
       // 2. Get signed upload URLs (avoids Storage RLS; server authorizes via service role)
+      setSubmitProgress({ current: 2, total });
       const urlsRes = await fetch(`/api/listings/${listingId}/upload-urls`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -152,6 +157,7 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
         const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
         if (!allowedExt.includes(ext)) continue;
 
+        setSubmitProgress({ current: 3 + i, total });
         let mainBlob: Blob;
         let thumbBlob: Blob;
         try {
@@ -193,6 +199,7 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
       }
 
       // 4. Register main image paths with the API (thumb paths are derived by convention)
+      setSubmitProgress({ current: total, total });
       const imagesRes = await fetch(`/api/listings/${listingId}/images`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -232,6 +239,7 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
       window.clearTimeout(timeoutId);
       abortRef.current = null;
       setSubmitting(false);
+      setSubmitProgress(null);
     }
   };
 
@@ -256,6 +264,7 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
         initialCategory={initialCategory}
         onSubmit={handleSubmit}
         submitting={submitting}
+        submitProgress={submitProgress}
         clubCatalogue={clubCatalogue}
         clothingBrands={clothingBrands}
       />
