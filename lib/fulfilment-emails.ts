@@ -9,9 +9,15 @@ import { formatSellerAddress } from "@/lib/starter-pack";
 import { getAppUrl } from "@/lib/app-env";
 
 export function getAdminAlertEmail(): string | null {
-  const adminTo = process.env.TEEVO_ADMIN_EMAILS?.trim()?.split(",")[0]?.trim();
-  if (!adminTo || adminTo === "admin@example.com") return null;
-  return adminTo;
+  return getAdminAlertEmails()[0] ?? null;
+}
+
+/** All TEEVO_ADMIN_EMAILS addresses (comma-separated). */
+export function getAdminAlertEmails(): string[] {
+  return (process.env.TEEVO_ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim())
+    .filter((e) => e && e !== "admin@example.com");
 }
 
 async function getItemName(

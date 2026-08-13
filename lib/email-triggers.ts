@@ -46,7 +46,7 @@ export async function ensureEmailSent(
     referenceId: string;
     referenceType?: "transaction" | "user" | "listing" | "message" | "offer";
     recipientId?: string | null;
-    to: string;
+    to: string | string[];
     subject: string;
     type: EmailType;
     variables: Record<string, string>;

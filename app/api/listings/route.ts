@@ -5,6 +5,7 @@ import { categoryToParcelPreset } from "@/lib/shippo";
 import { ensureEmailSent, EmailTriggerType } from "@/lib/email-triggers";
 import { notifyListingReviewRequired } from "@/lib/notification-events";
 import { adminListingUrl } from "@/lib/notifications";
+import { getAdminAlertEmails } from "@/lib/fulfilment-emails";
 import {
   ALL_CATEGORIES,
   CONDITIONS,
@@ -170,8 +171,13 @@ export async function POST(request: Request) {
       title: displayTitle,
     });
 
-    const adminTo = process.env.TEEVO_ADMIN_EMAILS?.trim()?.split(",")[0]?.trim();
-    if (adminTo && adminTo !== "admin@example.com") {
+    const envEmails = getAdminAlertEmails();
+    const { data: adminUsers } = await admin.from("users").select("email").eq("role", "admin");
+    const dbEmails = (adminUsers ?? [])
+      .map((u) => (typeof u.email === "string" ? u.email.trim() : ""))
+      .filter(Boolean);
+    const adminTo = [...new Set([...envEmails, ...dbEmails])];
+    if (adminTo.length > 0) {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
       const subtitle = [brand, title || model, category].filter(Boolean).join(" · ");
       try {

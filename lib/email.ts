@@ -69,7 +69,7 @@ export async function sendEmail({
   attachments,
 }: {
   type: EmailType;
-  to: string;
+  to: string | string[];
   subject: string;
   variables?: Record<string, string>;
   attachments?: EmailAttachment[];
@@ -82,10 +82,14 @@ export async function sendEmail({
     finalSubject = `${STAGING_SUBJECT_PREFIX} ${subject}`;
   }
 
+  const toList = (Array.isArray(to) ? to : [to])
+    .map((e) => e.trim())
+    .filter(Boolean);
+
   const resend = getResend();
   const { error } = await resend.emails.send({
     from: RESEND_FROM,
-    to: [to],
+    to: toList,
     subject: finalSubject,
     html,
     ...(attachments?.length
