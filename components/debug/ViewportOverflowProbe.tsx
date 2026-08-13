@@ -48,7 +48,7 @@ function overflowingElements(viewportW: number) {
     width: number;
     overflowBy: number;
   }> = [];
-  const all = document.querySelectorAll("body *");
+  const all = Array.from(document.querySelectorAll("body *"));
   for (const el of all) {
     const r = el.getBoundingClientRect();
     if (r.width < 1 || r.height < 1) continue;
