@@ -12,9 +12,18 @@
   --divot-pink: #FF8A8A;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
 body {
   background-color: var(--off-white-pique);
   color: var(--mowing-green);
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 /* Hide site footer when conversation input is focused so only the compose bar sits above the keyboard on mobile */

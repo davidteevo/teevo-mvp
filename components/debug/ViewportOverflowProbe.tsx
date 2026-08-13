@@ -186,6 +186,10 @@ export function ViewportOverflowProbe() {
         innerWidth: window.innerWidth,
         visualViewportWidth: vv?.width ?? null,
         visualViewportScale: scale,
+        earlyScale:
+          typeof (window as Window & { __teevoScale0?: number }).__teevoScale0 === "number"
+            ? (window as Window & { __teevoScale0?: number }).__teevoScale0
+            : null,
         dpr: window.devicePixelRatio,
         path: location.pathname,
         href: location.href,

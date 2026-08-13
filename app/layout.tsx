@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { TrustStrip } from "@/components/layout/TrustStrip";
 import { StagingBanner } from "@/components/layout/StagingBanner";
+import { IosViewportScaleReset } from "@/components/layout/IosViewportScaleReset";
 import { ViewportOverflowProbe } from "@/components/debug/ViewportOverflowProbe";
 import { Suspense } from "react";
 import { AuthProvider } from "@/lib/auth-context";
@@ -24,6 +25,12 @@ export const metadata: Metadata = {
   ...(isStaging() || appEnv === "development"
     ? { robots: { index: false, follow: false } }
     : {}),
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export const dynamic = "force-dynamic";
@@ -58,6 +65,12 @@ export default function RootLayout({
             />
           </>
         ) : null}
+        {/* Early iOS scale capture + reset before React hydrates */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var vv=window.visualViewport;if(!vv)return;var s=vv.scale;window.__teevoScale0=s;if(Math.abs(s-1)<0.02)return;var m=document.querySelector('meta[name="viewport"]');if(!m)return;m.setAttribute('content','width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover');}catch(e){}})();`,
+          }}
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
@@ -66,6 +79,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col antialiased">
+        <IosViewportScaleReset />
         {showOverflowProbe ? <ViewportOverflowProbe /> : null}
         <StagingBanner />
         <AuthProvider>
