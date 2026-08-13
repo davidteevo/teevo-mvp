@@ -39,30 +39,5 @@ export async function POST(request: NextRequest) {
     }
   });
 
-  // #region agent log
-  try {
-    const line = JSON.stringify({
-      sessionId: "f84ace",
-      timestamp: Date.now(),
-      runId: "clear-cookies",
-      hypothesisId: "H1",
-      location: "api/auth/clear-session-cookies",
-      message: "cleared sb cookies before login",
-      data: {
-        cleared: Array.from(sbNames),
-        cookieDomain: cookieDomain ?? null,
-        host: request.headers.get("host"),
-      },
-    });
-    const { appendFile, mkdir } = await import("fs/promises");
-    const path = await import("path");
-    const logPath = path.join(process.cwd(), ".cursor", "debug-f84ace.log");
-    await mkdir(path.dirname(logPath), { recursive: true });
-    await appendFile(logPath, line + "\n");
-  } catch {
-    // ignore
-  }
-  // #endregion
-
   return response;
 }

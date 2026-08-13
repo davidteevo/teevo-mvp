@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -23,59 +23,12 @@ function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promi
   });
 }
 
-function sbCookieSummary() {
-  if (typeof document === "undefined") return { names: [] as string[], count: 0 };
-  const names = document.cookie
+function sbCookieNames(): string[] {
+  if (typeof document === "undefined") return [];
+  return document.cookie
     .split(";")
     .map((c) => c.trim().split("=")[0])
     .filter((n) => n.startsWith("sb-"));
-  return { names, count: names.length };
-}
-
-function logAuthDebug(payload: {
-  hypothesisId: string;
-  location: string;
-  message: string;
-  data?: Record<string, unknown>;
-  runId?: string;
-}) {
-  // #region agent log
-  const body = JSON.stringify({
-    sessionId: "f84ace",
-    timestamp: Date.now(),
-    runId: payload.runId ?? "login-pre",
-    hypothesisId: payload.hypothesisId,
-    location: payload.location,
-    message: payload.message,
-    data: {
-      host: typeof window !== "undefined" ? window.location.host : null,
-      path: typeof window !== "undefined" ? window.location.pathname : null,
-      cookieDomainEnv: process.env.NEXT_PUBLIC_COOKIE_DOMAIN ?? null,
-      appEnv: process.env.NEXT_PUBLIC_APP_ENV ?? null,
-      ...sbCookieSummary(),
-      ...(payload.data ?? {}),
-    },
-  });
-  fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "f84ace" },
-    body,
-  }).catch(() => {});
-  fetch("/api/debug-auth", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body,
-    keepalive: true,
-  }).catch(() => {});
-  try {
-    const prev = JSON.parse(sessionStorage.getItem("teevo-auth-debug") || "[]");
-    const next = Array.isArray(prev) ? prev.slice(-20) : [];
-    next.push(JSON.parse(body));
-    sessionStorage.setItem("teevo-auth-debug", JSON.stringify(next));
-  } catch {
-    // ignore
-  }
-  // #endregion
 }
 
 function LoginForm() {
@@ -86,18 +39,6 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  // #region agent log
-  useEffect(() => {
-    logAuthDebug({
-      hypothesisId: "H3",
-      location: "login/page.tsx:mount",
-      message: "login page mounted",
-      data: { redirect },
-      runId: "login-bounce",
-    });
-  }, [redirect]);
-  // #endregion
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,69 +54,30 @@ function LoginForm() {
       return;
     }
     setLoading(true);
-    // #region agent log
-    logAuthDebug({
-      hypothesisId: "H5",
-      location: "login/page.tsx:submit-start",
-      message: "sign-in submit start",
-      data: {
-        hasUrl: Boolean(url?.startsWith("https://")),
-        hasKey: Boolean(key?.startsWith("eyJ")),
-        supabaseHost: (() => {
-          try {
-            return new URL(url!).host;
-          } catch {
-            return null;
-          }
-        })(),
-        redirect,
-        cookiesBeforeClear: sbCookieSummary().names,
-      },
-    });
-    // #endregion
 
     // Clear stale host/domain sb-* cookies that can leave production in SIGNED_OUT limbo
     // while a cookie name still appears (staging has no COOKIE_DOMAIN and does not hit this).
     try {
       await fetch("/api/auth/clear-session-cookies", { method: "POST", credentials: "include" });
       const domain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN;
-      for (const name of sbCookieSummary().names) {
+      for (const name of sbCookieNames()) {
         document.cookie = `${name}=; Max-Age=0; path=/`;
         if (domain) document.cookie = `${name}=; Max-Age=0; path=/; domain=${domain}`;
       }
-      // #region agent log
-      logAuthDebug({
-        hypothesisId: "H1",
-        location: "login/page.tsx:after-clear",
-        message: "cleared stale cookies before signIn",
-        data: { cookiesAfterClear: sbCookieSummary().names },
-        runId: "clear-cookies",
-      });
-      // #endregion
     } catch {
       // proceed with sign-in even if clear fails
     }
 
     const supabase = createClient();
     let err: { message: string } | null = null;
-    let signedInUserId: string | null = null;
     try {
       const result = await supabase.auth.signInWithPassword({ email, password });
       err = result.error;
-      signedInUserId = result.data.user?.id?.slice(0, 8) ?? null;
     } catch (e) {
       err = { message: e instanceof Error ? e.message : "Network error" };
     }
     if (err) {
       setLoading(false);
-      // #region agent log
-      logAuthDebug({
-        hypothesisId: "H2",
-        location: "login/page.tsx:signIn-error",
-        message: "signInWithPassword failed",
-        data: { errName: err.message.slice(0, 120) },
-      });
-      // #endregion
       const lower = err.message.toLowerCase();
       let msg: string;
       if (lower.includes("rate") || lower.includes("rate limit") || lower.includes("too many requests")) {
@@ -191,47 +93,17 @@ function LoginForm() {
     // Let Supabase SSR persist session to cookies before full-page redirect (avoids session missing on app.teevohq.com).
     // try/finally ensures loading never sticks if getSession throws or hangs; timeout avoids indefinite wait (e.g. stale cookies).
     try {
-      const sessionResult = await withTimeout(
+      await withTimeout(
         supabase.auth.getSession(),
         12_000,
         "Session sync timed out. Try clearing site data for this site or use Sign out, then log in again."
       );
-      const hasSession = Boolean(sessionResult.data.session);
-      // #region agent log
-      logAuthDebug({
-        hypothesisId: "H1",
-        location: "login/page.tsx:post-session",
-        message: "after signIn getSession + cookies",
-        data: {
-          hasSession,
-          signedInUserId,
-          sessionUserId: sessionResult.data.session?.user?.id?.slice(0, 8) ?? null,
-        },
-        runId: "post-fix",
-      });
-      // #endregion
       await new Promise((r) => setTimeout(r, 300));
-      // #region agent log
-      logAuthDebug({
-        hypothesisId: "H1",
-        location: "login/page.tsx:pre-redirect",
-        message: "about to full-page redirect",
-        data: { hasSession, signedInUserId, redirect },
-      });
-      // #endregion
       const safePath = redirect.startsWith("/") && !redirect.startsWith("//") ? redirect : "/dashboard";
       const origin = window.location.origin;
       window.location.href = safePath.startsWith("http") ? safePath : `${origin}${safePath}`;
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Could not finish signing in";
-      // #region agent log
-      logAuthDebug({
-        hypothesisId: "H2",
-        location: "login/page.tsx:session-catch",
-        message: "getSession/redirect path failed",
-        data: { errName: msg.slice(0, 120) },
-      });
-      // #endregion
       const lower = msg.toLowerCase();
       const hint =
         lower.includes("timed out") || lower.includes("network") || lower.includes("fetch")
