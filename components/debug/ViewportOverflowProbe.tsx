@@ -358,7 +358,9 @@ export function ViewportOverflowProbe() {
       </div>
       {hud.topOffender ? <div>top: {hud.topOffender}</div> : <div>top: none</div>}
       <div style={{ opacity: 0.85, marginTop: 2 }}>
-        Red = layout wider than visible area. Send screenshot or copied text.
+        {hud.layoutVsVisualPx > 1 && (hud.scale == null || Math.abs((hud.scale ?? 1) - 1) > 0.02)
+          ? "Likely Safari zoom (aA → 100%). Tap to copy report."
+          : "Red = layout wider than visible area. Tap to copy."}
       </div>
     </button>
   );
