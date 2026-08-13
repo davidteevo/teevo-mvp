@@ -5,6 +5,7 @@ import { OFFER_EXPIRY_HOURS } from "@/lib/messaging-constants";
 import { sendOfferNotification } from "@/lib/messaging-email";
 import { trackMessagingEvent } from "@/lib/messaging-metrics";
 import { MessagingEventType } from "@/lib/messaging-metrics";
+import { LISTING_NOT_PURCHASABLE_YET } from "@/lib/listing-availability";
 
 export const dynamic = "force-dynamic";
 
@@ -55,7 +56,15 @@ export async function POST(
     .is("archived_at", null)
     .single();
   if (!listing || listing.status !== "verified") {
-    return NextResponse.json({ error: "Listing is not available" }, { status: 400 });
+    return NextResponse.json(
+      {
+        error:
+          listing?.status === "pending"
+            ? LISTING_NOT_PURCHASABLE_YET
+            : "Listing is not available",
+      },
+      { status: 400 }
+    );
   }
   if (amountPence > listing.price) {
     return NextResponse.json({ error: "Offer cannot exceed listing price" }, { status: 400 });

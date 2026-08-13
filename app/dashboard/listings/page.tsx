@@ -85,9 +85,15 @@ export default function DashboardListingsPage() {
       rejected: "bg-divot-pink/30 text-mowing-green",
       sold: "bg-mowing-green/20 text-mowing-green",
     };
+    const labels: Record<string, string> = {
+      pending: "Coming Soon — Under Review",
+      verified: "Available",
+      rejected: "Rejected",
+      sold: "Sold",
+    };
     return (
       <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${styles[status] ?? ""}`}>
-        {status}
+        {labels[status] ?? status}
       </span>
     );
   };

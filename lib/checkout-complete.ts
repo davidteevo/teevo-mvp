@@ -9,6 +9,7 @@ import {
 import { ensureEmailSent, EmailTriggerType, formatGbp } from "@/lib/email-triggers";
 import { getAppUrl } from "@/lib/app-env";
 import { notifyCheckoutComplete } from "@/lib/notification-events";
+import { isPurchasableListingStatus, LISTING_NOT_PURCHASABLE_YET } from "@/lib/listing-availability";
 
 const appUrl = getAppUrl();
 
@@ -44,6 +45,19 @@ export async function createTransactionAndSendEmails(
     .maybeSingle();
   if (existingTx) {
     return { alreadyExists: true };
+  }
+
+  const { data: listingForPurchase } = await admin
+    .from("listings")
+    .select("status, archived_at")
+    .eq("id", listingId)
+    .single();
+  if (
+    !listingForPurchase ||
+    listingForPurchase.archived_at ||
+    !isPurchasableListingStatus(listingForPurchase.status)
+  ) {
+    throw new Error(LISTING_NOT_PURCHASABLE_YET);
   }
 
   const paymentIntentId = getPaymentIntentId(session.payment_intent);

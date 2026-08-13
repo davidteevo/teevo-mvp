@@ -3,6 +3,7 @@ import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { createCheckoutSession } from "@/lib/stripe-checkout";
 import { getAppUrl } from "@/lib/app-env";
+import { listingPurchaseApiError } from "@/lib/listing-availability";
 
 export const dynamic = "force-dynamic";
 
@@ -34,8 +35,12 @@ export async function POST(request: Request) {
     .is("archived_at", null)
     .single();
 
-  if (listErr || !listing || listing.status !== "verified") {
+  if (listErr || !listing) {
     return NextResponse.json({ error: "Listing not found or not available" }, { status: 404 });
+  }
+  const purchaseErr = listingPurchaseApiError(listing.status);
+  if (purchaseErr) {
+    return NextResponse.json({ error: purchaseErr.error }, { status: purchaseErr.httpStatus });
   }
 
   const { data: seller } = await admin.from("users").select("stripe_account_id").eq("id", listing.user_id).single();

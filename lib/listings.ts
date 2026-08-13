@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { brandFilterIlikeTerms, canonicalFilterBrand } from "@/lib/brand-canonical";
+import { PUBLIC_MARKETPLACE_STATUSES } from "@/lib/listing-availability";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { ListingCategory, ListingCondition } from "@/types/database";
@@ -117,15 +118,15 @@ function escapeLike(term: string): string {
   return term.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
 }
 
-/** Uses admin client so this can run inside unstable_cache without request/cookies (e.g. on Netlify). Only returns public verified listings. */
-async function getVerifiedListingsUncached(filters?: Filters) {
+/** Uses admin client so this can run inside unstable_cache without request/cookies (e.g. on Netlify). Returns public marketplace listings (pending + verified). */
+async function getPublicListingsUncached(filters?: Filters) {
   const supabase = createAdminClient();
   let query = supabase
     .from("listings")
     .select(
       "id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, item_type, size, colour, status, flagged, created_at, updated_at, listing_images ( id, storage_path, sort_order ), users!user_id ( display_name )"
     )
-    .eq("status", "verified")
+    .in("status", [...PUBLIC_MARKETPLACE_STATUSES])
     .is("archived_at", null);
 
   query = applyHomeFilters(query, filters);
@@ -137,9 +138,9 @@ async function getVerifiedListingsUncached(filters?: Filters) {
   return data ?? [];
 }
 
-export function getVerifiedListings(filters?: Filters) {
+export function getPublicListings(filters?: Filters) {
   const key = [
-    "verified-listings",
+    "public-listings",
     filters?.category ?? "",
     filters?.brand?.trim() ? canonicalFilterBrand(filters.brand.trim()) : "",
     filters?.minPrice ?? "",
@@ -156,19 +157,19 @@ export function getVerifiedListings(filters?: Filters) {
     filters?.sort ?? "",
   ].join("-");
   return unstable_cache(
-    () => getVerifiedListingsUncached(filters),
+    () => getPublicListingsUncached(filters),
     [key],
-    { revalidate: LISTINGS_CACHE_SECONDS }
+    { revalidate: LISTINGS_CACHE_SECONDS, tags: ["public-listings"] }
   )();
 }
 
-/** Count of verified listings matching home filters (uncached; for filter UI). */
-export async function getVerifiedListingsCount(filters?: Filters): Promise<number> {
+/** Count of public marketplace listings matching home filters (uncached; for filter UI). */
+export async function getPublicListingsCount(filters?: Filters): Promise<number> {
   const supabase = createAdminClient();
   let query = supabase
     .from("listings")
     .select("id", { count: "exact", head: true })
-    .eq("status", "verified")
+    .in("status", [...PUBLIC_MARKETPLACE_STATUSES])
     .is("archived_at", null);
   query = applyHomeFilters(query, filters);
   const { count, error } = await query;
@@ -187,7 +188,7 @@ async function getListingByIdUncached(id: string) {
   return data;
 }
 
-/** Fetches listing by id with session (RLS: verified or own). Not cached so it always runs in request context (cookies available). */
+/** Fetches listing by id with session (RLS: pending/verified public or own). Not cached so it always runs in request context (cookies available). */
 export function getListingById(id: string) {
   return getListingByIdUncached(id);
 }
@@ -208,6 +209,6 @@ export function getListingByIdAdmin(id: string) {
   return unstable_cache(
     () => getListingByIdAdminUncached(id),
     ["listing-admin", id],
-    { revalidate: LISTING_DETAIL_CACHE_SECONDS }
+    { revalidate: LISTING_DETAIL_CACHE_SECONDS, tags: ["public-listings", `listing-${id}`] }
   )();
 }

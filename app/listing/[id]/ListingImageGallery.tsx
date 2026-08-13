@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import { ZoomIn, ZoomOut, X } from "lucide-react";
-import { VerifiedBadge } from "@/components/trust/VerifiedBadge";
+import { ListingMarketplaceBadge } from "@/components/trust/ListingMarketplaceBadge";
 
 const ZOOM_LEVELS = [1, 1.5, 2, 2.5, 3];
 const MIN_ZOOM = 1;
@@ -13,9 +13,11 @@ const SWIPE_THRESHOLD_PX = 50;
 export function ListingImageGallery({
   imageUrls,
   alt,
+  listingStatus = "verified",
 }: {
   imageUrls: string[];
   alt: string;
+  listingStatus?: string;
 }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [zoomOpen, setZoomOpen] = useState(false);
@@ -111,7 +113,7 @@ export function ListingImageGallery({
           sizes="(max-width: 1024px) 100vw, 50vw"
         />
         <div className="absolute top-3 left-3">
-          <VerifiedBadge />
+          <ListingMarketplaceBadge status={listingStatus} />
         </div>
         <span
           className="absolute bottom-3 right-3 flex items-center justify-center h-10 w-10 rounded-full bg-white/90 hover:bg-white shadow-md text-mowing-green transition-opacity opacity-0 group-hover:opacity-100 pointer-events-none"

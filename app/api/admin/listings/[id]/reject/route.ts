@@ -1,3 +1,4 @@
+import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
@@ -36,5 +37,8 @@ export async function POST(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
   await resolveListingReviewRequired(admin, id);
+  revalidateTag("public-listings");
+  revalidatePath(`/listing/${id}`);
+  revalidatePath("/");
   return NextResponse.json({ ok: true });
 }

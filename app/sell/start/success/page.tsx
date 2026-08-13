@@ -52,16 +52,23 @@ function SuccessContent() {
   const displayTitle = listing?.title?.trim() || (listing ? `${listing.brand} ${listing.model}`.trim() || listing.category : "");
   const imagePath = listing?.listing_images?.sort((a, b) => a.sort_order - b.sort_order)[0]?.storage_path;
   const imageUrl = imagePath ? getListingImageUrl(imagePath, "thumb") : null;
-  const statusLabel = listing?.status === "verified" ? "Live" : listing?.status === "rejected" ? "Rejected" : "Pending review";
+  const statusLabel =
+    listing?.status === "verified"
+      ? "Available"
+      : listing?.status === "rejected"
+        ? "Rejected"
+        : listing?.status === "sold"
+          ? "Sold"
+          : "Coming Soon — Under Review";
 
   return (
     <div className="max-w-lg mx-auto px-4 py-12 text-center">
       <CheckCircle className="mx-auto h-16 w-16 text-par-3-punch" aria-hidden />
       <h1 className="mt-4 text-2xl font-bold text-mowing-green">
-        Your listing is live.
+        You&apos;re officially a Founding Seller.
       </h1>
       <p className="mt-2 text-mowing-green/80">
-        You&apos;re officially a Founding Seller.
+        Your listing is live as Coming Soon. We&apos;ll let you know when it&apos;s ready for buyers to purchase.
       </p>
       {foundingSellerRank != null && (
         <p className="mt-2">

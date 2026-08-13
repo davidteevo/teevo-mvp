@@ -6,6 +6,7 @@ import { loadConversationPayload } from "@/lib/conversation-loader";
 import { getListingImageUrl } from "@/lib/listing-images";
 import { trackMessagingEvent } from "@/lib/messaging-metrics";
 import { MessagingEventType } from "@/lib/messaging-metrics";
+import { LISTING_NOT_PURCHASABLE_YET } from "@/lib/listing-availability";
 
 export const dynamic = "force-dynamic";
 
@@ -141,7 +142,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "You cannot start a conversation on your own listing" }, { status: 400 });
   }
   if (listing.status !== "verified") {
-    return NextResponse.json({ error: "Listing is not available" }, { status: 400 });
+    return NextResponse.json(
+      {
+        error:
+          listing.status === "pending"
+            ? LISTING_NOT_PURCHASABLE_YET
+            : "Listing is not available",
+      },
+      { status: 400 }
+    );
   }
 
   await getOrCreateChatDisplayName(user.id);

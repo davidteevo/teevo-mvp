@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 /**
  * Refreshes admin dashboard data when the window gains focus (e.g. user
- * returns to the tab), so counts like "Listings (go live)" update after
+ * returns to the tab), so counts like "Listings to verify" update after
  * new listings are added or verified elsewhere.
  */
 export function AdminDashboardRefresh() {

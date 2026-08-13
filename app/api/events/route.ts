@@ -26,6 +26,10 @@ const ALLOWED_EVENTS = [
   "notification_action_completed",
   "buyer_delivery_confirmed",
   "buyer_delivery_issue_selected",
+  "listing_card_clicked",
+  "listing_viewed",
+  "purchase_cta_displayed",
+  "checkout_initiated",
 ] as const;
 
 export type AllowedEventName = (typeof ALLOWED_EVENTS)[number];

@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { sendOfferNotification } from "@/lib/messaging-email";
 import { trackMessagingEvent } from "@/lib/messaging-metrics";
 import { MessagingEventType } from "@/lib/messaging-metrics";
+import { LISTING_NOT_PURCHASABLE_YET } from "@/lib/listing-availability";
 
 export const dynamic = "force-dynamic";
 
@@ -53,7 +54,13 @@ export async function POST(
     .is("archived_at", null)
     .single();
   if (!listing || listing.status !== "verified") {
-    return NextResponse.json({ error: "Listing is no longer available" }, { status: 400 });
+    return NextResponse.json(
+      {
+        error:
+          listing?.status === "pending" ? LISTING_NOT_PURCHASABLE_YET : "Listing is no longer available",
+      },
+      { status: 400 }
+    );
   }
 
   const { error: updateErr } = await admin

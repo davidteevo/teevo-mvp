@@ -1,3 +1,4 @@
+import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
@@ -200,6 +201,10 @@ export async function POST(request: Request) {
         console.error("Failed to send new-listing admin email:", e);
       }
     }
+
+    revalidateTag("public-listings");
+    revalidatePath("/");
+    revalidatePath(`/listing/${listing.id}`);
 
     return NextResponse.json({ id: listing.id });
   } catch (e) {

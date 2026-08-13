@@ -243,13 +243,13 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
     <div className="max-w-xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold text-mowing-green">Sell your gear</h1>
       <p className="mt-2 text-mowing-green/80 text-sm">
-        We verify every listing to protect buyers and sellers.
+        Your listing goes live as Coming Soon. We verify it before buyers can purchase.
       </p>
       <div className="mt-4 rounded-xl border border-mowing-green/20 bg-mowing-green/5 p-4">
         <p className="text-sm font-medium text-mowing-green mb-2">Sell in 3 steps</p>
         <ol className="text-sm text-mowing-green/80 space-y-1">
           <li><strong>1. List your item</strong> — Add photos and key details</li>
-          <li><strong>2. We verify it</strong> — Within 24 hours</li>
+          <li><strong>2. Live as Coming Soon</strong> — We verify within 24 hours before it&apos;s available to buy</li>
           <li><strong>3. Get paid</strong> — When it sells</li>
         </ol>
       </div>

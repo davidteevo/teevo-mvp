@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
+import { track } from "@/lib/analytics";
 import { ShippingService, type ShippingServiceType } from "@/lib/shippo";
 import {
   FulfilmentMode,
@@ -43,6 +44,11 @@ export function BuyButton({
   const [notifySuccess, setNotifySuccess] = useState(false);
   const [notifyError, setNotifyError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!BUYING_ENABLED || !sellerCanAcceptPayment) return;
+    track("purchase_cta_displayed", { listingId, listing_status: "available" });
+  }, [listingId, sellerCanAcceptPayment]);
+
   const handleBuy = async () => {
     if (!user) {
       window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
@@ -66,6 +72,7 @@ export function BuyButton({
         alert("Checkout could not be started. Please try again.");
         return;
       }
+      track("checkout_initiated", { listingId, listing_status: "available" });
       window.location.href = url;
     } catch (e) {
       alert(e instanceof Error ? e.message : "Something went wrong");

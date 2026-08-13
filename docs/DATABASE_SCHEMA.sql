@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS public.listings (
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'verified', 'rejected', 'sold')),
   flagged BOOLEAN NOT NULL DEFAULT FALSE,
   admin_feedback TEXT,
+  archived_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -121,11 +122,11 @@ BEGIN
 END;
 $reset$;
 
-CREATE POLICY "Public read verified listings" ON public.listings FOR SELECT USING (status = 'verified');
+CREATE POLICY "Public read verified listings" ON public.listings FOR SELECT USING (status IN ('pending', 'verified') AND archived_at IS NULL);
 CREATE POLICY "Users read own listings" ON public.listings FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users create own listings" ON public.listings FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users update own pending listings" ON public.listings FOR UPDATE USING (auth.uid() = user_id AND status = 'pending');
-CREATE POLICY "Read listing images" ON public.listing_images FOR SELECT USING (EXISTS (SELECT 1 FROM public.listings l WHERE l.id = listing_id AND (l.status = 'verified' OR l.user_id = auth.uid())));
+CREATE POLICY "Read listing images" ON public.listing_images FOR SELECT USING (EXISTS (SELECT 1 FROM public.listings l WHERE l.id = listing_id AND ((l.status IN ('pending', 'verified') AND l.archived_at IS NULL) OR l.user_id = auth.uid())));
 CREATE POLICY "Insert listing images for own listing" ON public.listing_images FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM public.listings l WHERE l.id = listing_id AND l.user_id = auth.uid()));
 CREATE POLICY "Users read own" ON public.users FOR SELECT USING (auth.uid() = id);
 CREATE POLICY "Users update own" ON public.users FOR UPDATE USING (auth.uid() = id);

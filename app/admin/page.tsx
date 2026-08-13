@@ -55,12 +55,12 @@ export default async function AdminDashboardPage() {
 
       <section className="mt-8">
         <h2 className="text-lg font-semibold text-mowing-green mb-4">Verification queue</h2>
-        <p className="text-sm text-mowing-green/70 mb-4">Listings to go live on the platform vs packaging photos to approve before shipping.</p>
+        <p className="text-sm text-mowing-green/70 mb-4">Listings awaiting verification before they can be purchased vs packaging photos to approve before shipping.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="rounded-xl border border-par-3-punch/20 bg-white p-5">
             <div className="flex items-center gap-2 text-mowing-green/70">
               <Package className="h-5 w-5" />
-              <span className="text-sm font-medium">Listings (go live)</span>
+              <span className="text-sm font-medium">Listings to verify</span>
             </div>
             <p className="mt-2 text-2xl font-bold text-mowing-green">{pendingCount}</p>
             <Link href="/admin/listings" className="mt-2 inline-block text-sm text-par-3-punch hover:underline">
@@ -126,8 +126,8 @@ export default async function AdminDashboardPage() {
               <Package className="h-6 w-6 text-mowing-green" />
             </div>
             <div>
-              <p className="font-semibold text-mowing-green">Verify listings (go live)</p>
-              <p className="text-sm text-mowing-green/70 mt-0.5">{pendingCount} to approve for platform</p>
+              <p className="font-semibold text-mowing-green">Verify listings</p>
+              <p className="text-sm text-mowing-green/70 mt-0.5">{pendingCount} to verify before purchase</p>
             </div>
           </Link>
           <Link

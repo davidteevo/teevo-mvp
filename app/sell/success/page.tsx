@@ -9,8 +9,7 @@ export default function SellSuccessPage() {
         Listing submitted
       </h1>
       <p className="mt-2 text-mowing-green/80">
-        Your listing is now pending verification. We’ll review it and it will go
-        live once approved. You’ll see the status in your dashboard.
+        Your listing is live as Coming Soon. We&apos;ll let you know when it&apos;s ready for buyers to purchase.
       </p>
       <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
         <Link

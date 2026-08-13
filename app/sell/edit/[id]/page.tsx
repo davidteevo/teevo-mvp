@@ -134,7 +134,7 @@ export default function SellEditPage() {
     <div className="max-w-xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold text-mowing-green">Edit listing</h1>
       <p className="mt-2 text-mowing-green/80 text-sm">
-        Changes saved will be reviewed again before going live.
+        Changes saved will be reviewed again before buyers can purchase.
       </p>
 
       {listing.admin_feedback && (

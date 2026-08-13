@@ -1,10 +1,14 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import type { Listing } from "@/types/database";
-import { VerifiedBadge } from "@/components/trust/VerifiedBadge";
+import { ListingMarketplaceBadge } from "@/components/trust/ListingMarketplaceBadge";
 import { PriceWithBreakdown } from "@/components/listing/PriceWithBreakdown";
 import { getListingDisplayTitle, getListingMetaParts } from "@/lib/listing-display";
 import { getListingImageUrl } from "@/lib/listing-images";
+import { track } from "@/lib/analytics";
+import { marketplaceListingStatus } from "@/lib/listing-availability";
 
 /** Listing optionally with joined seller display name (from users relation). Supabase returns users as array for the join. */
 type ListingWithSeller = Listing & {
@@ -59,6 +63,12 @@ export function ListingCard({ listing, priority }: { listing: ListingWithSeller;
   return (
     <Link
       href={`/listing/${listing.id}`}
+      onClick={() =>
+        track("listing_card_clicked", {
+          listingId: listing.id,
+          listing_status: marketplaceListingStatus(listing.status),
+        })
+      }
       className="block min-w-0 max-w-full rounded-lg border border-par-3-punch/20 bg-white overflow-hidden hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200"
     >
       <div className="aspect-[3/4] relative bg-mowing-green/5">
@@ -71,7 +81,7 @@ export function ListingCard({ listing, priority }: { listing: ListingWithSeller;
           priority={priority}
         />
         <div className="absolute top-1.5 right-1.5">
-          <VerifiedBadge />
+          <ListingMarketplaceBadge status={listing.status} />
         </div>
       </div>
       <div className="p-2.5 sm:p-3">

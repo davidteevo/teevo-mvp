@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { createCheckoutSession } from "@/lib/stripe-checkout";
 import { ShippingService, type ShippingServiceType } from "@/lib/shippo";
 import { getAppUrl } from "@/lib/app-env";
+import { listingPurchaseApiError } from "@/lib/listing-availability";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
@@ -51,8 +52,12 @@ export async function POST(request: Request) {
     .is("archived_at", null)
     .single();
 
-  if (listErr || !listing || listing.status !== "verified") {
+  if (listErr || !listing) {
     return NextResponse.json({ error: "Listing not found or not available" }, { status: 404 });
+  }
+  const purchaseErr = listingPurchaseApiError(listing.status);
+  if (purchaseErr) {
+    return NextResponse.json({ error: purchaseErr.error }, { status: purchaseErr.httpStatus });
   }
 
   if (acceptedOfferId) {

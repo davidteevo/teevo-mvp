@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { getListingDisplayTitle } from "@/lib/listing-display";
+import { PUBLIC_MARKETPLACE_STATUSES } from "@/lib/listing-availability";
 import type { Listing } from "@/types/database";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +15,7 @@ function safePattern(q: string): string {
 
 /**
  * GET /api/listings/suggestions?q=stea
- * Returns distinct (model, brand, category, item_type, size, title) from verified listings matching q.
+ * Returns distinct (model, brand, category, item_type, size, title) from public marketplace listings matching q.
  * No auth required; read-only.
  */
 export async function GET(request: Request) {
@@ -30,7 +31,7 @@ export async function GET(request: Request) {
     const { data: rows, error } = await supabase
       .from("listings")
       .select("model, brand, category, title, item_type, size, colour")
-      .eq("status", "verified")
+      .in("status", [...PUBLIC_MARKETPLACE_STATUSES])
       .is("archived_at", null)
       .or(
         `model.ilike.${pattern},brand.ilike.${pattern},category.ilike.${pattern},title.ilike.${pattern},item_type.ilike.${pattern},size.ilike.${pattern},colour.ilike.${pattern}`

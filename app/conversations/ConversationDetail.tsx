@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
 import { formatChatDisplayNameForUI } from "@/lib/chat-identity";
 import { FullScreenLoading } from "@/components/ui/FullScreenLoading";
+import { track } from "@/lib/analytics";
 
 type Listing = {
   id: string;
@@ -255,7 +256,13 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
         alert(data.error ?? "Checkout failed");
         return;
       }
-      if (data.url) window.location.href = data.url;
+      if (data.url) {
+        track("checkout_initiated", {
+          listingId: payload.listing.id,
+          listing_status: "available",
+        });
+        window.location.href = data.url;
+      }
     } catch {
       alert("Checkout failed");
     }

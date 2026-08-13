@@ -1,15 +1,15 @@
 import { Suspense } from "react";
 import { ListingCard } from "./ListingCard";
-import { getVerifiedListings } from "@/lib/listings";
+import { getPublicListings } from "@/lib/listings";
 import type { Filters } from "@/lib/listings";
 
 const PRIORITY_CARD_COUNT = 8;
 const SKELETON_CARD_COUNT = 8;
 
 async function GridInner({ searchParams }: { searchParams: Filters }) {
-  let listings: Awaited<ReturnType<typeof getVerifiedListings>>;
+  let listings: Awaited<ReturnType<typeof getPublicListings>>;
   try {
-    listings = await getVerifiedListings(searchParams);
+    listings = await getPublicListings(searchParams);
   } catch (e) {
     const message =
       e instanceof Error
@@ -17,7 +17,7 @@ async function GridInner({ searchParams }: { searchParams: Filters }) {
         : typeof (e as { message?: string })?.message === "string"
           ? (e as { message: string }).message
           : String(e);
-    console.error("[ListingGrid] getVerifiedListings failed:", message, e instanceof Error ? e.stack : "");
+    console.error("[ListingGrid] getPublicListings failed:", message, e instanceof Error ? e.stack : "");
     return (
       <div className="rounded-xl border border-par-3-punch/20 bg-white/60 p-8 text-center text-mowing-green">
         <p className="font-medium">Unable to load listings.</p>

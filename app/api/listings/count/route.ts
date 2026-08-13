@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { getVerifiedListingsCount } from "@/lib/listings";
+import { getPublicListingsCount } from "@/lib/listings";
 import { parseFiltersFromUrlSearchParams } from "@/lib/home-filter-url";
 
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
     const filters = parseFiltersFromUrlSearchParams(url.searchParams);
-    const count = await getVerifiedListingsCount(filters);
+    const count = await getPublicListingsCount(filters);
     return NextResponse.json({ count });
   } catch (e) {
     console.error("[listings/count]", e);

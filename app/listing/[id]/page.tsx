@@ -9,9 +9,15 @@ import { getListingImageUrl } from "@/lib/listing-images";
 import { BuyButton } from "./BuyButton";
 import { MakeOfferButton } from "./MakeOfferButton";
 import { ListingImageGallery } from "./ListingImageGallery";
+import { ListingViewTracker } from "@/components/listing/ListingViewTracker";
 import { FoundingSellerBadge } from "@/components/trust/FoundingSellerBadge";
 import { ensureDisplayNameForUser } from "@/lib/public-seller-name";
 import { getPlatformFulfilmentMode } from "@/lib/fulfilment";
+import {
+  isComingSoonListing,
+  isPublicMarketplaceStatus,
+  marketplaceListingStatus,
+} from "@/lib/listing-availability";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
@@ -35,11 +41,15 @@ export default async function ListingPage({
 
   let listing = listingResult.listing;
   let isBuyerViewingSold = false;
-  if (!listing || listing.status !== "verified") {
+  if (!listing || !isPublicMarketplaceStatus(listing.status)) {
     listing = await getListingByIdAdmin(id);
     if (txResult) isBuyerViewingSold = true;
     if (!listing) notFound();
-    if (listing.status !== "verified" && listing.status !== "sold" && listing.user_id !== user?.id) {
+    if (
+      !isPublicMarketplaceStatus(listing.status) &&
+      listing.status !== "sold" &&
+      listing.user_id !== user?.id
+    ) {
       notFound();
     }
   }
@@ -90,11 +100,14 @@ export default async function ListingPage({
     }
   }
 
+  const comingSoon = isComingSoonListing(listing.status);
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
+      <ListingViewTracker listingId={listing.id} listingStatus={marketplaceListingStatus(listing.status)} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-4">
-          <ListingImageGallery imageUrls={imageUrls} alt={displayTitle} />
+          <ListingImageGallery imageUrls={imageUrls} alt={displayTitle} listingStatus={listing.status} />
         </div>
 
         <div>
@@ -198,15 +211,32 @@ export default async function ListingPage({
 
           {!isPurchasedView && listing.status !== "sold" && (
             <div className="mt-8 space-y-3">
-              <BuyButton
-                listingId={listing.id}
-                price={listing.price}
-                totalPence={totalPence}
-                sellerCanAcceptPayment={sellerCanAcceptPayment}
-                fulfilmentMode={fulfilmentMode}
-              />
-              {user?.id !== listing.user_id && (
-                <MakeOfferButton listingId={listing.id} listingPricePence={listing.price} />
+              {comingSoon ? (
+                <div>
+                  <button
+                    type="button"
+                    disabled
+                    className="w-full sm:w-auto rounded-xl bg-mowing-green/50 text-off-white-pique px-8 py-4 text-lg font-semibold cursor-not-allowed"
+                  >
+                    Coming Soon
+                  </button>
+                  <p className="mt-3 text-sm text-mowing-green/80">
+                    This club isn&apos;t available to buy just yet. Check back soon.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <BuyButton
+                    listingId={listing.id}
+                    price={listing.price}
+                    totalPence={totalPence}
+                    sellerCanAcceptPayment={sellerCanAcceptPayment}
+                    fulfilmentMode={fulfilmentMode}
+                  />
+                  {user?.id !== listing.user_id && (
+                    <MakeOfferButton listingId={listing.id} listingPricePence={listing.price} />
+                  )}
+                </>
               )}
             </div>
           )}

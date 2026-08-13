@@ -284,8 +284,8 @@ export default function DashboardPage() {
                 <Package className="h-6 w-6 text-mowing-green" />
               </div>
               <div>
-                <p className="font-semibold text-mowing-green">Verify listings (go live)</p>
-                <p className="text-sm text-mowing-green/70">Approve items for the platform (admin)</p>
+                <p className="font-semibold text-mowing-green">Verify listings</p>
+                <p className="text-sm text-mowing-green/70">Approve items so buyers can purchase (admin)</p>
               </div>
             </Link>
             <Link
