@@ -30,6 +30,7 @@ export const NotificationType = {
   PAYMENT_ISSUE_REQUIRES_REVIEW: "payment_issue_requires_review",
   REFUND_REQUIRES_ACTION: "refund_requires_action",
   TRANSACTION_STUCK: "transaction_stuck",
+  LISTING_REVIEW_REQUIRED: "listing_review_required",
 } as const;
 
 export type NotificationTypeValue = (typeof NotificationType)[keyof typeof NotificationType];
@@ -248,4 +249,8 @@ export function adminFulfilmentUrl(txId: string): string {
 
 export function adminTransactionUrl(txId: string): string {
   return `/admin/transactions?id=${encodeURIComponent(txId)}`;
+}
+
+export function adminListingUrl(listingId: string): string {
+  return `/admin/listings/${encodeURIComponent(listingId)}`;
 }

@@ -6,7 +6,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { FulfilmentMode } from "@/lib/fulfilment-providers";
 import {
   NotificationType,
+  NotificationEntityType,
   adminFulfilmentUrl,
+  adminListingUrl,
   adminPackagingUrl,
   adminStarterPackUrl,
   adminTransactionUrl,
@@ -574,5 +576,40 @@ export async function resolvePaymentAndRefundNotifications(
     });
   } catch (e) {
     console.error("resolvePaymentAndRefundNotifications failed", e);
+  }
+}
+
+export async function notifyListingReviewRequired(
+  admin: SupabaseClient,
+  opts: { listingId: string; title: string }
+): Promise<void> {
+  try {
+    const title = opts.title.trim() || "a new listing";
+    await notifyAdmins(admin, {
+      type: NotificationType.LISTING_REVIEW_REQUIRED,
+      title: "Listing review required",
+      message: `A seller has submitted ${title} for verification.`,
+      entityType: NotificationEntityType.LISTING,
+      entityId: opts.listingId,
+      actionUrl: adminListingUrl(opts.listingId),
+      actionLabel: "Review listing",
+      requiresAction: true,
+    });
+  } catch (e) {
+    console.error("notifyListingReviewRequired failed", e);
+  }
+}
+
+export async function resolveListingReviewRequired(
+  admin: SupabaseClient,
+  listingId: string
+): Promise<void> {
+  try {
+    await resolveNotifications(admin, {
+      types: [NotificationType.LISTING_REVIEW_REQUIRED],
+      entityId: listingId,
+    });
+  } catch (e) {
+    console.error("resolveListingReviewRequired failed", e);
   }
 }

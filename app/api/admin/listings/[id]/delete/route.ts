@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { resolveListingReviewRequired } from "@/lib/notification-events";
 
 export const dynamic = "force-dynamic";
 
@@ -43,5 +44,6 @@ export async function DELETE(
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+  await resolveListingReviewRequired(admin, id);
   return NextResponse.json({ ok: true });
 }

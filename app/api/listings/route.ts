@@ -3,6 +3,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { categoryToParcelPreset } from "@/lib/shippo";
 import { ensureEmailSent, EmailTriggerType } from "@/lib/email-triggers";
+import { notifyListingReviewRequired } from "@/lib/notification-events";
+import { adminListingUrl } from "@/lib/notifications";
 import {
   ALL_CATEGORIES,
   CONDITIONS,
@@ -161,6 +163,13 @@ export async function POST(request: Request) {
 
     await assignFoundingSellerRankIfEligible(admin, user.id, profile?.founding_seller_rank);
 
+    const displayTitle =
+      (title && title.trim()) || [brand, model].filter(Boolean).join(" ").trim() || "a new listing";
+    await notifyListingReviewRequired(admin, {
+      listingId: listing.id,
+      title: displayTitle,
+    });
+
     const adminTo = process.env.TEEVO_ADMIN_EMAILS?.trim()?.split(",")[0]?.trim();
     if (adminTo && adminTo !== "admin@example.com") {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
@@ -177,8 +186,8 @@ export async function POST(request: Request) {
             title: "New listing to verify",
             subtitle: subtitle || "New listing",
             body: "A new listing is pending verification.",
-            cta_link: appUrl ? `${appUrl}/admin/listings` : "#",
-            cta_text: "Review listings",
+            cta_link: appUrl ? `${appUrl}${adminListingUrl(listing.id)}` : "#",
+            cta_text: "Review listing",
           },
         });
       } catch (e) {
