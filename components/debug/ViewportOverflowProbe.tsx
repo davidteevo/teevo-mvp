@@ -6,10 +6,12 @@ const ENDPOINT = "http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832c
 
 type Hud = {
   overflowPx: number;
+  layoutVsVisualPx: number;
   clientWidth: number;
   scrollWidth: number;
   innerWidth: number;
   vvWidth: number | null;
+  scale: number | null;
   topOffender: string | null;
   path: string;
   uaShort: string;
@@ -139,8 +141,12 @@ export function ViewportOverflowProbe() {
           })
         : [];
 
-      const overflowing = overflowingElements(docEl.clientWidth);
+      const overflowingVsLayout = overflowingElements(docEl.clientWidth);
+      const visualW = Math.round((vv?.width ?? window.innerWidth) * 10) / 10;
+      const overflowingVsVisual = overflowingElements(visualW);
       const overflowPx = docEl.scrollWidth - docEl.clientWidth;
+      const layoutVsVisualPx = Math.round((docEl.clientWidth - visualW) * 10) / 10;
+      const scale = vv?.scale ?? null;
       const metrics = {
         innerWidth: window.innerWidth,
         innerHeight: window.innerHeight,
@@ -153,9 +159,10 @@ export function ViewportOverflowProbe() {
         visualViewportWidth: vv?.width ?? null,
         visualViewportHeight: vv?.height ?? null,
         visualViewportOffsetLeft: vv?.offsetLeft ?? null,
-        visualViewportScale: vv?.scale ?? null,
+        visualViewportScale: scale,
         vwPx,
         overflowPx,
+        layoutVsVisualPx,
         viewportMeta,
         ua: navigator.userAgent,
         dpr: window.devicePixelRatio,
@@ -173,28 +180,35 @@ export function ViewportOverflowProbe() {
 
       const report = {
         overflowPx,
+        layoutVsVisualPx,
         clientWidth: docEl.clientWidth,
         scrollWidth: docEl.scrollWidth,
         innerWidth: window.innerWidth,
         visualViewportWidth: vv?.width ?? null,
+        visualViewportScale: scale,
         dpr: window.devicePixelRatio,
         path: location.pathname,
         href: location.href,
         viewportMeta,
         ua: navigator.userAgent,
         safeInsets,
-        topOverflowing: overflowing.slice(0, 5),
+        topOverflowingVsLayout: overflowingVsLayout.slice(0, 5),
+        topOverflowingVsVisual: overflowingVsVisual.slice(0, 8),
       };
 
       setHud({
         overflowPx,
+        layoutVsVisualPx,
         clientWidth: docEl.clientWidth,
         scrollWidth: docEl.scrollWidth,
         innerWidth: window.innerWidth,
         vvWidth: vv?.width ?? null,
-        topOffender: overflowing[0]
-          ? `${overflowing[0].tag}.${(overflowing[0].className || "").split(" ")[0]} +${overflowing[0].overflowBy}`
-          : null,
+        scale,
+        topOffender: overflowingVsVisual[0]
+          ? `${overflowingVsVisual[0].tag}.${(overflowingVsVisual[0].className || "").split(" ")[0]} +${overflowingVsVisual[0].overflowBy}`
+          : overflowingVsLayout[0]
+            ? `${overflowingVsLayout[0].tag}.${(overflowingVsLayout[0].className || "").split(" ")[0]} +${overflowingVsLayout[0].overflowBy}`
+            : null,
         path: location.pathname,
         uaShort: /iPhone/.test(navigator.userAgent)
           ? `iPhone ${docEl.clientWidth}px`
@@ -220,7 +234,9 @@ export function ViewportOverflowProbe() {
           clientWidth: docEl.clientWidth,
           innerWidth: window.innerWidth,
           visualViewportWidth: vv?.width ?? null,
+          visualViewportScale: scale,
           vwMinusClient: vwPx - docEl.clientWidth,
+          layoutVsVisualPx,
         },
       });
       log({
@@ -244,8 +260,26 @@ export function ViewportOverflowProbe() {
         message: "overflowing DOM elements",
         data: {
           overflowPx,
-          overflowing,
+          layoutVsVisualPx,
+          visualW,
+          overflowingVsLayout,
+          overflowingVsVisual,
           path: location.pathname,
+        },
+      });
+      log({
+        runId,
+        hypothesisId: "H6",
+        location: "ViewportOverflowProbe.tsx:layout-vs-visual",
+        message: "layout viewport vs visual viewport mismatch",
+        data: {
+          clientWidth: docEl.clientWidth,
+          scrollWidth: docEl.scrollWidth,
+          innerWidth: window.innerWidth,
+          visualViewportWidth: vv?.width ?? null,
+          visualViewportScale: scale,
+          layoutVsVisualPx,
+          mismatch: layoutVsVisualPx > 1,
         },
       });
       log({
@@ -257,7 +291,7 @@ export function ViewportOverflowProbe() {
           safeInsets,
           visualViewportWidth: vv?.width ?? null,
           visualViewportHeight: vv?.height ?? null,
-          visualViewportScale: vv?.scale ?? null,
+          visualViewportScale: scale,
           screenWidth: window.screen?.width ?? null,
           screenAvailWidth: window.screen?.availWidth ?? null,
         },
@@ -285,6 +319,8 @@ export function ViewportOverflowProbe() {
     }
   };
 
+  const isBad = hud.overflowPx > 0 || hud.layoutVsVisualPx > 1;
+
   return (
     <button
       type="button"
@@ -298,7 +334,7 @@ export function ViewportOverflowProbe() {
         padding: "8px 10px",
         borderRadius: 8,
         border: "none",
-        background: hud.overflowPx > 0 ? "rgba(180,0,0,0.94)" : "rgba(0,80,40,0.9)",
+        background: isBad ? "rgba(180,0,0,0.94)" : "rgba(0,80,40,0.9)",
         color: "#fff",
         fontSize: 11,
         lineHeight: 1.35,
@@ -312,14 +348,17 @@ export function ViewportOverflowProbe() {
         Overflow probe · tap to copy {copied ? "✓" : ""}
       </div>
       <div>
-        overflowPx={hud.overflowPx} cw={hud.clientWidth} sw={hud.scrollWidth}
+        overflowPx={hud.overflowPx} layoutVsVisual={hud.layoutVsVisualPx}
       </div>
       <div>
-        iw={hud.innerWidth} vv={hud.vvWidth ?? "n/a"} · {hud.uaShort} · {hud.path}
+        cw={hud.clientWidth} sw={hud.scrollWidth} iw={hud.innerWidth} vv={hud.vvWidth ?? "n/a"}
+      </div>
+      <div>
+        scale={hud.scale ?? "n/a"} · {hud.uaShort} · {hud.path}
       </div>
       {hud.topOffender ? <div>top: {hud.topOffender}</div> : <div>top: none</div>}
       <div style={{ opacity: 0.85, marginTop: 2 }}>
-        Red = page wider than screen. Send screenshot or copied text.
+        Red = layout wider than visible area. Send screenshot or copied text.
       </div>
     </button>
   );
