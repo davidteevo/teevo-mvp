@@ -504,7 +504,7 @@ export function HomeFilterBar({ brandSuggestions }: { brandSuggestions: string[]
             value={draft.brand}
             onChange={(e) => setDraft((d) => ({ ...d, brand: e.target.value }))}
             placeholder="Search brands…"
-            className="mb-2 w-full rounded-xl border border-mowing-green/25 px-3 py-2.5 text-sm"
+            className="mb-2 w-full rounded-xl border border-mowing-green/25 px-3 py-2.5 text-base"
           />
           <div className="max-h-40 overflow-y-auto rounded-xl border border-mowing-green/15">
             {brandSuggestions
@@ -705,8 +705,7 @@ export function HomeFilterBar({ brandSuggestions }: { brandSuggestions: string[]
           value={brandQuery}
           onChange={(e) => setBrandQuery(e.target.value)}
           placeholder="Type to filter…"
-          className="mb-3 w-full rounded-xl border border-mowing-green/25 px-3 py-2.5 text-sm"
-          autoFocus
+          className="mb-3 w-full rounded-xl border border-mowing-green/25 px-3 py-2.5 text-base"
         />
         <div className="max-h-[50vh] overflow-y-auto rounded-xl border border-mowing-green/15">
           {filteredBrands.slice(0, 120).map((b) => (
