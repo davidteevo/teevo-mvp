@@ -129,9 +129,33 @@ function LoginForm() {
           }
         })(),
         redirect,
+        cookiesBeforeClear: sbCookieSummary().names,
       },
     });
     // #endregion
+
+    // Clear stale host/domain sb-* cookies that can leave production in SIGNED_OUT limbo
+    // while a cookie name still appears (staging has no COOKIE_DOMAIN and does not hit this).
+    try {
+      await fetch("/api/auth/clear-session-cookies", { method: "POST", credentials: "include" });
+      const domain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN;
+      for (const name of sbCookieSummary().names) {
+        document.cookie = `${name}=; Max-Age=0; path=/`;
+        if (domain) document.cookie = `${name}=; Max-Age=0; path=/; domain=${domain}`;
+      }
+      // #region agent log
+      logAuthDebug({
+        hypothesisId: "H1",
+        location: "login/page.tsx:after-clear",
+        message: "cleared stale cookies before signIn",
+        data: { cookiesAfterClear: sbCookieSummary().names },
+        runId: "clear-cookies",
+      });
+      // #endregion
+    } catch {
+      // proceed with sign-in even if clear fails
+    }
+
     const supabase = createClient();
     let err: { message: string } | null = null;
     let signedInUserId: string | null = null;
@@ -183,6 +207,7 @@ function LoginForm() {
           signedInUserId,
           sessionUserId: sessionResult.data.session?.user?.id?.slice(0, 8) ?? null,
         },
+        runId: "post-fix",
       });
       // #endregion
       await new Promise((r) => setTimeout(r, 300));

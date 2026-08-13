@@ -139,15 +139,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // #endregion
     };
 
+    let lastSignedOutLog = 0;
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       // #region agent log
-      logAuth("H3", "auth-context.tsx:onAuthStateChange", "auth state change", {
-        event,
-        hasSession: Boolean(session),
-        userId: session?.user?.id?.slice(0, 8) ?? null,
-      });
+      if (event === "SIGNED_OUT") {
+        const now = Date.now();
+        if (now - lastSignedOutLog > 5000) {
+          lastSignedOutLog = now;
+          logAuth("H3", "auth-context.tsx:onAuthStateChange", "auth state change", {
+            event,
+            hasSession: Boolean(session),
+            userId: session?.user?.id?.slice(0, 8) ?? null,
+          });
+        }
+      } else {
+        logAuth("H3", "auth-context.tsx:onAuthStateChange", "auth state change", {
+          event,
+          hasSession: Boolean(session),
+          userId: session?.user?.id?.slice(0, 8) ?? null,
+        });
+      }
       // #endregion
       setUser(session?.user ?? null);
       if (session?.user) {
