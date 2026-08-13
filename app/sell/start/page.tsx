@@ -4,6 +4,7 @@ import { Suspense, useState, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { ImageUpload } from "@/components/listing/ImageUpload";
+import { ListingSubmitLoading } from "@/components/listing/ListingSubmitLoading";
 import { track } from "@/lib/analytics";
 import { compressListingMain, compressListingThumb } from "@/lib/image-compression";
 
@@ -15,9 +16,6 @@ const SUBMIT_TIMEOUT_MS = 120_000;
 
 const CATEGORIES = ALL_CATEGORIES;
 const PARCEL_PRESET = "SMALL_ITEM";
-
-type SubmitPhase = "creating" | "upload_urls" | "compressing" | "uploading" | "saving";
-type SubmitStatus = { phase: SubmitPhase; current?: number; total?: number } | null;
 
 function SellStartContent() {
   const searchParams = useSearchParams();
@@ -31,7 +29,6 @@ function SellStartContent() {
   const [price, setPrice] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<SubmitStatus>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   // Fire seller_listing_started once when landing (and optional new=1 for signup complete)
@@ -69,7 +66,6 @@ function SellStartContent() {
       if (images.length < 5 || images.length > 6) throw new Error("Upload 5–6 images");
 
       track("seller_listing_completed");
-      setSubmitStatus({ phase: "creating" });
       const createRes = await fetch("/api/listings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -91,7 +87,6 @@ function SellStartContent() {
       const listingId = createData.id as string;
       if (!listingId) throw new Error("No listing id returned");
 
-      setSubmitStatus({ phase: "upload_urls" });
       const urlsRes = await fetch(`/api/listings/${listingId}/upload-urls`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -115,7 +110,6 @@ function SellStartContent() {
         const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
         if (!allowedExt.includes(ext)) continue;
 
-        setSubmitStatus({ phase: "compressing", current: i + 1, total: images.length });
         let mainBlob: Blob;
         let thumbBlob: Blob;
         try {
@@ -129,7 +123,6 @@ function SellStartContent() {
           );
         }
 
-        setSubmitStatus({ phase: "uploading", current: i + 1, total: images.length });
         const mainEntry = uploads[2 * i];
         const thumbEntry = uploads[2 * i + 1];
         const uploadOne = async (path: string, token: string, blob: Blob) => {
@@ -151,7 +144,6 @@ function SellStartContent() {
       }
       if (mainPaths.length < 5) throw new Error("At least 5 valid images (JPG, PNG, GIF, WebP) are required.");
 
-      setSubmitStatus({ phase: "saving" });
       const imagesRes = await fetch(`/api/listings/${listingId}/images`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -166,18 +158,32 @@ function SellStartContent() {
       track("seller_listing_published", { listingId });
       router.push(`/sell/start/success?listingId=${listingId}`);
     } catch (e) {
-      const message =
-        e instanceof Error
-          ? e.name === "AbortError"
-            ? "Request took too long. Please try again."
-            : e.message
-          : "Something went wrong. Please try again.";
+      console.error("Listing submission failed", e);
+      let message: string;
+      if (e instanceof Error) {
+        if (e.name === "AbortError") {
+          message = "Request took too long. Please try again.";
+        } else if (
+          e.name === "TypeError" ||
+          e.message === "Failed to fetch" ||
+          e.message === "Load failed" ||
+          /network|fetch|load failed/i.test(e.message)
+        ) {
+          message =
+            "Couldn't reach the server. Check your connection and try again. If it keeps happening, the site may be temporarily unavailable.";
+        } else {
+          message =
+            "We couldn't create your listing\n\nSomething went wrong while preparing your listing. Please try again.";
+        }
+      } else {
+        message =
+          "We couldn't create your listing\n\nSomething went wrong while preparing your listing. Please try again.";
+      }
       alert(message);
     } finally {
       window.clearTimeout(timeoutId);
       abortRef.current = null;
       setSubmitting(false);
-      setSubmitStatus(null);
     }
   };
 
@@ -353,22 +359,7 @@ function SellStartContent() {
             Check similar listings for guidance.
           </p>
 
-          {submitting && submitStatus && (
-            <div className="rounded-xl border border-mowing-green/30 bg-mowing-green/5 p-4" role="status">
-              <div className="flex items-center gap-3">
-                <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-mowing-green/30 border-t-mowing-green" />
-                <span className="text-sm font-medium text-mowing-green">
-                  {submitStatus.phase === "creating" && "Creating listing…"}
-                  {submitStatus.phase === "upload_urls" && "Preparing upload…"}
-                  {submitStatus.phase === "compressing" &&
-                    `Compressing image ${submitStatus.current ?? 0} of ${submitStatus.total ?? 0}…`}
-                  {submitStatus.phase === "uploading" &&
-                    `Uploading image ${submitStatus.current ?? 0} of ${submitStatus.total ?? 0}…`}
-                  {submitStatus.phase === "saving" && "Saving…"}
-                </span>
-              </div>
-            </div>
-          )}
+          {submitting && <ListingSubmitLoading />}
 
           <div className="flex gap-3">
             <button

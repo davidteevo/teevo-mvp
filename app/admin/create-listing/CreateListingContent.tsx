@@ -2,7 +2,8 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
-import { ListingForm, type SubmitStatus } from "@/components/listing/ListingForm";
+import { ListingForm } from "@/components/listing/ListingForm";
+import { ListingSubmitLoading } from "@/components/listing/ListingSubmitLoading";
 import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
 import { compressListingMain, compressListingThumb } from "@/lib/image-compression";
 import type { ClubCatalogue } from "@/lib/club-catalogue";
@@ -69,7 +70,6 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
   const [listingPayload, setListingPayload] = useState<ListingPayload | null>(null);
   const [adminNotes, setAdminNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<SubmitStatus>(null);
   const [success, setSuccess] = useState<{ listingId: string; notificationSent: boolean } | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -181,7 +181,6 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
     setStep(4);
 
     try {
-      setSubmitStatus({ phase: "creating" });
       const createRes = await fetch("/api/admin/listings/on-behalf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -222,7 +221,6 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
       const notificationSent = createData.notification_sent === true;
       if (!listingId) throw new Error("No listing id returned");
 
-      setSubmitStatus({ phase: "upload_urls" });
       const urlsRes = await fetch(`/api/listings/${listingId}/upload-urls`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -250,7 +248,6 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
         const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
         if (!allowedExt.includes(ext)) continue;
 
-        setSubmitStatus({ phase: "compressing", current: i + 1, total: images.length });
         let mainBlob: Blob;
         let thumbBlob: Blob;
         try {
@@ -264,7 +261,6 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
           );
         }
 
-        setSubmitStatus({ phase: "uploading", current: i + 1, total: images.length });
         const mainEntry = uploads[2 * i];
         const thumbEntry = uploads[2 * i + 1];
         const uploadOne = async (path: string, token: string, blob: Blob) => {
@@ -292,7 +288,6 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
         throw new Error("At least 5 valid images are required.");
       }
 
-      setSubmitStatus({ phase: "saving" });
       const imagesRes = await fetch(`/api/listings/${listingId}/images`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -317,7 +312,6 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
       window.clearTimeout(timeoutId);
       abortRef.current = null;
       setSubmitting(false);
-      setSubmitStatus(null);
     }
   };
 
@@ -355,6 +349,7 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
 
   return (
     <div className="max-w-xl mx-auto space-y-8">
+      {submitting && <ListingSubmitLoading />}
       <div>
         <h1 className="text-2xl font-bold text-mowing-green">Create listing on behalf of seller</h1>
         <p className="mt-1 text-mowing-green/80 text-sm">
@@ -515,32 +510,17 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
         </div>
       )}
 
-      {/* Step 4: Submitting */}
-      {step === 4 && (
+      {/* Step 4: Error after publish attempt */}
+      {step === 4 && submitError && (
         <div className="rounded-xl border border-par-3-punch/20 bg-white p-6">
-          {submitStatus && (
-            <p className="text-mowing-green">
-              {submitStatus.phase === "creating" && "Creating listing…"}
-              {submitStatus.phase === "upload_urls" && "Preparing upload…"}
-              {submitStatus.phase === "compressing" &&
-                `Compressing image ${submitStatus.current ?? 0} of ${submitStatus.total ?? 0}…`}
-              {submitStatus.phase === "uploading" &&
-                `Uploading image ${submitStatus.current ?? 0} of ${submitStatus.total ?? 0}…`}
-              {submitStatus.phase === "saving" && "Saving images…"}
-            </p>
-          )}
-          {submitError && (
-            <p className="mt-2 text-sm text-red-600">{submitError}</p>
-          )}
-          {submitError && (
-            <button
-              type="button"
-              onClick={() => { setStep(3); setSubmitError(null); }}
-              className="mt-3 rounded-lg border border-mowing-green/30 px-4 py-2 text-sm font-medium text-mowing-green"
-            >
-              Try again
-            </button>
-          )}
+          <p className="text-sm text-red-600">{submitError}</p>
+          <button
+            type="button"
+            onClick={() => { setStep(3); setSubmitError(null); }}
+            className="mt-3 rounded-lg border border-mowing-green/30 px-4 py-2 text-sm font-medium text-mowing-green"
+          >
+            Try again
+          </button>
         </div>
       )}
     </div>

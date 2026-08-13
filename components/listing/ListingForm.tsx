@@ -17,9 +17,7 @@ import {
   isAccessoriesCategory,
 } from "@/lib/listing-categories";
 import type { ClubCatalogue } from "@/lib/club-catalogue";
-
-export type SubmitPhase = "creating" | "upload_urls" | "compressing" | "uploading" | "saving";
-export type SubmitStatus = { phase: SubmitPhase; current?: number; total?: number } | null;
+import { ListingSubmitLoading } from "./ListingSubmitLoading";
 
 const GOLF_EQUIPMENT_CATEGORIES = ["Driver", "Woods", "Driving Irons", "Hybrids", "Irons", "Wedges", "Putter"];
 const IMAGE_SLOT_LABELS_GOLF = ["Front", "Back", "Sole", "Shaft", "Grip", "Other"];
@@ -67,30 +65,8 @@ interface ListingFormProps {
     images: File[];
   }) => void;
   submitting: boolean;
-  submitStatus?: SubmitStatus;
   clubCatalogue?: ClubCatalogue;
   clothingBrands?: string[];
-}
-
-function getStatusLabel(status: NonNullable<SubmitStatus>): string {
-  switch (status.phase) {
-    case "creating":
-      return "Creating listing…";
-    case "upload_urls":
-      return "Preparing upload…";
-    case "compressing":
-      return status.total != null && status.current != null
-        ? `Compressing image ${status.current} of ${status.total}…`
-        : "Compressing images…";
-    case "uploading":
-      return status.total != null && status.current != null
-        ? `Uploading image ${status.current} of ${status.total}…`
-        : "Uploading images…";
-    case "saving":
-      return "Saving…";
-    default:
-      return "Submitting…";
-  }
 }
 
 export function ListingForm({
@@ -100,7 +76,6 @@ export function ListingForm({
   initialCategory = "",
   onSubmit,
   submitting,
-  submitStatus = null,
   clubCatalogue,
   clothingBrands,
 }: ListingFormProps) {
@@ -918,38 +893,7 @@ export function ListingForm({
         />
       </section>
 
-      {submitting && submitStatus && (
-        <div
-          className="rounded-xl border border-mowing-green/30 bg-mowing-green/5 p-4"
-          role="status"
-          aria-live="polite"
-        >
-          <div className="flex items-center gap-3">
-            <span
-              className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-mowing-green/30 border-t-mowing-green"
-              aria-hidden
-            />
-            <span className="text-sm font-medium text-mowing-green">
-              {getStatusLabel(submitStatus)}
-            </span>
-          </div>
-          {submitStatus.phase === "uploading" &&
-            submitStatus.total != null &&
-            submitStatus.current != null &&
-            submitStatus.total > 0 && (
-              <div className="mt-3">
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-mowing-green/20">
-                  <div
-                    className="h-full rounded-full bg-mowing-green transition-all duration-300"
-                    style={{
-                      width: `${(100 * submitStatus.current) / submitStatus.total}%`,
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-        </div>
-      )}
+      {submitting && <ListingSubmitLoading />}
 
       <div className="pt-2">
         <p className="text-xs text-mowing-green/75 text-center leading-relaxed mb-3">
@@ -965,7 +909,7 @@ export function ListingForm({
           disabled={submitting}
           className="w-full rounded-xl bg-mowing-green text-off-white-pique py-3 font-semibold hover:opacity-90 disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          {submitting ? "Submitting…" : "List my item"}
+          List my item
         </button>
         <p className="mt-2 text-center text-xs text-mowing-green/60">
           We review within 24 hours
@@ -987,7 +931,7 @@ export function ListingForm({
               disabled={submitting}
               className="w-full rounded-xl bg-mowing-green text-off-white-pique py-3 font-semibold hover:opacity-90 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {submitting ? "Submitting…" : "List my item"}
+              List my item
             </button>
           </div>
         </div>

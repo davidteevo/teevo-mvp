@@ -3,7 +3,7 @@
 import { useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { ListingForm, type SubmitStatus } from "@/components/listing/ListingForm";
+import { ListingForm } from "@/components/listing/ListingForm";
 import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
 import { compressListingMain, compressListingThumb } from "@/lib/image-compression";
 import type { ClubCatalogue } from "@/lib/club-catalogue";
@@ -31,7 +31,6 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
       ? categoryFromUrl
       : "";
   const [submitting, setSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<SubmitStatus>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   if (loading) {
@@ -88,7 +87,6 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
       }
 
       // 1. Create listing (metadata only — no image bytes through API, so no body size limit)
-      setSubmitStatus({ phase: "creating" });
       const createRes = await fetch("/api/listings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -127,7 +125,6 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
       if (!listingId) throw new Error("No listing id returned");
 
       // 2. Get signed upload URLs (avoids Storage RLS; server authorizes via service role)
-      setSubmitStatus({ phase: "upload_urls" });
       const urlsRes = await fetch(`/api/listings/${listingId}/upload-urls`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -155,7 +152,6 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
         const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
         if (!allowedExt.includes(ext)) continue;
 
-        setSubmitStatus({ phase: "compressing", current: i + 1, total: images.length });
         let mainBlob: Blob;
         let thumbBlob: Blob;
         try {
@@ -169,7 +165,6 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
           );
         }
 
-        setSubmitStatus({ phase: "uploading", current: i + 1, total: images.length });
         const mainEntry = uploads[2 * i];
         const thumbEntry = uploads[2 * i + 1];
         const uploadOne = async (path: string, token: string, blob: Blob) => {
@@ -198,7 +193,6 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
       }
 
       // 4. Register main image paths with the API (thumb paths are derived by convention)
-      setSubmitStatus({ phase: "saving" });
       const imagesRes = await fetch(`/api/listings/${listingId}/images`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -212,6 +206,7 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
 
       router.push("/sell/success");
     } catch (e) {
+      console.error("Listing submission failed", e);
       let message: string;
       if (e instanceof Error) {
         if (e.name === "AbortError") {
@@ -225,17 +220,18 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
           message =
             "Couldn't reach the server. Check your connection and try again. If it keeps happening, the site may be temporarily unavailable.";
         } else {
-          message = e.message;
+          message =
+            "We couldn't create your listing\n\nSomething went wrong while preparing your listing. Please try again.";
         }
       } else {
-        message = "Something went wrong. Please try again.";
+        message =
+          "We couldn't create your listing\n\nSomething went wrong while preparing your listing. Please try again.";
       }
       alert(message);
     } finally {
       window.clearTimeout(timeoutId);
       abortRef.current = null;
       setSubmitting(false);
-      setSubmitStatus(null);
     }
   };
 
@@ -260,7 +256,6 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
         initialCategory={initialCategory}
         onSubmit={handleSubmit}
         submitting={submitting}
-        submitStatus={submitStatus}
         clubCatalogue={clubCatalogue}
         clothingBrands={clothingBrands}
       />
