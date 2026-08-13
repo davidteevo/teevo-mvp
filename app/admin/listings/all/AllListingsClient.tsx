@@ -89,6 +89,7 @@ export default function AllListingsClient({ listings }: { listings: AllListing[]
                   <th className="p-3">Category · Brand</th>
                   <th className="p-3">Price</th>
                   <th className="p-3">Status</th>
+                  <th className="p-3">Watchers</th>
                   <th className="p-3">Seller</th>
                   <th className="p-3">Listed</th>
                   <th className="p-3 text-right">Actions</th>
@@ -119,6 +120,7 @@ export default function AllListingsClient({ listings }: { listings: AllListing[]
                         {l.status}
                       </span>
                     </td>
+                    <td className="p-3 text-mowing-green/80">{l.watch_count}</td>
                     <td className="p-3 text-mowing-green/80">
                       {l.seller_email ? (
                         <a href={`mailto:${l.seller_email}`} className="hover:underline">{l.seller_email}</a>

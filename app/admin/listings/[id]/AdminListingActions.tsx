@@ -30,11 +30,7 @@ export function AdminListingActions({
   };
 
   if (status !== "pending") {
-    return (
-      <p className="text-sm text-mowing-green/60">
-        No actions (status: {status})
-      </p>
-    );
+    return null;
   }
 
   return (

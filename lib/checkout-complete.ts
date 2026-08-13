@@ -9,6 +9,7 @@ import {
 import { ensureEmailSent, EmailTriggerType, formatGbp } from "@/lib/email-triggers";
 import { getAppUrl } from "@/lib/app-env";
 import { notifyCheckoutComplete } from "@/lib/notification-events";
+import { notifyWatchersSold } from "@/lib/watchlist-emails";
 import { isPurchasableListingStatus, LISTING_NOT_PURCHASABLE_YET } from "@/lib/listing-availability";
 
 const appUrl = getAppUrl();
@@ -130,6 +131,9 @@ export async function createTransactionAndSendEmails(
   }
 
   await admin.from("listings").update({ status: "sold", updated_at: new Date().toISOString() }).eq("id", listingId);
+  await notifyWatchersSold(admin, listingId, { skipUserId: buyerId }).catch((e) =>
+    console.error("notifyWatchersSold failed", e)
+  );
 
   const txId = newTx.id;
   const totalGbp = formatGbp(amount);

@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { categoryToParcelPreset } from "@/lib/shippo";
 import type { ListingCategory, ListingCondition } from "@/types/database";
 import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
+import { notifyWatchersUnavailable } from "@/lib/watchlist-emails";
 
 const ALLOWED_CATEGORIES_SET = new Set<string>(ALL_CATEGORIES);
 const ALLOWED_CONDITIONS_SET = new Set<string>(CONDITIONS);
@@ -62,6 +63,11 @@ export async function PATCH(
       .eq("user_id", user.id);
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    if (body.archive === true) {
+      await notifyWatchersUnavailable(admin, id, "archived").catch((e) =>
+        console.error("notifyWatchersUnavailable failed", e)
+      );
     }
     return NextResponse.json({ ok: true });
   }

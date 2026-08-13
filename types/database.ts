@@ -103,9 +103,24 @@ export interface Listing {
   flagged: boolean;
   created_by_admin_id?: string | null;
   created_on_behalf?: boolean;
+  archived_at?: string | null;
   created_at: string;
   updated_at: string;
   listing_images?: { id: string; storage_path: string; sort_order: number }[];
+}
+
+export interface WatchlistItem {
+  id: string;
+  user_id: string;
+  listing_id: string;
+  watched_price_pence: number | null;
+  last_availability_email_at: string | null;
+  last_now_available_email_at: string | null;
+  last_price_alert_at: string | null;
+  last_price_alert_pence: number | null;
+  last_sold_email_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Transaction {

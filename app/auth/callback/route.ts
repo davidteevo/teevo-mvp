@@ -4,6 +4,8 @@ import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { generateDisplayNameFromFirstName } from "@/lib/public-seller-name";
 import { getAppUrl } from "@/lib/app-env";
+import { addWatchlistItem, parseWatchListingId, stripWatchParam } from "@/lib/watchlist";
+import { trackServerEvent } from "@/lib/starter-pack";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
@@ -14,6 +16,7 @@ export async function GET(request: Request) {
   const next = searchParams.get("next") ?? "/dashboard";
   const code = searchParams.get("code");
   let isNewUser = false;
+  let sessionUser: { id: string; email?: string | null; user_metadata?: Record<string, unknown> } | null = null;
   if (code) {
     const supabase = await createClient();
     const { data: { user }, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
@@ -27,6 +30,7 @@ export async function GET(request: Request) {
         : new URL(next, request.url).toString();
       return NextResponse.redirect(redirectPath);
     }
+    sessionUser = user;
     if (user) {
       const admin = createServiceClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -69,8 +73,28 @@ export async function GET(request: Request) {
       }
     }
   }
-  const redirectPath =
-    isNewUser && next === "/sell/start"
+  const watchListingId = parseWatchListingId(next);
+  if (watchListingId && sessionUser) {
+    try {
+      const admin = createServiceClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+      await addWatchlistItem(admin, sessionUser.id, watchListingId);
+      if (isNewUser) {
+        await trackServerEvent(admin, "watchlist_account_created", {
+          userId: sessionUser.id,
+          properties: { listing_id: watchListingId },
+        });
+      }
+    } catch (e) {
+      console.error("watchlist intent after auth failed", e);
+    }
+  }
+
+  const redirectPath = watchListingId
+    ? stripWatchParam(next) || `/listing/${watchListingId}`
+    : isNewUser && next === "/sell/start"
       ? "/sell/start"
       : isNewUser
         ? "/onboarding/welcome?new=1"

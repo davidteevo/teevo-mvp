@@ -31,6 +31,10 @@ export const NotificationType = {
   REFUND_REQUIRES_ACTION: "refund_requires_action",
   TRANSACTION_STUCK: "transaction_stuck",
   LISTING_REVIEW_REQUIRED: "listing_review_required",
+  WATCHLIST_NOW_AVAILABLE: "watchlist_now_available",
+  WATCHLIST_PRICE_DROP: "watchlist_price_drop",
+  WATCHLIST_SOLD: "watchlist_sold",
+  WATCHLIST_UNAVAILABLE: "watchlist_unavailable",
 } as const;
 
 export type NotificationTypeValue = (typeof NotificationType)[keyof typeof NotificationType];

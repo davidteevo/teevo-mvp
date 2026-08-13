@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { parseWatchListingId } from "@/lib/watchlist";
 
 /** Race a promise against a timeout so getSession() cannot hang the UI indefinitely. */
 function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
@@ -113,7 +114,9 @@ function LoginForm() {
       )}
       <h1 className="text-2xl font-bold text-mowing-green">Log in</h1>
       <p className="mt-2 text-mowing-green/80 text-sm">
-        Welcome back. Log in to sell or buy.
+        {parseWatchListingId(redirect)
+          ? "Sign in to save this club to your Watchlist."
+          : "Welcome back. Log in to sell or buy."}
       </p>
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         {message === "password-updated" && (

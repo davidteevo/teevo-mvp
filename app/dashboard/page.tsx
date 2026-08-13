@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { OnboardingStripeBanner } from "@/components/dashboard/OnboardingStripeBanner";
 import { FoundingSellerBadge } from "@/components/trust/FoundingSellerBadge";
-import { Calendar, ClipboardCheck, MessageCircle, Package, PlusCircle, Send, ShoppingBag, ShoppingCart, TrendingUp, User } from "lucide-react";
+import { Calendar, ClipboardCheck, Heart, MessageCircle, Package, PlusCircle, Send, ShoppingBag, ShoppingCart, TrendingUp, User } from "lucide-react";
 
 function FoundingSellerFeedback() {
   const [message, setMessage] = useState("");
@@ -83,7 +83,7 @@ function FoundingSellerFeedback() {
   );
 }
 
-type DashboardCounts = { listings: number; sales: number; purchases: number; conversations: number } | null;
+type DashboardCounts = { listings: number; sales: number; purchases: number; conversations: number; watchlist: number } | null;
 
 export default function DashboardPage() {
   const { user, profile, role, loading, refreshProfile } = useAuth();
@@ -114,8 +114,11 @@ export default function DashboardPage() {
         fetch("/api/transactions?role=seller").then((r) => r.json().then((d) => (d.transactions ?? []).length)),
         fetch("/api/transactions?role=buyer").then((r) => r.json().then((d) => (d.transactions ?? []).length)),
         fetch("/api/conversations").then((r) => r.json().then((d) => (d.conversations ?? []).length)),
+        fetch("/api/watchlist/ids").then((r) => r.json().then((d) => (d.ids ?? []).length)),
       ])
-        .then(([listings, sales, purchases, conversations]) => setCounts({ listings, sales, purchases, conversations }))
+        .then(([listings, sales, purchases, conversations, watchlist]) =>
+          setCounts({ listings, sales, purchases, conversations, watchlist })
+        )
         .catch(() => setCounts(null));
     };
     fetchCounts();
@@ -181,6 +184,23 @@ export default function DashboardPage() {
             <p className="font-semibold text-mowing-green">Profile</p>
             <p className="text-sm text-mowing-green/70">Photo, location, handicap</p>
           </div>
+        </Link>
+        <Link
+          href="/watchlist"
+          className="flex items-center gap-4 rounded-xl border border-par-3-punch/20 bg-white p-4 hover:shadow-md transition-shadow relative"
+        >
+          <div className="rounded-lg bg-divot-pink/15 p-3">
+            <Heart className="h-6 w-6 text-mowing-green" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold text-mowing-green">Watchlist</p>
+            <p className="text-sm text-mowing-green/70">Clubs you&apos;re watching</p>
+          </div>
+          {counts != null && counts.watchlist > 0 && (
+            <span className="shrink-0 rounded-full bg-mowing-green/20 text-mowing-green px-2.5 py-0.5 text-sm font-medium">
+              {counts.watchlist}
+            </span>
+          )}
         </Link>
         <Link
           href="/conversations"

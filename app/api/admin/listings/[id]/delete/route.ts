@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { resolveListingReviewRequired } from "@/lib/notification-events";
+import { notifyWatchersUnavailable } from "@/lib/watchlist-emails";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +39,10 @@ export async function DELETE(
       { status: 400 }
     );
   }
+
+  await notifyWatchersUnavailable(admin, id, "deleted").catch((e) =>
+    console.error("notifyWatchersUnavailable failed", e)
+  );
 
   const { error } = await admin.from("listings").delete().eq("id", id);
 

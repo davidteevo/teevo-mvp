@@ -30,6 +30,15 @@ const ALLOWED_EVENTS = [
   "listing_viewed",
   "purchase_cta_displayed",
   "checkout_initiated",
+  "watchlist_added",
+  "watchlist_removed",
+  "watchlist_auth_prompt_shown",
+  "watchlist_account_created",
+  "watchlist_listing_opened",
+  "watchlist_reminder_sent",
+  "watchlist_reminder_clicked",
+  "watchlist_price_drop_sent",
+  "watchlist_price_drop_clicked",
 ] as const;
 
 export type AllowedEventName = (typeof ALLOWED_EVENTS)[number];

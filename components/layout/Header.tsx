@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, ChevronDown, LayoutDashboard, Settings, LogOut, ShoppingCart, Tag, LayoutGrid, MessageCircle, Shield, User, Bell } from "lucide-react";
+import { Menu, ChevronDown, LayoutDashboard, Settings, LogOut, ShoppingCart, Tag, LayoutGrid, MessageCircle, Shield, User, Bell, Heart } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
@@ -135,6 +135,13 @@ export function Header() {
               </button>
               {accountOpen && (
                 <div className="absolute right-0 top-full mt-1 py-1 min-w-[140px] rounded-lg border border-par-3-punch/20 bg-white shadow-lg z-50">
+                  <Link
+                    href="/watchlist"
+                    className="block px-4 py-2 text-sm text-mowing-green hover:bg-mowing-green/5"
+                    onClick={() => setAccountOpen(false)}
+                  >
+                    Watchlist
+                  </Link>
                   <Link
                     href="/dashboard/profile"
                     className="block px-4 py-2 text-sm text-mowing-green hover:bg-mowing-green/5"
@@ -278,6 +285,16 @@ export function Header() {
                     <Bell className="h-4 w-4 text-mowing-green" />
                   </span>
                   Notifications
+                </Link>
+                <Link
+                  href="/watchlist"
+                  className="flex items-center gap-3 rounded-lg py-3 px-3 text-mowing-green font-medium hover:bg-mowing-green/5 active:bg-mowing-green/10 transition-colors"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-mowing-green/10">
+                    <Heart className="h-4 w-4 text-mowing-green" />
+                  </span>
+                  Watchlist
                 </Link>
                 <Link
                   href="/dashboard/profile"

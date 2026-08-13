@@ -4,7 +4,11 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { TrustStrip } from "@/components/layout/TrustStrip";
 import { StagingBanner } from "@/components/layout/StagingBanner";
+import { Suspense } from "react";
 import { AuthProvider } from "@/lib/auth-context";
+import { WatchlistProvider } from "@/lib/watchlist-context";
+import { WatchAuthModal } from "@/components/watchlist/WatchAuthModal";
+import { WatchIntentHandler } from "@/components/watchlist/WatchIntentHandler";
 import { getAppEnv, isProduction, isStaging } from "@/lib/app-env";
 
 const appEnv = getAppEnv();
@@ -62,10 +66,16 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col antialiased">
         <StagingBanner />
         <AuthProvider>
-          <TrustStrip />
-        <Header />
-        <main className="flex-1 flex flex-col min-h-0 min-w-0">{children}</main>
-        <Footer />
+          <WatchlistProvider>
+            <Suspense fallback={null}>
+              <WatchIntentHandler />
+            </Suspense>
+            <WatchAuthModal />
+            <TrustStrip />
+            <Header />
+            <main className="flex-1 flex flex-col min-h-0 min-w-0">{children}</main>
+            <Footer />
+          </WatchlistProvider>
         </AuthProvider>
       </body>
     </html>

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { resolveListingReviewRequired } from "@/lib/notification-events";
+import { notifyWatchersNowAvailable } from "@/lib/watchlist-emails";
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +38,9 @@ export async function POST(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
   await resolveListingReviewRequired(admin, id);
+  await notifyWatchersNowAvailable(admin, id).catch((e) =>
+    console.error("notifyWatchersNowAvailable failed", e)
+  );
   revalidateTag("public-listings");
   revalidatePath(`/listing/${id}`);
   revalidatePath("/");

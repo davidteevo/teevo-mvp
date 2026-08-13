@@ -31,6 +31,11 @@ export const EmailTriggerType = {
   STARTER_PACK_REQUESTED: "starter_pack_requested",
   STARTER_PACK_REQUESTED_ADMIN: "starter_pack_requested_admin",
   STARTER_PACK_DISPATCHED: "starter_pack_dispatched",
+  WATCHLIST_STILL_AVAILABLE: "watchlist_still_available",
+  WATCHLIST_NOW_AVAILABLE: "watchlist_now_available",
+  WATCHLIST_PRICE_DROP: "watchlist_price_drop",
+  WATCHLIST_SOLD: "watchlist_sold",
+  WATCHLIST_UNAVAILABLE: "watchlist_unavailable",
 } as const;
 
 export type EmailTriggerTypeValue = (typeof EmailTriggerType)[keyof typeof EmailTriggerType];
@@ -44,7 +49,7 @@ export async function ensureEmailSent(
   opts: {
     emailType: EmailTriggerTypeValue;
     referenceId: string;
-    referenceType?: "transaction" | "user" | "listing" | "message" | "offer";
+    referenceType?: "transaction" | "user" | "listing" | "message" | "offer" | "watchlist";
     recipientId?: string | null;
     to: string | string[];
     subject: string;

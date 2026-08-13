@@ -5,13 +5,16 @@ import Image from "next/image";
 import type { Listing } from "@/types/database";
 import { ListingMarketplaceBadge } from "@/components/trust/ListingMarketplaceBadge";
 import { PriceWithBreakdown } from "@/components/listing/PriceWithBreakdown";
+import { WatchButton } from "@/components/watchlist/WatchButton";
 import { getListingDisplayTitle, getListingMetaParts } from "@/lib/listing-display";
 import { getListingImageUrl } from "@/lib/listing-images";
 import { track } from "@/lib/analytics";
 import { marketplaceListingStatus } from "@/lib/listing-availability";
+import type { WatchSource } from "@/lib/watchlist-context";
 
 /** Listing optionally with joined seller display name (from users relation). Supabase returns users as array for the join. */
 type ListingWithSeller = Listing & {
+  archived_at?: string | null;
   users?: { display_name?: string | null }[] | { display_name?: string | null } | null;
 };
 
@@ -30,7 +33,21 @@ function sellerDisplayName(listing: ListingWithSeller): string | null {
   return name?.trim() || null;
 }
 
-export function ListingCard({ listing, priority }: { listing: ListingWithSeller; priority?: boolean }) {
+export function ListingCard({
+  listing,
+  priority,
+  source = "card",
+  unavailableLabel,
+  similarHref,
+  trackOpenEvent,
+}: {
+  listing: ListingWithSeller;
+  priority?: boolean;
+  source?: WatchSource;
+  unavailableLabel?: string | null;
+  similarHref?: string | null;
+  trackOpenEvent?: string;
+}) {
   const imgPath = firstImage(listing);
   const sellerName = sellerDisplayName(listing);
   const imageUrl = imgPath ? getListingImageUrl(imgPath, "thumb") : "/placeholder-listing.svg";
@@ -61,49 +78,89 @@ export function ListingCard({ listing, priority }: { listing: ListingWithSeller;
   const specLine = specParts.length > 0 ? specParts.join(" · ") : null;
 
   return (
-    <Link
-      href={`/listing/${listing.id}`}
-      onClick={() =>
-        track("listing_card_clicked", {
-          listingId: listing.id,
-          listing_status: marketplaceListingStatus(listing.status),
-        })
-      }
-      className="block min-w-0 max-w-full rounded-lg border border-par-3-punch/20 bg-white overflow-hidden hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200"
-    >
-      <div className="aspect-[3/4] relative bg-mowing-green/5">
-        <Image
-          src={imageUrl}
-          alt={displayTitle}
-          fill
-          className="object-cover"
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          priority={priority}
-        />
-        <div className="absolute top-1.5 right-1.5">
-          <ListingMarketplaceBadge status={listing.status} />
+    <div className="min-w-0 max-w-full">
+      <div className="relative rounded-lg border border-par-3-punch/20 bg-white overflow-hidden hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200">
+        <Link
+          href={`/listing/${listing.id}`}
+          onClick={() => {
+            track("listing_card_clicked", {
+              listingId: listing.id,
+              listing_status: marketplaceListingStatus(listing.status),
+            });
+            if (trackOpenEvent === "watchlist_listing_opened") {
+              track("watchlist_listing_opened", {
+                listing_id: listing.id,
+                brand: listing.brand,
+                model: listing.model,
+                club_type: listing.category,
+                listing_price: listing.price,
+              });
+            }
+          }}
+          className="block min-w-0 max-w-full"
+        >
+          <div className="aspect-[3/4] relative bg-mowing-green/5">
+            <Image
+              src={imageUrl}
+              alt={displayTitle}
+              fill
+              className="object-cover"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              priority={priority}
+            />
+            <div className="absolute top-1.5 right-1.5">
+              <ListingMarketplaceBadge status={listing.status} />
+            </div>
+            {unavailableLabel && (
+              <div className="absolute inset-0 bg-mowing-green/55 flex items-center justify-center">
+                <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-mowing-green">
+                  {unavailableLabel}
+                </span>
+              </div>
+            )}
+          </div>
+          <div className="p-2.5 sm:p-3">
+            <p className="text-[10px] sm:text-xs text-mowing-green/70 uppercase tracking-wide truncate">
+              {listing.category} · {listing.brand}
+            </p>
+            <h2 className="text-sm font-semibold text-mowing-green mt-0.5 line-clamp-2">
+              {displayTitle}
+            </h2>
+            <p className="text-[10px] sm:text-xs text-mowing-green/70 mt-0.5 truncate">{metaParts.join(" · ")}</p>
+            {specLine && (
+              <p className="text-[10px] sm:text-xs text-mowing-green/60 mt-0.5 truncate">{specLine}</p>
+            )}
+            {sellerName && (
+              <p className="text-[10px] sm:text-xs text-mowing-green/60 mt-0.5 truncate">Sold by {sellerName}</p>
+            )}
+            <PriceWithBreakdown
+              pricePence={listing.price}
+              displayTitle={displayTitle}
+              imageUrl={imageUrl}
+            />
+          </div>
+        </Link>
+        <div className="absolute top-1.5 left-1.5 z-10">
+          <WatchButton
+            listingId={listing.id}
+            sellerId={listing.user_id}
+            brand={listing.brand}
+            model={listing.model}
+            category={listing.category}
+            price={listing.price}
+            source={source}
+            compact
+          />
         </div>
       </div>
-      <div className="p-2.5 sm:p-3">
-        <p className="text-[10px] sm:text-xs text-mowing-green/70 uppercase tracking-wide truncate">
-          {listing.category} · {listing.brand}
-        </p>
-        <h2 className="text-sm font-semibold text-mowing-green mt-0.5 line-clamp-2">
-          {displayTitle}
-        </h2>
-        <p className="text-[10px] sm:text-xs text-mowing-green/70 mt-0.5 truncate">{metaParts.join(" · ")}</p>
-        {specLine && (
-          <p className="text-[10px] sm:text-xs text-mowing-green/60 mt-0.5 truncate">{specLine}</p>
-        )}
-        {sellerName && (
-          <p className="text-[10px] sm:text-xs text-mowing-green/60 mt-0.5 truncate">Sold by {sellerName}</p>
-        )}
-        <PriceWithBreakdown
-          pricePence={listing.price}
-          displayTitle={displayTitle}
-          imageUrl={imageUrl}
-        />
-      </div>
-    </Link>
+      {unavailableLabel && similarHref && (
+        <Link
+          href={similarHref}
+          className="mt-2 inline-block text-xs font-medium text-par-3-punch hover:underline"
+        >
+          Browse similar clubs
+        </Link>
+      )}
+    </div>
   );
 }

@@ -10,6 +10,7 @@ import { BuyButton } from "./BuyButton";
 import { MakeOfferButton } from "./MakeOfferButton";
 import { ListingImageGallery } from "./ListingImageGallery";
 import { ListingViewTracker } from "@/components/listing/ListingViewTracker";
+import { WatchButton } from "@/components/watchlist/WatchButton";
 import { FoundingSellerBadge } from "@/components/trust/FoundingSellerBadge";
 import { ensureDisplayNameForUser } from "@/lib/public-seller-name";
 import { getPlatformFulfilmentMode } from "@/lib/fulfilment";
@@ -168,9 +169,22 @@ export default async function ListingPage({
               {sellerFoundingRank != null && <FoundingSellerBadge rank={sellerFoundingRank} />}
             </p>
           )}
-          <p className="mt-4 text-3xl font-bold text-mowing-green">
-            {formatPence(itemPence)}
-          </p>
+          <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
+            <p className="text-3xl font-bold text-mowing-green">
+              {formatPence(itemPence)}
+            </p>
+            {!isPurchasedView && listing.status !== "sold" && listing.status !== "rejected" && (
+              <WatchButton
+                listingId={listing.id}
+                sellerId={listing.user_id}
+                brand={listing.brand}
+                model={listing.model}
+                category={listing.category}
+                price={listing.price}
+                source="listing"
+              />
+            )}
+          </div>
           <div className="mt-2 space-y-0.5 text-mowing-green/80 text-[15px]">
             <p>{formatPence(authenticityPence)} Authenticity &amp; Protection</p>
             <p>est. {formatPence(shippingPence)} shipping</p>

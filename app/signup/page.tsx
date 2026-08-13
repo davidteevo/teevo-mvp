@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { track } from "@/lib/analytics";
+import { parseWatchListingId } from "@/lib/watchlist";
 import { Mail } from "lucide-react";
 
 function SignupForm() {
@@ -71,6 +72,10 @@ function SignupForm() {
       return;
     }
     track("seller_signup_complete", { redirect });
+    const watchListingId = parseWatchListingId(redirect);
+    if (watchListingId) {
+      track("watchlist_account_created", { listing_id: watchListingId, source: "signup" });
+    }
     setEmailVerificationSent(true);
   };
 
@@ -118,7 +123,9 @@ function SignupForm() {
       )}
       <h1 className="text-2xl font-bold text-mowing-green">Sign up</h1>
       <p className="mt-2 text-mowing-green/80 text-sm">
-        Create an account to list items or buy.
+        {parseWatchListingId(redirect)
+          ? "Create a free Teevo account to save this club to your Watchlist."
+          : "Create an account to list items or buy."}
       </p>
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         {error && (

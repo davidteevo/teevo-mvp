@@ -24,6 +24,11 @@ Automated emails fire from real user actions. Each send is recorded in `sent_ema
 | `starter_pack.requested` | Your free Teevo Starter Pack is being prepared | Seller | Transactional | `POST …/packaging` with `starter_pack: true` |
 | `starter_pack.requested` | ACTION REQUIRED: New Teevo Starter Pack Request | Admin | Alert | Same, after persist |
 | `starter_pack.dispatched` | Your Teevo Starter Pack is on its way | Seller | Transactional | `POST …/starter-pack/dispatch` |
+| `watchlist.still_available` | Still thinking about [Brand] [Model]? | Watcher | Standard | Daily cron `/api/cron/watchlist-reminders` |
+| `watchlist.now_available` | A club on your Watchlist is now available | Watcher | Standard | Admin approve listing |
+| `watchlist.price_drop` | Price drop: [Brand] [Model] is now £X | Watcher | Standard | `POST /api/listings/[id]/reduce-price` |
+| `watchlist.sold` | The [Brand] [Model] you were watching has sold | Watcher | Standard | Checkout complete (`createTransactionAndSendEmails`) |
+| `watchlist.unavailable` | [Brand] [Model] is no longer available | Watcher | Standard | Reject / archive / admin delete |
 
 ## Idempotency
 

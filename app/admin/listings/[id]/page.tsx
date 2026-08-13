@@ -7,6 +7,8 @@ import { getListingImageUrl } from "@/lib/listing-images";
 import type { Listing } from "@/types/database";
 import { AdminListingActions } from "./AdminListingActions";
 import { AdminListingFeedback } from "./AdminListingFeedback";
+import { ReducePriceControl } from "@/components/listing/ReducePriceControl";
+import { getListingWatchCount } from "@/lib/watchlist";
 
 export const dynamic = "force-dynamic";
 
@@ -26,15 +28,18 @@ export default async function AdminListingDetailPage({
 }) {
   const { id } = await params;
 
-  const { data: listing, error } = await admin
-    .from("listings")
-    .select(`
+  const [{ data: listing, error }, watchCount] = await Promise.all([
+    admin
+      .from("listings")
+      .select(`
       id, user_id, category, brand, model, title, condition, price, description, shaft, degree, shaft_flex, handed, item_type, size, colour, status, created_at, admin_feedback, created_on_behalf, created_by_admin_id,
       listing_images(storage_path, sort_order),
       users!user_id(id, email, role, created_at)
     `)
-    .eq("id", id)
-    .single();
+      .eq("id", id)
+      .single(),
+    getListingWatchCount(admin, id),
+  ]);
 
   if (error || !listing) notFound();
 
@@ -148,11 +153,17 @@ export default async function AdminListingDetailPage({
                 <p className="mt-3 text-xl font-bold text-mowing-green">
                   {formatPrice(listing.price)}
                 </p>
+                {listing.status === "verified" && (
+                  <div className="mt-2">
+                    <ReducePriceControl listingId={listing.id} currentPricePence={listing.price} refreshOnSuccess />
+                  </div>
+                )}
                 <p className="mt-2 text-sm text-mowing-green/60">
                   Status: <span className="font-medium">{listing.status}</span>
                   {listing.created_at && (
                     <> · Listed {new Date(listing.created_at).toLocaleDateString("en-GB")}</>
                   )}
+                  <> · Watchers: {watchCount}</>
                 </p>
               </div>
               <AdminListingActions listingId={listing.id} status={listing.status} />

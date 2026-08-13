@@ -4,6 +4,7 @@
  */
 import { createClient } from "@supabase/supabase-js";
 import { generateDisplayNameFromFirstName } from "@/lib/public-seller-name";
+import { getListingWatchCounts } from "@/lib/watchlist";
 
 function adminClient() {
   return createClient(
@@ -112,6 +113,7 @@ export type AllListing = {
   seller_email: string | null;
   created_on_behalf?: boolean;
   created_by_admin_id?: string | null;
+  watch_count: number;
 };
 
 export async function getAllListings(opts: { q?: string; status?: string }): Promise<AllListing[]> {
@@ -141,9 +143,12 @@ export async function getAllListings(opts: { q?: string; status?: string }): Pro
       return acc;
     }, {});
   }
+  const listingIds = rows.map((r) => r.id as string);
+  const watchCounts = await getListingWatchCounts(admin, listingIds);
   return rows.map((r) => ({
     ...r,
     seller_email: emailByUserId[r.user_id] ?? null,
+    watch_count: watchCounts[r.id as string] ?? 0,
   })) as AllListing[];
 }
 

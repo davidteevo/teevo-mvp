@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { formatPrice } from "@/lib/format";
+import { ReducePriceControl } from "@/components/listing/ReducePriceControl";
 
 type Listing = {
   id: string;
@@ -186,6 +187,16 @@ export default function DashboardListingsPage() {
                         <Link href={`/sell/edit/${l.id}`} className="text-sm text-par-3-punch hover:underline">
                           Edit
                         </Link>
+                      )}
+                      {l.status === "verified" && (
+                        <ReducePriceControl
+                          listingId={l.id}
+                          currentPricePence={l.price}
+                          compact
+                          onUpdated={(price) =>
+                            setListings((prev) => prev.map((row) => (row.id === l.id ? { ...row, price } : row)))
+                          }
+                        />
                       )}
                       <button
                         type="button"

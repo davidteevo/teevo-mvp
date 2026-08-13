@@ -16,3 +16,7 @@
 # Admin notification SLAs (seller not dispatched, delivery overdue, buyer not confirmed, stuck).
 [functions."notification-ops-cron"]
   schedule = "@hourly"
+
+# Watchlist still-available reminders (default 3 days after watch / now-available).
+[functions."watchlist-reminders-cron"]
+  schedule = "@daily"
