@@ -12,3 +12,7 @@
 # Run expire-offers cron every hour (UTC). Uses Supabase env vars (same as the app).
 [functions."expire-offers-cron"]
   schedule = "@hourly"
+
+# Admin notification SLAs (seller not dispatched, delivery overdue, buyer not confirmed, stuck).
+[functions."notification-ops-cron"]
+  schedule = "@hourly"

@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { highlightClass, useHighlightId } from "@/lib/use-highlight-id";
 import { MANUAL_COURIERS } from "@/lib/fulfilment-providers";
 
 type AwaitingTx = {
@@ -15,6 +16,14 @@ type AwaitingTx = {
 };
 
 export default function AdminFulfilmentPage() {
+  return (
+    <Suspense fallback={<p className="mt-6 text-mowing-green/70">Loading…</p>}>
+      <AdminFulfilmentContent />
+    </Suspense>
+  );
+}
+
+function AdminFulfilmentContent() {
   const [list, setList] = useState<AwaitingTx[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,6 +35,8 @@ export default function AdminFulfilmentPage() {
   const [labelFile, setLabelFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const highlightId = useHighlightId("fulfilment", list.length > 0);
+  const autoOpenedRef = useRef<string | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -43,6 +54,16 @@ export default function AdminFulfilmentPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    if (!highlightId || !list.length) return;
+    if (autoOpenedRef.current === highlightId) return;
+    const match = list.find((t) => t.id === highlightId);
+    if (match) {
+      autoOpenedRef.current = highlightId;
+      openModal(match);
+    }
+  }, [highlightId, list]);
 
   const openModal = (tx: AwaitingTx) => {
     setModalTx(tx);
@@ -141,7 +162,11 @@ export default function AdminFulfilmentPage() {
             </thead>
             <tbody>
               {list.map((tx) => (
-                <tr key={tx.id} className="border-t border-par-3-punch/10 align-top">
+                <tr
+                  key={tx.id}
+                  id={`fulfilment-${tx.id}`}
+                  className={`border-t border-par-3-punch/10 align-top${highlightClass(highlightId === tx.id)}`}
+                >
                   <td className="px-3 py-3 font-mono text-xs">#{tx.id.slice(0, 8)}</td>
                   <td className="px-3 py-3">
                     <div className="font-medium text-mowing-green">{tx.buyer.name}</div>

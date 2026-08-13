@@ -9,6 +9,7 @@ import {
 } from "@/lib/fulfilment-providers";
 import { ensureEmailSent, EmailTriggerType } from "@/lib/email-triggers";
 import { getAppUrl } from "@/lib/app-env";
+import { notifyManualLabelReady } from "@/lib/notification-events";
 
 export const dynamic = "force-dynamic";
 
@@ -127,6 +128,7 @@ export async function POST(
     // Store the storage path as shipping_label_url so we can re-sign later if needed.
     const labelRef = `shipping-labels://${storagePath}`;
 
+    const now = new Date().toISOString();
     const { error: updateErr } = await admin
       .from("transactions")
       .update({
@@ -136,7 +138,8 @@ export async function POST(
         shipping_label_url: labelRef,
         fulfilment_status: FulfilmentStatus.LABEL_CREATED,
         order_state: "label_created",
-        updated_at: new Date().toISOString(),
+        label_created_at: now,
+        updated_at: now,
       })
       .eq("id", transactionId);
 
@@ -190,6 +193,12 @@ export async function POST(
         ],
       }).catch((e) => console.error("Shipping label ready email failed", e));
     }
+
+    await notifyManualLabelReady(admin, {
+      transactionId,
+      listingId: tx.listing_id,
+      sellerId: tx.seller_id,
+    });
 
     return NextResponse.json({
       ok: true,

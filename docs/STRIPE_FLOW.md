@@ -78,13 +78,14 @@ OR auto-release 3 days after shipped_at (cron or edge) → status = complete.
 
 | Event | Action |
 |-------|--------|
-| `checkout.session.completed` | Insert transaction (listingId, buyerId, sellerId, amount, stripe_payment_id, stripe_checkout_session_id, order_state=paid, buyer_postcode, shipping_option); set listing sold |
-| `charge.dispute.created` | Set transaction status = dispute |
-| `charge.refunded` | Set transaction status = refunded |
-| `refund.updated` | If refund.status === succeeded, set transaction status = refunded (by charge → payment_intent lookup) |
-| `account.updated` | (Optional) Sync seller account capabilities |
+| `checkout.session.completed` | Insert transaction; set listing sold; in-app buyer/seller notifications |
+| `charge.dispute.created` | Set transaction status = dispute; admin payment-issue notification |
+| `charge.refunded` | Set transaction status = refunded; resolve related admin notifications |
+| `refund.updated` | Succeeded → refunded; failed → admin refund-requires-action notification |
+| `account.updated` | If seller Connect is not payout-eligible and has open txs → admin payout-account notification |
+| `transfer.failed` / `payout.failed` | Admin seller-payout-failed notification (enable Connect “listen to events on connected accounts”) |
 
-**Production:** In Stripe Dashboard → Developers → Webhooks, add endpoint and subscribe to: `checkout.session.completed`, `charge.dispute.created`, `charge.refunded`, `refund.updated`.
+**Production:** In Stripe Dashboard → Developers → Webhooks, add endpoint and subscribe to: `checkout.session.completed`, `charge.dispute.created`, `charge.refunded`, `refund.updated`, `account.updated`, `transfer.failed`, `payout.failed`. For Express payouts, also listen to events on **connected accounts**.
 
 Verify signature with `stripe.webhooks.constructEvent(body, sig, secret)` and return 200 quickly; do heavy work async if needed.
 

@@ -2,6 +2,13 @@ import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { createTransactionAndSendEmails } from "@/lib/checkout-complete";
+import {
+  notifyPaymentIssue,
+  notifyPayoutFailed,
+  notifySellerPayoutAccountIssue,
+  resolvePaymentAndRefundNotifications,
+} from "@/lib/notification-events";
+import { NotificationType, resolveNotifications } from "@/lib/notifications";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -9,10 +16,50 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 function getPaymentIntentId(value: unknown): string | undefined {
   if (value == null) return undefined;
   if (typeof value === "string") return value;
-  if (typeof value === "object" && value !== null && "id" in value && typeof (value as { id: unknown }).id === "string") {
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    "id" in value &&
+    typeof (value as { id: unknown }).id === "string"
+  ) {
     return (value as { id: string }).id;
   }
   return undefined;
+}
+
+function adminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
+
+async function findTxByPaymentIntent(
+  admin: ReturnType<typeof adminClient>,
+  paymentIntentId: string | undefined
+) {
+  if (!paymentIntentId) return null;
+  const { data } = await admin
+    .from("transactions")
+    .select("id, listing_id, seller_id, status")
+    .eq("stripe_payment_id", paymentIntentId)
+    .maybeSingle();
+  return data;
+}
+
+async function findOpenTxForSeller(
+  admin: ReturnType<typeof adminClient>,
+  sellerId: string
+) {
+  const { data } = await admin
+    .from("transactions")
+    .select("id, listing_id, status")
+    .eq("seller_id", sellerId)
+    .in("status", ["pending", "shipped", "dispute"])
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return data;
 }
 
 export async function POST(request: Request) {
@@ -25,14 +72,11 @@ export async function POST(request: Request) {
   let event: Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: "Webhook signature verification failed" }, { status: 400 });
   }
 
-  const admin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const admin = adminClient();
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
@@ -56,6 +100,14 @@ export async function POST(request: Request) {
         .from("transactions")
         .update({ status: "dispute", updated_at: new Date().toISOString() })
         .eq("stripe_payment_id", paymentIntentId);
+      const tx = await findTxByPaymentIntent(admin, paymentIntentId);
+      if (tx) {
+        await notifyPaymentIssue(admin, {
+          transactionId: tx.id,
+          listingId: tx.listing_id,
+          kind: "dispute",
+        });
+      }
     }
   }
 
@@ -67,20 +119,117 @@ export async function POST(request: Request) {
         .from("transactions")
         .update({ status: "refunded", updated_at: new Date().toISOString() })
         .eq("stripe_payment_id", paymentIntentId);
+      const tx = await findTxByPaymentIntent(admin, paymentIntentId);
+      if (tx) {
+        await resolvePaymentAndRefundNotifications(admin, tx.id);
+      }
     }
   }
 
   if (event.type === "refund.updated") {
     const refund = event.data.object as Stripe.Refund;
     const chargeId = refund.charge;
-    if (chargeId && refund.status === "succeeded") {
+    if (chargeId) {
       const charge = await stripe.charges.retrieve(chargeId as string);
       const paymentIntentId = getPaymentIntentId(charge.payment_intent);
-      if (paymentIntentId) {
-        await admin
+      const tx = await findTxByPaymentIntent(admin, paymentIntentId);
+      if (refund.status === "succeeded") {
+        if (paymentIntentId) {
+          await admin
+            .from("transactions")
+            .update({ status: "refunded", updated_at: new Date().toISOString() })
+            .eq("stripe_payment_id", paymentIntentId);
+        }
+        if (tx) await resolvePaymentAndRefundNotifications(admin, tx.id);
+      } else if (refund.status === "failed" && tx) {
+        await notifyPaymentIssue(admin, {
+          transactionId: tx.id,
+          listingId: tx.listing_id,
+          kind: "refund_failed",
+        });
+      }
+    }
+  }
+
+  if (event.type === "account.updated") {
+    const account = event.data.object as Stripe.Account;
+    const payoutsEnabled = account.payouts_enabled === true;
+    const blocking =
+      !payoutsEnabled ||
+      !!account.requirements?.disabled_reason ||
+      (account.requirements?.currently_due?.length ?? 0) > 0;
+    if (blocking) {
+      const { data: seller } = await admin
+        .from("users")
+        .select("id")
+        .eq("stripe_account_id", account.id)
+        .maybeSingle();
+      if (seller?.id) {
+        const tx = await findOpenTxForSeller(admin, seller.id);
+        if (tx) {
+          await notifySellerPayoutAccountIssue(admin, {
+            transactionId: tx.id,
+            listingId: tx.listing_id,
+          });
+        }
+      }
+    } else if (payoutsEnabled) {
+      const { data: seller } = await admin
+        .from("users")
+        .select("id")
+        .eq("stripe_account_id", account.id)
+        .maybeSingle();
+      if (seller?.id) {
+        const { data: txs } = await admin
           .from("transactions")
-          .update({ status: "refunded", updated_at: new Date().toISOString() })
-          .eq("stripe_payment_id", paymentIntentId);
+          .select("id")
+          .eq("seller_id", seller.id);
+        for (const tx of txs ?? []) {
+          await resolveNotifications(admin, {
+            types: [
+              NotificationType.SELLER_PAYOUT_ACCOUNT_ISSUE,
+              NotificationType.FUNDS_RELEASE_REQUIRES_ACTION,
+            ],
+            entityId: tx.id,
+          });
+        }
+      }
+    }
+  }
+
+  const eventType = event.type as string;
+  if (eventType === "transfer.failed" || eventType === "payout.failed") {
+    const obj = event.data.object as { destination?: string | null; amount?: number };
+    const destinationId =
+      typeof obj.destination === "string"
+        ? obj.destination
+        : event.type === "payout.failed"
+          ? ((event.data.object as Stripe.Payout) as { destination?: string }).destination
+          : undefined;
+    const accountId =
+      typeof event.account === "string"
+        ? event.account
+        : typeof destinationId === "string" && destinationId.startsWith("acct_")
+          ? destinationId
+          : null;
+
+    let sellerId: string | null = null;
+    if (accountId) {
+      const { data: seller } = await admin
+        .from("users")
+        .select("id")
+        .eq("stripe_account_id", accountId)
+        .maybeSingle();
+      sellerId = seller?.id ?? null;
+    }
+
+    if (sellerId) {
+      const tx = await findOpenTxForSeller(admin, sellerId);
+      if (tx) {
+        await notifyPayoutFailed(admin, {
+          transactionId: tx.id,
+          listingId: tx.listing_id,
+        });
       }
     }
   }

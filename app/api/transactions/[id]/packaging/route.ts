@@ -21,6 +21,7 @@ import {
   notifyAdminStarterPackRequested,
   notifySellerStarterPackRequested,
 } from "@/lib/fulfilment-emails";
+import { notifyStarterPackRequested } from "@/lib/notification-events";
 
 export const dynamic = "force-dynamic";
 
@@ -185,6 +186,12 @@ export async function POST(
         listingId: tx.listing_id,
         sellerId: user.id,
       }).catch((e) => console.error("Seller starter-pack email failed", e));
+
+      await notifyStarterPackRequested(admin, {
+        transactionId,
+        listingId: tx.listing_id,
+        sellerId: user.id,
+      });
 
       let adminNotifiedAt: string | null = null;
       try {

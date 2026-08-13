@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { highlightClass, useHighlightId } from "@/lib/use-highlight-id";
 import { useAuth } from "@/lib/auth-context";
 import { PACKAGING_PHOTO_LABELS } from "@/lib/fulfilment";
 
@@ -15,6 +16,14 @@ type PendingTx = {
 };
 
 export default function AdminPackagingPage() {
+  return (
+    <Suspense fallback={<div className="max-w-4xl mx-auto px-4 py-12 text-center text-mowing-green/80">Loading…</div>}>
+      <AdminPackagingContent />
+    </Suspense>
+  );
+}
+
+function AdminPackagingContent() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [list, setList] = useState<PendingTx[]>([]);
@@ -22,6 +31,7 @@ export default function AdminPackagingPage() {
   const [forbidden, setForbidden] = useState(false);
   const [actioningId, setActioningId] = useState<string | null>(null);
   const [rejectNotes, setRejectNotes] = useState<Record<string, string>>({});
+  const highlightId = useHighlightId("packaging", list.length > 0);
 
   useEffect(() => {
     if (!loading && !user) router.replace(`/login?redirect=${encodeURIComponent("/dashboard/admin/packaging")}`);
@@ -112,7 +122,8 @@ export default function AdminPackagingPage() {
           {list.map((tx) => (
             <li
               key={tx.id}
-              className="rounded-xl border border-par-3-punch/20 bg-white p-4 flex flex-col gap-4"
+              id={`packaging-${tx.id}`}
+              className={`rounded-xl border border-par-3-punch/20 bg-white p-4 flex flex-col gap-4${highlightClass(highlightId === tx.id)}`}
             >
               <div className="flex flex-wrap items-center gap-2">
                 <span className="font-medium text-mowing-green">

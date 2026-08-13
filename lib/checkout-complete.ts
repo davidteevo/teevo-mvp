@@ -8,6 +8,7 @@ import {
 } from "@/lib/fulfilment";
 import { ensureEmailSent, EmailTriggerType, formatGbp } from "@/lib/email-triggers";
 import { getAppUrl } from "@/lib/app-env";
+import { notifyCheckoutComplete } from "@/lib/notification-events";
 
 const appUrl = getAppUrl();
 
@@ -119,8 +120,10 @@ export async function createTransactionAndSendEmails(
   const txId = newTx.id;
   const totalGbp = formatGbp(amount);
   const shippingGbp = SHIPPING_FEE_GBP.toFixed(2);
-  const { data: listing } = await admin.from("listings").select("brand, model").eq("id", listingId).single();
-  const itemName = listing ? `${listing.brand} ${listing.model}` : "Your item";
+  const { data: listing } = await admin.from("listings").select("brand, model, title").eq("id", listingId).single();
+  const itemName = listing
+    ? (typeof listing.title === "string" && listing.title.trim()) || `${listing.brand} ${listing.model}`
+    : "Your item";
   const { data: buyer } = await admin.from("users").select("email").eq("id", buyerId).single();
   const { data: seller } = await admin.from("users").select("email").eq("id", sellerId).single();
   const buyerEmail = buyer?.email ?? null;
@@ -181,6 +184,13 @@ export async function createTransactionAndSendEmails(
       },
     }).catch((e) => console.error("Payment received email failed", e));
   }
+
+  await notifyCheckoutComplete(admin, {
+    transactionId: txId,
+    listingId,
+    buyerId,
+    sellerId,
+  });
 
   return { transactionId: txId };
 }

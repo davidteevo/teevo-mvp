@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { highlightClass, useHighlightId } from "@/lib/use-highlight-id";
 import { useAuth } from "@/lib/auth-context";
 import { formatPrice } from "@/lib/format";
 import { getListingImageUrl } from "@/lib/listing-images";
@@ -23,6 +24,8 @@ type Transaction = {
   created_at: string;
   shipped_at?: string | null;
   completed_at?: string | null;
+  buyer_confirmed_at?: string | null;
+  delivery_issue_reported_at?: string | null;
   courier?: string | null;
   tracking_number?: string | null;
   tracking_url?: string | null;
@@ -42,9 +45,18 @@ function firstImagePath(images: ListingImage[] | null | undefined): string | nul
 }
 
 export default function DashboardPurchasesPage() {
+  return (
+    <Suspense fallback={<div className="max-w-4xl mx-auto px-4 py-12 text-center text-mowing-green/80">Loading…</div>}>
+      <DashboardPurchasesContent />
+    </Suspense>
+  );
+}
+
+function DashboardPurchasesContent() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const highlightId = useHighlightId("purchase", transactions.length > 0);
 
   useEffect(() => {
     if (!loading && !user) router.replace(`/login?redirect=${encodeURIComponent("/dashboard/purchases")}`);
@@ -77,26 +89,11 @@ export default function DashboardPurchasesPage() {
     }
   };
 
-  const confirmReceipt = async (id: string) => {
-    const res = await fetch(`/api/transactions/${id}/confirm-receipt`, { method: "POST" });
-    if (res.ok) {
-      setTransactions((prev) =>
-        prev.map((t) =>
-          t.id === id
-            ? {
-                ...t,
-                status: "complete",
-                order_state: "completed",
-                fulfilment_status: "COMPLETED",
-                completed_at: new Date().toISOString(),
-              }
-            : t
-        )
-      );
-    } else {
-      const data = await res.json();
-      alert(data.error ?? "Failed");
+  const canOpenConfirm = (t: Transaction) => {
+    if (t.status === "complete" || t.buyer_confirmed_at || t.completed_at || t.delivery_issue_reported_at) {
+      return false;
     }
+    return t.status === "shipped" || t.fulfilment_status === "DELIVERED" || t.order_state === "delivered";
   };
 
   if (loading || !user) {
@@ -129,15 +126,13 @@ export default function DashboardPurchasesPage() {
               progress.outcome === "progress" &&
               progress.currentIndex >= 2 &&
               !!(trackingNumber || trackingUrl || t.courier);
-            const canConfirm =
-              progress.outcome === "progress" &&
-              (progress.currentIndex === 2 || progress.currentIndex === 3) &&
-              t.status === "shipped";
+            const canConfirm = progress.outcome === "progress" && canOpenConfirm(t);
 
             return (
               <article
                 key={t.id}
-                className="rounded-xl border border-par-3-punch/20 bg-white p-4 sm:p-5"
+                id={`purchase-${t.id}`}
+                className={`rounded-xl border border-par-3-punch/20 bg-white p-4 sm:p-5${highlightClass(highlightId === t.id)}`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                   <Link
@@ -173,13 +168,12 @@ export default function DashboardPurchasesPage() {
                   </Link>
                   <div className="flex items-center gap-2 shrink-0 sm:pt-2">
                     {canConfirm && (
-                      <button
-                        type="button"
-                        onClick={() => confirmReceipt(t.id)}
+                      <Link
+                        href={`/dashboard/purchases/${t.id}/confirm`}
                         className="rounded-lg bg-par-3-punch text-white px-4 py-2 text-sm font-medium hover:opacity-90"
                       >
-                        I received it
-                      </button>
+                        Confirm delivery
+                      </Link>
                     )}
                     <Link
                       href={`/listing/${t.listing_id}`}

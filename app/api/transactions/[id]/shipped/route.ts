@@ -8,6 +8,7 @@ import {
 } from "@/lib/fulfilment";
 import { ensureEmailSent, EmailTriggerType } from "@/lib/email-triggers";
 import { getAppUrl } from "@/lib/app-env";
+import { notifyItemDispatched } from "@/lib/notification-events";
 
 const appUrl = getAppUrl();
 
@@ -34,7 +35,7 @@ export async function POST(
   const { data: tx } = await admin
     .from("transactions")
     .select(
-      "seller_id, buyer_id, listing_id, status, shippo_tracking_number, courier, tracking_number, tracking_url"
+      "seller_id, buyer_id, listing_id, status, fulfilment_mode, shippo_tracking_number, courier, tracking_number, tracking_url"
     )
     .eq("id", id)
     .single();
@@ -114,6 +115,14 @@ export async function POST(
       },
     }).catch((e) => console.error("Item dispatched email failed", e));
   }
+
+  await notifyItemDispatched(admin, {
+    transactionId: id,
+    listingId: tx.listing_id,
+    sellerId: tx.seller_id,
+    buyerId: tx.buyer_id,
+    fulfilmentMode: tx.fulfilment_mode,
+  });
 
   return NextResponse.json({ ok: true });
 }

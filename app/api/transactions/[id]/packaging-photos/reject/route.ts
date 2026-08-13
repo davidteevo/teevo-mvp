@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { PackagingStatus } from "@/lib/fulfilment";
 import { notifySellerPackagingRejected } from "@/lib/fulfilment-emails";
+import { notifyPackagingRejected } from "@/lib/notification-events";
 
 export const dynamic = "force-dynamic";
 
@@ -66,6 +67,12 @@ export async function POST(
       sellerId: tx.seller_id,
       notes,
       reviewedAt: now,
+    });
+
+    await notifyPackagingRejected(admin, {
+      transactionId,
+      listingId: tx.listing_id,
+      sellerId: tx.seller_id,
     });
 
     return NextResponse.json({ ok: true });

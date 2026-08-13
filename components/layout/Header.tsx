@@ -3,7 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, ChevronDown, LayoutDashboard, Settings, LogOut, ShoppingCart, Tag, LayoutGrid, MessageCircle, Shield, User } from "lucide-react";
+import { Menu, ChevronDown, LayoutDashboard, Settings, LogOut, ShoppingCart, Tag, LayoutGrid, MessageCircle, Shield, User, Bell } from "lucide-react";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 
@@ -88,6 +89,11 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
+          {user && (
+            <div className="hidden sm:block">
+              <NotificationBell />
+            </div>
+          )}
           {user ? (
             <div className="relative hidden sm:flex items-center gap-1" ref={accountRef}>
               <Link
@@ -176,6 +182,11 @@ export function Header() {
           )}
 
           {user && (
+            <div className="sm:hidden">
+              <NotificationBell />
+            </div>
+          )}
+          {user && (
             <Link
               href="/dashboard"
               className="sm:hidden rounded-full overflow-hidden ring-2 ring-transparent hover:ring-mowing-green/30"
@@ -258,6 +269,16 @@ export function Header() {
                     <LayoutDashboard className="h-5 w-5 text-mowing-green/50 shrink-0" />
                   </Link>
                 </div>
+                <Link
+                  href="/notifications"
+                  className="flex items-center gap-3 rounded-lg py-3 px-3 text-mowing-green font-medium hover:bg-mowing-green/5 active:bg-mowing-green/10 transition-colors"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-mowing-green/10">
+                    <Bell className="h-4 w-4 text-mowing-green" />
+                  </span>
+                  Notifications
+                </Link>
                 <Link
                   href="/dashboard/profile"
                   className="flex items-center gap-3 rounded-lg py-3 px-3 text-mowing-green font-medium hover:bg-mowing-green/5 active:bg-mowing-green/10 transition-colors"

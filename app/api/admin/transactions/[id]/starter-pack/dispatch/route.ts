@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { PackagingSource, STARTER_PACK_EVENTS, trackServerEvent } from "@/lib/starter-pack";
 import { notifySellerStarterPackDispatched } from "@/lib/fulfilment-emails";
+import { notifyStarterPackDispatched } from "@/lib/notification-events";
 
 export const dynamic = "force-dynamic";
 
@@ -72,6 +73,8 @@ export async function POST(
       listingId: tx.listing_id,
       sellerId: tx.seller_id,
     }).catch((e) => console.error("Seller starter-pack dispatched email failed", e));
+
+    await notifyStarterPackDispatched(admin, { transactionId });
 
     return NextResponse.json({
       ok: true,

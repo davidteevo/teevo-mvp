@@ -7,6 +7,7 @@ import {
   notifyAdminManualLabelNeeded,
   notifySellerPackagingApproved,
 } from "@/lib/fulfilment-emails";
+import { notifyPackagingApproved } from "@/lib/notification-events";
 
 export const dynamic = "force-dynamic";
 
@@ -66,6 +67,13 @@ export async function POST(
       .eq("id", transactionId);
 
     await notifySellerPackagingApproved(admin, {
+      transactionId,
+      listingId: tx.listing_id,
+      sellerId: tx.seller_id,
+      fulfilmentMode: tx.fulfilment_mode,
+    });
+
+    await notifyPackagingApproved(admin, {
       transactionId,
       listingId: tx.listing_id,
       sellerId: tx.seller_id,

@@ -18,6 +18,14 @@ const ALLOWED_EVENTS = [
   "starter_pack_admin_notification_sent",
   "starter_pack_dispatched",
   "starter_pack_order_completed",
+  "notification_created",
+  "notification_viewed",
+  "notification_clicked",
+  "notification_action_clicked",
+  "notification_marked_read",
+  "notification_action_completed",
+  "buyer_delivery_confirmed",
+  "buyer_delivery_issue_selected",
 ] as const;
 
 export type AllowedEventName = (typeof ALLOWED_EVENTS)[number];

@@ -10,6 +10,7 @@ import {
   type ShippingServiceType,
 } from "@/lib/shippo";
 import { FulfilmentStatus } from "@/lib/fulfilment";
+import { notifyShippoLabelCreated, notifyShippoLabelFailed } from "@/lib/notification-events";
 
 export const dynamic = "force-dynamic";
 
@@ -124,8 +125,20 @@ export async function POST(
         ? (tx.shipping_service as ShippingServiceType)
         : ShippingService.DPD_NEXT_DAY;
 
-    const result = await createShipmentAndPurchaseLabel(from, to, { preferredService, parcel });
+    let result;
+    try {
+      result = await createShipmentAndPurchaseLabel(from, to, { preferredService, parcel });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Failed to create label";
+      await notifyShippoLabelFailed(admin, {
+        transactionId,
+        listingId: tx.listing_id,
+        errorMessage: message,
+      });
+      throw e;
+    }
 
+    const now = new Date().toISOString();
     await admin
       .from("transactions")
       .update({
@@ -135,9 +148,16 @@ export async function POST(
         shippo_transaction_id: result.shippoTransactionId,
         fulfilment_status: FulfilmentStatus.LABEL_CREATED,
         order_state: "label_created",
-        updated_at: new Date().toISOString(),
+        label_created_at: now,
+        updated_at: now,
       })
       .eq("id", transactionId);
+
+    await notifyShippoLabelCreated(admin, {
+      transactionId,
+      listingId: tx.listing_id,
+      sellerId: tx.seller_id,
+    });
 
     return NextResponse.json({
       labelUrl: result.labelUrl,

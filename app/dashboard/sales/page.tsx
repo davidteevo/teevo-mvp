@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { highlightClass, useHighlightId } from "@/lib/use-highlight-id";
 import { useAuth } from "@/lib/auth-context";
 import { formatPrice } from "@/lib/format";
 import {
@@ -93,6 +94,14 @@ function firstImagePath(images: ListingImage[] | null | undefined): string | nul
 }
 
 export default function DashboardSalesPage() {
+  return (
+    <Suspense fallback={<div className="max-w-4xl mx-auto px-4 py-12 text-center text-mowing-green/80">Loading…</div>}>
+      <DashboardSalesContent />
+    </Suspense>
+  );
+}
+
+function DashboardSalesContent() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -104,6 +113,7 @@ export default function DashboardSalesPage() {
   const [teevoBoxType, setTeevoBoxType] = useState<string>(BOX_TYPES[0]);
   const [labelErrorById, setLabelErrorById] = useState<Record<string, string>>({});
   const [starterPackEnabled, setStarterPackEnabled] = useState(false);
+  const highlightId = useHighlightId("sale", transactions.length > 0);
 
   useEffect(() => {
     if (!loading && !user) router.replace(`/login?redirect=${encodeURIComponent("/dashboard/sales")}`);
@@ -372,7 +382,11 @@ export default function DashboardSalesPage() {
               const imageUrl = imgPath ? getListingImageUrl(imgPath, "thumb") : "/placeholder-listing.svg";
               const subtitle = [listing?.category, listing?.brand].filter(Boolean).join(" · ") || null;
               return (
-                <li key={t.id} className="flex flex-col gap-4 p-4">
+                <li
+                  key={t.id}
+                  id={`sale-${t.id}`}
+                  className={`flex flex-col gap-4 p-4${highlightClass(highlightId === t.id)}`}
+                >
                   <Link
                     href={`/listing/${t.listing_id}`}
                     className="flex flex-1 min-w-0 gap-4 rounded-lg hover:bg-mowing-green/5 -m-2 p-2 transition-colors"
