@@ -99,9 +99,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
+    const logAuth = (hypothesisId: string, location: string, message: string, data?: Record<string, unknown>) => {
+      // #region agent log
+      const names =
+        typeof document !== "undefined"
+          ? document.cookie
+              .split(";")
+              .map((c) => c.trim().split("=")[0])
+              .filter((n) => n.startsWith("sb-"))
+          : [];
+      const body = JSON.stringify({
+        sessionId: "f84ace",
+        timestamp: Date.now(),
+        runId: "auth-provider",
+        hypothesisId,
+        location,
+        message,
+        data: {
+          host: typeof window !== "undefined" ? window.location.host : null,
+          path: typeof window !== "undefined" ? window.location.pathname : null,
+          cookieDomainEnv: process.env.NEXT_PUBLIC_COOKIE_DOMAIN ?? null,
+          appEnv: process.env.NEXT_PUBLIC_APP_ENV ?? null,
+          names,
+          count: names.length,
+          ...(data ?? {}),
+        },
+      });
+      fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "f84ace" },
+        body,
+      }).catch(() => {});
+      fetch("/api/debug-auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+        keepalive: true,
+      }).catch(() => {});
+      // #endregion
+    };
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      // #region agent log
+      logAuth("H3", "auth-context.tsx:onAuthStateChange", "auth state change", {
+        event,
+        hasSession: Boolean(session),
+        userId: session?.user?.id?.slice(0, 8) ?? null,
+      });
+      // #endregion
       setUser(session?.user ?? null);
       if (session?.user) {
         try {
@@ -122,6 +169,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     supabase.auth.getUser().then(({ data: { user: u } }) => {
       if (cancelled) return;
+      // #region agent log
+      logAuth("H3", "auth-context.tsx:getUser", "initial getUser result", {
+        hasUser: Boolean(u),
+        userId: u?.id?.slice(0, 8) ?? null,
+      });
+      // #endregion
       setUser(u ?? null);
       if (u) {
         fetchProfile(u.id).finally(() => {
@@ -131,6 +184,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       }
     }).catch((e) => {
+      // #region agent log
+      logAuth("H3", "auth-context.tsx:getUser-catch", "initial getUser failed", {
+        errName: e instanceof Error ? e.message.slice(0, 120) : "unknown",
+      });
+      // #endregion
       if ((e as Error)?.name !== "AbortError" && !cancelled) setLoading(false);
     });
 

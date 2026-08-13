@@ -93,6 +93,38 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!loading && !user) {
+      // #region agent log
+      const names = document.cookie
+        .split(";")
+        .map((c) => c.trim().split("=")[0])
+        .filter((n) => n.startsWith("sb-"));
+      const body = JSON.stringify({
+        sessionId: "f84ace",
+        timestamp: Date.now(),
+        runId: "dashboard-bounce",
+        hypothesisId: "H3",
+        location: "dashboard/page.tsx:bounce",
+        message: "dashboard bouncing to login (no user after loading)",
+        data: {
+          host: window.location.host,
+          cookieDomainEnv: process.env.NEXT_PUBLIC_COOKIE_DOMAIN ?? null,
+          appEnv: process.env.NEXT_PUBLIC_APP_ENV ?? null,
+          names,
+          count: names.length,
+        },
+      });
+      fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "f84ace" },
+        body,
+      }).catch(() => {});
+      fetch("/api/debug-auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+        keepalive: true,
+      }).catch(() => {});
+      // #endregion
       router.replace(`/login?redirect=${encodeURIComponent("/dashboard")}`);
     }
   }, [user, loading, router]);
