@@ -5,7 +5,6 @@ import { Footer } from "@/components/layout/Footer";
 import { TrustStrip } from "@/components/layout/TrustStrip";
 import { StagingBanner } from "@/components/layout/StagingBanner";
 import { IosViewportScaleReset } from "@/components/layout/IosViewportScaleReset";
-import { ViewportOverflowProbe } from "@/components/debug/ViewportOverflowProbe";
 import { Suspense } from "react";
 import { AuthProvider } from "@/lib/auth-context";
 import { WatchlistProvider } from "@/lib/watchlist-context";
@@ -27,9 +26,15 @@ export const metadata: Metadata = {
     : {}),
 };
 
+/**
+ * maximumScale: 1 prevents iOS Safari from restoring a pinch-zoom scale > 1
+ * (observed on iPhone Air), which makes device-width layout wider than the
+ * visible viewport and causes horizontal panning without scrollWidth overflow.
+ */
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
   viewportFit: "cover",
 };
 
@@ -41,7 +46,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const loadAnalytics = isProduction();
-  const showOverflowProbe = !isProduction();
 
   return (
     <html lang="en" className="font-sans">
@@ -65,10 +69,10 @@ export default function RootLayout({
             />
           </>
         ) : null}
-        {/* Early iOS scale capture + reset before React hydrates */}
+        {/* Reset stuck iOS pinch-zoom before paint when scale > 1 */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var vv=window.visualViewport;if(!vv)return;var s=vv.scale;window.__teevoScale0=s;if(Math.abs(s-1)<0.02)return;var m=document.querySelector('meta[name="viewport"]');if(!m)return;m.setAttribute('content','width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover');}catch(e){}})();`,
+            __html: `(function(){try{var vv=window.visualViewport;if(!vv||vv.scale<=1.02)return;var m=document.querySelector('meta[name="viewport"]');if(!m)return;m.setAttribute('content','width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover');}catch(e){}})();`,
           }}
         />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -80,7 +84,6 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col antialiased">
         <IosViewportScaleReset />
-        {showOverflowProbe ? <ViewportOverflowProbe /> : null}
         <StagingBanner />
         <AuthProvider>
           <WatchlistProvider>
