@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 import { FulfilmentStatus, FulfilmentMode } from "@/lib/fulfilment";
-import { ensureEmailSent, EmailTriggerType, formatGbp } from "@/lib/email-triggers";
+import { ensureEmailSent, EmailTriggerType, formatGbp, getListingEmailContext } from "@/lib/email-triggers";
 import { PackagingSource, STARTER_PACK_EVENTS, trackServerEvent } from "@/lib/starter-pack";
 import { getAppUrl } from "@/lib/app-env";
 import {
@@ -174,14 +174,7 @@ export async function confirmBuyerReceipt(
   }
 
   const { data: seller } = await admin.from("users").select("email").eq("id", tx.seller_id).single();
-  const { data: listing } = await admin
-    .from("listings")
-    .select("brand, model, title")
-    .eq("id", tx.listing_id)
-    .single();
-  const itemName = listing
-    ? listing.title?.trim() || `${listing.brand} ${listing.model}`
-    : "Item";
+  const { itemName, hero_image } = await getListingEmailContext(admin, tx.listing_id);
   const amountGbp = formatGbp(tx.amount);
 
   if (seller?.email) {
@@ -197,6 +190,7 @@ export async function confirmBuyerReceipt(
         subtitle: "Delivery was confirmed. Funds have been released to your payout account.",
         body: `Order #${opts.transactionId.slice(0, 8)} · ${itemName} · £${amountGbp}`,
         order_number: opts.transactionId.slice(0, 8),
+        hero_image,
         cta_link: `${appUrl}/dashboard/sales`,
         cta_text: "View sales",
       },

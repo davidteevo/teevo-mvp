@@ -2,7 +2,7 @@
  * Shared helpers for fulfilment-related transactional / admin alert emails.
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { ensureEmailSent, EmailTriggerType } from "@/lib/email-triggers";
+import { ensureEmailSent, EmailTriggerType, getListingEmailContext } from "@/lib/email-triggers";
 import { FulfilmentMode } from "@/lib/fulfilment-providers";
 import { BOX_TYPE_LABELS, type BoxType } from "@/lib/fulfilment";
 import { formatSellerAddress } from "@/lib/starter-pack";
@@ -18,19 +18,6 @@ export function getAdminAlertEmails(): string[] {
     .split(",")
     .map((e) => e.trim())
     .filter((e) => e && e !== "admin@example.com");
-}
-
-async function getItemName(
-  admin: SupabaseClient,
-  listingId: string | null | undefined
-): Promise<string> {
-  if (!listingId) return "Your item";
-  const { data: listing } = await admin
-    .from("listings")
-    .select("brand, model")
-    .eq("id", listingId)
-    .single();
-  return listing ? `${listing.brand} ${listing.model}` : "Your item";
 }
 
 /** Clear idempotency row so a later event of the same type can send again (e.g. resubmit after reject). */
@@ -49,7 +36,7 @@ export async function notifyAdminPackagingSubmitted(
   const to = getAdminAlertEmail();
   if (!to) return;
 
-  const itemName = await getItemName(admin, opts.listingId);
+  const { itemName, hero_image } = await getListingEmailContext(admin, opts.listingId);
   const { data: seller } = await admin.from("users").select("email").eq("id", opts.sellerId).single();
   const orderShort = opts.transactionId.slice(0, 8);
   const appUrl = getAppUrl();
@@ -76,6 +63,7 @@ export async function notifyAdminPackagingSubmitted(
         .filter(Boolean)
         .join("\n"),
       order_number: orderShort,
+      hero_image,
       cta_link: `${appUrl}/dashboard/admin/packaging`,
       cta_text: "Review packaging",
     },
@@ -94,7 +82,7 @@ export async function notifySellerPackagingApproved(
   const { data: seller } = await admin.from("users").select("email").eq("id", opts.sellerId).single();
   if (!seller?.email) return;
 
-  const itemName = await getItemName(admin, opts.listingId);
+  const { itemName, hero_image } = await getListingEmailContext(admin, opts.listingId);
   const orderShort = opts.transactionId.slice(0, 8);
   const appUrl = getAppUrl();
   const isManual = opts.fulfilmentMode === FulfilmentMode.MANUAL;
@@ -115,6 +103,7 @@ export async function notifySellerPackagingApproved(
       subtitle: "Your packaging photos look good.",
       body: [`Order #${orderShort} · ${itemName}`, ``, nextStep].join("\n"),
       order_number: orderShort,
+      hero_image,
       cta_link: `${appUrl}/dashboard/sales`,
       cta_text: "View sales",
     },
@@ -134,7 +123,7 @@ export async function notifySellerPackagingRejected(
   const { data: seller } = await admin.from("users").select("email").eq("id", opts.sellerId).single();
   if (!seller?.email) return;
 
-  const itemName = await getItemName(admin, opts.listingId);
+  const { itemName, hero_image } = await getListingEmailContext(admin, opts.listingId);
   const orderShort = opts.transactionId.slice(0, 8);
   const appUrl = getAppUrl();
   const notesBlock = opts.notes
@@ -154,6 +143,7 @@ export async function notifySellerPackagingRejected(
       subtitle: "Please update your packaging photos and resubmit.",
       body: [`Order #${orderShort} · ${itemName}`, ``, notesBlock].join("\n"),
       order_number: orderShort,
+      hero_image,
       cta_link: `${appUrl}/dashboard/sales`,
       cta_text: "Update packaging",
     },
@@ -167,7 +157,7 @@ export async function notifyAdminManualLabelNeeded(
   const to = getAdminAlertEmail();
   if (!to) return;
 
-  const itemName = await getItemName(admin, opts.listingId);
+  const { itemName, hero_image } = await getListingEmailContext(admin, opts.listingId);
   const { data: seller } = await admin.from("users").select("email").eq("id", opts.sellerId).single();
   const orderShort = opts.transactionId.slice(0, 8);
   const appUrl = getAppUrl();
@@ -191,6 +181,7 @@ export async function notifyAdminManualLabelNeeded(
         .filter(Boolean)
         .join("\n"),
       order_number: orderShort,
+      hero_image,
       cta_link: `${appUrl}/admin/fulfilment`,
       cta_text: "Awaiting labels",
     },
@@ -220,7 +211,7 @@ export async function notifySellerStarterPackRequested(
   const { data: seller } = await admin.from("users").select("email").eq("id", opts.sellerId).single();
   if (!seller?.email) return;
 
-  const itemName = await getItemName(admin, opts.listingId);
+  const { itemName, hero_image } = await getListingEmailContext(admin, opts.listingId);
   const orderShort = opts.transactionId.slice(0, 8);
   const appUrl = getAppUrl();
 
@@ -242,6 +233,7 @@ export async function notifySellerStarterPackRequested(
         "Once your packaging arrives, follow the next steps shown in your Teevo Sales dashboard to package and ship your club.",
       ].join("<br />"),
       order_number: orderShort,
+      hero_image,
       cta_link: `${appUrl}/dashboard/sales`,
       cta_text: "View sales",
     },
@@ -261,7 +253,7 @@ export async function notifyAdminStarterPackRequested(
   const to = getAdminAlertEmail();
   if (!to) return false;
 
-  const itemName = await getItemName(admin, opts.listingId);
+  const { itemName, hero_image } = await getListingEmailContext(admin, opts.listingId);
   const { data: listing } = await admin
     .from("listings")
     .select("category, brand, model")
@@ -316,6 +308,7 @@ export async function notifyAdminStarterPackRequested(
         .filter((line) => line !== "")
         .join("<br />"),
       order_number: orderShort,
+      hero_image,
       cta_link: `${appUrl}/admin/starter-packs?id=${opts.transactionId}`,
       cta_text: "View Starter Pack Request",
     },
@@ -331,7 +324,7 @@ export async function notifySellerStarterPackDispatched(
   const { data: seller } = await admin.from("users").select("email").eq("id", opts.sellerId).single();
   if (!seller?.email) return;
 
-  const itemName = await getItemName(admin, opts.listingId);
+  const { itemName, hero_image } = await getListingEmailContext(admin, opts.listingId);
   const orderShort = opts.transactionId.slice(0, 8);
   const appUrl = getAppUrl();
 
@@ -351,6 +344,7 @@ export async function notifySellerStarterPackDispatched(
         "Your shipping box has been dispatched. Once it arrives, follow the next steps in your Teevo Sales dashboard to package your club and upload photos.",
       ].join("<br />"),
       order_number: orderShort,
+      hero_image,
       cta_link: `${appUrl}/dashboard/sales`,
       cta_text: "View sales",
     },

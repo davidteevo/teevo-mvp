@@ -1,6 +1,7 @@
 import type { EmailAttachment, EmailType } from "@/lib/email";
-import { sendEmail } from "@/lib/email";
+import { listingHeroImageHtml, sendEmail } from "@/lib/email";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { firstListingImageUrl, type ListingImageRow } from "@/lib/listing-images";
 
 /** Email types from the Automated Emails spec. Used for idempotency key. */
 export const EmailTriggerType = {
@@ -41,6 +42,50 @@ export const EmailTriggerType = {
 } as const;
 
 export type EmailTriggerTypeValue = (typeof EmailTriggerType)[keyof typeof EmailTriggerType];
+
+const LISTING_EMAIL_SELECT = "brand, model, title, listing_images(storage_path, sort_order)";
+
+export function listingItemName(listing: {
+  brand?: string | null;
+  model?: string | null;
+  title?: string | null;
+} | null | undefined): string {
+  if (!listing) return "Your item";
+  const title = typeof listing.title === "string" ? listing.title.trim() : "";
+  if (title) return title;
+  const fromParts = [listing.brand, listing.model].filter(Boolean).join(" ").trim();
+  return fromParts || "Your item";
+}
+
+export function listingHeroFromImages(
+  images: ListingImageRow[] | null | undefined,
+  alt?: string
+): string {
+  return listingHeroImageHtml(firstListingImageUrl(images), alt);
+}
+
+export async function getListingEmailContext(
+  admin: SupabaseClient,
+  listingId: string | null | undefined
+): Promise<{ itemName: string; hero_image: string }> {
+  if (!listingId) return { itemName: "Your item", hero_image: "" };
+  const { data } = await admin
+    .from("listings")
+    .select(LISTING_EMAIL_SELECT)
+    .eq("id", listingId)
+    .maybeSingle();
+  const listing = data as {
+    brand?: string | null;
+    model?: string | null;
+    title?: string | null;
+    listing_images?: ListingImageRow[] | null;
+  } | null;
+  const itemName = listingItemName(listing);
+  return {
+    itemName,
+    hero_image: listingHeroFromImages(listing?.listing_images, itemName),
+  };
+}
 
 /**
  * Idempotent send: if we already sent this email_type + reference_id, skip.

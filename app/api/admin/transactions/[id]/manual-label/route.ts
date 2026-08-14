@@ -7,7 +7,7 @@ import {
   MANUAL_COURIERS,
   type ManualCourier,
 } from "@/lib/fulfilment-providers";
-import { ensureEmailSent, EmailTriggerType } from "@/lib/email-triggers";
+import { ensureEmailSent, EmailTriggerType, getListingEmailContext } from "@/lib/email-triggers";
 import { getAppUrl } from "@/lib/app-env";
 import { notifyManualLabelReady } from "@/lib/notification-events";
 
@@ -152,12 +152,7 @@ export async function POST(
       .select("email")
       .eq("id", tx.seller_id)
       .single();
-    const { data: listing } = await admin
-      .from("listings")
-      .select("brand, model")
-      .eq("id", tx.listing_id)
-      .single();
-    const itemName = listing ? `${listing.brand} ${listing.model}` : "Your item";
+    const { itemName, hero_image } = await getListingEmailContext(admin, tx.listing_id);
     const orderShort = transactionId.slice(0, 8);
     const salesUrl = `${getAppUrl()}/dashboard/sales`;
 
@@ -181,6 +176,7 @@ export async function POST(
             `Please print the attached shipping label, attach it securely to your parcel, then drop it off with the courier. When you've sent it, mark the order as shipped in your Sales dashboard.`,
           ].join("\n"),
           order_number: orderShort,
+          hero_image,
           cta_link: trackingUrl || salesUrl,
           cta_text: "Track parcel",
         },

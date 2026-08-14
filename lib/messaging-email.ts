@@ -1,6 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { ensureEmailSent } from "@/lib/email-triggers";
-import { EmailTriggerType } from "@/lib/email-triggers";
+import { ensureEmailSent, EmailTriggerType, getListingEmailContext } from "@/lib/email-triggers";
 
 import { getAppUrl } from "@/lib/app-env";
 
@@ -22,6 +21,13 @@ export async function sendNewMessageNotification(
     .single();
   if (!recipient?.email) return;
 
+  const { data: conversation } = await admin
+    .from("conversations")
+    .select("listing_id")
+    .eq("id", conversationId)
+    .maybeSingle();
+  const { hero_image } = await getListingEmailContext(admin, conversation?.listing_id);
+
   await ensureEmailSent(admin, {
     emailType: EmailTriggerType.MESSAGE_RECEIVED,
     referenceId: messageId,
@@ -34,6 +40,7 @@ export async function sendNewMessageNotification(
       title: "New message",
       subtitle: "You have a new message in a conversation.",
       body: "Open Teevo to view and reply.",
+      hero_image,
       cta_link: `${APP_URL}/conversations/${conversationId}`,
       cta_text: "View conversation",
     },
@@ -53,7 +60,7 @@ export async function sendOfferNotification(
   const admin = createAdminClient();
   const { data: conv } = await admin
     .from("offers")
-    .select("conversation_id")
+    .select("conversation_id, conversations(listing_id)")
     .eq("id", offerId)
     .single();
   if (!conv) return;
@@ -64,6 +71,12 @@ export async function sendOfferNotification(
     .eq("id", recipientUserId)
     .single();
   if (!recipient?.email) return;
+
+  const conversationRel = conv.conversations as unknown;
+  const conversation = (Array.isArray(conversationRel) ? conversationRel[0] : conversationRel) as {
+    listing_id?: string | null;
+  } | null;
+  const { hero_image } = await getListingEmailContext(admin, conversation?.listing_id);
 
   const amountStr = amountPence != null ? ` £${(amountPence / 100).toFixed(2)}` : "";
   const titles: Record<string, string> = {
@@ -97,6 +110,7 @@ export async function sendOfferNotification(
       title: titles[eventType],
       subtitle: bodies[eventType],
       body: "Open Teevo to view and respond.",
+      hero_image,
       cta_link: `${APP_URL}/conversations/${conv.conversation_id}`,
       cta_text: "View conversation",
     },

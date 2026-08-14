@@ -6,7 +6,7 @@ import {
   FulfilmentStatus,
   getPlatformFulfilmentMode,
 } from "@/lib/fulfilment";
-import { ensureEmailSent, EmailTriggerType, formatGbp } from "@/lib/email-triggers";
+import { ensureEmailSent, EmailTriggerType, formatGbp, getListingEmailContext } from "@/lib/email-triggers";
 import { getAppUrl } from "@/lib/app-env";
 import { notifyCheckoutComplete } from "@/lib/notification-events";
 import { notifyWatchersSold } from "@/lib/watchlist-emails";
@@ -138,10 +138,7 @@ export async function createTransactionAndSendEmails(
   const txId = newTx.id;
   const totalGbp = formatGbp(amount);
   const shippingGbp = SHIPPING_FEE_GBP.toFixed(2);
-  const { data: listing } = await admin.from("listings").select("brand, model, title").eq("id", listingId).single();
-  const itemName = listing
-    ? (typeof listing.title === "string" && listing.title.trim()) || `${listing.brand} ${listing.model}`
-    : "Your item";
+  const { itemName, hero_image } = await getListingEmailContext(admin, listingId);
   const { data: buyer } = await admin.from("users").select("email").eq("id", buyerId).single();
   const { data: seller } = await admin.from("users").select("email").eq("id", sellerId).single();
   const buyerEmail = buyer?.email ?? null;
@@ -163,6 +160,7 @@ export async function createTransactionAndSendEmails(
         subtitle: "Funds are held securely until delivery is confirmed.",
         body: `Item: ${itemName}<br />Total: £${totalGbp}<br />Shipping: £${shippingGbp}`,
         order_number: txId.slice(0, 8),
+        hero_image,
         cta_link: orderLink,
         cta_text: "View order",
       },
@@ -181,6 +179,7 @@ export async function createTransactionAndSendEmails(
         subtitle: "Pack the item and complete packaging to get your label.",
         body: `Order #${txId.slice(0, 8)} · ${itemName} · £${totalGbp}`,
         order_number: txId.slice(0, 8),
+        hero_image,
         cta_link: salesLink,
         cta_text: "View sale",
       },
@@ -197,6 +196,7 @@ export async function createTransactionAndSendEmails(
         subtitle: "Funds are held securely until delivery is confirmed.",
         body: `Order #${txId.slice(0, 8)} · ${itemName}<br />Total: £${totalGbp}<br />Shipping: £${shippingGbp}`,
         order_number: txId.slice(0, 8),
+        hero_image,
         cta_link: salesLink,
         cta_text: "View order",
       },

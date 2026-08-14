@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { EmailTriggerType, ensureEmailSent, formatGbp } from "@/lib/email-triggers";
+import { EmailTriggerType, ensureEmailSent, formatGbp, listingHeroFromImages } from "@/lib/email-triggers";
 import {
   NotificationEntityType,
   NotificationType,
@@ -24,6 +24,7 @@ type ListingRow = {
   price: number;
   status: string;
   archived_at: string | null;
+  listing_images?: { storage_path: string; sort_order?: number | null }[] | null;
 };
 
 type WatcherRow = {
@@ -43,7 +44,7 @@ type UserRow = { id: string; email: string | null };
 async function loadListing(admin: SupabaseClient, listingId: string): Promise<ListingRow | null> {
   const { data } = await admin
     .from("listings")
-    .select("id, brand, model, title, category, price, status, archived_at")
+    .select("id, brand, model, title, category, price, status, archived_at, listing_images(storage_path, sort_order)")
     .eq("id", listingId)
     .maybeSingle();
   return (data as ListingRow | null) ?? null;
@@ -77,6 +78,10 @@ async function loadUsers(admin: SupabaseClient, userIds: string[]): Promise<Map<
 
 function listingPurchasable(listing: ListingRow): boolean {
   return !listing.archived_at && isPurchasableListingStatus(listing.status);
+}
+
+function listingHero(listing: ListingRow, name: string): string {
+  return listingHeroFromImages(listing.listing_images, name);
 }
 
 async function touchWatchlist(
@@ -122,6 +127,7 @@ export async function notifyWatchersNowAvailable(
           title: `${name} is now available`,
           subtitle: "A club on your Watchlist just passed verification.",
           body: `The ${name} you were watching is now available to purchase on Teevo.`,
+          hero_image: listingHero(listing, name),
           cta_link: cta,
           cta_text: "View listing",
         },
@@ -197,6 +203,7 @@ export async function notifyWatchersOfPriceDrop(
           title: `Price drop: ${name}`,
           subtitle: "A club on your Watchlist just got cheaper.",
           body: `Was: £${wasGbp}<br />Now: £${nowGbp}`,
+          hero_image: listingHero(listing, name),
           cta_link: cta,
           cta_text: "View listing",
         },
@@ -272,6 +279,7 @@ export async function notifyWatchersSold(
           title: `${name} has sold`,
           subtitle: "A club on your Watchlist is no longer available.",
           body: `The ${name} you were watching has sold.<br /><br />Missed this one? Take a look at similar clubs currently available on Teevo.`,
+          hero_image: listingHero(listing, name),
           cta_link: cta,
           cta_text: "Find similar clubs",
         },
@@ -349,6 +357,7 @@ export async function notifyWatchersUnavailable(
           title: `${name} is no longer available`,
           subtitle: "A club on your Watchlist was removed.",
           body: `The ${name} you were watching is no longer available on Teevo.<br /><br />Take a look at similar clubs currently listed.`,
+          hero_image: listing ? listingHero(listing, name) : "",
           cta_link: cta,
           cta_text: "Find similar clubs",
         },
@@ -400,7 +409,7 @@ export async function runWatchlistReminderCron(
   const { data: rows, error } = await admin
     .from("watchlist_items")
     .select(
-      "id, user_id, listing_id, last_availability_email_at, last_now_available_email_at, created_at, listings(id, brand, model, title, category, price, status, archived_at)"
+      "id, user_id, listing_id, last_availability_email_at, last_now_available_email_at, created_at, listings(id, brand, model, title, category, price, status, archived_at, listing_images(storage_path, sort_order))"
     )
     .is("last_availability_email_at", null)
     .lte("created_at", cutoffIso)
@@ -447,6 +456,7 @@ export async function runWatchlistReminderCron(
         title: `Still thinking about ${name}?`,
         subtitle: "A club on your Watchlist is still available.",
         body: `Good news — the ${name} you added to your Watchlist is still available.<br /><br />If you've been thinking about it, now might be the time.`,
+        hero_image: listingHero(listing, name),
         cta_link: cta,
         cta_text: "View listing",
       },

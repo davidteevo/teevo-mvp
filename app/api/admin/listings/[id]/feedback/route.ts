@@ -1,8 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-import { ensureEmailSent } from "@/lib/email-triggers";
-import { EmailTriggerType } from "@/lib/email-triggers";
+import { ensureEmailSent, EmailTriggerType, getListingEmailContext } from "@/lib/email-triggers";
 
 export const dynamic = "force-dynamic";
 
@@ -64,6 +63,7 @@ export async function POST(
       if (toEmail) {
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
         const editUrl = `${appUrl}/sell/edit/${id}`;
+        const { hero_image } = await getListingEmailContext(admin, id);
         try {
           await ensureEmailSent(admin, {
             emailType: EmailTriggerType.LISTING_EDITS_REQUESTED,
@@ -77,6 +77,7 @@ export async function POST(
               title: "Edits needed for your listing",
               subtitle: "Our team left feedback",
               body: comment,
+              hero_image,
               cta_link: editUrl,
               cta_text: "Edit listing",
             },

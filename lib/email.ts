@@ -21,6 +21,23 @@ function getResend(): Resend {
 
 export type EmailType = "transactional" | "standard" | "alert";
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/** Optional listing photo block for email templates. Empty when there is no image. */
+export function listingHeroImageHtml(
+  imageUrl: string | null | undefined,
+  alt = "Listing photo"
+): string {
+  if (!imageUrl) return "";
+  return `<table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin:0 0 14px 0"><tr><td align="center"><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(alt)}" width="560" style="display:block;width:100%;max-width:560px;height:auto;border-radius:12px;border:none;outline:none;text-decoration:none" /></td></tr></table>`;
+}
+
 /**
  * Replaces {{placeholder}} in a template string with values from variables.
  * @param templateString - Raw HTML (or any string) containing {{key}} placeholders
@@ -36,7 +53,7 @@ export function render(
     const value = variables[key] ?? "";
     out = out.replace(new RegExp(`{{${key}}}`, "g"), value);
   });
-  return out;
+  return out.replace(/\{\{[a-zA-Z0-9_]+\}\}/g, "");
 }
 
 function getTemplatePath(type: EmailType): string {
@@ -75,7 +92,7 @@ export async function sendEmail({
   attachments?: EmailAttachment[];
 }) {
   const rawHtml = loadTemplate(type);
-  const html = render(rawHtml, variables);
+  const html = render(rawHtml, { hero_image: "", ...variables });
 
   let finalSubject = subject;
   if (isStaging() && !subject.startsWith(STAGING_SUBJECT_PREFIX)) {

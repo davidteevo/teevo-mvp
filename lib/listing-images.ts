@@ -37,3 +37,18 @@ export function getListingImageUrl(
   if (!base) return "";
   return `${base.replace(/\/$/, "")}/storage/v1/object/public/${LISTINGS_BUCKET}/${path}`;
 }
+
+export type ListingImageRow = { storage_path: string; sort_order?: number | null };
+
+/** Public URL for the first listing image (thumb by default, for emails and cards). */
+export function firstListingImageUrl(
+  images: ListingImageRow[] | null | undefined,
+  variant: "main" | "thumb" = "thumb"
+): string | null {
+  if (!images?.length) return null;
+  const sorted = [...images].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  const path = sorted[0]?.storage_path;
+  if (!path) return null;
+  const url = getListingImageUrl(path, variant);
+  return url || null;
+}

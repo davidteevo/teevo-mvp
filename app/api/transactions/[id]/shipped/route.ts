@@ -6,7 +6,7 @@ import {
   getBuyerTrackingCta,
   getTrackingNumber,
 } from "@/lib/fulfilment";
-import { ensureEmailSent, EmailTriggerType } from "@/lib/email-triggers";
+import { ensureEmailSent, EmailTriggerType, getListingEmailContext } from "@/lib/email-triggers";
 import { getAppUrl } from "@/lib/app-env";
 import { notifyItemDispatched } from "@/lib/notification-events";
 
@@ -64,8 +64,7 @@ export async function POST(
 
   const { data: buyer } = await admin.from("users").select("email").eq("id", tx.buyer_id).single();
   const { data: seller } = await admin.from("users").select("email").eq("id", tx.seller_id).single();
-  const { data: listing } = await admin.from("listings").select("brand, model").eq("id", tx.listing_id).single();
-  const itemName = listing ? `${listing.brand} ${listing.model}` : "Your item";
+  const { itemName, hero_image } = await getListingEmailContext(admin, tx.listing_id);
   const orderShort = id.slice(0, 8);
   const trackingNumber = getTrackingNumber(tx);
   const trackingLink = getBuyerTrackingCta(tx);
@@ -91,6 +90,7 @@ export async function POST(
         subtitle: "Your order is on its way.",
         body: bodyLines.join("\n"),
         order_number: orderShort,
+        hero_image,
         cta_link: trackingLink,
         cta_text: "Track Parcel",
       },
@@ -110,6 +110,7 @@ export async function POST(
         subtitle: "Your item has now been dispatched.",
         body: `Order #${orderShort} · ${itemName}`,
         order_number: orderShort,
+        hero_image,
         cta_link: `${appUrl}/dashboard/sales`,
         cta_text: "View sales",
       },

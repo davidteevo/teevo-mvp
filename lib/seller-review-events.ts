@@ -4,7 +4,7 @@
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getAppUrl } from "@/lib/app-env";
-import { ensureEmailSent, EmailTriggerType } from "@/lib/email-triggers";
+import { ensureEmailSent, EmailTriggerType, getListingEmailContext } from "@/lib/email-triggers";
 import { getAdminAlertEmail, clearSentEmail } from "@/lib/fulfilment-emails";
 import {
   adminFeedbackUrl,
@@ -58,10 +58,11 @@ export async function requestSellerFeedback(
   opts: { transactionId: string; listingId: string; buyerId: string; sellerId: string }
 ): Promise<void> {
   try {
-    const [title, sellerName, { data: buyer }] = await Promise.all([
+    const [title, sellerName, { data: buyer }, { hero_image }] = await Promise.all([
       getListingTitle(admin, opts.listingId),
       sellerDisplayName(admin, opts.sellerId),
       admin.from("users").select("email").eq("id", opts.buyerId).maybeSingle(),
+      getListingEmailContext(admin, opts.listingId),
     ]);
 
     await createNotification(admin, {
@@ -95,6 +96,7 @@ export async function requestSellerFeedback(
             starLinksHtml(appUrl, opts.transactionId),
           ].join(""),
           order_number: opts.transactionId.slice(0, 8),
+          hero_image,
           cta_link: `${appUrl}${feedbackUrl(opts.transactionId)}`,
           cta_text: "Leave written feedback",
         },
@@ -299,9 +301,10 @@ export async function sendSellerFeedbackReminders(
     const { data: buyer } = await admin.from("users").select("email").eq("id", tx.buyer_id).maybeSingle();
     if (!buyer?.email) continue;
 
-    const [title, sellerName] = await Promise.all([
+    const [title, sellerName, { hero_image }] = await Promise.all([
       getListingTitle(admin, tx.listing_id),
       sellerDisplayName(admin, tx.seller_id),
+      getListingEmailContext(admin, tx.listing_id),
     ]);
     const appUrl = getAppUrl();
     const ok = await ensureEmailSent(admin, {
@@ -321,6 +324,7 @@ export async function sendSellerFeedbackReminders(
           starLinksHtml(appUrl, tx.id),
         ].join(""),
         order_number: tx.id.slice(0, 8),
+        hero_image,
         cta_link: `${appUrl}${feedbackUrl(tx.id)}`,
         cta_text: "Leave written feedback",
       },
