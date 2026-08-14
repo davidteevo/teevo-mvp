@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { getListingById, getListingByIdAdmin } from "@/lib/listings";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -13,6 +14,7 @@ import { ListingViewTracker } from "@/components/listing/ListingViewTracker";
 import { WatchButton } from "@/components/watchlist/WatchButton";
 import { FoundingSellerBadge } from "@/components/trust/FoundingSellerBadge";
 import { ensureDisplayNameForUser } from "@/lib/public-seller-name";
+import { formatRatingAverage } from "@/lib/seller-reviews";
 import { getPlatformFulfilmentMode } from "@/lib/fulfilment";
 import { isBuyingEnabled } from "@/lib/buying";
 import {
@@ -84,9 +86,11 @@ export default async function ListingPage({
   let sellerCanAcceptPayment = false;
   let sellerDisplayName: string | null = null;
   let sellerFoundingRank: number | null = null;
+  let sellerRatingAverage: number | null = null;
+  let sellerRatingCount = 0;
   const { data: seller } = await admin
     .from("users")
-    .select("stripe_account_id, display_name, founding_seller_rank")
+    .select("stripe_account_id, display_name, founding_seller_rank, rating_average, rating_count")
     .eq("id", listing.user_id)
     .single();
   if (seller) {
@@ -95,6 +99,8 @@ export default async function ListingPage({
       sellerDisplayName = await ensureDisplayNameForUser(listing.user_id);
     }
     sellerFoundingRank = typeof seller.founding_seller_rank === "number" ? seller.founding_seller_rank : null;
+    sellerRatingAverage = seller.rating_average != null ? Number(seller.rating_average) : null;
+    sellerRatingCount = typeof seller.rating_count === "number" ? seller.rating_count : 0;
     if (!isPurchasedView && seller.stripe_account_id) {
       try {
         const account = await stripe.accounts.retrieve(seller.stripe_account_id);
@@ -167,8 +173,22 @@ export default async function ListingPage({
             <p className="mt-3 text-sm text-mowing-green/80 flex flex-wrap items-center gap-2">
               {sellerDisplayName && (
                 <>
-                  Sold by <span className="font-medium text-mowing-green">{sellerDisplayName}</span>
+                  Sold by{" "}
+                  <Link
+                    href={`/seller/${listing.user_id}`}
+                    className="font-medium text-mowing-green hover:underline"
+                  >
+                    {sellerDisplayName}
+                  </Link>
                 </>
+              )}
+              {sellerRatingCount > 0 && formatRatingAverage(sellerRatingAverage) && (
+                <Link
+                  href={`/seller/${listing.user_id}`}
+                  className="font-medium text-mowing-green hover:underline"
+                >
+                  {formatRatingAverage(sellerRatingAverage)}★ ({sellerRatingCount})
+                </Link>
               )}
               {sellerFoundingRank != null && <FoundingSellerBadge rank={sellerFoundingRank} />}
             </p>

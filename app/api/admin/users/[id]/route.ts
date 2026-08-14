@@ -80,6 +80,17 @@ export async function DELETE(
     );
   }
 
+  const { count: reviewCount } = await admin
+    .from("seller_reviews")
+    .select("id", { count: "exact", head: true })
+    .or(`buyer_id.eq.${id},seller_id.eq.${id}`);
+  if (reviewCount && reviewCount > 0) {
+    return NextResponse.json(
+      { error: "Cannot delete user with seller feedback history." },
+      { status: 400 }
+    );
+  }
+
   const { error: authError } = await admin.auth.admin.deleteUser(id);
   if (authError) {
     return NextResponse.json({ error: authError.message }, { status: 500 });

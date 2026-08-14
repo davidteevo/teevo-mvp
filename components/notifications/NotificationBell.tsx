@@ -173,6 +173,9 @@ export function NotificationBell() {
       entity_id: n.entity_id,
       user_role: role,
     });
+    if (n.type === "leave_seller_feedback") {
+      track("feedback_notification_opened", { transaction_id: n.entity_id });
+    }
     setOpen(false);
     router.push(n.action_url || "/notifications");
   };

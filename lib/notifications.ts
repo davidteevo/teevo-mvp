@@ -35,6 +35,9 @@ export const NotificationType = {
   WATCHLIST_PRICE_DROP: "watchlist_price_drop",
   WATCHLIST_SOLD: "watchlist_sold",
   WATCHLIST_UNAVAILABLE: "watchlist_unavailable",
+  LEAVE_SELLER_FEEDBACK: "leave_seller_feedback",
+  NEW_SELLER_FEEDBACK: "new_seller_feedback",
+  FEEDBACK_REQUIRES_REVIEW: "feedback_requires_review",
 } as const;
 
 export type NotificationTypeValue = (typeof NotificationType)[keyof typeof NotificationType];
@@ -43,6 +46,7 @@ export const NotificationEntityType = {
   TRANSACTION: "transaction",
   LISTING: "listing",
   ACCOUNT: "account",
+  REVIEW: "review",
 } as const;
 
 export type NotificationEntityTypeValue =
@@ -257,4 +261,17 @@ export function adminTransactionUrl(txId: string): string {
 
 export function adminListingUrl(listingId: string): string {
   return `/admin/listings/${encodeURIComponent(listingId)}`;
+}
+
+export function feedbackUrl(transactionId: string): string {
+  return `/feedback/${encodeURIComponent(transactionId)}`;
+}
+
+export function sellerUrl(sellerId: string, reviewId?: string | null): string {
+  const base = `/seller/${encodeURIComponent(sellerId)}`;
+  return reviewId ? `${base}#review-${encodeURIComponent(reviewId)}` : base;
+}
+
+export function adminFeedbackUrl(reviewId: string): string {
+  return `/admin/feedback/${encodeURIComponent(reviewId)}`;
 }

@@ -8,6 +8,7 @@ import {
   notifyBuyerConfirmedDelivery,
   notifyFundsReleaseRequiresAction,
 } from "@/lib/notification-events";
+import { requestSellerFeedback } from "@/lib/seller-review-events";
 import { NotificationType, resolveNotifications } from "@/lib/notifications";
 
 const appUrl = getAppUrl();
@@ -207,6 +208,13 @@ export async function confirmBuyerReceipt(
     listingId: tx.listing_id,
     sellerId: tx.seller_id,
     buyerId: tx.buyer_id,
+  });
+
+  await requestSellerFeedback(admin, {
+    transactionId: opts.transactionId,
+    listingId: tx.listing_id,
+    buyerId: tx.buyer_id,
+    sellerId: tx.seller_id,
   });
 
   await resolveNotifications(admin, {

@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { FulfilmentStatus } from "@/lib/fulfilment";
 import { NotificationType, notifyAdmins, adminTransactionUrl, getListingTitle } from "@/lib/notifications";
+import { sendSellerFeedbackReminders } from "@/lib/seller-review-events";
 
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
@@ -48,12 +49,14 @@ export async function runNotificationOpsCron(admin: SupabaseClient): Promise<{
   deliveryOverdue: number;
   buyerNotConfirmed: number;
   transactionStuck: number;
+  feedbackReminders: number;
 }> {
   const counts = {
     sellerNotDispatched: 0,
     deliveryOverdue: 0,
     buyerNotConfirmed: 0,
     transactionStuck: 0,
+    feedbackReminders: 0,
   };
 
   const { data: notDispatched } = await admin
@@ -162,6 +165,8 @@ export async function runNotificationOpsCron(admin: SupabaseClient): Promise<{
     );
     counts.transactionStuck += 1;
   }
+
+  counts.feedbackReminders = await sendSellerFeedbackReminders(admin);
 
   return counts;
 }

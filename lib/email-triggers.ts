@@ -12,6 +12,8 @@ export const EmailTriggerType = {
   ITEM_DISPATCHED: "item_dispatched",
   FUNDS_RELEASED: "funds_released",
   REVIEW_REQUEST: "review_request",
+  REVIEW_REQUEST_REMINDER: "review_request_reminder",
+  FEEDBACK_REQUIRES_REVIEW_ADMIN: "feedback_requires_review_admin",
   PAYOUT_CONFIRMATION: "payout_confirmation",
   KYC_INCOMPLETE_REMINDER: "kyc_incomplete_reminder",
   EMAIL_VERIFICATION: "email_verification",
@@ -49,7 +51,7 @@ export async function ensureEmailSent(
   opts: {
     emailType: EmailTriggerTypeValue;
     referenceId: string;
-    referenceType?: "transaction" | "user" | "listing" | "message" | "offer" | "watchlist";
+    referenceType?: "transaction" | "user" | "listing" | "message" | "offer" | "watchlist" | "review";
     recipientId?: string | null;
     to: string | string[];
     subject: string;

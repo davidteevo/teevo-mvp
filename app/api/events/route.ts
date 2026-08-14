@@ -41,6 +41,23 @@ const ALLOWED_EVENTS = [
   "watchlist_reminder_clicked",
   "watchlist_price_drop_sent",
   "watchlist_price_drop_clicked",
+  "feedback_request_sent",
+  "feedback_notification_opened",
+  "feedback_email_rating_clicked",
+  "feedback_form_opened",
+  "feedback_submitted",
+  "feedback_with_text_submitted",
+  "feedback_reminder_sent",
+  "feedback_viewed",
+  "feedback_auth_gate_shown",
+  "feedback_reported",
+  "feedback_admin_notification_sent",
+  "feedback_admin_email_sent",
+  "feedback_admin_review_opened",
+  "feedback_moderated",
+  "feedback_hidden",
+  "feedback_restored",
+  "feedback_removed",
 ] as const;
 
 export type AllowedEventName = (typeof ALLOWED_EVENTS)[number];

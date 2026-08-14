@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { OnboardingStripeBanner } from "@/components/dashboard/OnboardingStripeBanner";
 import { FoundingSellerBadge } from "@/components/trust/FoundingSellerBadge";
-import { Calendar, ClipboardCheck, Heart, MessageCircle, Package, PlusCircle, Send, ShoppingBag, ShoppingCart, TrendingUp, User } from "lucide-react";
+import { Calendar, ClipboardCheck, Heart, MessageCircle, Package, PlusCircle, Send, ShoppingBag, ShoppingCart, Star, TrendingUp, User } from "lucide-react";
 
 function FoundingSellerFeedback() {
   const [message, setMessage] = useState("");
@@ -276,6 +276,18 @@ export default function DashboardPage() {
               {counts.sales}
             </span>
           )}
+        </Link>
+        <Link
+          href={`/seller/${user.id}`}
+          className="flex items-center gap-4 rounded-xl border border-par-3-punch/20 bg-white p-4 hover:shadow-md transition-shadow relative"
+        >
+          <div className="rounded-lg bg-golden-tee/20 p-3">
+            <Star className="h-6 w-6 text-mowing-green" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold text-mowing-green">Your feedback</p>
+            <p className="text-sm text-mowing-green/70">See ratings from buyers</p>
+          </div>
         </Link>
         <Link
           href="/dashboard/purchases"

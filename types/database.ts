@@ -67,6 +67,8 @@ export interface User {
   address_country: string | null;
   date_of_birth: string | null;
   founding_seller_rank: number | null;
+  rating_average?: number | null;
+  rating_count?: number;
   created_by_admin?: boolean;
   invited_at?: string | null;
   phone?: string | null;
@@ -168,6 +170,27 @@ export interface Offer {
   status: OfferStatus;
   expires_at: string;
   counter_offer_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type SellerReviewStatus = "active" | "hidden" | "removed";
+
+export interface SellerReview {
+  id: string;
+  transaction_id: string;
+  listing_id: string;
+  buyer_id: string;
+  seller_id: string;
+  rating: number;
+  review_text: string | null;
+  listing_title_snapshot: string;
+  status: SellerReviewStatus;
+  editable_until: string;
+  requires_admin_action: boolean;
+  moderated_at: string | null;
+  moderated_by: string | null;
+  moderation_reason: string | null;
   created_at: string;
   updated_at: string;
 }

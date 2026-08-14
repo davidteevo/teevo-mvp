@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
-import { Package, ShoppingCart, Users, TrendingUp, CheckCircle, ClipboardCheck, PlusCircle } from "lucide-react";
+import { Package, ShoppingCart, Users, TrendingUp, CheckCircle, ClipboardCheck, PlusCircle, Star } from "lucide-react";
 import { formatPrice } from "@/lib/format";
 import { AdminDashboardRefresh } from "./AdminDashboardRefresh";
 
@@ -20,6 +20,7 @@ export default async function AdminDashboardPage() {
     usersRes,
     packagingRes,
     starterPackRes,
+    feedbackActionRes,
   ] = await Promise.all([
     admin.from("listings").select("id", { count: "exact", head: true }).eq("status", "pending"),
     admin.from("listings").select("id, status", { count: "exact" }),
@@ -32,6 +33,10 @@ export default async function AdminDashboardPage() {
       .select("id", { count: "exact", head: true })
       .eq("packaging_source", "TEEVO_STARTER_PACK")
       .is("starter_pack_dispatched_at", null),
+    admin
+      .from("seller_reviews")
+      .select("id", { count: "exact", head: true })
+      .eq("requires_admin_action", true),
   ]);
 
   const pendingCount = pendingRes.count ?? 0;
@@ -46,6 +51,7 @@ export default async function AdminDashboardPage() {
     return Array.isArray(photos) && photos.length >= 3;
   }).length;
   const starterPackPendingCount = starterPackRes.count ?? 0;
+  const feedbackActionCount = feedbackActionRes.count ?? 0;
 
   return (
     <div>
@@ -85,6 +91,16 @@ export default async function AdminDashboardPage() {
             <p className="mt-2 text-2xl font-bold text-mowing-green">{starterPackPendingCount}</p>
             <Link href="/admin/starter-packs" className="mt-2 inline-block text-sm text-par-3-punch hover:underline">
               Boxes to ship →
+            </Link>
+          </div>
+          <div className="rounded-xl border border-par-3-punch/20 bg-white p-5">
+            <div className="flex items-center gap-2 text-mowing-green/70">
+              <Star className="h-5 w-5" />
+              <span className="text-sm font-medium">Feedback to review</span>
+            </div>
+            <p className="mt-2 text-2xl font-bold text-mowing-green">{feedbackActionCount}</p>
+            <Link href="/admin/feedback?requires_action=1" className="mt-2 inline-block text-sm text-par-3-punch hover:underline">
+              Requires action →
             </Link>
           </div>
           <div className="rounded-xl border border-par-3-punch/20 bg-white p-5">
@@ -176,6 +192,18 @@ export default async function AdminDashboardPage() {
             <div>
               <p className="font-semibold text-mowing-green">Create listing on behalf</p>
               <p className="text-sm text-mowing-green/70 mt-0.5">Add seller and publish a listing for them</p>
+            </div>
+          </Link>
+          <Link
+            href="/admin/feedback?requires_action=1"
+            className="rounded-xl border border-par-3-punch/20 bg-white p-6 hover:shadow-md transition-shadow flex items-start gap-4"
+          >
+            <div className="rounded-lg bg-golden-tee/20 p-3">
+              <Star className="h-6 w-6 text-mowing-green" />
+            </div>
+            <div>
+              <p className="font-semibold text-mowing-green">Feedback / Reviews</p>
+              <p className="text-sm text-mowing-green/70 mt-0.5">{feedbackActionCount} requiring action</p>
             </div>
           </Link>
         </div>

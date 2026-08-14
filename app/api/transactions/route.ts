@@ -41,8 +41,25 @@ export async function GET(request: Request) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  const transactions = data ?? [];
+  const txIds = transactions.map((t) => t.id);
+  const reviewByTx = new Map<string, string>();
+  if (txIds.length) {
+    const { data: reviews } = await admin
+      .from("seller_reviews")
+      .select("id, transaction_id")
+      .in("transaction_id", txIds);
+    for (const r of reviews ?? []) {
+      reviewByTx.set(r.transaction_id, r.id);
+    }
+  }
+
   return NextResponse.json({
-    transactions: data ?? [],
+    transactions: transactions.map((t) => ({
+      ...t,
+      seller_review_id: reviewByTx.get(t.id) ?? null,
+    })),
     ...(role === "seller" ? { free_starter_pack_enabled: freeStarterPackEnabled } : {}),
   });
 }

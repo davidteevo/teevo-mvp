@@ -11,11 +11,23 @@ import { getListingImageUrl } from "@/lib/listing-images";
 import { track } from "@/lib/analytics";
 import { marketplaceListingStatus } from "@/lib/listing-availability";
 import type { WatchSource } from "@/lib/watchlist-context";
+import { formatRatingAverage } from "@/lib/seller-reviews";
 
 /** Listing optionally with joined seller display name (from users relation). Supabase returns users as array for the join. */
 type ListingWithSeller = Listing & {
   archived_at?: string | null;
-  users?: { display_name?: string | null }[] | { display_name?: string | null } | null;
+  users?:
+    | {
+        display_name?: string | null;
+        rating_average?: number | null;
+        rating_count?: number | null;
+      }[]
+    | {
+        display_name?: string | null;
+        rating_average?: number | null;
+        rating_count?: number | null;
+      }
+    | null;
 };
 
 function firstImage(listing: Listing): string | null {
@@ -31,6 +43,20 @@ function sellerDisplayName(listing: ListingWithSeller): string | null {
   const first = Array.isArray(u) ? u[0] : u;
   const name = first && typeof first === "object" && "display_name" in first ? first.display_name : null;
   return name?.trim() || null;
+}
+
+function sellerRating(listing: ListingWithSeller): { average: number | null; count: number } {
+  const u = listing.users;
+  const first = u ? (Array.isArray(u) ? u[0] : u) : null;
+  const average =
+    first && typeof first === "object" && first.rating_average != null
+      ? Number(first.rating_average)
+      : null;
+  const count =
+    first && typeof first === "object" && typeof first.rating_count === "number"
+      ? first.rating_count
+      : 0;
+  return { average, count };
 }
 
 export function ListingCard({
@@ -50,6 +76,8 @@ export function ListingCard({
 }) {
   const imgPath = firstImage(listing);
   const sellerName = sellerDisplayName(listing);
+  const { average: sellerAverage, count: sellerCount } = sellerRating(listing);
+  const sellerAverageLabel = formatRatingAverage(sellerAverage);
   const imageUrl = imgPath ? getListingImageUrl(imgPath, "thumb") : "/placeholder-listing.svg";
 
   const displayTitle = getListingDisplayTitle(listing);
@@ -130,9 +158,6 @@ export function ListingCard({
             {specLine && (
               <p className="text-[10px] sm:text-xs text-mowing-green/60 mt-0.5 truncate">{specLine}</p>
             )}
-            {sellerName && (
-              <p className="text-[10px] sm:text-xs text-mowing-green/60 mt-0.5 truncate">Sold by {sellerName}</p>
-            )}
             <PriceWithBreakdown
               pricePence={listing.price}
               displayTitle={displayTitle}
@@ -140,6 +165,19 @@ export function ListingCard({
             />
           </div>
         </Link>
+        {sellerName && (
+          <div className="px-2.5 sm:px-3 pb-2.5 -mt-1">
+            <Link
+              href={`/seller/${listing.user_id}`}
+              className="text-[10px] sm:text-xs text-mowing-green/60 hover:text-mowing-green hover:underline truncate block"
+            >
+              Sold by {sellerName}
+              {sellerCount > 0 && sellerAverageLabel
+                ? ` · ${sellerAverageLabel}★ (${sellerCount})`
+                : ""}
+            </Link>
+          </div>
+        )}
         <div className="absolute top-1.5 left-1.5 z-10">
           <WatchButton
             listingId={listing.id}

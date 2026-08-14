@@ -30,6 +30,7 @@ type Transaction = {
   tracking_number?: string | null;
   tracking_url?: string | null;
   shippo_tracking_number?: string | null;
+  seller_review_id?: string | null;
   listing?: {
     model: string;
     category: string;
@@ -127,6 +128,10 @@ function DashboardPurchasesContent() {
               progress.currentIndex >= 2 &&
               !!(trackingNumber || trackingUrl || t.courier);
             const canConfirm = progress.outcome === "progress" && canOpenConfirm(t);
+            const canLeaveFeedback =
+              (t.status === "complete" || t.buyer_confirmed_at || t.completed_at) &&
+              !t.delivery_issue_reported_at &&
+              !t.seller_review_id;
 
             return (
               <article
@@ -173,6 +178,22 @@ function DashboardPurchasesContent() {
                         className="rounded-lg bg-par-3-punch text-white px-4 py-2 text-sm font-medium hover:opacity-90"
                       >
                         Confirm delivery
+                      </Link>
+                    )}
+                    {canLeaveFeedback && (
+                      <Link
+                        href={`/feedback/${t.id}`}
+                        className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium hover:opacity-90"
+                      >
+                        Leave feedback
+                      </Link>
+                    )}
+                    {t.seller_review_id && (
+                      <Link
+                        href={`/feedback/${t.id}`}
+                        className="rounded-lg border border-par-3-punch/30 text-par-3-punch px-4 py-2 text-sm font-medium hover:bg-par-3-punch/10 transition-colors"
+                      >
+                        View feedback
                       </Link>
                     )}
                     <Link
