@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Bell } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Bell, X } from "lucide-react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { track } from "@/lib/analytics";
+
+const MOBILE_MQ = "(max-width: 639px)";
 
 const PREVIEW_LIMIT = 6;
 
@@ -40,7 +43,9 @@ export function NotificationBell() {
   const router = useRouter();
   const { role } = useAuth();
   const rootRef = useRef<HTMLDivElement>(null);
+  const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
   const [open, setOpen] = useState(false);
+  const [mobilePanelTop, setMobilePanelTop] = useState<number | null>(null);
   const [count, setCount] = useState(0);
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [listLoading, setListLoading] = useState(false);
@@ -98,6 +103,48 @@ export function NotificationBell() {
     };
   }, [open]);
 
+  useLayoutEffect(() => {
+    if (!open) {
+      setMobilePanelTop(null);
+      return;
+    }
+    const measure = () => {
+      const mobile = window.matchMedia(MOBILE_MQ).matches;
+      const headerEl = document.querySelector("header");
+      setMobilePanelTop(mobile && headerEl ? headerEl.getBoundingClientRect().bottom : null);
+    };
+    measure();
+    if (!window.matchMedia(MOBILE_MQ).matches) return;
+
+    const body = document.body;
+    const html = document.documentElement;
+    const y = window.scrollY;
+    const prev = {
+      bodyOverflow: body.style.overflow,
+      bodyPosition: body.style.position,
+      bodyTop: body.style.top,
+      bodyWidth: body.style.width,
+      htmlOverflow: html.style.overflow,
+    };
+    body.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.top = `-${y}px`;
+    body.style.width = "100%";
+    html.style.overflow = "hidden";
+    measure();
+    window.addEventListener("resize", measure);
+
+    return () => {
+      window.removeEventListener("resize", measure);
+      body.style.overflow = prev.bodyOverflow;
+      body.style.position = prev.bodyPosition;
+      body.style.top = prev.bodyTop;
+      body.style.width = prev.bodyWidth;
+      html.style.overflow = prev.htmlOverflow;
+      window.scrollTo(0, y);
+    };
+  }, [open]);
+
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
@@ -138,7 +185,7 @@ export function NotificationBell() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="relative p-2 text-mowing-green hover:text-mowing-green rounded-lg focus:outline-none focus:ring-2 focus:ring-mowing-green"
+        className="relative z-[70] p-2 text-mowing-green hover:text-mowing-green rounded-lg focus:outline-none focus:ring-2 focus:ring-mowing-green"
         aria-label={label}
         aria-expanded={open}
         aria-haspopup="dialog"
@@ -151,22 +198,68 @@ export function NotificationBell() {
         )}
       </button>
 
+      {open && mobilePanelTop != null && typeof document !== "undefined"
+        ? createPortal(
+            <button
+              type="button"
+              aria-label="Dismiss notifications"
+              className="fixed inset-x-0 bottom-0 z-40 bg-black/40 sm:hidden"
+              style={{ top: mobilePanelTop }}
+              onClick={() => setOpen(false)}
+            />,
+            document.body
+          )
+        : null}
+
       {open && (
         <div
           role="dialog"
+          aria-modal={mobilePanelTop != null ? true : undefined}
           aria-label="Notifications"
-          className="absolute right-0 top-full mt-1 z-[60] w-[min(calc(100vw-2rem),22rem)] overflow-hidden rounded-xl border border-par-3-punch/20 bg-white shadow-lg max-sm:fixed max-sm:left-4 max-sm:right-4 max-sm:top-14 max-sm:w-auto"
+          tabIndex={-1}
+          className="absolute right-0 top-full mt-1 z-[60] w-[min(calc(100vw-2rem),22rem)] overflow-hidden rounded-xl border border-par-3-punch/20 bg-white shadow-lg max-sm:fixed max-sm:left-4 max-sm:right-4 max-sm:top-0 max-sm:mt-0 max-sm:flex max-sm:w-auto max-sm:max-w-[calc(100vw-2rem)] max-sm:flex-col"
+          style={
+            mobilePanelTop != null
+              ? {
+                  top: mobilePanelTop + 8,
+                  maxHeight: `calc(100dvh - ${mobilePanelTop + 8}px - env(safe-area-inset-bottom, 0px))`,
+                }
+              : undefined
+          }
         >
-          <div className="flex items-center justify-between gap-2 border-b border-par-3-punch/15 px-4 py-3">
+          <div
+            className="flex shrink-0 items-center justify-between gap-2 border-b border-par-3-punch/15 py-1 pl-4 pr-1 sm:px-4 sm:py-3"
+            onTouchStart={(e) => {
+              swipeStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }}
+            onTouchEnd={(e) => {
+              const start = swipeStartRef.current;
+              swipeStartRef.current = null;
+              if (!start || mobilePanelTop == null) return;
+              const dy = e.changedTouches[0].clientY - start.y;
+              const dx = e.changedTouches[0].clientX - start.x;
+              if (dy < -56 && Math.abs(dy) > Math.abs(dx)) setOpen(false);
+            }}
+          >
             <p className="text-sm font-semibold text-mowing-green">Notifications</p>
-            {count > 0 && (
-              <span className="text-xs font-medium text-mowing-green/60">
-                {count > 9 ? "9+" : count} unread
-              </span>
-            )}
+            <div className="flex items-center gap-1">
+              {count > 0 && (
+                <span className="px-2 text-xs font-medium text-mowing-green/60">
+                  {count > 9 ? "9+" : count} unread
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-mowing-green/70 hover:bg-mowing-green/10 hover:text-mowing-green sm:hidden"
+                aria-label="Close notifications"
+              >
+                <X className="h-5 w-5" aria-hidden />
+              </button>
+            </div>
           </div>
 
-          <div className="max-h-[min(60vh,22rem)] overflow-y-auto">
+          <div className="min-h-0 max-h-[min(60vh,22rem)] flex-1 overflow-y-auto overscroll-contain max-sm:max-h-none [-webkit-overflow-scrolling:touch]">
             {listLoading ? (
               <div className="space-y-2 p-3" aria-busy="true">
                 {[1, 2, 3].map((i) => (
@@ -240,7 +333,7 @@ export function NotificationBell() {
           <Link
             href="/notifications"
             onClick={() => setOpen(false)}
-            className="block border-t border-par-3-punch/15 px-4 py-3 text-center text-sm font-medium text-par-3-punch hover:bg-par-3-punch/5"
+            className="block shrink-0 border-t border-par-3-punch/15 px-4 py-3 text-center text-sm font-medium text-par-3-punch hover:bg-par-3-punch/5"
           >
             View more
           </Link>
