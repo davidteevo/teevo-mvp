@@ -227,7 +227,7 @@ export default function DashboardPage() {
             <ShoppingCart className="h-6 w-6 text-mowing-green" />
           </div>
           <div>
-            <p className="font-semibold text-mowing-green">Buy</p>
+            <p className="font-semibold text-mowing-green">Browse</p>
             <p className="text-sm text-mowing-green/70">Browse verified listings</p>
           </div>
         </Link>
