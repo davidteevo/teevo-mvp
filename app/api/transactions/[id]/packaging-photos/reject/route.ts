@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { PackagingStatus } from "@/lib/fulfilment";
 import { notifySellerPackagingRejected } from "@/lib/fulfilment-emails";
 import { notifyPackagingRejected } from "@/lib/notification-events";
+import { syncDispatchClockById } from "@/lib/dispatch-deadline";
 
 export const dynamic = "force-dynamic";
 
@@ -74,6 +75,8 @@ export async function POST(
       listingId: tx.listing_id,
       sellerId: tx.seller_id,
     });
+
+    await syncDispatchClockById(admin, transactionId);
 
     return NextResponse.json({ ok: true });
   } catch (e) {

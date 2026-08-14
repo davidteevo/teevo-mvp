@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { FulfilmentStatus, PackagingStatus } from "@/lib/fulfilment";
 import { notifyAdminPackagingSubmitted } from "@/lib/fulfilment-emails";
 import { notifyPackagingPhotosSubmitted } from "@/lib/notification-events";
+import { isCancellationBlockingDispatch, syncDispatchClockById } from "@/lib/dispatch-deadline";
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +50,7 @@ export async function POST(
     const admin = createAdminClient();
     const { data: tx, error: txErr } = await admin
       .from("transactions")
-      .select("id, seller_id, listing_id, shipping_package, packaging_status, fulfilment_status, packaging_source, starter_pack_dispatched_at")
+      .select("id, seller_id, listing_id, shipping_package, packaging_status, fulfilment_status, packaging_source, starter_pack_dispatched_at, cancellation_status, status")
       .eq("id", transactionId)
       .single();
 
@@ -58,6 +59,9 @@ export async function POST(
     }
     if (tx.seller_id !== user.id) {
       return NextResponse.json({ error: "Not your sale" }, { status: 403 });
+    }
+    if (tx.status !== "pending" || isCancellationBlockingDispatch(tx.cancellation_status)) {
+      return NextResponse.json({ error: "This order can no longer be fulfilled" }, { status: 400 });
     }
     if (!tx.shipping_package) {
       return NextResponse.json(
@@ -119,6 +123,8 @@ export async function POST(
       sellerId: tx.seller_id,
       wasRejected: packagingStatus === PackagingStatus.REJECTED,
     });
+
+    await syncDispatchClockById(admin, transactionId);
 
     return NextResponse.json({ ok: true });
   } catch (e) {

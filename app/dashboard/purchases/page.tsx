@@ -31,6 +31,11 @@ type Transaction = {
   tracking_url?: string | null;
   shippo_tracking_number?: string | null;
   seller_review_id?: string | null;
+  dispatch_deadline_at?: string | null;
+  dispatch_extension_status?: string | null;
+  dispatch_extension_business_days?: number | null;
+  cancellation_reason?: string | null;
+  cancellation_status?: string | null;
   listing?: {
     model: string;
     category: string;
@@ -57,6 +62,7 @@ function DashboardPurchasesContent() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [respondingId, setRespondingId] = useState<string | null>(null);
   const highlightId = useHighlightId("purchase", transactions.length > 0);
 
   useEffect(() => {
@@ -95,6 +101,35 @@ function DashboardPurchasesContent() {
       return false;
     }
     return t.status === "shipped" || t.fulfilment_status === "DELIVERED" || t.order_state === "delivered";
+  };
+
+  const respondToExtension = async (id: string, action: "approve" | "decline") => {
+    setRespondingId(id);
+    try {
+      const res = await fetch(`/api/transactions/${id}/dispatch-extension/respond`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(data.error ?? "Could not save your decision");
+        return;
+      }
+      setTransactions((prev) =>
+        prev.map((row) =>
+          row.id === id
+            ? {
+                ...row,
+                dispatch_extension_status: action === "approve" ? "approved" : "declined",
+                dispatch_deadline_at: data.dispatch_deadline_at ?? row.dispatch_deadline_at,
+              }
+            : row
+        )
+      );
+    } finally {
+      setRespondingId(null);
+    }
   };
 
   if (loading || !user) {
@@ -206,6 +241,33 @@ function DashboardPurchasesContent() {
                 </div>
 
                 <div className="mt-5 pt-4 border-t border-par-3-punch/10">
+                  {t.dispatch_extension_status === "requested" && t.status === "pending" && (
+                    <div className="mb-4 rounded-lg border border-golden-tee/40 bg-golden-tee/10 p-3 space-y-2">
+                      <p className="text-sm font-semibold text-mowing-green">Seller needs more time</p>
+                      <p className="text-sm text-mowing-green/80">
+                        The seller has asked for an additional {t.dispatch_extension_business_days ?? 3}{" "}
+                        business days to dispatch your order.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => respondToExtension(t.id, "approve")}
+                          disabled={respondingId === t.id}
+                          className="rounded-lg bg-mowing-green text-off-white-pique px-3 py-1.5 text-sm font-medium hover:opacity-90 disabled:opacity-60"
+                        >
+                          {respondingId === t.id ? "Saving…" : "Allow extension"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => respondToExtension(t.id, "decline")}
+                          disabled={respondingId === t.id}
+                          className="rounded-lg border border-mowing-green/20 px-3 py-1.5 text-sm font-medium text-mowing-green hover:bg-mowing-green/5 disabled:opacity-60"
+                        >
+                          Decline extension
+                        </button>
+                      </div>
+                    </div>
+                  )}
                   <BuyerOrderProgress tx={t} />
                   {showTracking && (
                     <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-mowing-green/80">

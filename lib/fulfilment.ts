@@ -35,6 +35,7 @@ export const FulfilmentStatus = {
   SHIPPED: "SHIPPED",
   DELIVERED: "DELIVERED",
   COMPLETED: "COMPLETED",
+  CANCELLED: "CANCELLED",
 } as const;
 export type FulfilmentStatusType = (typeof FulfilmentStatus)[keyof typeof FulfilmentStatus];
 

@@ -22,6 +22,7 @@ import {
   notifySellerStarterPackRequested,
 } from "@/lib/fulfilment-emails";
 import { notifyStarterPackRequested } from "@/lib/notification-events";
+import { isCancellationBlockingDispatch, syncDispatchClockById } from "@/lib/dispatch-deadline";
 
 export const dynamic = "force-dynamic";
 
@@ -69,7 +70,7 @@ export async function POST(
 
     const { data: tx, error: txErr } = await admin
       .from("transactions")
-      .select("id, seller_id, listing_id, fulfilment_status, shipping_package, packaging_source, box_type, box_fee_gbp, packaging_requested_at, starter_pack_dispatched_at")
+      .select("id, seller_id, listing_id, fulfilment_status, shipping_package, packaging_source, box_type, box_fee_gbp, packaging_requested_at, starter_pack_dispatched_at, cancellation_status, status")
       .eq("id", transactionId)
       .single();
 
@@ -78,6 +79,9 @@ export async function POST(
     }
     if (tx.seller_id !== user.id) {
       return NextResponse.json({ error: "Not your sale" }, { status: 403 });
+    }
+    if (tx.status !== "pending" || isCancellationBlockingDispatch(tx.cancellation_status)) {
+      return NextResponse.json({ error: "This order can no longer be fulfilled" }, { status: 400 });
     }
     const status = tx.fulfilment_status ?? FulfilmentStatus.PAID;
     if (status !== FulfilmentStatus.PAID) {
@@ -193,6 +197,8 @@ export async function POST(
         sellerId: user.id,
       });
 
+      await syncDispatchClockById(admin, transactionId);
+
       let adminNotifiedAt: string | null = null;
       try {
         const notified = await notifyAdminStarterPackRequested(admin, {
@@ -281,6 +287,8 @@ export async function POST(
         { status: 400 }
       );
     }
+
+    await syncDispatchClockById(admin, transactionId);
 
     return NextResponse.json({ ok: true, ...updated });
   } catch (e) {

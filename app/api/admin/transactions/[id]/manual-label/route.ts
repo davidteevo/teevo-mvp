@@ -10,6 +10,7 @@ import {
 import { ensureEmailSent, EmailTriggerType, getListingEmailContext } from "@/lib/email-triggers";
 import { getAppUrl } from "@/lib/app-env";
 import { notifyManualLabelReady } from "@/lib/notification-events";
+import { isCancellationBlockingDispatch, syncDispatchClockById } from "@/lib/dispatch-deadline";
 
 export const dynamic = "force-dynamic";
 
@@ -77,7 +78,7 @@ export async function POST(
     const { data: tx, error: txErr } = await admin
       .from("transactions")
       .select(
-        "id, seller_id, listing_id, fulfilment_mode, fulfilment_status, shipping_label_url"
+        "id, seller_id, listing_id, fulfilment_mode, fulfilment_status, shipping_label_url, status, cancellation_status"
       )
       .eq("id", transactionId)
       .single();
@@ -90,6 +91,9 @@ export async function POST(
         { error: "This order is not in manual fulfilment mode" },
         { status: 400 }
       );
+    }
+    if (tx.status !== "pending" || isCancellationBlockingDispatch(tx.cancellation_status)) {
+      return NextResponse.json({ error: "This order can no longer be fulfilled" }, { status: 400 });
     }
     if (tx.fulfilment_status !== FulfilmentStatus.PACKAGING_VERIFIED) {
       return NextResponse.json(
@@ -194,6 +198,8 @@ export async function POST(
       listingId: tx.listing_id,
       sellerId: tx.seller_id,
     });
+
+    await syncDispatchClockById(admin, transactionId);
 
     return NextResponse.json({
       ok: true,

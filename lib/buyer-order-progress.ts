@@ -39,6 +39,7 @@ export type BuyerOrderProgressInput = {
   status?: string | null;
   fulfilment_status?: string | null;
   order_state?: string | null;
+  cancellation_reason?: string | null;
 };
 
 export type BuyerOrderProgress = {

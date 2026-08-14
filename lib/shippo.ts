@@ -316,3 +316,18 @@ export async function createShipmentAndPurchaseLabel(
     shippoTransactionId: tx.objectId ?? "",
   };
 }
+
+/** Best-effort void of a purchased Shippo label. Never throws. */
+export async function refundShippoLabel(shippoTransactionId: string): Promise<boolean> {
+  if (!shippoTransactionId) return false;
+  try {
+    const shippo = getShippoClient() as unknown as {
+      refunds: { create: (args: { transaction: string }) => Promise<unknown> };
+    };
+    await shippo.refunds.create({ transaction: shippoTransactionId });
+    return true;
+  } catch (e) {
+    console.error("refundShippoLabel failed", shippoTransactionId, e);
+    return false;
+  }
+}

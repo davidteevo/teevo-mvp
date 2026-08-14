@@ -18,6 +18,7 @@ type Listing = {
   price: number;
   status: string;
   admin_feedback?: string | null;
+  availability_confirmation_status?: string | null;
 };
 
 export default function SellEditPage() {
@@ -69,7 +70,7 @@ export default function SellEditPage() {
     return null;
   }
 
-  if (fetchError || (listing && listing.status !== "pending")) {
+  if (fetchError || (listing && listing.status !== "pending" && listing.availability_confirmation_status !== "required")) {
     return (
       <div className="max-w-xl mx-auto px-4 py-12 text-center">
         <p className="text-mowing-green/80">

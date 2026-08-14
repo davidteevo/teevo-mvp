@@ -11,6 +11,11 @@ import { getAppUrl } from "@/lib/app-env";
 import { notifyCheckoutComplete } from "@/lib/notification-events";
 import { notifyWatchersSold } from "@/lib/watchlist-emails";
 import { isPurchasableListingStatus, LISTING_NOT_PURCHASABLE_YET } from "@/lib/listing-availability";
+import { getDispatchDeadlineBusinessDays } from "@/lib/dispatch-settings";
+import { computeInitialDispatchDeadline } from "@/lib/dispatch-deadline";
+import { formatDispatchDeadline } from "@/lib/business-days";
+import { recordTransactionEvent, TransactionEventType } from "@/lib/transaction-events";
+import { trackServerEvent } from "@/lib/starter-pack";
 
 const appUrl = getAppUrl();
 
@@ -76,6 +81,12 @@ export async function createTransactionAndSendEmails(
       : ShippingService.DPD_NEXT_DAY;
 
   const fulfilment_mode = await getPlatformFulfilmentMode(admin);
+  const createdAt = new Date();
+  const deadlineDays = await getDispatchDeadlineBusinessDays(admin);
+  const { original, active } = computeInitialDispatchDeadline(createdAt, deadlineDays);
+  const originalIso = original.toISOString();
+  const deadlineIso = active.toISOString();
+  const deadlineLabel = formatDispatchDeadline(active, createdAt);
 
   const { data: newTx, error: insertErr } = await admin
     .from("transactions")
@@ -99,6 +110,8 @@ export async function createTransactionAndSendEmails(
       buyer_address_line2: addr?.line2 ?? null,
       buyer_city: addr?.city ?? null,
       buyer_country: addr?.country ?? null,
+      original_dispatch_deadline_at: originalIso,
+      dispatch_deadline_at: deadlineIso,
     })
     .select("id, listing_id, buyer_id, seller_id, amount")
     .single();
@@ -136,6 +149,25 @@ export async function createTransactionAndSendEmails(
   );
 
   const txId = newTx.id;
+  await recordTransactionEvent(admin, {
+    transactionId: txId,
+    eventType: TransactionEventType.ORDER_CREATED,
+    payload: { listing_id: listingId, buyer_id: buyerId, seller_id: sellerId },
+  });
+  await recordTransactionEvent(admin, {
+    transactionId: txId,
+    eventType: TransactionEventType.DISPATCH_DEADLINE_CREATED,
+    payload: {
+      original_dispatch_deadline_at: originalIso,
+      dispatch_deadline_at: deadlineIso,
+      business_days: deadlineDays,
+    },
+  });
+  await trackServerEvent(admin, "dispatch_deadline_created", {
+    userId: sellerId,
+    properties: { transaction_id: txId, dispatch_deadline_at: deadlineIso, business_days: deadlineDays },
+  });
+
   const totalGbp = formatGbp(amount);
   const shippingGbp = SHIPPING_FEE_GBP.toFixed(2);
   const { itemName, hero_image } = await getListingEmailContext(admin, listingId);
@@ -144,8 +176,8 @@ export async function createTransactionAndSendEmails(
   const buyerEmail = buyer?.email ?? null;
   const sellerEmail = seller?.email ?? null;
 
-  const orderLink = `${appUrl}/dashboard/purchases`;
-  const salesLink = `${appUrl}/dashboard/sales`;
+  const orderLink = `${appUrl}/dashboard/purchases?id=${encodeURIComponent(txId)}`;
+  const salesLink = `${appUrl}/dashboard/sales?id=${encodeURIComponent(txId)}`;
 
   if (buyerEmail) {
     await ensureEmailSent(admin, {
@@ -173,17 +205,21 @@ export async function createTransactionAndSendEmails(
       referenceId: txId,
       recipientId: sellerId,
       to: sellerEmail,
-      subject: `You've sold ${itemName} 🥳`,
+      subject: `Your ${itemName} has sold — ship by ${deadlineLabel}`,
       type: "transactional",
       variables: {
         title: "Item sold",
-        subtitle: "Pack the item and complete packaging to get your label.",
-        body: `Total: £${totalGbp}`,
+        subtitle: `Ship your order by ${deadlineLabel}.`,
+        body: [
+          `The buyer has paid.`,
+          `Please pack the item securely and complete packaging so you can dispatch by ${deadlineLabel}.`,
+          `If you don't dispatch the order by ${deadlineLabel}, the order may be automatically cancelled and the buyer refunded.`,
+        ].join("<br />"),
         order_number: txId.slice(0, 8),
         item_name: itemName,
         hero_image,
         cta_link: salesLink,
-        cta_text: "View sale",
+        cta_text: "View order",
       },
     }).catch((e) => console.error("Item sold email failed", e));
     await ensureEmailSent(admin, {
@@ -211,6 +247,7 @@ export async function createTransactionAndSendEmails(
     listingId,
     buyerId,
     sellerId,
+    dispatchDeadlineLabel: deadlineLabel,
   });
 
   return { transactionId: txId };

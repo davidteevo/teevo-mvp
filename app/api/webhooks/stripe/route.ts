@@ -41,7 +41,7 @@ async function findTxByPaymentIntent(
   if (!paymentIntentId) return null;
   const { data } = await admin
     .from("transactions")
-    .select("id, listing_id, seller_id, status")
+    .select("id, listing_id, seller_id, status, cancellation_status, stripe_refund_id, cancellation_reason")
     .eq("stripe_payment_id", paymentIntentId)
     .maybeSingle();
   return data;
@@ -115,13 +115,37 @@ export async function POST(request: Request) {
     const charge = event.data.object as Stripe.Charge;
     const paymentIntentId = getPaymentIntentId(charge.payment_intent);
     if (paymentIntentId) {
-      await admin
-        .from("transactions")
-        .update({ status: "refunded", updated_at: new Date().toISOString() })
-        .eq("stripe_payment_id", paymentIntentId);
       const tx = await findTxByPaymentIntent(admin, paymentIntentId);
-      if (tx) {
+      const refundId =
+        typeof charge.refunds?.data?.[0]?.id === "string" ? charge.refunds.data[0].id : null;
+      if (tx?.cancellation_status === "completed") {
+        if (refundId && !tx.stripe_refund_id) {
+          await admin
+            .from("transactions")
+            .update({ stripe_refund_id: refundId, updated_at: new Date().toISOString() })
+            .eq("id", tx.id)
+            .is("stripe_refund_id", null);
+        }
         await resolvePaymentAndRefundNotifications(admin, tx.id);
+      } else if (tx) {
+        await admin
+          .from("transactions")
+          .update({
+            status: "refunded",
+            ...(refundId ? { stripe_refund_id: refundId } : {}),
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", tx.id);
+        await resolvePaymentAndRefundNotifications(admin, tx.id);
+      } else {
+        await admin
+          .from("transactions")
+          .update({
+            status: "refunded",
+            ...(refundId ? { stripe_refund_id: refundId } : {}),
+            updated_at: new Date().toISOString(),
+          })
+          .eq("stripe_payment_id", paymentIntentId);
       }
     }
   }
@@ -134,13 +158,35 @@ export async function POST(request: Request) {
       const paymentIntentId = getPaymentIntentId(charge.payment_intent);
       const tx = await findTxByPaymentIntent(admin, paymentIntentId);
       if (refund.status === "succeeded") {
-        if (paymentIntentId) {
+        if (tx?.cancellation_status === "completed") {
+          if (refund.id && !tx.stripe_refund_id) {
+            await admin
+              .from("transactions")
+              .update({ stripe_refund_id: refund.id, updated_at: new Date().toISOString() })
+              .eq("id", tx.id)
+              .is("stripe_refund_id", null);
+          }
+          await resolvePaymentAndRefundNotifications(admin, tx.id);
+        } else if (tx) {
           await admin
             .from("transactions")
-            .update({ status: "refunded", updated_at: new Date().toISOString() })
+            .update({
+              status: "refunded",
+              stripe_refund_id: refund.id,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", tx.id);
+          await resolvePaymentAndRefundNotifications(admin, tx.id);
+        } else if (paymentIntentId) {
+          await admin
+            .from("transactions")
+            .update({
+              status: "refunded",
+              stripe_refund_id: refund.id,
+              updated_at: new Date().toISOString(),
+            })
             .eq("stripe_payment_id", paymentIntentId);
         }
-        if (tx) await resolvePaymentAndRefundNotifications(admin, tx.id);
       } else if (refund.status === "failed" && tx) {
         await notifyPaymentIssue(admin, {
           transactionId: tx.id,

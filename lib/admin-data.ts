@@ -164,6 +164,8 @@ export type AdminTransaction = {
   created_at: string;
   packaging_source?: string | null;
   starter_pack_dispatched_at?: string | null;
+  dispatch_deadline_at?: string | null;
+  cancellation_status?: string | null;
   listing?: { model: string };
 };
 
@@ -171,7 +173,7 @@ export async function getAdminTransactions(status?: string): Promise<AdminTransa
   const admin = adminClient();
   let query = admin
     .from("transactions")
-    .select("id, listing_id, buyer_id, seller_id, amount, status, shipped_at, completed_at, created_at, packaging_source, starter_pack_dispatched_at, listing:listings(model)")
+    .select("id, listing_id, buyer_id, seller_id, amount, status, shipped_at, completed_at, created_at, packaging_source, starter_pack_dispatched_at, dispatch_deadline_at, cancellation_status, listing:listings(model)")
     .order("created_at", { ascending: false });
   if (status) query = query.eq("status", status);
   const { data, error } = await query;
@@ -182,3 +184,66 @@ export async function getAdminTransactions(status?: string): Promise<AdminTransa
     listing: Array.isArray(row.listing) ? row.listing[0] : row.listing,
   })) as AdminTransaction[];
 }
+
+export type AdminTransactionDetail = Record<string, unknown> & {
+  id: string;
+  listing?: { id: string; model: string | null; title: string | null; status: string; availability_confirmation_status: string | null } | null;
+  buyer?: { email: string | null } | null;
+  seller?: { email: string | null } | null;
+};
+
+export async function getAdminTransactionDetail(id: string): Promise<AdminTransactionDetail | null> {
+  const admin = adminClient();
+  const { data, error } = await admin
+    .from("transactions")
+    .select(
+      "id, listing_id, buyer_id, seller_id, amount, status, order_state, fulfilment_status, fulfilment_mode, shipped_at, completed_at, created_at, stripe_payment_id, stripe_refund_id, original_dispatch_deadline_at, dispatch_deadline_at, dispatch_clock_paused_at, dispatch_clock_pause_reason, dispatch_extension_status, dispatch_extension_requested_at, dispatch_extension_responded_at, dispatch_extension_responded_by, dispatch_extension_business_days, dispatch_reminder_after_purchase_sent_at, dispatch_reminder_one_day_sent_at, dispatch_reminder_final_sent_at, cancellation_reason, cancellation_status, cancelled_at, packaging_status, packaging_source, starter_pack_dispatched_at, label_created_at, shippo_transaction_id, listing:listings(id, model, title, status, availability_confirmation_status), buyer:users!transactions_buyer_id_fkey(email), seller:users!transactions_seller_id_fkey(email)"
+    )
+    .eq("id", id)
+    .maybeSingle();
+  if (error) {
+    const { data: fallback, error: fallbackErr } = await admin
+      .from("transactions")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (fallbackErr || !fallback) return null;
+    const { data: listing } = await admin
+      .from("listings")
+      .select("id, model, title, status, availability_confirmation_status")
+      .eq("id", fallback.listing_id)
+      .maybeSingle();
+    const { data: buyer } = await admin.from("users").select("email").eq("id", fallback.buyer_id).maybeSingle();
+    const { data: seller } = await admin.from("users").select("email").eq("id", fallback.seller_id).maybeSingle();
+    return { ...fallback, listing, buyer, seller };
+  }
+  if (!data) return null;
+  const row = data as Record<string, unknown>;
+  return {
+    ...row,
+    listing: Array.isArray(row.listing) ? row.listing[0] : row.listing,
+    buyer: Array.isArray(row.buyer) ? row.buyer[0] : row.buyer,
+    seller: Array.isArray(row.seller) ? row.seller[0] : row.seller,
+  } as AdminTransactionDetail;
+}
+
+export async function getTransactionEvents(transactionId: string): Promise<
+  { id: string; event_type: string; actor_id: string | null; payload: Record<string, unknown>; created_at: string }[]
+> {
+  const admin = adminClient();
+  const { data, error } = await admin
+    .from("transaction_events")
+    .select("id, event_type, actor_id, payload, created_at")
+    .eq("transaction_id", transactionId)
+    .order("created_at", { ascending: false })
+    .limit(100);
+  if (error) return [];
+  return (data ?? []) as {
+    id: string;
+    event_type: string;
+    actor_id: string | null;
+    payload: Record<string, unknown>;
+    created_at: string;
+  }[];
+}
+

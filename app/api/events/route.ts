@@ -58,6 +58,17 @@ const ALLOWED_EVENTS = [
   "feedback_hidden",
   "feedback_restored",
   "feedback_removed",
+  "dispatch_deadline_created",
+  "dispatch_reminder_sent",
+  "dispatch_extension_requested",
+  "dispatch_extension_approved",
+  "dispatch_extension_declined",
+  "seller_dispatched",
+  "dispatch_timeout_cancelled",
+  "dispatch_refund_succeeded",
+  "dispatch_refund_failed",
+  "listing_availability_confirmed",
+  "listing_availability_unavailable",
 ] as const;
 
 export type AllowedEventName = (typeof ALLOWED_EVENTS)[number];

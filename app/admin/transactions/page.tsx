@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Suspense } from "react";
 import { formatPrice } from "@/lib/format";
 import { getAdminTransactions } from "@/lib/admin-data";
@@ -36,9 +37,15 @@ export default async function AdminTransactionsPage({ searchParams }: Props) {
                 }`}
               >
                 <div>
-                  <p className="font-medium text-mowing-green">{t.listing?.model ?? t.listing_id}</p>
+                  <p className="font-medium text-mowing-green">
+                    <Link href={`/admin/transactions/${t.id}`} className="hover:underline">
+                      {t.listing?.model ?? t.listing_id}
+                    </Link>
+                  </p>
                   <p className="text-xs text-mowing-green/60">
                     {t.id.slice(0, 8)}… · {formatPrice(t.amount)} · {t.status}
+                    {t.dispatch_deadline_at ? ` · ship by ${new Date(t.dispatch_deadline_at).toLocaleDateString("en-GB")}` : ""}
+                    {t.cancellation_status ? ` · ${t.cancellation_status}` : ""}
                   </p>
                   {t.packaging_source === "TEEVO_STARTER_PACK" && (
                     <span className="mt-1 inline-flex items-center rounded-full border border-par-3-punch/30 bg-off-white-pique px-2 py-0.5 text-xs font-medium text-mowing-green">
@@ -50,6 +57,12 @@ export default async function AdminTransactionsPage({ searchParams }: Props) {
                   <span className="text-sm text-mowing-green/70">
                     {new Date(t.created_at).toLocaleDateString()}
                   </span>
+                  <Link
+                    href={`/admin/transactions/${t.id}`}
+                    className="text-xs font-medium text-par-3-punch hover:underline"
+                  >
+                    Review order
+                  </Link>
                   {highlightId === t.id && <ResolveOpsButton transactionId={t.id} />}
                 </div>
               </li>

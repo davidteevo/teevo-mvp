@@ -11,6 +11,7 @@ import {
 } from "@/lib/shippo";
 import { FulfilmentStatus } from "@/lib/fulfilment";
 import { notifyShippoLabelCreated, notifyShippoLabelFailed } from "@/lib/notification-events";
+import { isCancellationBlockingDispatch, syncDispatchClockById } from "@/lib/dispatch-deadline";
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +37,7 @@ export async function POST(
     const admin = createAdminClient();
     const { data: tx, error: txErr } = await admin
       .from("transactions")
-      .select("id, seller_id, listing_id, buyer_name, buyer_address_line1, buyer_address_line2, buyer_city, buyer_postcode, buyer_country, shippo_label_url, shipping_service, fulfilment_status, fulfilment_mode")
+      .select("id, seller_id, listing_id, buyer_name, buyer_address_line1, buyer_address_line2, buyer_city, buyer_postcode, buyer_country, shippo_label_url, shipping_service, fulfilment_status, fulfilment_mode, cancellation_status, status")
       .eq("id", transactionId)
       .single();
 
@@ -45,6 +46,9 @@ export async function POST(
     }
     if (tx.seller_id !== user.id) {
       return NextResponse.json({ error: "Not your sale" }, { status: 403 });
+    }
+    if (tx.status !== "pending" || isCancellationBlockingDispatch(tx.cancellation_status)) {
+      return NextResponse.json({ error: "This order can no longer be shipped" }, { status: 400 });
     }
     if (tx.fulfilment_mode === "manual") {
       return NextResponse.json(
@@ -158,6 +162,8 @@ export async function POST(
       listingId: tx.listing_id,
       sellerId: tx.seller_id,
     });
+
+    await syncDispatchClockById(admin, transactionId);
 
     return NextResponse.json({
       labelUrl: result.labelUrl,

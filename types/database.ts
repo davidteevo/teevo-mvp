@@ -23,6 +23,19 @@ export type ListingCondition =
 
 export type ListingStatus = "pending" | "verified" | "rejected" | "sold";
 
+export type AvailabilityConfirmationStatus =
+  | "required"
+  | "confirmed_available"
+  | "confirmed_unavailable";
+
+export type DispatchClockPauseReason = "starter_pack" | "packaging_review" | "manual_label";
+
+export type DispatchExtensionStatus = "requested" | "approved" | "declined" | "superseded";
+
+export type CancellationReason = "seller_dispatch_timeout" | "admin_override";
+
+export type CancellationStatus = "in_progress" | "completed" | "failed";
+
 export type TransactionStatus =
   | "pending"
   | "shipped"
@@ -106,6 +119,7 @@ export interface Listing {
   created_by_admin_id?: string | null;
   created_on_behalf?: boolean;
   archived_at?: string | null;
+  availability_confirmation_status?: AvailabilityConfirmationStatus | null;
   created_at: string;
   updated_at: string;
   listing_images?: { id: string; storage_path: string; sort_order: number }[];
@@ -138,6 +152,22 @@ export interface Transaction {
   completed_at: string | null;
   created_at: string;
   updated_at: string;
+  original_dispatch_deadline_at?: string | null;
+  dispatch_deadline_at?: string | null;
+  dispatch_clock_paused_at?: string | null;
+  dispatch_clock_pause_reason?: DispatchClockPauseReason | null;
+  dispatch_extension_status?: DispatchExtensionStatus | null;
+  dispatch_extension_requested_at?: string | null;
+  dispatch_extension_responded_at?: string | null;
+  dispatch_extension_responded_by?: string | null;
+  dispatch_extension_business_days?: number | null;
+  dispatch_reminder_after_purchase_sent_at?: string | null;
+  dispatch_reminder_one_day_sent_at?: string | null;
+  dispatch_reminder_final_sent_at?: string | null;
+  cancellation_reason?: CancellationReason | null;
+  cancelled_at?: string | null;
+  cancellation_status?: CancellationStatus | null;
+  stripe_refund_id?: string | null;
   listing?: Listing;
 }
 

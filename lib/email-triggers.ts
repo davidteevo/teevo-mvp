@@ -39,6 +39,16 @@ export const EmailTriggerType = {
   WATCHLIST_PRICE_DROP: "watchlist_price_drop",
   WATCHLIST_SOLD: "watchlist_sold",
   WATCHLIST_UNAVAILABLE: "watchlist_unavailable",
+  DISPATCH_REMINDER: "dispatch_reminder",
+  DISPATCH_ONE_DAY_LEFT: "dispatch_one_day_left",
+  DISPATCH_REQUIRED_TODAY: "dispatch_required_today",
+  DISPATCH_EXTENSION_REQUESTED: "dispatch_extension_requested",
+  DISPATCH_EXTENSION_APPROVED: "dispatch_extension_approved",
+  DISPATCH_EXTENSION_DECLINED: "dispatch_extension_declined",
+  ORDER_CANCELLED_DISPATCH_TIMEOUT_SELLER: "order_cancelled_dispatch_timeout_seller",
+  ORDER_CANCELLED_SELLER_TIMEOUT_BUYER: "order_cancelled_seller_timeout_buyer",
+  CONFIRM_LISTING_AVAILABILITY: "confirm_listing_availability",
+  DISPATCH_CANCELLATION_FAILED_ADMIN: "dispatch_cancellation_failed_admin",
 } as const;
 
 export type EmailTriggerTypeValue = (typeof EmailTriggerType)[keyof typeof EmailTriggerType];

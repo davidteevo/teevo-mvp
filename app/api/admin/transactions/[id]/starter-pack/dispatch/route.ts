@@ -9,6 +9,7 @@ import {
 } from "@/lib/starter-pack";
 import { notifySellerStarterPackDispatched } from "@/lib/fulfilment-emails";
 import { notifyStarterPackDispatched } from "@/lib/notification-events";
+import { syncDispatchClockById } from "@/lib/dispatch-deadline";
 
 export const dynamic = "force-dynamic";
 
@@ -106,6 +107,8 @@ export async function POST(
       trackingNumber: tracking.tracking_number,
       courier: tracking.courier,
     });
+
+    await syncDispatchClockById(admin, transactionId);
 
     return NextResponse.json({
       ok: true,

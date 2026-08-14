@@ -18,6 +18,7 @@ type Listing = {
   created_at: string;
   admin_feedback?: string | null;
   archived_at?: string | null;
+  availability_confirmation_status?: string | null;
 };
 
 export default function DashboardListingsPage() {
@@ -79,7 +80,15 @@ export default function DashboardListingsPage() {
     }
   };
 
-  const statusBadge = (status: string) => {
+  const statusBadge = (listing: Listing) => {
+    if (listing.availability_confirmation_status === "required") {
+      return (
+        <span className="rounded-full px-2 py-0.5 text-xs font-medium bg-golden-tee/30 text-mowing-green">
+          Confirm availability
+        </span>
+      );
+    }
+    const status = listing.status;
     const styles: Record<string, string> = {
       pending: "bg-golden-tee/30 text-mowing-green",
       verified: "bg-par-3-punch/30 text-mowing-green",
@@ -178,12 +187,12 @@ export default function DashboardListingsPage() {
                   </Link>
                   <div className="flex items-center gap-3 shrink-0">
                     <span className="font-semibold text-mowing-green">{formatPrice(l.price)}</span>
-                    {statusBadge(l.status)}
+                    {statusBadge(l)}
                     <div className="flex items-center gap-2">
                       <Link href={`/listing/${l.id}`} className="text-sm text-par-3-punch hover:underline">
                         View
                       </Link>
-                      {l.status === "pending" && (
+                      {(l.status === "pending" || l.availability_confirmation_status === "required") && (
                         <Link href={`/sell/edit/${l.id}`} className="text-sm text-par-3-punch hover:underline">
                           Edit
                         </Link>
@@ -243,7 +252,7 @@ export default function DashboardListingsPage() {
                   </Link>
                   <div className="flex items-center gap-3 shrink-0">
                     <span className="font-semibold text-mowing-green">{formatPrice(l.price)}</span>
-                    {statusBadge(l.status)}
+                    {statusBadge(l)}
                     <button
                       type="button"
                       onClick={() => handleReactivate(l)}

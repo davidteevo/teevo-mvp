@@ -5,9 +5,12 @@ export function BuyerOrderProgress({ tx }: { tx: BuyerOrderProgressInput }) {
   const progress = getBuyerOrderProgress(tx);
 
   if (progress.outcome === "refunded") {
+    const timeout = tx.cancellation_reason === "seller_dispatch_timeout";
     return (
       <p className="text-sm text-mowing-green/80">
-        This order was <span className="font-medium">refunded</span>.
+        {timeout
+          ? "This order was cancelled because the seller didn't dispatch in time. We've issued you a full refund."
+          : <>This order was <span className="font-medium">refunded</span>.</>}
       </p>
     );
   }

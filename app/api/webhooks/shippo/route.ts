@@ -7,6 +7,10 @@ import {
   notifyTrackingIssue,
 } from "@/lib/notification-events";
 import { NotificationType, resolveNotifications } from "@/lib/notifications";
+import { isCancellationBlockingDispatch } from "@/lib/dispatch-deadline";
+import { markExtensionSupersededOnDispatch } from "@/lib/dispatch-timeout";
+import { recordTransactionEvent, TransactionEventType } from "@/lib/transaction-events";
+import { trackServerEvent } from "@/lib/starter-pack";
 
 /**
  * Shippo tracking webhook. When Shippo sends track_updated:
@@ -58,7 +62,7 @@ export async function POST(request: Request) {
 
   let query = admin
     .from("transactions")
-    .select("id, fulfilment_status, status, order_state, buyer_id, seller_id, listing_id, shipped_at");
+    .select("id, fulfilment_status, status, order_state, buyer_id, seller_id, listing_id, shipped_at, cancellation_status, dispatch_extension_status");
   if (shippoTransactionId) {
     query = query.eq("shippo_transaction_id", shippoTransactionId);
   } else if (trackingNumber) {
@@ -74,6 +78,10 @@ export async function POST(request: Request) {
 
   const tx = rows[0];
   const now = new Date().toISOString();
+  const blocked =
+    tx.status === "refunded" ||
+    tx.status === "dispute" ||
+    isCancellationBlockingDispatch(tx.cancellation_status);
 
   await admin
     .from("transactions")
@@ -81,12 +89,15 @@ export async function POST(request: Request) {
     .eq("id", tx.id);
 
   if (status === "IN_TRANSIT" || status === "TRANSIT") {
+    if (blocked) {
+      return NextResponse.json({ ok: true });
+    }
     await resolveNotifications(admin, {
       types: [NotificationType.TRACKING_ISSUE],
       entityId: tx.id,
     });
     if (tx.fulfilment_status !== FulfilmentStatus.SHIPPED && tx.fulfilment_status !== FulfilmentStatus.DELIVERED) {
-      await admin
+      const { data: shipped } = await admin
         .from("transactions")
         .update({
           status: "shipped",
@@ -97,18 +108,40 @@ export async function POST(request: Request) {
           tracking_updated_at: now,
           updated_at: now,
         })
-        .eq("id", tx.id);
-      if (tx.buyer_id && tx.seller_id) {
-        await notifyItemDispatched(admin, {
-          transactionId: tx.id,
-          listingId: tx.listing_id,
-          sellerId: tx.seller_id,
-          buyerId: tx.buyer_id,
-          fulfilmentMode: "shippo",
+        .eq("id", tx.id)
+        .eq("status", "pending")
+        .or("cancellation_status.is.null,cancellation_status.eq.failed")
+        .select("id")
+        .maybeSingle();
+      if (shipped) {
+        await markExtensionSupersededOnDispatch(admin, {
+          id: tx.id,
+          dispatch_extension_status: tx.dispatch_extension_status,
         });
+        await recordTransactionEvent(admin, {
+          transactionId: tx.id,
+          eventType: TransactionEventType.SELLER_DISPATCHED,
+          payload: { source: "shippo" },
+        });
+        await trackServerEvent(admin, "seller_dispatched", {
+          userId: tx.seller_id,
+          properties: { transaction_id: tx.id, listing_id: tx.listing_id, source: "shippo" },
+        });
+        if (tx.buyer_id && tx.seller_id) {
+          await notifyItemDispatched(admin, {
+            transactionId: tx.id,
+            listingId: tx.listing_id,
+            sellerId: tx.seller_id,
+            buyerId: tx.buyer_id,
+            fulfilmentMode: "shippo",
+          });
+        }
       }
     }
   } else if (status === "DELIVERED") {
+    if (blocked) {
+      return NextResponse.json({ ok: true });
+    }
     await resolveNotifications(admin, {
       types: [NotificationType.TRACKING_ISSUE, NotificationType.DELIVERY_OVERDUE],
       entityId: tx.id,
@@ -135,6 +168,9 @@ export async function POST(request: Request) {
       }
     }
   } else if (ISSUE_STATUSES.has(status)) {
+    if (blocked) {
+      return NextResponse.json({ ok: true });
+    }
     await notifyTrackingIssue(admin, {
       transactionId: tx.id,
       listingId: tx.listing_id,

@@ -32,7 +32,7 @@ export async function PATCH(
   const admin = createAdminClient();
   const { data: listing, error: fetchError } = await admin
     .from("listings")
-    .select("id, user_id, status")
+    .select("id, user_id, status, availability_confirmation_status")
     .eq("id", id)
     .single();
 
@@ -72,8 +72,10 @@ export async function PATCH(
     return NextResponse.json({ ok: true });
   }
 
-  // Edit fields: only for pending listings
-  if (listing.status !== "pending") {
+  // Edit fields: pending listings, or sold listings awaiting availability confirmation.
+  const canEdit =
+    listing.status === "pending" || listing.availability_confirmation_status === "required";
+  if (!canEdit) {
     return NextResponse.json(
       { error: "Only pending listings can be edited" },
       { status: 400 }

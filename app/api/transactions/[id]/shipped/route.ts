@@ -9,6 +9,10 @@ import {
 import { ensureEmailSent, EmailTriggerType, getListingEmailContext } from "@/lib/email-triggers";
 import { getAppUrl } from "@/lib/app-env";
 import { notifyItemDispatched } from "@/lib/notification-events";
+import { isCancellationBlockingDispatch } from "@/lib/dispatch-deadline";
+import { markExtensionSupersededOnDispatch } from "@/lib/dispatch-timeout";
+import { recordTransactionEvent, TransactionEventType } from "@/lib/transaction-events";
+import { trackServerEvent } from "@/lib/starter-pack";
 
 const appUrl = getAppUrl();
 
@@ -35,7 +39,7 @@ export async function POST(
   const { data: tx } = await admin
     .from("transactions")
     .select(
-      "seller_id, buyer_id, listing_id, status, fulfilment_mode, shippo_tracking_number, courier, tracking_number, tracking_url"
+      "seller_id, buyer_id, listing_id, status, cancellation_status, dispatch_extension_status, fulfilment_mode, shippo_tracking_number, courier, tracking_number, tracking_url"
     )
     .eq("id", id)
     .single();
@@ -43,24 +47,45 @@ export async function POST(
   if (!tx || tx.seller_id !== user.id) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  if (tx.status !== "pending") {
+  if (tx.status !== "pending" || isCancellationBlockingDispatch(tx.cancellation_status)) {
     return NextResponse.json({ error: "Already shipped or complete" }, { status: 400 });
   }
 
-  const { error } = await admin
+  const now = new Date().toISOString();
+  const { data: updated, error } = await admin
     .from("transactions")
     .update({
       status: "shipped",
       order_state: "shipped",
       fulfilment_status: FulfilmentStatus.SHIPPED,
-      shipped_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      shipped_at: now,
+      updated_at: now,
     })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("status", "pending")
+    .or("cancellation_status.is.null,cancellation_status.eq.failed")
+    .is("shipped_at", null)
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+  if (!updated) {
+    return NextResponse.json({ error: "Already shipped or complete" }, { status: 400 });
+  }
+
+  await markExtensionSupersededOnDispatch(admin, { id, dispatch_extension_status: tx.dispatch_extension_status });
+  await recordTransactionEvent(admin, {
+    transactionId: id,
+    eventType: TransactionEventType.SELLER_DISPATCHED,
+    actorId: user.id,
+    payload: { source: "seller" },
+  });
+  await trackServerEvent(admin, "seller_dispatched", {
+    userId: user.id,
+    properties: { transaction_id: id, listing_id: tx.listing_id },
+  });
 
   const { data: buyer } = await admin.from("users").select("email").eq("id", tx.buyer_id).single();
   const { data: seller } = await admin.from("users").select("email").eq("id", tx.seller_id).single();

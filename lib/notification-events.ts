@@ -34,7 +34,7 @@ async function titleFor(admin: SupabaseClient, listingId?: string | null): Promi
 
 export async function notifyCheckoutComplete(
   admin: SupabaseClient,
-  opts: TxIds & { sellerId: string; buyerId: string }
+  opts: TxIds & { sellerId: string; buyerId: string; dispatchDeadlineLabel?: string | null }
 ): Promise<void> {
   try {
     const title = await titleFor(admin, opts.listingId);
@@ -48,14 +48,17 @@ export async function notifyCheckoutComplete(
       actionLabel: "View purchase",
       requiresAction: false,
     });
+    const deadlineBit = opts.dispatchDeadlineLabel
+      ? ` Ship your order by ${opts.dispatchDeadlineLabel}.`
+      : " Complete the next steps to prepare it for shipping.";
     await createNotification(admin, {
       userId: opts.sellerId,
       type: NotificationType.ITEM_SOLD,
-      title: "Your club sold 🎉",
-      message: `Your ${title} has sold. Complete the next steps to prepare it for shipping.`,
+      title: `Your ${title} has sold`,
+      message: `Your ${title} has sold.${deadlineBit}`,
       entityId: opts.transactionId,
       actionUrl: salesUrl(opts.transactionId),
-      actionLabel: "Start shipping",
+      actionLabel: "View order",
       requiresAction: true,
     });
   } catch (e) {
@@ -338,6 +341,12 @@ export async function notifyItemDispatched(
         NotificationType.READY_TO_SHIP,
         NotificationType.SHIPPING_LABEL_READY,
         NotificationType.SELLER_NOT_DISPATCHED,
+        NotificationType.DISPATCH_REMINDER,
+        NotificationType.DISPATCH_ONE_DAY_LEFT,
+        NotificationType.DISPATCH_REQUIRED_TODAY,
+        NotificationType.DISPATCH_EXTENSION_REQUESTED,
+        NotificationType.DISPATCH_EXTENSION_APPROVED,
+        NotificationType.DISPATCH_EXTENSION_DECLINED,
       ],
       entityId: opts.transactionId,
     });

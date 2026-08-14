@@ -8,6 +8,7 @@ import {
   notifySellerPackagingApproved,
 } from "@/lib/fulfilment-emails";
 import { notifyPackagingApproved } from "@/lib/notification-events";
+import { syncDispatchClockById } from "@/lib/dispatch-deadline";
 
 export const dynamic = "force-dynamic";
 
@@ -87,6 +88,8 @@ export async function POST(
         sellerId: tx.seller_id,
       });
     }
+
+    await syncDispatchClockById(admin, transactionId);
 
     return NextResponse.json({ ok: true });
   } catch (e) {

@@ -18,6 +18,7 @@ const ALLOWED_TYPES = [
   "seller_payout_account_issue",
   "payment_issue_requires_review",
   "transaction_stuck",
+  "dispatch_cancellation_failed",
 ] as const;
 
 /**

@@ -39,6 +39,16 @@ export const NotificationType = {
   LEAVE_SELLER_FEEDBACK: "leave_seller_feedback",
   NEW_SELLER_FEEDBACK: "new_seller_feedback",
   FEEDBACK_REQUIRES_REVIEW: "feedback_requires_review",
+  DISPATCH_REMINDER: "dispatch_reminder",
+  DISPATCH_ONE_DAY_LEFT: "dispatch_one_day_left",
+  DISPATCH_REQUIRED_TODAY: "dispatch_required_today",
+  DISPATCH_EXTENSION_APPROVED: "dispatch_extension_approved",
+  DISPATCH_EXTENSION_DECLINED: "dispatch_extension_declined",
+  DISPATCH_EXTENSION_REQUESTED: "dispatch_extension_requested",
+  ORDER_CANCELLED_DISPATCH_TIMEOUT: "order_cancelled_dispatch_timeout",
+  ORDER_CANCELLED_SELLER_TIMEOUT: "order_cancelled_seller_timeout",
+  CONFIRM_LISTING_AVAILABILITY: "confirm_listing_availability",
+  DISPATCH_CANCELLATION_FAILED: "dispatch_cancellation_failed",
 } as const;
 
 export type NotificationTypeValue = (typeof NotificationType)[keyof typeof NotificationType];
@@ -257,7 +267,7 @@ export function adminFulfilmentUrl(txId: string): string {
 }
 
 export function adminTransactionUrl(txId: string): string {
-  return `/admin/transactions?id=${encodeURIComponent(txId)}`;
+  return `/admin/transactions/${encodeURIComponent(txId)}`;
 }
 
 export function adminListingUrl(listingId: string): string {

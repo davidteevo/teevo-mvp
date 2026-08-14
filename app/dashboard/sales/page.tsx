@@ -21,6 +21,10 @@ import {
   getTrackingNumber,
 } from "@/lib/fulfilment";
 import { getListingImageUrl } from "@/lib/listing-images";
+import { DispatchDeadlineBanner } from "@/components/dashboard/DispatchDeadlineBanner";
+import { RequestMoreTimeModal } from "@/components/dashboard/RequestMoreTimeModal";
+import { ListingAvailabilityCard } from "@/components/dashboard/ListingAvailabilityCard";
+import { canRequestDispatchExtension } from "@/lib/dispatch-display";
 
 const PACKAGING_BUCKET = "packaging-photos";
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -75,11 +79,19 @@ type Transaction = {
   starter_pack_courier?: string | null;
   starter_pack_tracking_number?: string | null;
   starter_pack_tracking_url?: string | null;
+  dispatch_deadline_at?: string | null;
+  dispatch_clock_paused_at?: string | null;
+  dispatch_clock_pause_reason?: string | null;
+  dispatch_extension_status?: string | null;
+  dispatch_extension_business_days?: number | null;
+  cancellation_status?: string | null;
+  cancellation_reason?: string | null;
   listing?: {
     model: string;
     category: string;
     brand: string;
     listing_images?: ListingImage[] | null;
+    availability_confirmation_status?: string | null;
   } | null;
 };
 
@@ -116,6 +128,8 @@ function DashboardSalesContent() {
   const [teevoBoxType, setTeevoBoxType] = useState<string>(BOX_TYPES[0]);
   const [labelErrorById, setLabelErrorById] = useState<Record<string, string>>({});
   const [starterPackEnabled, setStarterPackEnabled] = useState(false);
+  const [moreTimeTxId, setMoreTimeTxId] = useState<string | null>(null);
+  const [moreTimeSubmitting, setMoreTimeSubmitting] = useState(false);
   const highlightId = useHighlightId("sale", transactions.length > 0);
 
   useEffect(() => {
@@ -384,6 +398,14 @@ function DashboardSalesContent() {
               const imgPath = firstImagePath(listing?.listing_images);
               const imageUrl = imgPath ? getListingImageUrl(imgPath, "thumb") : "/placeholder-listing.svg";
               const subtitle = [listing?.category, listing?.brand].filter(Boolean).join(" · ") || null;
+              const canDispatch =
+                t.status === "pending" &&
+                t.cancellation_status !== "in_progress" &&
+                t.cancellation_status !== "completed";
+              const needsAvailability =
+                t.cancellation_status === "completed" &&
+                t.listing?.availability_confirmation_status === "required";
+              const showMoreTime = canRequestDispatchExtension(t);
               return (
                 <li
                   key={t.id}
@@ -418,6 +440,16 @@ function DashboardSalesContent() {
                           Sold {formatDateTime(t.created_at)}
                         </p>
                       )}
+                      {t.cancellation_status === "completed" && (
+                        <p className="text-xs text-divot-pink mt-0.5">
+                          Cancelled — the buyer has been refunded
+                        </p>
+                      )}
+                      {t.dispatch_extension_status === "requested" && canDispatch && (
+                        <p className="text-xs text-mowing-green/70 mt-0.5">
+                          Waiting for the buyer to approve extra time
+                        </p>
+                      )}
                       {t.shipping_package === ShippingPackage.TEEVO_BOX &&
                         t.box_fee_gbp != null &&
                         Number(t.box_fee_gbp) > 0 && (
@@ -428,9 +460,51 @@ function DashboardSalesContent() {
                     </div>
                   </Link>
                   <div className="flex flex-col gap-3 w-full min-w-0">
+                    {canDispatch && (
+                      <DispatchDeadlineBanner
+                        dispatchDeadlineAt={t.dispatch_deadline_at}
+                        pausedAt={t.dispatch_clock_paused_at}
+                        pauseReason={t.dispatch_clock_pause_reason}
+                      />
+                    )}
+                    {needsAvailability && (
+                      <ListingAvailabilityCard
+                        transactionId={t.id}
+                        listingId={t.listing_id}
+                        itemName={listing?.model ?? "item"}
+                        onResolved={(available) =>
+                          setTransactions((prev) =>
+                            prev.map((row) =>
+                              row.id === t.id
+                                ? {
+                                    ...row,
+                                    listing: row.listing
+                                      ? {
+                                          ...row.listing,
+                                          availability_confirmation_status: available
+                                            ? "confirmed_available"
+                                            : "confirmed_unavailable",
+                                        }
+                                      : row.listing,
+                                  }
+                                : row
+                            )
+                          )
+                        }
+                      />
+                    )}
+                    {showMoreTime && (
+                      <button
+                        type="button"
+                        onClick={() => setMoreTimeTxId(t.id)}
+                        className="rounded-lg border border-mowing-green/20 px-3 py-1.5 text-sm font-medium text-mowing-green hover:bg-mowing-green/5 w-fit"
+                      >
+                        I need more time
+                      </button>
+                    )}
                     {(t.fulfilment_status === FulfilmentStatus.PAID || t.fulfilment_status == null) &&
                       !t.shipping_package &&
-                      t.status === "pending" &&
+                      canDispatch &&
                       !hasShippingLabel(t) && (
                         <div className="w-full rounded-lg border border-golden-tee/30 bg-golden-tee/10 p-3 space-y-2">
                           <p className="text-sm font-medium text-mowing-green">Prepare your item for dispatch</p>
@@ -488,7 +562,7 @@ function DashboardSalesContent() {
                       )}
                     {t.packaging_source === PackagingSource.TEEVO_STARTER_PACK &&
                       !t.starter_pack_dispatched_at &&
-                      t.status === "pending" &&
+                      canDispatch &&
                       !hasShippingLabel(t) && (
                         <div className="w-full sm:w-auto max-w-md rounded-lg border border-golden-tee/30 bg-golden-tee/10 px-4 py-3">
                           <p className="text-sm font-medium text-mowing-green">Your free box is being prepared</p>
@@ -499,7 +573,7 @@ function DashboardSalesContent() {
                       )}
                     {t.packaging_source === PackagingSource.TEEVO_STARTER_PACK &&
                       t.starter_pack_dispatched_at &&
-                      t.status === "pending" && (
+                      canDispatch && (
                         <div className="w-full sm:w-auto max-w-md rounded-lg border border-golden-tee/30 bg-golden-tee/10 px-4 py-3 space-y-2">
                           <p className="text-sm font-medium text-mowing-green">Your Teevo Starter Pack is on its way</p>
                           {(t.starter_pack_courier || t.starter_pack_tracking_number) && (
@@ -532,7 +606,7 @@ function DashboardSalesContent() {
                     {t.shipping_package &&
                       !(t.packaging_source === PackagingSource.TEEVO_STARTER_PACK && !t.starter_pack_dispatched_at) &&
                       (t.packaging_status === PackagingStatus.REJECTED || t.packaging_status == null) &&
-                      t.status === "pending" &&
+                      canDispatch &&
                       !hasShippingLabel(t) && (
                         <div className="w-full sm:w-auto rounded-lg border border-mowing-green/30 bg-mowing-green/5 p-3 space-y-2">
                           <p className="text-sm font-medium text-mowing-green">Upload packaging photos</p>
@@ -606,14 +680,14 @@ function DashboardSalesContent() {
                           </button>
                         </div>
                       )}
-                    {t.packaging_status === PackagingStatus.SUBMITTED && t.status === "pending" && (
+                    {t.packaging_status === PackagingStatus.SUBMITTED && canDispatch && (
                       <span className="inline-flex items-center rounded-lg border border-golden-tee/30 bg-golden-tee/10 px-4 py-2 text-sm text-mowing-green/80">
                         Packaging under review
                       </span>
                     )}
                     {(t.packaging_status === PackagingStatus.VERIFIED ||
                       t.fulfilment_status === FulfilmentStatus.PACKAGING_VERIFIED) &&
-                      t.status === "pending" &&
+                      canDispatch &&
                       !hasShippingLabel(t) &&
                       t.fulfilment_mode !== FulfilmentMode.MANUAL && (
                         <span className="inline-flex flex-col items-start gap-1">
@@ -634,7 +708,7 @@ function DashboardSalesContent() {
                       )}
                     {(t.packaging_status === PackagingStatus.VERIFIED ||
                       t.fulfilment_status === FulfilmentStatus.PACKAGING_VERIFIED) &&
-                      t.status === "pending" &&
+                      canDispatch &&
                       !hasShippingLabel(t) &&
                       t.fulfilment_mode === FulfilmentMode.MANUAL && (
                         <div className="w-full sm:w-auto max-w-md rounded-lg border border-golden-tee/30 bg-golden-tee/10 px-4 py-3">
@@ -645,7 +719,7 @@ function DashboardSalesContent() {
                           </p>
                         </div>
                       )}
-                    {t.status === "pending" &&
+                    {canDispatch &&
                       t.fulfilment_mode === FulfilmentMode.MANUAL &&
                       !!t.shipping_label_url && (
                         <div className="w-full sm:w-auto max-w-md rounded-lg border border-mowing-green/20 bg-mowing-green/5 px-4 py-3 space-y-2">
@@ -663,7 +737,7 @@ function DashboardSalesContent() {
                           </button>
                         </div>
                       )}
-                    {t.status === "pending" && t.shippo_label_url && (
+                    {canDispatch && t.shippo_label_url && (
                       <button
                         type="button"
                         onClick={() => markShipped(t.id)}
@@ -722,6 +796,38 @@ function DashboardSalesContent() {
           </ul>
         )}
       </div>
+      {moreTimeTxId && (
+        <RequestMoreTimeModal
+          extraBusinessDays={
+            transactions.find((row) => row.id === moreTimeTxId)?.dispatch_extension_business_days ?? 3
+          }
+          submitting={moreTimeSubmitting}
+          onClose={() => setMoreTimeTxId(null)}
+          onConfirm={async () => {
+            setMoreTimeSubmitting(true);
+            try {
+              const res = await fetch(`/api/transactions/${moreTimeTxId}/dispatch-extension`, {
+                method: "POST",
+              });
+              const data = await res.json().catch(() => ({}));
+              if (!res.ok) {
+                alert(data.error ?? "Could not request more time");
+                return;
+              }
+              setTransactions((prev) =>
+                prev.map((row) =>
+                  row.id === moreTimeTxId
+                    ? { ...row, dispatch_extension_status: "requested" }
+                    : row
+                )
+              );
+              setMoreTimeTxId(null);
+            } finally {
+              setMoreTimeSubmitting(false);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

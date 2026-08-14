@@ -2,12 +2,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { FulfilmentStatus } from "@/lib/fulfilment";
 import { NotificationType, notifyAdmins, adminTransactionUrl, getListingTitle } from "@/lib/notifications";
 import { sendSellerFeedbackReminders } from "@/lib/seller-review-events";
+import { processDispatchDeadlines } from "@/lib/dispatch-cron";
 
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
 
 export const SLA = {
-  sellerNotDispatchedMs: 48 * HOUR_MS,
   deliveryOverdueMs: 7 * DAY_MS,
   buyerNotConfirmedMs: 48 * HOUR_MS,
   transactionStuckMs: 72 * HOUR_MS,
@@ -50,6 +50,11 @@ export async function runNotificationOpsCron(admin: SupabaseClient): Promise<{
   buyerNotConfirmed: number;
   transactionStuck: number;
   feedbackReminders: number;
+  dispatchRemindersAfterPurchase: number;
+  dispatchRemindersOneDay: number;
+  dispatchRemindersFinal: number;
+  dispatchCancelled: number;
+  dispatchCancelFailed: number;
 }> {
   const counts = {
     sellerNotDispatched: 0,
@@ -57,28 +62,19 @@ export async function runNotificationOpsCron(admin: SupabaseClient): Promise<{
     buyerNotConfirmed: 0,
     transactionStuck: 0,
     feedbackReminders: 0,
+    dispatchRemindersAfterPurchase: 0,
+    dispatchRemindersOneDay: 0,
+    dispatchRemindersFinal: 0,
+    dispatchCancelled: 0,
+    dispatchCancelFailed: 0,
   };
 
-  const { data: notDispatched } = await admin
-    .from("transactions")
-    .select("id, listing_id, status, fulfilment_status")
-    .eq("status", "pending")
-    .not("label_created_at", "is", null)
-    .lte("label_created_at", isoAgo(SLA.sellerNotDispatchedMs))
-    .limit(100);
-
-  for (const tx of notDispatched ?? []) {
-    if (tx.fulfilment_status === FulfilmentStatus.SHIPPED) continue;
-    const title = await getListingTitle(admin, tx.listing_id);
-    await notifyStuck(
-      admin,
-      NotificationType.SELLER_NOT_DISPATCHED,
-      "Seller hasn't dispatched",
-      `The seller hasn't dispatched ${title} within 48 hours of the shipping label being ready.`,
-      tx.id
-    );
-    counts.sellerNotDispatched += 1;
-  }
+  const dispatch = await processDispatchDeadlines(admin);
+  counts.dispatchRemindersAfterPurchase = dispatch.remindersAfterPurchase;
+  counts.dispatchRemindersOneDay = dispatch.remindersOneDay;
+  counts.dispatchRemindersFinal = dispatch.remindersFinal;
+  counts.dispatchCancelled = dispatch.cancelled;
+  counts.dispatchCancelFailed = dispatch.cancelFailed;
 
   const { data: overdue } = await admin
     .from("transactions")

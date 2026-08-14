@@ -134,13 +134,18 @@ export function TermsContent() {
 
       <h2>9. ORDER CANCELLATIONS</h2>
       <ul>
-        <li>Orders may be cancelled only before shipping</li>
+        <li>Sellers must dispatch orders by the dispatch date shown on the sale</li>
         <li>
-          Once a shipping QR code has been generated:
-          <ul>
-            <li>The transaction is considered final</li>
-            <li>Cancellation is not permitted</li>
-          </ul>
+          If a seller does not dispatch by that deadline, Teevo may automatically cancel the order and
+          refund the buyer in full
+        </li>
+        <li>
+          A seller may ask the buyer for additional dispatch time. Extra time only applies if the buyer
+          approves it before the existing deadline
+        </li>
+        <li>
+          Generating a shipping label or QR code does not make the sale final until the item has been
+          dispatched
         </li>
       </ul>
 
