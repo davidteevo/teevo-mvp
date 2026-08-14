@@ -188,8 +188,9 @@ export async function confirmBuyerReceipt(
       variables: {
         title: "Funds released",
         subtitle: "Delivery was confirmed. Funds have been released to your payout account.",
-        body: `Order #${opts.transactionId.slice(0, 8)} · ${itemName} · £${amountGbp}`,
+        body: `Amount: £${amountGbp}`,
         order_number: opts.transactionId.slice(0, 8),
+        item_name: itemName,
         hero_image,
         cta_link: `${appUrl}/dashboard/sales`,
         cta_text: "View sales",

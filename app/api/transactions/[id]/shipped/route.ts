@@ -70,11 +70,7 @@ export async function POST(
   const trackingLink = getBuyerTrackingCta(tx);
 
   if (buyer?.email) {
-    const bodyLines = [
-      `Order #${orderShort} · ${itemName}`,
-      ``,
-      `Your order is on its way.`,
-    ];
+    const bodyLines = [];
     if (tx.courier) bodyLines.push(`Courier: ${tx.courier}`);
     if (trackingNumber) bodyLines.push(`Tracking number: ${trackingNumber}`);
 
@@ -90,6 +86,7 @@ export async function POST(
         subtitle: "Your order is on its way.",
         body: bodyLines.join("\n"),
         order_number: orderShort,
+        item_name: itemName,
         hero_image,
         cta_link: trackingLink,
         cta_text: "Track Parcel",
@@ -108,8 +105,9 @@ export async function POST(
       variables: {
         title: "Item dispatched",
         subtitle: "Your item has now been dispatched.",
-        body: `Order #${orderShort} · ${itemName}`,
+        body: "",
         order_number: orderShort,
+        item_name: itemName,
         hero_image,
         cta_link: `${appUrl}/dashboard/sales`,
         cta_text: "View sales",

@@ -35,7 +35,7 @@ export function listingHeroImageHtml(
   alt = "Listing photo"
 ): string {
   if (!imageUrl) return "";
-  return `<table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin:0 0 14px 0"><tr><td align="center"><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(alt)}" width="560" style="display:block;width:100%;max-width:560px;height:auto;border-radius:12px;border:none;outline:none;text-decoration:none" /></td></tr></table>`;
+  return `<table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin:0 0 14px 0"><tr><td align="center"><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(alt)}" width="200" style="display:block;width:200px;max-width:200px;height:auto;border-radius:12px;border:none;outline:none;text-decoration:none" /></td></tr></table>`;
 }
 
 /**
@@ -92,7 +92,10 @@ export async function sendEmail({
   attachments?: EmailAttachment[];
 }) {
   const rawHtml = loadTemplate(type);
-  const html = render(rawHtml, { hero_image: "", ...variables });
+  const prepared: Record<string, string> = { hero_image: "", item_name: "", ...variables };
+  if (prepared.item_name) prepared.item_name = escapeHtml(prepared.item_name);
+  if (prepared.body) prepared.body = prepared.body.replace(/\r\n/g, "\n").replace(/\n/g, "<br />");
+  const html = render(rawHtml, prepared);
 
   let finalSubject = subject;
   if (isStaging() && !subject.startsWith(STAGING_SUBJECT_PREFIX)) {

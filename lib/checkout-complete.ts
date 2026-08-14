@@ -158,8 +158,9 @@ export async function createTransactionAndSendEmails(
       variables: {
         title: "Order confirmed",
         subtitle: "Funds are held securely until delivery is confirmed.",
-        body: `Item: ${itemName}<br />Total: £${totalGbp}<br />Shipping: £${shippingGbp}`,
+        body: `Total: £${totalGbp}<br />Shipping: £${shippingGbp}`,
         order_number: txId.slice(0, 8),
+        item_name: itemName,
         hero_image,
         cta_link: orderLink,
         cta_text: "View order",
@@ -177,8 +178,9 @@ export async function createTransactionAndSendEmails(
       variables: {
         title: "Item sold",
         subtitle: "Pack the item and complete packaging to get your label.",
-        body: `Order #${txId.slice(0, 8)} · ${itemName} · £${totalGbp}`,
+        body: `Total: £${totalGbp}`,
         order_number: txId.slice(0, 8),
+        item_name: itemName,
         hero_image,
         cta_link: salesLink,
         cta_text: "View sale",
@@ -194,8 +196,9 @@ export async function createTransactionAndSendEmails(
       variables: {
         title: "Payment received",
         subtitle: "Funds are held securely until delivery is confirmed.",
-        body: `Order #${txId.slice(0, 8)} · ${itemName}<br />Total: £${totalGbp}<br />Shipping: £${shippingGbp}`,
+        body: `Total: £${totalGbp}<br />Shipping: £${shippingGbp}`,
         order_number: txId.slice(0, 8),
+        item_name: itemName,
         hero_image,
         cta_link: salesLink,
         cta_text: "View order",
