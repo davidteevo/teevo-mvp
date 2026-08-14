@@ -41,7 +41,7 @@ All routes under `/api` (Next.js API routes or Route Handlers).
 | GET | `/api/admin/settings/buying` | Buying & payments toggle (admin) |
 | PATCH | `/api/admin/settings/buying` | Enable/disable buying (admin) |
 | GET | `/api/admin/starter-packs` | Starter Pack fulfilment queue (admin) |
-| POST | `/api/admin/transactions/[id]/starter-pack/dispatch` | Mark Starter Pack dispatched (admin) |
+| POST | `/api/admin/transactions/[id]/starter-pack/dispatch` | Mark Starter Pack dispatched (admin); body: courier, tracking_number, tracking_url |
 | POST | `/api/admin/transactions/[id]/starter-pack/notify` | Retry admin Starter Pack email if send failed |
 
 ## Checkout & transactions

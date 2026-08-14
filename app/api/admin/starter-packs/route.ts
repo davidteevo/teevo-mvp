@@ -54,6 +54,7 @@ export async function GET(request: Request) {
       .select(
         `id, created_at, listing_id, seller_id, box_type, packaging_status, packaging_source,
          packaging_requested_at, starter_pack_dispatched_at, starter_pack_admin_notified_at,
+         starter_pack_courier, starter_pack_tracking_number, starter_pack_tracking_url,
          listing:listings(model, category, brand)`
       )
       .eq("packaging_source", PackagingSource.TEEVO_STARTER_PACK)
@@ -94,6 +95,9 @@ export async function GET(request: Request) {
         packaging_requested_at: tx.packaging_requested_at,
         starter_pack_dispatched_at: tx.starter_pack_dispatched_at,
         starter_pack_admin_notified_at: tx.starter_pack_admin_notified_at,
+        starter_pack_courier: tx.starter_pack_courier,
+        starter_pack_tracking_number: tx.starter_pack_tracking_number,
+        starter_pack_tracking_url: tx.starter_pack_tracking_url,
         box_type: tx.box_type,
         packaging_status: tx.packaging_status,
         item: listing ? `${listing.brand ?? ""} ${listing.model ?? ""}`.trim() : "Item",

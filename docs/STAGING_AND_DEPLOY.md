@@ -128,6 +128,7 @@ Staging site → **Site configuration** → **Visitor access** (or **Password pr
 - `docs/MIGRATION_sent_emails.sql`
 - `docs/MIGRATION_events.sql`
 - `docs/MIGRATION_starter_pack.sql`
+- `docs/MIGRATION_starter_pack_tracking.sql`
 - `docs/MIGRATION_buying_enabled.sql`
 
 3. **Authentication → URL Configuration**

@@ -11,6 +11,7 @@ export const NotificationType = {
   ITEM_DELIVERED_AWAITING_CONFIRMATION: "item_delivered_awaiting_confirmation",
   BUYER_CONFIRMED_DELIVERY: "buyer_confirmed_delivery",
   STARTER_PACK_REQUESTED: "starter_pack_requested",
+  STARTER_PACK_DISPATCHED: "starter_pack_dispatched",
   ORDER_CONFIRMED: "order_confirmed",
   SELLER_DISPATCHED: "seller_dispatched",
   CONFIRM_DELIVERY: "confirm_delivery",

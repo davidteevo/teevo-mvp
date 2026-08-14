@@ -72,6 +72,9 @@ type Transaction = {
   packaging_source?: string | null;
   packaging_requested_at?: string | null;
   starter_pack_dispatched_at?: string | null;
+  starter_pack_courier?: string | null;
+  starter_pack_tracking_number?: string | null;
+  starter_pack_tracking_url?: string | null;
   listing?: {
     model: string;
     category: string;
@@ -494,17 +497,44 @@ function DashboardSalesContent() {
                           </p>
                         </div>
                       )}
+                    {t.packaging_source === PackagingSource.TEEVO_STARTER_PACK &&
+                      t.starter_pack_dispatched_at &&
+                      t.status === "pending" && (
+                        <div className="w-full sm:w-auto max-w-md rounded-lg border border-golden-tee/30 bg-golden-tee/10 px-4 py-3 space-y-2">
+                          <p className="text-sm font-medium text-mowing-green">Your Teevo Starter Pack is on its way</p>
+                          {(t.starter_pack_courier || t.starter_pack_tracking_number) && (
+                            <p className="text-sm text-mowing-green/80">
+                              {[t.starter_pack_courier, t.starter_pack_tracking_number].filter(Boolean).join(" · ")}
+                            </p>
+                          )}
+                          {t.starter_pack_tracking_url ? (
+                            <a
+                              href={t.starter_pack_tracking_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex rounded-lg bg-mowing-green text-off-white-pique px-3 py-1.5 text-sm font-medium hover:opacity-90"
+                            >
+                              Track your box
+                            </a>
+                          ) : (
+                            <p className="text-sm text-mowing-green/80">
+                              Tracking will appear here once it&apos;s been added.
+                            </p>
+                          )}
+                          {(t.packaging_status === PackagingStatus.REJECTED || t.packaging_status == null) &&
+                            !hasShippingLabel(t) && (
+                              <p className="text-sm text-mowing-green/80">
+                                Once it arrives, package your club and upload photos below.
+                              </p>
+                            )}
+                        </div>
+                      )}
                     {t.shipping_package &&
                       !(t.packaging_source === PackagingSource.TEEVO_STARTER_PACK && !t.starter_pack_dispatched_at) &&
                       (t.packaging_status === PackagingStatus.REJECTED || t.packaging_status == null) &&
                       t.status === "pending" &&
                       !hasShippingLabel(t) && (
                         <div className="w-full sm:w-auto rounded-lg border border-mowing-green/30 bg-mowing-green/5 p-3 space-y-2">
-                          {t.packaging_source === PackagingSource.TEEVO_STARTER_PACK && t.starter_pack_dispatched_at && (
-                            <p className="text-xs text-mowing-green/80">
-                              Your Teevo Starter Pack is on its way. Once it arrives, package your club and upload photos below.
-                            </p>
-                          )}
                           <p className="text-sm font-medium text-mowing-green">Upload packaging photos</p>
                           {t.packaging_status === PackagingStatus.REJECTED && (t.review_notes ?? t.packaging_review_notes) && (
                             <p className="text-xs text-red-600 bg-red-50 rounded px-2 py-1">

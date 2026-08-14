@@ -320,7 +320,14 @@ export async function notifyAdminStarterPackRequested(
 
 export async function notifySellerStarterPackDispatched(
   admin: SupabaseClient,
-  opts: { transactionId: string; listingId: string; sellerId: string }
+  opts: {
+    transactionId: string;
+    listingId: string;
+    sellerId: string;
+    courier: string;
+    trackingNumber: string;
+    trackingUrl: string;
+  }
 ): Promise<void> {
   const { data: seller } = await admin.from("users").select("email").eq("id", opts.sellerId).single();
   if (!seller?.email) return;
@@ -339,12 +346,17 @@ export async function notifySellerStarterPackDispatched(
     variables: {
       title: "Your Starter Pack is on its way",
       subtitle: "We've dispatched your free Teevo packaging.",
-      body: "Your shipping box has been dispatched. Once it arrives, follow the next steps in your Teevo Sales dashboard to package your club and upload photos.",
+      body: [
+        "Your shipping box has been dispatched.",
+        `${opts.courier}: ${opts.trackingNumber}`,
+        "",
+        "Once it arrives, follow the next steps in your Teevo Sales dashboard to package your club and upload photos.",
+      ].join("<br />"),
       order_number: orderShort,
       item_name: itemName,
       hero_image,
-      cta_link: `${appUrl}/dashboard/sales`,
-      cta_text: "View sales",
+      cta_link: opts.trackingUrl || `${appUrl}/dashboard/sales`,
+      cta_text: "Track your box",
     },
   });
 }

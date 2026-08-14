@@ -6,6 +6,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { categoryToParcelPreset, ParcelPreset } from "@/lib/shippo";
 import type { BoxType } from "@/lib/fulfilment";
+import { MANUAL_COURIERS, type ManualCourier } from "@/lib/fulfilment-providers";
 
 export const PLATFORM_SETTING_STARTER_PACK = "free_starter_pack_enabled";
 
@@ -104,6 +105,48 @@ export function hasSellerPostageAddress(seller: {
     seller.address_postcode?.trim() &&
     seller.address_country?.trim()
   );
+}
+
+export type StarterPackTrackingInput = {
+  courier: ManualCourier;
+  tracking_number: string;
+  tracking_url: string;
+};
+
+export function parseStarterPackTracking(body: {
+  courier?: unknown;
+  tracking_number?: unknown;
+  tracking_url?: unknown;
+}): { ok: true; value: StarterPackTrackingInput } | { ok: false; error: string } {
+  const courierRaw = typeof body.courier === "string" ? body.courier.trim() : "";
+  const trackingNumber =
+    typeof body.tracking_number === "string" ? body.tracking_number.trim() : "";
+  const trackingUrl = typeof body.tracking_url === "string" ? body.tracking_url.trim() : "";
+
+  if (!MANUAL_COURIERS.includes(courierRaw as ManualCourier)) {
+    return { ok: false, error: `courier must be one of: ${MANUAL_COURIERS.join(", ")}` };
+  }
+  if (!trackingNumber) {
+    return { ok: false, error: "tracking_number is required" };
+  }
+  if (!trackingUrl) {
+    return { ok: false, error: "tracking_url is required" };
+  }
+  try {
+    // eslint-disable-next-line no-new
+    new URL(trackingUrl);
+  } catch {
+    return { ok: false, error: "tracking_url must be a valid URL" };
+  }
+
+  return {
+    ok: true,
+    value: {
+      courier: courierRaw as ManualCourier,
+      tracking_number: trackingNumber,
+      tracking_url: trackingUrl,
+    },
+  };
 }
 
 export async function trackServerEvent(

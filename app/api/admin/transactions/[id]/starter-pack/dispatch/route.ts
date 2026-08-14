@@ -1,7 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
-import { PackagingSource, STARTER_PACK_EVENTS, trackServerEvent } from "@/lib/starter-pack";
+import {
+  PackagingSource,
+  STARTER_PACK_EVENTS,
+  parseStarterPackTracking,
+  trackServerEvent,
+} from "@/lib/starter-pack";
 import { notifySellerStarterPackDispatched } from "@/lib/fulfilment-emails";
 import { notifyStarterPackDispatched } from "@/lib/notification-events";
 
@@ -9,10 +14,12 @@ export const dynamic = "force-dynamic";
 
 /**
  * POST /api/admin/transactions/[id]/starter-pack/dispatch
- * Marks a Starter Pack as dispatched. Idempotent if already dispatched.
+ * Marks a Starter Pack as dispatched and stores inbound box tracking.
+ * Also used to add/update tracking on an already-dispatched request.
+ * Body: { courier, tracking_number, tracking_url }
  */
 export async function POST(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -31,9 +38,18 @@ export async function POST(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const body = await request.json().catch(() => ({}));
+    const parsed = parseStarterPackTracking(body);
+    if (!parsed.ok) {
+      return NextResponse.json({ error: parsed.error }, { status: 400 });
+    }
+    const tracking = parsed.value;
+
     const { data: tx, error: txErr } = await admin
       .from("transactions")
-      .select("id, seller_id, listing_id, packaging_source, starter_pack_dispatched_at")
+      .select(
+        "id, seller_id, listing_id, packaging_source, starter_pack_dispatched_at, starter_pack_courier, starter_pack_tracking_number, starter_pack_tracking_url"
+      )
       .eq("id", transactionId)
       .single();
 
@@ -46,25 +62,31 @@ export async function POST(
 
     const alreadyDispatched = !!tx.starter_pack_dispatched_at;
     const dispatchedAt = tx.starter_pack_dispatched_at ?? new Date().toISOString();
+    const now = new Date().toISOString();
+
+    const { error: updateErr } = await admin
+      .from("transactions")
+      .update({
+        starter_pack_dispatched_at: dispatchedAt,
+        starter_pack_courier: tracking.courier,
+        starter_pack_tracking_number: tracking.tracking_number,
+        starter_pack_tracking_url: tracking.tracking_url,
+        updated_at: now,
+      })
+      .eq("id", transactionId)
+      .eq("packaging_source", PackagingSource.TEEVO_STARTER_PACK);
+
+    if (updateErr) {
+      return NextResponse.json({ error: updateErr.message }, { status: 500 });
+    }
 
     if (!alreadyDispatched) {
-      const { error: updateErr } = await admin
-        .from("transactions")
-        .update({
-          starter_pack_dispatched_at: dispatchedAt,
-          updated_at: dispatchedAt,
-        })
-        .eq("id", transactionId)
-        .eq("packaging_source", PackagingSource.TEEVO_STARTER_PACK)
-        .is("starter_pack_dispatched_at", null);
-
-      if (updateErr) {
-        return NextResponse.json({ error: updateErr.message }, { status: 500 });
-      }
-
       await trackServerEvent(admin, STARTER_PACK_EVENTS.DISPATCHED, {
         userId: user.id,
-        properties: { transaction_id: transactionId },
+        properties: {
+          transaction_id: transactionId,
+          courier: tracking.courier,
+        },
       });
     }
 
@@ -72,14 +94,26 @@ export async function POST(
       transactionId,
       listingId: tx.listing_id,
       sellerId: tx.seller_id,
+      courier: tracking.courier,
+      trackingNumber: tracking.tracking_number,
+      trackingUrl: tracking.tracking_url,
     }).catch((e) => console.error("Seller starter-pack dispatched email failed", e));
 
-    await notifyStarterPackDispatched(admin, { transactionId });
+    await notifyStarterPackDispatched(admin, {
+      transactionId,
+      sellerId: tx.seller_id,
+      trackingUrl: tracking.tracking_url,
+      trackingNumber: tracking.tracking_number,
+      courier: tracking.courier,
+    });
 
     return NextResponse.json({
       ok: true,
       already_dispatched: alreadyDispatched,
       starter_pack_dispatched_at: dispatchedAt,
+      starter_pack_courier: tracking.courier,
+      starter_pack_tracking_number: tracking.tracking_number,
+      starter_pack_tracking_url: tracking.tracking_url,
     });
   } catch (e) {
     console.error("Starter pack dispatch error:", e);

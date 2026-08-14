@@ -185,6 +185,10 @@ CREATE TRIGGER on_transaction_created
 -- ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS packaging_requested_at TIMESTAMPTZ;
 -- ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS starter_pack_dispatched_at TIMESTAMPTZ;
 -- ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS starter_pack_admin_notified_at TIMESTAMPTZ;
+-- Migration: Starter Pack tracking (see docs/MIGRATION_starter_pack_tracking.sql)
+-- ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS starter_pack_courier TEXT;
+-- ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS starter_pack_tracking_number TEXT;
+-- ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS starter_pack_tracking_url TEXT;
 
 -- Watchlist (see supabase/migrations/20260813200000_watchlist.sql)
 CREATE TABLE IF NOT EXISTS public.watchlist_items (

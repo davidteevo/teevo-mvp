@@ -141,13 +141,43 @@ export async function notifyStarterPackRequested(
 
 export async function notifyStarterPackDispatched(
   admin: SupabaseClient,
-  opts: { transactionId: string }
+  opts: {
+    transactionId: string;
+    sellerId: string;
+    trackingUrl: string;
+    trackingNumber?: string;
+    courier?: string;
+  }
 ): Promise<void> {
   try {
     await resolveNotifications(admin, {
       types: [NotificationType.STARTER_PACK_REQUIRES_SHIPPING],
       entityId: opts.transactionId,
     });
+    const detail = [opts.courier, opts.trackingNumber].filter(Boolean).join(" · ");
+    const message = detail
+      ? `We've dispatched your Teevo starter pack (${detail}). Track the parcel so you know when it arrives.`
+      : "We've dispatched your Teevo starter pack. Track the parcel so you know when it arrives.";
+    const notificationId = await createNotification(admin, {
+      userId: opts.sellerId,
+      type: NotificationType.STARTER_PACK_DISPATCHED,
+      title: "Your free box is on its way",
+      message,
+      entityId: opts.transactionId,
+      actionUrl: opts.trackingUrl,
+      actionLabel: "Track parcel",
+      requiresAction: false,
+    });
+    if (notificationId) {
+      await admin
+        .from("notifications")
+        .update({
+          message,
+          action_url: opts.trackingUrl,
+          action_label: "Track parcel",
+        })
+        .eq("id", notificationId);
+    }
   } catch (e) {
     console.error("notifyStarterPackDispatched failed", e);
   }

@@ -1,8 +1,9 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { BOX_TYPE_LABELS, type BoxType } from "@/lib/fulfilment";
+import { MANUAL_COURIERS } from "@/lib/fulfilment-providers";
 
 type StarterPackRequest = {
   id: string;
@@ -10,6 +11,9 @@ type StarterPackRequest = {
   packaging_requested_at: string | null;
   starter_pack_dispatched_at: string | null;
   starter_pack_admin_notified_at: string | null;
+  starter_pack_courier: string | null;
+  starter_pack_tracking_number: string | null;
+  starter_pack_tracking_url: string | null;
   box_type: string | null;
   packaging_status: string | null;
   item: string;
@@ -40,6 +44,10 @@ function formatDate(iso: string | null) {
   }
 }
 
+function hasTracking(tx: StarterPackRequest) {
+  return !!(tx.starter_pack_tracking_number || tx.starter_pack_tracking_url);
+}
+
 function AdminStarterPacksContent() {
   const searchParams = useSearchParams();
   const highlightId = searchParams.get("id");
@@ -48,6 +56,11 @@ function AdminStarterPacksContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actioningId, setActioningId] = useState<string | null>(null);
+  const [modalTx, setModalTx] = useState<StarterPackRequest | null>(null);
+  const [courier, setCourier] = useState<string>(MANUAL_COURIERS[0]);
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const [trackingUrl, setTrackingUrl] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -82,27 +95,57 @@ function AdminStarterPacksContent() {
     []
   );
 
-  const markDispatched = async (id: string) => {
-    setActioningId(id);
+  const openModal = (tx: StarterPackRequest) => {
+    setModalTx(tx);
+    setCourier(
+      tx.starter_pack_courier && MANUAL_COURIERS.includes(tx.starter_pack_courier as (typeof MANUAL_COURIERS)[number])
+        ? tx.starter_pack_courier
+        : MANUAL_COURIERS[0]
+    );
+    setTrackingNumber(tx.starter_pack_tracking_number ?? "");
+    setTrackingUrl(tx.starter_pack_tracking_url ?? "");
+    setFormError(null);
+  };
+
+  const closeModal = () => {
+    if (actioningId) return;
+    setModalTx(null);
+    setFormError(null);
+  };
+
+  const submitDispatch = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!modalTx) return;
+    setActioningId(modalTx.id);
+    setFormError(null);
     try {
-      const res = await fetch(`/api/admin/transactions/${id}/starter-pack/dispatch`, {
+      const res = await fetch(`/api/admin/transactions/${modalTx.id}/starter-pack/dispatch`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          courier,
+          tracking_number: trackingNumber.trim(),
+          tracking_url: trackingUrl.trim(),
+        }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error ?? "Failed to mark dispatched");
+      if (!res.ok) throw new Error(data.error ?? "Failed to save tracking");
+
+      const next: Partial<StarterPackRequest> = {
+        starter_pack_dispatched_at: data.starter_pack_dispatched_at ?? new Date().toISOString(),
+        starter_pack_courier: data.starter_pack_courier ?? courier,
+        starter_pack_tracking_number: data.starter_pack_tracking_number ?? trackingNumber.trim(),
+        starter_pack_tracking_url: data.starter_pack_tracking_url ?? trackingUrl.trim(),
+      };
+
       if (filter === "needs_shipping") {
-        setList((prev) => prev.filter((t) => t.id !== id));
+        setList((prev) => prev.filter((t) => t.id !== modalTx.id));
       } else {
-        setList((prev) =>
-          prev.map((t) =>
-            t.id === id
-              ? { ...t, starter_pack_dispatched_at: data.starter_pack_dispatched_at ?? new Date().toISOString() }
-              : t
-          )
-        );
+        setList((prev) => prev.map((t) => (t.id === modalTx.id ? { ...t, ...next } : t)));
       }
-    } catch (e) {
-      alert(e instanceof Error ? e.message : "Failed");
+      setModalTx(null);
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : "Failed");
     } finally {
       setActioningId(null);
     }
@@ -134,7 +177,7 @@ function AdminStarterPacksContent() {
     <div>
       <h1 className="text-2xl font-bold text-mowing-green">Starter Packs</h1>
       <p className="mt-1 text-mowing-green/80 text-sm">
-        Free boxes requested by sellers. Ship the box, then mark it as dispatched so the seller can continue.
+        Free boxes requested by sellers. Ship the box, add tracking, then mark it as dispatched so the seller can track it and continue.
       </p>
 
       <div className="mt-4 flex flex-wrap gap-2">
@@ -216,6 +259,25 @@ function AdminStarterPacksContent() {
                       <div className="mt-1 text-xs text-mowing-green/70">
                         {dispatched ? "Starter Pack — Dispatched" : "Starter Pack — Needs Shipping"}
                       </div>
+                      {dispatched && hasTracking(tx) && (
+                        <div className="mt-1 text-xs text-mowing-green/70">
+                          {tx.starter_pack_courier ? `${tx.starter_pack_courier} · ` : ""}
+                          {tx.starter_pack_tracking_number ?? "Tracked"}
+                          {tx.starter_pack_tracking_url && (
+                            <>
+                              {" "}
+                              <a
+                                href={tx.starter_pack_tracking_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-par-3-punch hover:underline"
+                              >
+                                Track
+                              </a>
+                            </>
+                          )}
+                        </div>
+                      )}
                       {tx.packaging_status && (
                         <div className="mt-0.5 text-xs text-mowing-green/50">
                           Photos: {tx.packaging_status}
@@ -224,17 +286,27 @@ function AdminStarterPacksContent() {
                     </td>
                     <td className="px-3 py-3 space-y-2">
                       {dispatched ? (
-                        <p className="text-xs text-mowing-green/70">
-                          Dispatched {formatDate(tx.starter_pack_dispatched_at)}
-                        </p>
+                        <>
+                          <p className="text-xs text-mowing-green/70">
+                            Dispatched {formatDate(tx.starter_pack_dispatched_at)}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => openModal(tx)}
+                            disabled={actioningId === tx.id}
+                            className="rounded-lg border border-par-3-punch/40 px-3 py-1.5 text-sm font-medium text-mowing-green hover:bg-off-white-pique disabled:opacity-70"
+                          >
+                            {hasTracking(tx) ? "Update tracking" : "Add tracking"}
+                          </button>
+                        </>
                       ) : (
                         <button
                           type="button"
-                          onClick={() => markDispatched(tx.id)}
+                          onClick={() => openModal(tx)}
                           disabled={actioningId === tx.id}
                           className="rounded-lg bg-par-3-punch text-white px-3 py-1.5 text-sm font-medium hover:opacity-90 disabled:opacity-70"
                         >
-                          {actioningId === tx.id ? "Saving…" : "Mark Starter Pack as Dispatched"}
+                          Mark dispatched with tracking
                         </button>
                       )}
                       {!tx.starter_pack_admin_notified_at && (
@@ -253,6 +325,101 @@ function AdminStarterPacksContent() {
               })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {modalTx && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="starter-pack-dispatch-title"
+          onClick={closeModal}
+        >
+          <div
+            className="w-full max-w-md rounded-xl bg-white p-6 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 id="starter-pack-dispatch-title" className="text-lg font-semibold text-mowing-green">
+              {modalTx.starter_pack_dispatched_at
+                ? hasTracking(modalTx)
+                  ? "Update Starter Pack tracking"
+                  : "Add Starter Pack tracking"
+                : "Mark Starter Pack as dispatched"}
+            </h2>
+            <p className="mt-1 text-sm text-mowing-green/70">
+              Order #{modalTx.id.slice(0, 8)} · {modalTx.item}
+            </p>
+            <p className="mt-1 text-sm text-mowing-green/70">
+              {modalTx.seller.name}
+              {modalTx.seller_address ? ` · ${modalTx.seller_address}` : ""}
+            </p>
+
+            <form className="mt-4 space-y-4" onSubmit={submitDispatch}>
+              <label className="block text-sm">
+                <span className="font-medium text-mowing-green">Courier</span>
+                <select
+                  className="mt-1 w-full rounded-lg border border-par-3-punch/30 px-3 py-2"
+                  value={courier}
+                  onChange={(e) => setCourier(e.target.value)}
+                  required
+                >
+                  {MANUAL_COURIERS.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="block text-sm">
+                <span className="font-medium text-mowing-green">Tracking number</span>
+                <input
+                  type="text"
+                  className="mt-1 w-full rounded-lg border border-par-3-punch/30 px-3 py-2"
+                  value={trackingNumber}
+                  onChange={(e) => setTrackingNumber(e.target.value)}
+                  required
+                />
+              </label>
+
+              <label className="block text-sm">
+                <span className="font-medium text-mowing-green">Tracking URL</span>
+                <input
+                  type="url"
+                  className="mt-1 w-full rounded-lg border border-par-3-punch/30 px-3 py-2"
+                  value={trackingUrl}
+                  onChange={(e) => setTrackingUrl(e.target.value)}
+                  placeholder="https://"
+                  required
+                />
+              </label>
+
+              {formError && (
+                <p className="text-sm text-red-600" role="alert">
+                  {formError}
+                </p>
+              )}
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  disabled={!!actioningId}
+                  className="rounded-lg border border-par-3-punch/30 px-4 py-2 text-sm font-medium text-mowing-green hover:bg-off-white-pique disabled:opacity-60"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={!!actioningId}
+                  className="rounded-lg bg-par-3-punch text-white px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-60"
+                >
+                  {actioningId ? "Saving…" : modalTx.starter_pack_dispatched_at ? "Save tracking" : "Mark dispatched"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>
