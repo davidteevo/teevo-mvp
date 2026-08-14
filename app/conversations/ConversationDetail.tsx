@@ -53,10 +53,10 @@ type Payload = {
   otherPartyDisplayName?: string | null;
   messages: Message[];
   offers: Offer[];
+  buyingEnabled?: boolean;
 };
 
 const POLL_INTERVAL_MS = 15000;
-const BUYING_ENABLED = process.env.NEXT_PUBLIC_BUYING_ENABLED !== "false";
 
 function formatMessageTimestamp(createdAt: string): string {
   const d = new Date(createdAt);
@@ -98,7 +98,13 @@ function getSystemMessageDisplay(m: Message): string {
   }
 }
 
-export function ConversationDetail({ conversationId }: { conversationId: string }) {
+export function ConversationDetail({
+  conversationId,
+  buyingEnabled: initialBuyingEnabled = false,
+}: {
+  conversationId: string;
+  buyingEnabled?: boolean;
+}) {
   const [payload, setPayload] = useState<Payload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -291,6 +297,7 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
   }
 
   const { conversation, listing, sellerLocation, otherPartyChatDisplayName, otherPartyDisplayName, messages, offers } = payload;
+  const buyingEnabled = (payload.buyingEnabled ?? initialBuyingEnabled) === true;
   const acceptedOffer = offers.find((o) => o.status === "accepted");
   const pendingOffers = offers.filter((o) => o.status === "pending");
   const pendingFromSeller = pendingOffers.find(
@@ -391,13 +398,13 @@ export function ConversationDetail({ conversationId }: { conversationId: string 
 
       <p className="text-sm text-mowing-green/70 mb-2">Chat with {otherPartyDisplayName || formatChatDisplayNameForUI(otherPartyChatDisplayName)}</p>
 
-      {!BUYING_ENABLED && (
+      {!buyingEnabled && (
         <div className="mb-4 rounded-xl bg-mowing-green/10 border border-mowing-green/20 px-4 py-3 text-center text-sm text-mowing-green/90">
           Buying and offers open when we launch. You can still ask questions here.
         </div>
       )}
 
-      {BUYING_ENABLED && (
+      {buyingEnabled && (
         <>
           {/* Offer status line */}
           {!acceptedOffer && (latestPendingFromBuyer || latestPendingFromSeller) && (

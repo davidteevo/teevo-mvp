@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { redirect, notFound } from "next/navigation";
 import { ConversationDetail } from "../ConversationDetail";
+import { isBuyingEnabled } from "@/lib/buying";
 
 export const dynamic = "force-dynamic";
 
@@ -20,9 +22,11 @@ export default async function ConversationPage({
   const { id } = await params;
   if (!id) notFound();
 
+  const buyingEnabled = await isBuyingEnabled(createAdminClient());
+
   return (
     <div className="max-w-2xl mx-auto px-4 flex-1 flex flex-col min-h-0 w-full">
-      <ConversationDetail conversationId={id} />
+      <ConversationDetail conversationId={id} buyingEnabled={buyingEnabled} />
     </div>
   );
 }

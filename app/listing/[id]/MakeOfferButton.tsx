@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 
-const BUYING_ENABLED = process.env.NEXT_PUBLIC_BUYING_ENABLED !== "false";
-
 /** Suggested offer amounts: 90%, 95%, and list price (rounded to whole pounds). */
 function suggestedAmountsPence(listingPricePence: number): number[] {
   const a = Math.round((listingPricePence * 0.9) / 100) * 100;
@@ -17,9 +15,11 @@ function suggestedAmountsPence(listingPricePence: number): number[] {
 export function MakeOfferButton({
   listingId,
   listingPricePence,
+  buyingEnabled = false,
 }: {
   listingId: string;
   listingPricePence: number;
+  buyingEnabled?: boolean;
 }) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -74,7 +74,7 @@ export function MakeOfferButton({
       window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
       return;
     }
-    if (!BUYING_ENABLED) {
+    if (!buyingEnabled) {
       openConversation();
       return;
     }
@@ -89,9 +89,9 @@ export function MakeOfferButton({
         disabled={loading}
         className="w-full sm:w-auto rounded-xl border-2 border-mowing-green text-mowing-green px-8 py-4 text-lg font-semibold hover:bg-mowing-green/10 disabled:opacity-70"
       >
-        {loading ? "Opening…" : BUYING_ENABLED ? "Make offer / Ask seller" : "Ask seller"}
+        {loading ? "Opening…" : buyingEnabled ? "Make offer / Ask seller" : "Ask seller"}
       </button>
-      {modalOpen && BUYING_ENABLED && (
+      {modalOpen && buyingEnabled && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
           onClick={() => !loading && setModalOpen(false)}

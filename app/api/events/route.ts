@@ -14,6 +14,8 @@ const ALLOWED_EVENTS = [
   "seller_listing_published",
   "starter_pack_enabled",
   "starter_pack_disabled",
+  "buying_enabled",
+  "buying_disabled",
   "starter_pack_requested",
   "starter_pack_admin_notification_sent",
   "starter_pack_dispatched",

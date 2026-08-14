@@ -1,5 +1,7 @@
 import Stripe from "stripe";
 import { calcOrderBreakdown } from "@/lib/pricing";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { BuyingDisabledError, isBuyingEnabled } from "@/lib/buying";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
@@ -25,6 +27,11 @@ export type CreateCheckoutParams = {
  * Returns the session URL for redirect.
  */
 export async function createCheckoutSession(params: CreateCheckoutParams): Promise<{ url: string | null }> {
+  const admin = createAdminClient();
+  if (!(await isBuyingEnabled(admin))) {
+    throw new BuyingDisabledError();
+  }
+
   const {
     listingId,
     listingPricePence,

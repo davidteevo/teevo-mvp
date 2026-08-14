@@ -4,6 +4,10 @@ import { SmartSearchHero } from "@/components/listing/SmartSearchHero";
 import { HomeFilterBar } from "@/components/listing/HomeFilterBar";
 import { ActiveFilterChips } from "@/components/listing/ActiveFilterChips";
 import { getFilterBrands } from "@/lib/filter-brands";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { isBuyingEnabled } from "@/lib/buying";
+
+export const dynamic = "force-dynamic";
 
 export type SearchParams = {
   category?: string;
@@ -28,14 +32,13 @@ function FilterBarFallback() {
   );
 }
 
-const buyingEnabled = process.env.NEXT_PUBLIC_BUYING_ENABLED !== "false";
-
 export default async function HomePage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
   const brandSuggestions = getFilterBrands();
+  const buyingEnabled = await isBuyingEnabled(createAdminClient());
   return (
     <div className="max-w-6xl mx-auto min-w-0 w-full px-4 py-8 overflow-x-clip">
       {!buyingEnabled && (

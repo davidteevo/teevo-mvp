@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getListingImageUrl } from "@/lib/listing-images";
+import { isBuyingEnabled } from "@/lib/buying";
 
 export async function loadConversationPayload(
   conversationId: string,
@@ -59,6 +60,7 @@ export async function loadConversationPayload(
     : null;
 
   const sellerLocation = (sellerUser as { location?: string } | null)?.location?.trim() ?? null;
+  const buyingEnabled = await isBuyingEnabled(admin);
 
   return {
     conversation: {
@@ -84,5 +86,6 @@ export async function loadConversationPayload(
       createdAt: m.created_at,
     })),
     offers: offers ?? [],
+    buyingEnabled,
   };
 }

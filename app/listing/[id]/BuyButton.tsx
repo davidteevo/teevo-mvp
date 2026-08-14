@@ -16,14 +16,13 @@ const DELIVERY_OPTIONS: { value: ShippingServiceType; label: string }[] = [
   { value: ShippingService.DPD_SHIP_TO_SHOP, label: `DPD Ship to Shop · £${SHIPPING_FEE_GBP.toFixed(2)}` },
 ];
 
-const BUYING_ENABLED = process.env.NEXT_PUBLIC_BUYING_ENABLED !== "false";
-
 export function BuyButton({
   listingId,
   price,
   totalPence,
   sellerCanAcceptPayment = true,
   fulfilmentMode = FulfilmentMode.SHIPPO,
+  buyingEnabled = false,
 }: {
   listingId: string;
   price: number;
@@ -32,6 +31,7 @@ export function BuyButton({
   sellerCanAcceptPayment?: boolean;
   /** Platform fulfilment mode; manual hides carrier service picker */
   fulfilmentMode?: FulfilmentModeType;
+  buyingEnabled?: boolean;
 }) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -45,9 +45,9 @@ export function BuyButton({
   const [notifyError, setNotifyError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!BUYING_ENABLED || !sellerCanAcceptPayment) return;
+    if (!buyingEnabled || !sellerCanAcceptPayment) return;
     track("purchase_cta_displayed", { listingId, listing_status: "available" });
-  }, [listingId, sellerCanAcceptPayment]);
+  }, [listingId, sellerCanAcceptPayment, buyingEnabled]);
 
   const handleBuy = async () => {
     if (!user) {
@@ -116,7 +116,7 @@ export function BuyButton({
     }
   };
 
-  if (!BUYING_ENABLED) {
+  if (!buyingEnabled) {
     const comingSoonUi = (
       <div>
         <div className="space-y-3">

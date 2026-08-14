@@ -6,6 +6,7 @@ import { createCheckoutSession } from "@/lib/stripe-checkout";
 import { ShippingService, type ShippingServiceType } from "@/lib/shippo";
 import { getAppUrl } from "@/lib/app-env";
 import { listingPurchaseApiError } from "@/lib/listing-availability";
+import { buyingDisabledResponse, BuyingDisabledError } from "@/lib/buying";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
@@ -43,6 +44,9 @@ export async function POST(request: Request) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
+
+  const buyingBlocked = await buyingDisabledResponse(admin);
+  if (buyingBlocked) return buyingBlocked;
 
   let listingPricePence: number;
   const { data: listing, error: listErr } = await admin
@@ -89,21 +93,28 @@ export async function POST(request: Request) {
 
   const origin = request.headers.get("origin") || getAppUrl();
 
-  const { url } = await createCheckoutSession({
-    listingId,
-    listingPricePence,
-    sellerId: listing.user_id,
-    sellerStripeAccountId: seller.stripe_account_id,
-    buyerId: user.id,
-    buyerEmail: user.email ?? undefined,
-    origin,
-    buyerPostcode: typeof buyerPostcode === "string" ? buyerPostcode : undefined,
-    shippingOption: typeof shippingOption === "string" ? shippingOption : undefined,
-    ...(acceptedOfferId && { acceptedOfferId: String(acceptedOfferId) }),
-  });
+  try {
+    const { url } = await createCheckoutSession({
+      listingId,
+      listingPricePence,
+      sellerId: listing.user_id,
+      sellerStripeAccountId: seller.stripe_account_id,
+      buyerId: user.id,
+      buyerEmail: user.email ?? undefined,
+      origin,
+      buyerPostcode: typeof buyerPostcode === "string" ? buyerPostcode : undefined,
+      shippingOption: typeof shippingOption === "string" ? shippingOption : undefined,
+      ...(acceptedOfferId && { acceptedOfferId: String(acceptedOfferId) }),
+    });
 
-  if (!url) {
-    return NextResponse.json({ error: "Checkout session URL not available" }, { status: 500 });
+    if (!url) {
+      return NextResponse.json({ error: "Checkout session URL not available" }, { status: 500 });
+    }
+    return NextResponse.json({ url });
+  } catch (e) {
+    if (e instanceof BuyingDisabledError) {
+      return NextResponse.json({ error: e.message }, { status: 403 });
+    }
+    throw e;
   }
-  return NextResponse.json({ url });
 }

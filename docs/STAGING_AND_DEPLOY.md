@@ -128,6 +128,7 @@ Staging site → **Site configuration** → **Visitor access** (or **Password pr
 - `docs/MIGRATION_sent_emails.sql`
 - `docs/MIGRATION_events.sql`
 - `docs/MIGRATION_starter_pack.sql`
+- `docs/MIGRATION_buying_enabled.sql`
 
 3. **Authentication → URL Configuration**
    - **Site URL:** `https://test.teevohq.com`
@@ -185,7 +186,6 @@ Set on the **staging** site only:
 | `SEND_EMAIL_HOOK_SECRET` | Staging Supabase hook secret |
 | `TEEVO_ADMIN_EMAILS` | your test admin email(s) |
 | `OPENAI_API_KEY` | optional |
-| `NEXT_PUBLIC_BUYING_ENABLED` | `true` when testing checkout |
 | `NEXT_PUBLIC_BOOK_CALL_URL` | optional |
 
 **Do not set on staging:**
@@ -194,6 +194,8 @@ Set on the **staging** site only:
 - `NEXT_PUBLIC_ADMIN_DOMAIN` — omit unless you deliberately add a staging admin host.
 
 Redeploy after setting env vars (`NEXT_PUBLIC_*` are baked into the build).
+
+Buying is controlled at runtime from **Admin → Settings → Buying & Payments** (`platform_settings.buying_enabled`), not an environment variable. Default is off. Enable it in admin when testing checkout; no redeploy is required.
 
 ### 9. Production Netlify (verify only)
 

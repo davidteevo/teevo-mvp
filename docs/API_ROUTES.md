@@ -38,6 +38,8 @@ All routes under `/api` (Next.js API routes or Route Handlers).
 | POST | `/api/admin/transactions/[id]/intervene` | Manual intervention note / refund (admin) |
 | GET | `/api/admin/settings/starter-pack` | Free Seller Starter Pack toggle (admin) |
 | PATCH | `/api/admin/settings/starter-pack` | Enable/disable Starter Pack (admin) |
+| GET | `/api/admin/settings/buying` | Buying & payments toggle (admin) |
+| PATCH | `/api/admin/settings/buying` | Enable/disable buying (admin) |
 | GET | `/api/admin/starter-packs` | Starter Pack fulfilment queue (admin) |
 | POST | `/api/admin/transactions/[id]/starter-pack/dispatch` | Mark Starter Pack dispatched (admin) |
 | POST | `/api/admin/transactions/[id]/starter-pack/notify` | Retry admin Starter Pack email if send failed |

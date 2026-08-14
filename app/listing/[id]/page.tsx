@@ -14,6 +14,7 @@ import { WatchButton } from "@/components/watchlist/WatchButton";
 import { FoundingSellerBadge } from "@/components/trust/FoundingSellerBadge";
 import { ensureDisplayNameForUser } from "@/lib/public-seller-name";
 import { getPlatformFulfilmentMode } from "@/lib/fulfilment";
+import { isBuyingEnabled } from "@/lib/buying";
 import {
   isComingSoonListing,
   isPublicMarketplaceStatus,
@@ -21,6 +22,8 @@ import {
 } from "@/lib/listing-availability";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
+
+export const dynamic = "force-dynamic";
 
 export default async function ListingPage({
   params,
@@ -32,12 +35,13 @@ export default async function ListingPage({
   const { data: { user } } = await supabase.auth.getUser();
 
   const admin = createAdminClient();
-  const [listingResult, txResult, fulfilmentMode] = await Promise.all([
+  const [listingResult, txResult, fulfilmentMode, buyingEnabled] = await Promise.all([
     getListingById(id).then((l) => ({ listing: l, err: null })).catch((err) => ({ listing: null, err })),
     user?.id
       ? admin.from("transactions").select("id").eq("listing_id", id).eq("buyer_id", user.id).single().then(({ data }) => data)
       : Promise.resolve(null),
     getPlatformFulfilmentMode(admin),
+    isBuyingEnabled(admin),
   ]);
 
   let listing = listingResult.listing;
@@ -246,9 +250,14 @@ export default async function ListingPage({
                     totalPence={totalPence}
                     sellerCanAcceptPayment={sellerCanAcceptPayment}
                     fulfilmentMode={fulfilmentMode}
+                    buyingEnabled={buyingEnabled}
                   />
                   {user?.id !== listing.user_id && (
-                    <MakeOfferButton listingId={listing.id} listingPricePence={listing.price} />
+                    <MakeOfferButton
+                      listingId={listing.id}
+                      listingPricePence={listing.price}
+                      buyingEnabled={buyingEnabled}
+                    />
                   )}
                 </>
               )}

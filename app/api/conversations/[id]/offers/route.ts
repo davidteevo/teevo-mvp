@@ -6,6 +6,7 @@ import { sendOfferNotification } from "@/lib/messaging-email";
 import { trackMessagingEvent } from "@/lib/messaging-metrics";
 import { MessagingEventType } from "@/lib/messaging-metrics";
 import { LISTING_NOT_PURCHASABLE_YET } from "@/lib/listing-availability";
+import { buyingDisabledResponse } from "@/lib/buying";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,9 @@ export async function POST(
   }
 
   const admin = createAdminClient();
+  const buyingBlocked = await buyingDisabledResponse(admin);
+  if (buyingBlocked) return buyingBlocked;
+
   const { data: conv } = await admin
     .from("conversations")
     .select("id, listing_id, buyer_id, seller_id")
