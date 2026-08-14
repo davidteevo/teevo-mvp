@@ -1,5 +1,7 @@
 "use client";
 
+import { X } from "lucide-react";
+
 const DEFAULT_EXTRA_DAYS = 3;
 
 export function RequestMoreTimeModal({
@@ -18,9 +20,18 @@ export function RequestMoreTimeModal({
       <div
         role="dialog"
         aria-labelledby="more-time-title"
-        className="w-full max-w-md rounded-xl border border-par-3-punch/20 bg-white p-5 shadow-lg"
+        className="relative w-full max-w-md rounded-xl border border-par-3-punch/20 bg-white p-5 shadow-lg"
       >
-        <h2 id="more-time-title" className="text-lg font-semibold text-mowing-green">
+        <button
+          type="button"
+          onClick={onClose}
+          disabled={submitting}
+          className="absolute top-3 right-3 rounded p-1 text-mowing-green hover:bg-mowing-green/10 disabled:opacity-60"
+          aria-label="Close"
+        >
+          <X className="h-5 w-5" />
+        </button>
+        <h2 id="more-time-title" className="text-lg font-semibold text-mowing-green pr-8">
           Need a little longer?
         </h2>
         <p className="mt-2 text-sm text-mowing-green/80">
