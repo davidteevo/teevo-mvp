@@ -305,11 +305,10 @@ export function BuyButton({
                 onChange={(e) => setApplyCredit(e.target.checked)}
                 className="rounded border-mowing-green/40"
               />
-              Apply Teevo credit (−£
-              {(
-                (applyCredit ? preview.creditRedeemedPence : 0) / 100
-              ).toFixed(2)}{" "}
-              available £{(preview.availableCreditPence / 100).toFixed(2)})
+              {teevoCreditCheckboxLabel(
+                preview.creditRedeemedPence,
+                preview.availableCreditPence,
+              )}
             </label>
           )}
         </div>
@@ -326,4 +325,22 @@ export function BuyButton({
       </button>
     </div>
   );
+}
+
+function formatPenceGbp(pence: number): string {
+  return `£${(Math.max(0, pence) / 100).toFixed(2)}`;
+}
+
+/** Checkbox copy: one amount when the full balance applies, otherwise "£X of £Y". */
+function teevoCreditCheckboxLabel(
+  creditRedeemedPence: number,
+  availableCreditPence: number,
+): string {
+  const redeemablePence =
+    creditRedeemedPence > 0 ? creditRedeemedPence : availableCreditPence;
+  const available = formatPenceGbp(availableCreditPence);
+  if (redeemablePence > 0 && redeemablePence < availableCreditPence) {
+    return `Use ${formatPenceGbp(redeemablePence)} of ${available} Teevo credit`;
+  }
+  return `Use ${available} Teevo credit`;
 }
