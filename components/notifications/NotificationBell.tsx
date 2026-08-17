@@ -110,9 +110,7 @@ export function NotificationBell() {
       return;
     }
     const mobile = window.matchMedia(MOBILE_MQ).matches;
-    const headerEl = document.querySelector("header");
-    // Measure before scroll-lock. After body { position:fixed; top:-scrollY } the sticky
-    // header leaves the viewport, so a second measure would place the panel off-screen.
+    const headerEl = document.querySelector("header") as HTMLElement | null;
     const headerBottom = headerEl ? headerEl.getBoundingClientRect().bottom : 0;
     setMobilePanelTop(mobile ? Math.max(0, headerBottom) : null);
     if (!mobile) return;
@@ -126,14 +124,36 @@ export function NotificationBell() {
       bodyTop: body.style.top,
       bodyWidth: body.style.width,
       htmlOverflow: html.style.overflow,
+      headerPosition: headerEl?.style.position ?? "",
+      headerTop: headerEl?.style.top ?? "",
+      headerLeft: headerEl?.style.left ?? "",
+      headerRight: headerEl?.style.right ?? "",
+      headerWidth: headerEl?.style.width ?? "",
+      headerZ: headerEl?.style.zIndex ?? "",
     };
     body.style.overflow = "hidden";
     body.style.position = "fixed";
     body.style.top = `-${y}px`;
     body.style.width = "100%";
     html.style.overflow = "hidden";
+    if (headerEl && y > 0) {
+      headerEl.style.position = "fixed";
+      headerEl.style.top = "0px";
+      headerEl.style.left = "0px";
+      headerEl.style.right = "0px";
+      headerEl.style.width = "100%";
+      headerEl.style.zIndex = "70";
+    }
 
     return () => {
+      if (headerEl) {
+        headerEl.style.position = prev.headerPosition;
+        headerEl.style.top = prev.headerTop;
+        headerEl.style.left = prev.headerLeft;
+        headerEl.style.right = prev.headerRight;
+        headerEl.style.width = prev.headerWidth;
+        headerEl.style.zIndex = prev.headerZ;
+      }
       body.style.overflow = prev.bodyOverflow;
       body.style.position = prev.bodyPosition;
       body.style.top = prev.bodyTop;
