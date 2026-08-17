@@ -108,7 +108,7 @@ export async function notifyWatchersNowAvailable(
 
     const watchers = await loadWatchers(admin, listingId);
     const users = await loadUsers(admin, watchers.map((w) => w.user_id));
-    const name = clubLabel(listing.brand, listing.model, listing.title);
+    const name = clubLabel(listing.brand, listing.model, listing.title, listing.category);
     const cta = listingAbsoluteUrl(listing.id, "watchlist_now_available");
     let sent = 0;
 
@@ -182,7 +182,7 @@ export async function notifyWatchersOfPriceDrop(
 
     const watchers = await loadWatchers(admin, listingId);
     const users = await loadUsers(admin, watchers.map((w) => w.user_id));
-    const name = clubLabel(listing.brand, listing.model, listing.title);
+    const name = clubLabel(listing.brand, listing.model, listing.title, listing.category);
     const nowGbp = formatGbp(newPricePence);
     const wasGbp = formatGbp(oldPricePence);
     const cta = listingAbsoluteUrl(listing.id, "watchlist_price_drop");
@@ -258,7 +258,7 @@ export async function notifyWatchersSold(
 
     const watchers = await loadWatchers(admin, listingId);
     const users = await loadUsers(admin, watchers.map((w) => w.user_id));
-    const name = clubLabel(listing.brand, listing.model, listing.title);
+    const name = clubLabel(listing.brand, listing.model, listing.title, listing.category);
     const cta = similarClubsAbsoluteUrl(listing.category, "watchlist_sold");
     const similarPath = similarClubsPath(listing.category);
     let sent = 0;
@@ -335,7 +335,7 @@ export async function notifyWatchersUnavailable(
 
     const users = await loadUsers(admin, watchers.map((w) => w.user_id));
     const name = listing
-      ? clubLabel(listing.brand, listing.model, listing.title)
+      ? clubLabel(listing.brand, listing.model, listing.title, listing.category)
       : "A club";
     const category = listing?.category ?? null;
     const cta = similarClubsAbsoluteUrl(category, "watchlist_unavailable");
@@ -443,7 +443,7 @@ export async function runWatchlistReminderCron(
       .maybeSingle();
     if (!user?.email || !canReceiveWatchlistEmail(user, "still_available")) continue;
 
-    const name = clubLabel(listing.brand, listing.model, listing.title);
+    const name = clubLabel(listing.brand, listing.model, listing.title, listing.category);
     const cta = listingAbsoluteUrl(listing.id, "watchlist_reminder");
 
     const ok = await ensureEmailSent(admin, {

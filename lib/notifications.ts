@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { trackServerEvent } from "@/lib/starter-pack";
+import { normalizeListingTitleForCategory } from "@/lib/listing-categories";
 
 export const NotificationType = {
   ITEM_SOLD: "item_sold",
@@ -91,12 +92,14 @@ export async function getListingTitle(
   if (!listingId) return "your club";
   const { data } = await admin
     .from("listings")
-    .select("title, brand, model")
+    .select("title, brand, model, category")
     .eq("id", listingId)
     .maybeSingle();
   if (!data) return "your club";
   const named =
-    (typeof data.title === "string" && data.title.trim()) ||
+    (typeof data.title === "string" && data.title.trim()
+      ? normalizeListingTitleForCategory(data.title.trim(), data.category)
+      : "") ||
     [data.brand, data.model].filter(Boolean).join(" ").trim();
   return named || "your club";
 }

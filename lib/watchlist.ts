@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getAppUrl } from "@/lib/app-env";
 import { isPurchasableListingStatus } from "@/lib/listing-availability";
+import { normalizeListingTitleForCategory } from "@/lib/listing-categories";
 
 export const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -83,8 +84,13 @@ export function similarClubsAbsoluteUrl(category?: string | null, src?: string):
   return `${appUrl}${path}${join}src=${encodeURIComponent(src)}`;
 }
 
-export function clubLabel(brand?: string | null, model?: string | null, title?: string | null): string {
-  if (title?.trim()) return title.trim();
+export function clubLabel(
+  brand?: string | null,
+  model?: string | null,
+  title?: string | null,
+  category?: string | null
+): string {
+  if (title?.trim()) return normalizeListingTitleForCategory(title.trim(), category);
   const named = [brand, model].filter(Boolean).join(" ").trim();
   return named || "this club";
 }

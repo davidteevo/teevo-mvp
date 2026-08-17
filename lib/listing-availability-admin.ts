@@ -178,6 +178,7 @@ function listingLabel(listing: {
   brand?: string | null;
   model?: string | null;
   title?: string | null;
+  category?: string | null;
 }): string {
   return listingItemName(listing);
 }
@@ -502,7 +503,7 @@ export async function loadConfirmableListingsForSeller(
 ): Promise<ConfirmAvailabilityItem[]> {
   let query = admin
     .from("listings")
-    .select("id, brand, model, title, availability_confirmation_status, availability_confirmation_source, availability_confirmation_batch_id")
+    .select("id, brand, model, title, category, availability_confirmation_status, availability_confirmation_source, availability_confirmation_batch_id")
     .eq("user_id", sellerId)
     .eq("availability_confirmation_status", AvailabilityConfirmationStatus.REQUIRED)
     .eq("availability_confirmation_source", AvailabilityConfirmationSource.ADMIN_RECONFIRM)
