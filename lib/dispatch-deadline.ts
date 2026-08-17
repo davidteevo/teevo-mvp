@@ -1,9 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
-  addBusinessDays,
-  businessDaysBetween,
+  addCalendarDays,
+  calendarDaysBetween,
 } from "@/lib/business-days";
-import { getDispatchDeadlineBusinessDays } from "@/lib/dispatch-settings";
+import { getDispatchDeadlineDays } from "@/lib/dispatch-settings";
 import { FulfilmentMode, hasShippingLabel } from "@/lib/fulfilment-providers";
 import { FulfilmentStatus, PackagingStatus } from "@/lib/fulfilment";
 import { PackagingSource } from "@/lib/starter-pack";
@@ -145,11 +145,22 @@ export function dispatchCancelEligibility(
   return { ok: true };
 }
 
+export function shouldSendAfterPurchaseReminder(opts: {
+  reminderAlreadySent: boolean;
+  createdAt: Date;
+  deadline: Date;
+  now: Date;
+}): boolean {
+  if (opts.reminderAlreadySent) return false;
+  if (opts.now.getTime() > opts.deadline.getTime()) return false;
+  return calendarDaysBetween(opts.createdAt, opts.now) >= 2;
+}
+
 export function computeInitialDispatchDeadline(
   createdAt: Date,
-  businessDays: number
+  days: number
 ): { original: Date; active: Date } {
-  const deadline = addBusinessDays(createdAt, businessDays);
+  const deadline = addCalendarDays(createdAt, days);
   return { original: deadline, active: deadline };
 }
 
@@ -160,7 +171,7 @@ export async function ensureDispatchDeadline(
 ): Promise<DispatchClockRow> {
   if (tx.dispatch_deadline_at && tx.original_dispatch_deadline_at) return tx;
   const createdAt = tx.created_at ? new Date(tx.created_at) : now;
-  const days = await getDispatchDeadlineBusinessDays(admin);
+  const days = await getDispatchDeadlineDays(admin);
   const { original, active } = computeInitialDispatchDeadline(createdAt, days);
   const originalIso = original.toISOString();
   const activeIso = active.toISOString();
@@ -186,7 +197,7 @@ export async function ensureDispatchDeadline(
       payload: {
         original_dispatch_deadline_at: originalIso,
         dispatch_deadline_at: activeIso,
-        business_days: days,
+        days,
       },
     });
     return data as DispatchClockRow;
@@ -252,9 +263,9 @@ export function nextDispatchClockState(
   }
 
   const pausedAt = new Date(currentlyPausedAt);
-  const extraDays = businessDaysBetween(pausedAt, now);
+  const extraDays = calendarDaysBetween(pausedAt, now);
   const baseDeadline = deadline ? new Date(deadline) : now;
-  const newDeadline = extraDays > 0 ? addBusinessDays(baseDeadline, extraDays) : baseDeadline;
+  const newDeadline = extraDays > 0 ? addCalendarDays(baseDeadline, extraDays) : baseDeadline;
   return {
     dispatch_deadline_at: newDeadline.toISOString(),
     dispatch_clock_paused_at: null,
@@ -306,7 +317,7 @@ export async function syncDispatchClock(
         reason: "clock_resumed",
         previous_deadline_at: withDeadline.dispatch_deadline_at,
         dispatch_deadline_at: next.dispatch_deadline_at,
-        paused_business_days_added: next.resumedDays,
+        paused_days_added: next.resumedDays,
         previous_pause_reason: withDeadline.dispatch_clock_pause_reason,
       },
     });

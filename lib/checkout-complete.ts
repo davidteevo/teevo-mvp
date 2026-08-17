@@ -11,7 +11,7 @@ import { getAppUrl } from "@/lib/app-env";
 import { notifyCheckoutComplete } from "@/lib/notification-events";
 import { notifyWatchersSold } from "@/lib/watchlist-emails";
 import { isPurchasableListingStatus, LISTING_NOT_PURCHASABLE_YET } from "@/lib/listing-availability";
-import { getDispatchDeadlineBusinessDays } from "@/lib/dispatch-settings";
+import { getDispatchDeadlineDays } from "@/lib/dispatch-settings";
 import { computeInitialDispatchDeadline } from "@/lib/dispatch-deadline";
 import { formatDispatchDeadline } from "@/lib/business-days";
 import { recordTransactionEvent, TransactionEventType } from "@/lib/transaction-events";
@@ -82,7 +82,7 @@ export async function createTransactionAndSendEmails(
 
   const fulfilment_mode = await getPlatformFulfilmentMode(admin);
   const createdAt = new Date();
-  const deadlineDays = await getDispatchDeadlineBusinessDays(admin);
+  const deadlineDays = await getDispatchDeadlineDays(admin);
   const { original, active } = computeInitialDispatchDeadline(createdAt, deadlineDays);
   const originalIso = original.toISOString();
   const deadlineIso = active.toISOString();
@@ -160,12 +160,12 @@ export async function createTransactionAndSendEmails(
     payload: {
       original_dispatch_deadline_at: originalIso,
       dispatch_deadline_at: deadlineIso,
-      business_days: deadlineDays,
+      days: deadlineDays,
     },
   });
   await trackServerEvent(admin, "dispatch_deadline_created", {
     userId: sellerId,
-    properties: { transaction_id: txId, dispatch_deadline_at: deadlineIso, business_days: deadlineDays },
+    properties: { transaction_id: txId, dispatch_deadline_at: deadlineIso, days: deadlineDays },
   });
 
   const totalGbp = formatGbp(amount);

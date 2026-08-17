@@ -81,7 +81,7 @@ export async function notifyDispatchReminder(
       await createNotification(admin, {
         userId: opts.sellerId,
         type: NotificationType.DISPATCH_ONE_DAY_LEFT,
-        title: "1 business day left to ship your order",
+        title: "1 day left to ship your order",
         message: `Please dispatch ${title} by ${dateLabel} to prevent the order being cancelled.`,
         entityId: opts.transactionId,
         actionUrl: salesUrl(opts.transactionId),
@@ -94,10 +94,10 @@ export async function notifyDispatchReminder(
           referenceId: `${opts.transactionId}:dispatch_reminder_one_day`,
           recipientId: opts.sellerId,
           to,
-          subject: `1 business day left to ship your ${itemName}`,
+          subject: `1 day left to ship your ${itemName}`,
           type: "transactional",
           variables: {
-            title: "1 business day left to ship your order",
+            title: "1 day left to ship your order",
             subtitle: `Please dispatch ${itemName} by ${dateLabel} to prevent the order being cancelled.`,
             body: "If you need a little longer, you can ask the buyer for more time from your sales page.",
             order_number: orderShort,
