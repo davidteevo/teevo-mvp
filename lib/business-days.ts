@@ -1,6 +1,7 @@
 /**
- * UK business-day helpers (Europe/London). Weekends are excluded.
- * UK_BANK_HOLIDAYS can be extended without changing dispatch-deadline logic.
+ * London date helpers (Europe/London).
+ * Dispatch deadlines use calendar days (weekends count; cancellation can fall on a weekend night).
+ * addBusinessDays remains for buyer-approved extensions and admin overrides.
  */
 
 export const LONDON_TZ = "Europe/London";
@@ -128,10 +129,49 @@ export function isBusinessDay(date: Date | string, holidays: ReadonlySet<string>
   return true;
 }
 
-export function endOfBusinessDay(date: Date | string): Date {
+/** End of that London calendar day (23:59:59.999 Europe/London), including weekends. */
+export function endOfLondonDay(date: Date | string): Date {
   const iso = typeof date === "string" ? date : londonDateString(date);
   const [y, m, d] = iso.split("-").map(Number);
   return londonWallToUtc(y, m, d, 23, 59, 59, 999);
+}
+
+/** Alias for endOfLondonDay. */
+export function endOfBusinessDay(date: Date | string): Date {
+  return endOfLondonDay(date);
+}
+
+/**
+ * Add `n` London calendar days after `from` (the start date itself does not count).
+ * Weekends and bank holidays count. Result is the end of that London day.
+ */
+export function addCalendarDays(from: Date, n: number): Date {
+  if (!Number.isFinite(n) || n === 0) {
+    return endOfLondonDay(from);
+  }
+  const cursor = addCalendarDaysToLondonDate(londonDateString(from), Math.trunc(n));
+  return endOfLondonDay(cursor);
+}
+
+/**
+ * Count London calendar dates strictly after `from` and on or before `to`.
+ * Same-day returns 0. Used when resuming a paused dispatch clock.
+ */
+export function calendarDaysBetween(from: Date, to: Date): number {
+  const start = londonDateString(from);
+  const end = londonDateString(to);
+  if (end <= start) return 0;
+  let count = 0;
+  let cursor = start;
+  while (cursor < end) {
+    cursor = addCalendarDaysToLondonDate(cursor, 1);
+    count += 1;
+  }
+  return count;
+}
+
+export function previousCalendarDay(date: Date): Date {
+  return addCalendarDays(date, -1);
 }
 
 /**
@@ -144,7 +184,7 @@ export function addBusinessDays(
   holidays: ReadonlySet<string> = UK_BANK_HOLIDAYS
 ): Date {
   if (!Number.isFinite(n) || n === 0) {
-    return endOfBusinessDay(from);
+    return endOfLondonDay(from);
   }
   const step = n > 0 ? 1 : -1;
   let remaining = Math.abs(Math.trunc(n));
@@ -153,12 +193,12 @@ export function addBusinessDays(
     cursor = addCalendarDaysToLondonDate(cursor, step);
     if (isBusinessDay(cursor, holidays)) remaining -= 1;
   }
-  return endOfBusinessDay(cursor);
+  return endOfLondonDay(cursor);
 }
 
 /**
  * Count London business dates strictly after `from` and on or before `to`.
- * Same-day returns 0. Used when resuming a paused dispatch clock.
+ * Same-day returns 0.
  */
 export function businessDaysBetween(
   from: Date,
@@ -184,18 +224,20 @@ export function previousBusinessDay(
   return addBusinessDays(date, -1, holidays);
 }
 
-/** Display form: "Monday 17 August" (year only if not the current London year). */
+/** Display form: "Monday 17 August" (year if another London year, or if the date is already in the past). */
 export function formatDispatchDeadline(iso: string | Date, now: Date = new Date()): string {
   const date = typeof iso === "string" ? new Date(iso) : iso;
   if (Number.isNaN(date.getTime())) return "";
   const dateYear = londonParts(date).year;
   const nowYear = londonParts(now).year;
+  const inPast = londonDateString(date) < londonDateString(now);
+  const omitYear = dateYear === nowYear && !inPast;
   return date.toLocaleDateString("en-GB", {
     weekday: "long",
     day: "numeric",
     month: "long",
     timeZone: LONDON_TZ,
-    ...(dateYear !== nowYear ? { year: "numeric" as const } : {}),
+    ...(omitYear ? {} : { year: "numeric" as const }),
   });
 }
 
@@ -206,7 +248,7 @@ export function getDispatchUrgency(deadlineIso: string | Date, now: Date = new D
   if (Number.isNaN(deadline.getTime())) return "normal";
   if (now.getTime() > deadline.getTime()) return "overdue";
   if (londonDateString(now) === londonDateString(deadline)) return "today";
-  const remaining = businessDaysBetween(now, deadline);
+  const remaining = calendarDaysBetween(now, deadline);
   if (remaining >= 1 && remaining <= 2) return "approaching";
   return "normal";
 }

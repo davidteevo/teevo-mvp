@@ -1,13 +1,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
-  businessDaysBetween,
   isSameLondonDate,
-  previousBusinessDay,
+  previousCalendarDay,
 } from "@/lib/business-days";
 import {
   DISPATCH_CLOCK_SELECT,
   isDispatchClockPaused,
   isDispatchEnforcementOpen,
+  shouldSendAfterPurchaseReminder,
   syncDispatchClock,
   type DispatchClockRow,
 } from "@/lib/dispatch-deadline";
@@ -67,8 +67,14 @@ export async function processDispatchDeadlines(admin: SupabaseClient): Promise<{
 
     const deadline = new Date(current.dispatch_deadline_at);
     const createdAt = new Date(current.created_at);
+    const wouldSendAfterPurchase = shouldSendAfterPurchaseReminder({
+      reminderAlreadySent: !!current.dispatch_reminder_after_purchase_sent_at,
+      createdAt,
+      deadline,
+      now,
+    });
 
-    if (!current.dispatch_reminder_after_purchase_sent_at && businessDaysBetween(createdAt, now) >= 2) {
+    if (wouldSendAfterPurchase) {
       await notifyDispatchReminder(admin, {
         transactionId: current.id,
         listingId: current.listing_id,
@@ -96,7 +102,7 @@ export async function processDispatchDeadlines(admin: SupabaseClient): Promise<{
       counts.remindersAfterPurchase += 1;
     }
 
-    const oneDayBefore = previousBusinessDay(deadline);
+    const oneDayBefore = previousCalendarDay(deadline);
     if (!current.dispatch_reminder_one_day_sent_at && isSameLondonDate(now, oneDayBefore) && now.getTime() <= deadline.getTime()) {
       await notifyDispatchReminder(admin, {
         transactionId: current.id,
