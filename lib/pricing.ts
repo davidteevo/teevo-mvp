@@ -29,3 +29,10 @@ export function calcOrderBreakdown(itemPricePence: number): {
 export function formatPence(pence: number): string {
   return `£${(pence / 100).toFixed(2)}`;
 }
+
+/** Whole pounds as £5; otherwise two decimals. For marketing copy. */
+export function formatPoundsCompact(pence: number): string {
+  const pounds = pence / 100;
+  if (Number.isInteger(pounds)) return `£${pounds}`;
+  return formatPence(pence);
+}

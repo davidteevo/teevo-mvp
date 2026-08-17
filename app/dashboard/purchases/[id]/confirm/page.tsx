@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { track } from "@/lib/analytics";
 import { ReferralPromptCard } from "@/components/referral/ReferralPromptCard";
@@ -37,6 +38,8 @@ export default function ConfirmDeliveryPage() {
   const [done, setDone] = useState<"confirmed" | "problem" | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [referralUrl, setReferralUrl] = useState<string | null>(null);
+  const [discountPence, setDiscountPence] = useState(500);
+  const [referrerRewardPence, setReferrerRewardPence] = useState(500);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -69,6 +72,8 @@ export default function ConfirmDeliveryPage() {
       .then((r) => r.json())
       .then((data) => {
         if (typeof data.url === "string") setReferralUrl(data.url);
+        if (typeof data.discountPence === "number") setDiscountPence(data.discountPence);
+        if (typeof data.referrerRewardPence === "number") setReferrerRewardPence(data.referrerRewardPence);
       })
       .catch(() => {
         /* optional */
@@ -130,23 +135,26 @@ export default function ConfirmDeliveryPage() {
       ) : !tx ? (
         <div className="mt-6 rounded-xl border border-par-3-punch/20 bg-white p-6 animate-pulse h-40" />
       ) : done === "confirmed" ? (
-        <div className="mt-6 rounded-xl border border-par-3-punch/20 bg-white p-6">
-          <h1 className="text-2xl font-bold text-mowing-green">Delivery confirmed</h1>
-          <p className="mt-2 text-mowing-green/80">
-            Thanks for confirming. We&apos;ll now complete the transaction with the seller.
-          </p>
-          <Link
-            href="/dashboard/purchases"
-            className="mt-4 inline-flex rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium hover:opacity-90"
-          >
-            Back to purchases
-          </Link>
+        <div className="mt-6">
+          <div className="flex gap-3">
+            <CheckCircle2 className="mt-0.5 h-6 w-6 shrink-0 text-par-3-punch" aria-hidden />
+            <div>
+              <h1 className="text-xl font-bold text-mowing-green sm:text-2xl">
+                Your {title} has arrived
+              </h1>
+              <p className="mt-1 text-sm text-mowing-green/80 sm:text-base">
+                Nice choice. We hope you love your new club.
+              </p>
+              <Link href="/dashboard/purchases" className="mt-2 inline-block text-sm text-par-3-punch hover:underline">
+                Back to purchases
+              </Link>
+            </div>
+          </div>
           <ReferralPromptCard
-            title={`Your ${title} has arrived`}
-            body="Know someone else looking for new clubs? Give them £5 towards their first Teevo purchase and get £5 credit when they buy."
-            cta="Give £5 to a friend"
             url={referralUrl}
             variant="buyer"
+            discountPence={discountPence}
+            referrerRewardPence={referrerRewardPence}
           />
         </div>
       ) : done === "problem" ? (

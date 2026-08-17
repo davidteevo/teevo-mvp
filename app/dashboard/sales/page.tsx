@@ -460,8 +460,6 @@ function DashboardSalesContent() {
       {transactions.length > 0 && (
         <ReferralPromptCard
           title="You've sold your club on Teevo."
-          body="Know someone with clubs gathering dust? Invite them to Teevo and earn credit when they start selling."
-          cta="Invite a seller"
           url={referralUrl}
           variant="seller"
         />

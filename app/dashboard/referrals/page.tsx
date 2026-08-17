@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { ReferralShareActions } from "@/components/referral/ReferralShareActions";
+import { ReferralOfferPanel } from "@/components/referral/ReferralOfferPanel";
 import { formatPence } from "@/lib/pricing";
 
 type Reward = { id: string; amountPence: number; status: string; createdAt: string };
@@ -62,11 +62,6 @@ export default function ReferralsPage() {
       <Link href="/dashboard" className="text-sm text-par-3-punch hover:underline">
         ← Dashboard
       </Link>
-      <h1 className="mt-4 text-2xl sm:text-3xl font-bold text-mowing-green break-words">Give £5. Get £5.</h1>
-      <p className="mt-2 text-mowing-green/80">
-        Give your mate £5 towards their first club. You&apos;ll get £5 Teevo credit when they make their first
-        qualifying purchase.
-      </p>
 
       {error && (
         <p className="mt-4 text-sm text-divot-pink" role="alert">
@@ -75,19 +70,17 @@ export default function ReferralsPage() {
       )}
 
       {!me ? (
-        <div className="mt-6 rounded-xl border border-par-3-punch/20 bg-white p-6 h-40 animate-pulse" />
+        <div className="mt-6 rounded-2xl border border-par-3-punch/20 bg-par-3-punch/10 p-6 h-72 animate-pulse" />
       ) : (
         <>
-          <div className="mt-6 rounded-xl border border-par-3-punch/20 bg-white p-4 sm:p-6 overflow-hidden">
-            <p className="text-sm font-medium text-mowing-green/70">Your referral link</p>
-            <p className="mt-1 text-mowing-green font-medium break-all">{me.url ?? "Generating…"}</p>
-            <p className="mt-4 text-sm font-medium text-mowing-green/70">Your code</p>
-            <p className="mt-1 text-xl font-bold text-mowing-green tracking-wide">{me.code ?? "—"}</p>
-            {me.url && (
-              <div className="mt-5">
-                <ReferralShareActions url={me.url} />
-              </div>
-            )}
+          <div className="mt-6">
+            <ReferralOfferPanel
+              url={me.url}
+              discountPence={me.discountPence}
+              referrerRewardPence={me.referrerRewardPence}
+              code={me.code}
+              headingAs="h1"
+            />
           </div>
 
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
