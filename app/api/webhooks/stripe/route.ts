@@ -9,6 +9,7 @@ import {
   resolvePaymentAndRefundNotifications,
 } from "@/lib/notification-events";
 import { NotificationType, resolveNotifications } from "@/lib/notifications";
+import { onOrderInvalidated } from "@/lib/referral/rewards";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -137,6 +138,9 @@ export async function POST(request: Request) {
           })
           .eq("id", tx.id);
         await resolvePaymentAndRefundNotifications(admin, tx.id);
+        await onOrderInvalidated(admin, tx.id).catch((e) =>
+          console.error("onOrderInvalidated referral failed", e)
+        );
       } else {
         await admin
           .from("transactions")
@@ -177,6 +181,9 @@ export async function POST(request: Request) {
             })
             .eq("id", tx.id);
           await resolvePaymentAndRefundNotifications(admin, tx.id);
+          await onOrderInvalidated(admin, tx.id).catch((e) =>
+            console.error("onOrderInvalidated referral failed", e)
+          );
         } else if (paymentIntentId) {
           await admin
             .from("transactions")

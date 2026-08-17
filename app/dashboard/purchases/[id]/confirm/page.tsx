@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { track } from "@/lib/analytics";
+import { ReferralPromptCard } from "@/components/referral/ReferralPromptCard";
 
 type Tx = {
   id: string;
@@ -35,6 +36,7 @@ export default function ConfirmDeliveryPage() {
   const [submitting, setSubmitting] = useState<"ok" | "problem" | null>(null);
   const [done, setDone] = useState<"confirmed" | "problem" | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [referralUrl, setReferralUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -60,6 +62,18 @@ export default function ConfirmDeliveryPage() {
       })
       .catch(() => setLoadError("Could not load this purchase"));
   }, [user, id]);
+
+  useEffect(() => {
+    if (done !== "confirmed") return;
+    fetch("/api/referral/me")
+      .then((r) => r.json())
+      .then((data) => {
+        if (typeof data.url === "string") setReferralUrl(data.url);
+      })
+      .catch(() => {
+        /* optional */
+      });
+  }, [done]);
 
   const confirmOk = async () => {
     if (!id) return;
@@ -127,6 +141,13 @@ export default function ConfirmDeliveryPage() {
           >
             Back to purchases
           </Link>
+          <ReferralPromptCard
+            title={`Your ${title} has arrived`}
+            body="Know someone else looking for new clubs? Give them £5 towards their first Teevo purchase and get £5 credit when they buy."
+            cta="Give £5 to a friend"
+            url={referralUrl}
+            variant="buyer"
+          />
         </div>
       ) : done === "problem" ? (
         <div className="mt-6 rounded-xl border border-golden-tee/40 bg-white p-6">

@@ -105,6 +105,7 @@ export async function POST(request: Request) {
       buyerPostcode: typeof buyerPostcode === "string" ? buyerPostcode : undefined,
       shippingOption: typeof shippingOption === "string" ? shippingOption : undefined,
       ...(acceptedOfferId && { acceptedOfferId: String(acceptedOfferId) }),
+      applyCredit: body.applyCredit !== false && body.apply_credit !== false,
     });
 
     if (!url) {

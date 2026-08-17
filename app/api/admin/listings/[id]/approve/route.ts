@@ -4,6 +4,7 @@ import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { resolveListingReviewRequired } from "@/lib/notification-events";
 import { notifyWatchersNowAvailable } from "@/lib/watchlist-emails";
+import { onListingVerified } from "@/lib/referral/rewards";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,18 @@ export async function POST(
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+  const { data: listing } = await admin
+    .from("listings")
+    .select("user_id, created_on_behalf")
+    .eq("id", id)
+    .maybeSingle();
+  if (listing?.user_id) {
+    await onListingVerified(admin, {
+      listingId: id,
+      sellerId: listing.user_id,
+      createdOnBehalf: listing.created_on_behalf === true,
+    }).catch((e) => console.error("onListingVerified failed", e));
   }
   await resolveListingReviewRequired(admin, id);
   await notifyWatchersNowAvailable(admin, id).catch((e) =>

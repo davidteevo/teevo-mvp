@@ -49,6 +49,7 @@ export const EmailTriggerType = {
   ORDER_CANCELLED_SELLER_TIMEOUT_BUYER: "order_cancelled_seller_timeout_buyer",
   CONFIRM_LISTING_AVAILABILITY: "confirm_listing_availability",
   DISPATCH_CANCELLATION_FAILED_ADMIN: "dispatch_cancellation_failed_admin",
+  REFERRAL_CREDIT_EARNED: "referral_credit_earned",
 } as const;
 
 export type EmailTriggerTypeValue = (typeof EmailTriggerType)[keyof typeof EmailTriggerType];

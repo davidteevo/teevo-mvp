@@ -16,6 +16,8 @@ import { computeInitialDispatchDeadline } from "@/lib/dispatch-deadline";
 import { formatDispatchDeadline } from "@/lib/business-days";
 import { recordTransactionEvent, TransactionEventType } from "@/lib/transaction-events";
 import { trackServerEvent } from "@/lib/starter-pack";
+import { onCheckoutComplete } from "@/lib/referral/rewards";
+import { referralEmailModuleHtml } from "@/lib/referral/notify";
 
 const appUrl = getAppUrl();
 
@@ -112,6 +114,8 @@ export async function createTransactionAndSendEmails(
       buyer_country: addr?.country ?? null,
       original_dispatch_deadline_at: originalIso,
       dispatch_deadline_at: deadlineIso,
+      referral_discount_pence: parseInt(session.metadata?.referralDiscountPence ?? "0", 10) || 0,
+      credit_redeemed_pence: parseInt(session.metadata?.creditRedeemedPence ?? "0", 10) || 0,
     })
     .select("id, listing_id, buyer_id, seller_id, amount")
     .single();
@@ -214,6 +218,7 @@ export async function createTransactionAndSendEmails(
           `The buyer has paid.`,
           `Please pack the item securely and complete packaging so you can dispatch by ${deadlineLabel}.`,
           `If you don't dispatch the order by ${deadlineLabel}, the order may be automatically cancelled and the buyer refunded.`,
+          await referralEmailModuleHtml(admin, sellerId),
         ].join("<br />"),
         order_number: txId.slice(0, 8),
         item_name: itemName,
@@ -249,6 +254,19 @@ export async function createTransactionAndSendEmails(
     sellerId,
     dispatchDeadlineLabel: deadlineLabel,
   });
+
+  const itemPence = parseInt(session.metadata?.itemPence ?? "0", 10) || 0;
+  const referralDiscountPence = parseInt(session.metadata?.referralDiscountPence ?? "0", 10) || 0;
+  const creditRedeemedPence = parseInt(session.metadata?.creditRedeemedPence ?? "0", 10) || 0;
+  await onCheckoutComplete(admin, {
+    transactionId: txId,
+    buyerId,
+    sellerId,
+    listingId,
+    itemPence,
+    referralDiscountPence,
+    creditRedeemedPence,
+  }).catch((e) => console.error("onCheckoutComplete failed", e));
 
   return { transactionId: txId };
 }

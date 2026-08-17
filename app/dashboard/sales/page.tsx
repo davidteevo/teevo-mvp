@@ -25,6 +25,7 @@ import { DispatchDeadlineBanner } from "@/components/dashboard/DispatchDeadlineB
 import { RequestMoreTimeModal } from "@/components/dashboard/RequestMoreTimeModal";
 import { ListingAvailabilityCard } from "@/components/dashboard/ListingAvailabilityCard";
 import { canRequestDispatchExtension } from "@/lib/dispatch-display";
+import { ReferralPromptCard } from "@/components/referral/ReferralPromptCard";
 
 const PACKAGING_BUCKET = "packaging-photos";
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -130,6 +131,7 @@ function DashboardSalesContent() {
   const [starterPackEnabled, setStarterPackEnabled] = useState(false);
   const [moreTimeTxId, setMoreTimeTxId] = useState<string | null>(null);
   const [moreTimeSubmitting, setMoreTimeSubmitting] = useState(false);
+  const [referralUrl, setReferralUrl] = useState<string | null>(null);
   const highlightId = useHighlightId("sale", transactions.length > 0);
 
   useEffect(() => {
@@ -149,6 +151,14 @@ function DashboardSalesContent() {
     };
     fetchTransactions();
     window.addEventListener("focus", fetchTransactions);
+    fetch("/api/referral/me")
+      .then((r) => r.json())
+      .then((data) => {
+        if (typeof data.url === "string") setReferralUrl(data.url);
+      })
+      .catch(() => {
+        /* optional */
+      });
     return () => window.removeEventListener("focus", fetchTransactions);
   }, [user]);
 
@@ -386,6 +396,15 @@ function DashboardSalesContent() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold text-mowing-green">Sales</h1>
       <p className="mt-1 text-mowing-green/80">Mark items as shipped when you send them.</p>
+      {transactions.length > 0 && (
+        <ReferralPromptCard
+          title="You've sold your club on Teevo."
+          body="Know someone with clubs gathering dust? Invite them to Teevo and earn credit when they start selling."
+          cta="Invite a seller"
+          url={referralUrl}
+          variant="seller"
+        />
+      )}
       <div className="mt-6 rounded-xl border border-par-3-punch/20 bg-white overflow-hidden">
         {transactions.length === 0 ? (
           <div className="p-8 text-center text-mowing-green/80">

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { generateDisplayNameFromFirstName } from "@/lib/public-seller-name";
 import { getAppUrl } from "@/lib/app-env";
+import { provisionNewUserReferral } from "@/lib/referral/attribution";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
@@ -63,6 +64,15 @@ export async function POST() {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+  const refFromMeta =
+    typeof user.user_metadata?.referral_code === "string" ? user.user_metadata.referral_code : "";
+  await provisionNewUserReferral(supabaseAdmin, {
+    userId: user.id,
+    firstName: first_name,
+    email: user.email,
+    rawCode: refFromMeta || null,
+    via: "code",
+  });
   return NextResponse.json({ ok: true, isNewUser: true });
 }
 

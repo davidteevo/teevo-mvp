@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { OnboardingStripeBanner } from "@/components/dashboard/OnboardingStripeBanner";
 import { FoundingSellerBadge } from "@/components/trust/FoundingSellerBadge";
-import { Calendar, ClipboardCheck, Heart, MessageCircle, Package, PlusCircle, Send, ShoppingBag, ShoppingCart, Star, TrendingUp, User } from "lucide-react";
+import { Calendar, ClipboardCheck, Gift, Heart, MessageCircle, Package, PlusCircle, Send, ShoppingBag, ShoppingCart, Star, TrendingUp, User } from "lucide-react";
 
 function FoundingSellerFeedback() {
   const [message, setMessage] = useState("");
@@ -287,6 +287,18 @@ export default function DashboardPage() {
           <div className="min-w-0 flex-1">
             <p className="font-semibold text-mowing-green">Your feedback</p>
             <p className="text-sm text-mowing-green/70">See ratings from buyers</p>
+          </div>
+        </Link>
+        <Link
+          href="/dashboard/referrals"
+          className="flex items-center gap-4 rounded-xl border border-par-3-punch/20 bg-white p-4 hover:shadow-md transition-shadow"
+        >
+          <div className="rounded-lg bg-golden-tee/20 p-3">
+            <Gift className="h-6 w-6 text-mowing-green" />
+          </div>
+          <div>
+            <p className="font-semibold text-mowing-green">Give £5. Get £5.</p>
+            <p className="text-sm text-mowing-green/70">Share Teevo with a mate</p>
           </div>
         </Link>
         <Link

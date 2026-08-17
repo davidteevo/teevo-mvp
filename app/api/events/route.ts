@@ -69,6 +69,19 @@ const ALLOWED_EVENTS = [
   "dispatch_refund_failed",
   "listing_availability_confirmed",
   "listing_availability_unavailable",
+  "referral_link_generated",
+  "referral_link_shared",
+  "referral_link_clicked",
+  "referral_code_used",
+  "referral_signup_completed",
+  "referral_first_purchase",
+  "referral_first_listing",
+  "referral_first_sale",
+  "referral_reward_pending",
+  "referral_reward_approved",
+  "referral_reward_reversed",
+  "referral_credit_redeemed",
+  "creator_referral_conversion",
 ] as const;
 
 export type AllowedEventName = (typeof ALLOWED_EVENTS)[number];

@@ -10,6 +10,8 @@ import {
 } from "@/lib/notification-events";
 import { requestSellerFeedback } from "@/lib/seller-review-events";
 import { NotificationType, resolveNotifications } from "@/lib/notifications";
+import { onOrderCompleted } from "@/lib/referral/rewards";
+import { referralEmailModuleHtml } from "@/lib/referral/notify";
 
 const appUrl = getAppUrl();
 
@@ -188,7 +190,7 @@ export async function confirmBuyerReceipt(
       variables: {
         title: "Funds released",
         subtitle: "Delivery was confirmed. Funds have been released to your payout account.",
-        body: `Amount: £${amountGbp}`,
+        body: `Amount: £${amountGbp}${await referralEmailModuleHtml(admin, tx.seller_id)}`,
         order_number: opts.transactionId.slice(0, 8),
         item_name: itemName,
         hero_image,
@@ -211,6 +213,10 @@ export async function confirmBuyerReceipt(
     buyerId: tx.buyer_id,
     sellerId: tx.seller_id,
   });
+
+  await onOrderCompleted(admin, opts.transactionId).catch((e) =>
+    console.error("onOrderCompleted referral failed", e)
+  );
 
   await resolveNotifications(admin, {
     types: [NotificationType.TRANSACTION_STUCK],

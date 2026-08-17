@@ -2,6 +2,8 @@ import Stripe from "stripe";
 import { calcOrderBreakdown } from "@/lib/pricing";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { BuyingDisabledError, isBuyingEnabled } from "@/lib/buying";
+import { computeCheckoutIncentives } from "@/lib/referral/checkout-incentives";
+import { resolveCheckoutIncentivesForBuyer } from "@/lib/referral/rewards";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
@@ -19,6 +21,8 @@ export type CreateCheckoutParams = {
   shippingOption?: string;
   /** Accepted offer id when checkout is from an accepted offer (for analytics) */
   acceptedOfferId?: string;
+  /** Apply available Teevo credit (default true) */
+  applyCredit?: boolean;
 };
 
 /**
@@ -43,12 +47,45 @@ export async function createCheckoutSession(params: CreateCheckoutParams): Promi
     buyerPostcode,
     shippingOption,
     acceptedOfferId,
+    applyCredit = true,
   } = params;
 
   const { itemPence, authenticityPence, shippingPence } = calcOrderBreakdown(listingPricePence);
-  const applicationFeeAmount = authenticityPence + shippingPence;
+  const eligibility = await resolveCheckoutIncentivesForBuyer(admin, {
+    buyerId,
+    itemPence,
+    authenticityPence,
+    shippingPence,
+    applyCredit,
+  });
+  const incentives = computeCheckoutIncentives({
+    itemPence,
+    authenticityPence,
+    shippingPence,
+    referralDiscountPence: eligibility.referralDiscountPence,
+    availableCreditPence: eligibility.availableCreditPence,
+    applyCredit: eligibility.applyCredit,
+  });
+  const applicationFeeAmount = incentives.applicationFeePence;
   const baseOrigin = origin.replace(/\/$/, "");
   const termsUrl = `${baseOrigin}/terms`;
+
+  let discounts: Stripe.Checkout.SessionCreateParams.Discount[] | undefined;
+  if (incentives.totalIncentivePence > 0) {
+    const coupon = await stripe.coupons.create({
+      amount_off: incentives.totalIncentivePence,
+      currency: "gbp",
+      duration: "once",
+      max_redemptions: 1,
+      name:
+        incentives.referralDiscountAppliedPence > 0 && incentives.creditRedeemedPence > 0
+          ? "Teevo credit"
+          : incentives.referralDiscountAppliedPence > 0
+            ? "Referral credit"
+            : "Teevo credit",
+    });
+    discounts = [{ coupon: coupon.id }];
+  }
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
@@ -61,6 +98,7 @@ export async function createCheckoutSession(params: CreateCheckoutParams): Promi
       transfer_data: { destination: sellerStripeAccountId },
       application_fee_amount: applicationFeeAmount,
     },
+    ...(discounts ? { discounts } : {}),
     shipping_address_collection: { allowed_countries: ["GB"] },
     line_items: [
       {
@@ -95,6 +133,9 @@ export async function createCheckoutSession(params: CreateCheckoutParams): Promi
       listingId,
       buyerId,
       sellerId,
+      itemPence: String(itemPence),
+      referralDiscountPence: String(incentives.referralDiscountAppliedPence),
+      creditRedeemedPence: String(incentives.creditRedeemedPence),
       ...(buyerPostcode != null && buyerPostcode !== "" && { buyerPostcode: String(buyerPostcode).slice(0, 32) }),
       ...(shippingOption != null && shippingOption !== "" && { shippingOption: String(shippingOption).slice(0, 32) }),
       ...(acceptedOfferId != null && acceptedOfferId !== "" && { offerId: String(acceptedOfferId).slice(0, 36) }),

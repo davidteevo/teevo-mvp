@@ -14,6 +14,7 @@ function SignupForm() {
   const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
   const [password, setPassword] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
@@ -27,6 +28,10 @@ function SignupForm() {
         window.location.href = `/api/auth/signout?redirect=${encodeURIComponent("/signup" + (searchParams.toString() ? "?" + searchParams.toString() : ""))}`;
       }
     });
+    const fromQuery = searchParams.get("ref") ?? "";
+    const fromCookie = document.cookie.match(/(?:^|;\s*)teevo_ref=([^;]*)/)?.[1] ?? "";
+    const prefill = fromQuery || (fromCookie ? decodeURIComponent(fromCookie) : "");
+    if (prefill) setReferralCode(prefill);
   }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,13 +50,17 @@ function SignupForm() {
     const supabase = createClient();
     const origin = typeof window !== "undefined" ? window.location.origin : "";
     const redirectTo = origin ? `${origin}/auth/callback` : undefined;
-    const nextParam = redirect ? `?next=${encodeURIComponent(redirect)}` : "";
+    const callbackParams = new URLSearchParams();
+    if (redirect) callbackParams.set("next", redirect);
+    const trimmedCode = referralCode.trim();
+    if (trimmedCode) callbackParams.set("ref", trimmedCode);
+    const nextParam = callbackParams.toString() ? `?${callbackParams.toString()}` : "";
     const emailRedirectTo = redirectTo && nextParam ? `${redirectTo}${nextParam}` : redirectTo;
     const { data, error: err } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { first_name: first },
+        data: { first_name: first, ...(trimmedCode ? { referral_code: trimmedCode } : {}) },
         ...(emailRedirectTo ? { emailRedirectTo } : {}),
       },
     });
@@ -172,6 +181,21 @@ function SignupForm() {
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
             className="w-full min-h-[48px] rounded-xl border border-mowing-green/30 bg-white px-4 py-3 text-base text-mowing-green placeholder:text-mowing-green/50 disabled:opacity-60 disabled:cursor-not-allowed touch-manipulation"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-mowing-green mb-1">
+            Referral code <span className="font-normal text-mowing-green/60">(optional)</span>
+          </label>
+          <input
+            type="text"
+            value={referralCode}
+            onChange={(e) => setReferralCode(e.target.value)}
+            disabled={loading}
+            autoCapitalize="characters"
+            autoComplete="off"
+            placeholder="e.g. DAVID"
+            className="w-full min-h-[48px] rounded-xl border border-mowing-green/30 bg-white px-4 py-3 text-base text-mowing-green placeholder:text-mowing-green/50 disabled:opacity-60 disabled:cursor-not-allowed touch-manipulation uppercase"
           />
         </div>
         <div className="flex gap-3 items-start">

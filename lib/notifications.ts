@@ -49,6 +49,9 @@ export const NotificationType = {
   ORDER_CANCELLED_SELLER_TIMEOUT: "order_cancelled_seller_timeout",
   CONFIRM_LISTING_AVAILABILITY: "confirm_listing_availability",
   DISPATCH_CANCELLATION_FAILED: "dispatch_cancellation_failed",
+  REFERRAL_BUYER_REWARD: "referral_buyer_reward",
+  REFERRAL_SELLER_LISTING_REWARD: "referral_seller_listing_reward",
+  REFERRAL_SELLER_SALE_REWARD: "referral_seller_sale_reward",
 } as const;
 
 export type NotificationTypeValue = (typeof NotificationType)[keyof typeof NotificationType];
