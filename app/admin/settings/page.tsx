@@ -441,21 +441,61 @@ function ReferralGrowthSettings() {
         <p className="mt-4 text-sm text-mowing-green/70">Loading…</p>
       ) : (
         <div className="mt-4 space-y-3">
-          <label className="flex items-center gap-2 text-sm text-mowing-green">
-            <input type="checkbox" checked={programmeEnabled} onChange={(e) => setProgrammeEnabled(e.target.checked)} />
-            Standard referral programme enabled
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={programmeEnabled}
+              onChange={(e) => setProgrammeEnabled(e.target.checked)}
+            />
+            <span>
+              <span className="font-medium text-mowing-green">Standard referral programme</span>
+              <span className="block text-sm text-mowing-green/70">
+                Lets members invite friends. Referred buyers get a first-purchase discount; the referrer gets Teevo credit when that purchase completes.
+              </span>
+            </span>
           </label>
-          <label className="flex items-center gap-2 text-sm text-mowing-green">
-            <input type="checkbox" checked={sellerEnabled} onChange={(e) => setSellerEnabled(e.target.checked)} />
-            Seller referral enabled
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={sellerEnabled}
+              onChange={(e) => setSellerEnabled(e.target.checked)}
+            />
+            <span>
+              <span className="font-medium text-mowing-green">Seller referral</span>
+              <span className="block text-sm text-mowing-green/70">
+                Rewards a referrer when someone they invited lists their first club, and again when that seller completes their first sale.
+              </span>
+            </span>
           </label>
-          <label className="flex items-center gap-2 text-sm text-mowing-green">
-            <input type="checkbox" checked={creatorEnabled} onChange={(e) => setCreatorEnabled(e.target.checked)} />
-            Creator programme enabled
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={creatorEnabled}
+              onChange={(e) => setCreatorEnabled(e.target.checked)}
+            />
+            <span>
+              <span className="font-medium text-mowing-green">Creator programme</span>
+              <span className="block text-sm text-mowing-green/70">
+                Lets creators share unique codes. A qualifying first purchase pays their commission instead of a member referrer reward.
+              </span>
+            </span>
           </label>
-          <label className="flex items-center gap-2 text-sm text-mowing-green">
-            <input type="checkbox" checked={creditEnabled} onChange={(e) => setCreditEnabled(e.target.checked)} />
-            Teevo credit enabled
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={creditEnabled}
+              onChange={(e) => setCreditEnabled(e.target.checked)}
+            />
+            <span>
+              <span className="font-medium text-mowing-green">Teevo credit</span>
+              <span className="block text-sm text-mowing-green/70">
+                Lets buyers spend earned Teevo credit at checkout. Turning this off stops new redemptions; existing balances stay in place.
+              </span>
+            </span>
           </label>
           <label className="block text-sm text-mowing-green">
             Referred customer discount (£)
