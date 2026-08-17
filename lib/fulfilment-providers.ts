@@ -71,6 +71,15 @@ export function hasShippingLabel(tx: TrackingFields): boolean {
   return !!(tx.shippo_label_url || tx.shipping_label_url);
 }
 
+const MANUAL_LABEL_REF_PREFIX = "shipping-labels://";
+
+/** Storage path for a Teevo-prepared label (`shipping-labels://…`), or null. */
+export function manualLabelStoragePath(shippingLabelUrl: string | null | undefined): string | null {
+  if (!shippingLabelUrl?.startsWith(MANUAL_LABEL_REF_PREFIX)) return null;
+  const path = shippingLabelUrl.slice(MANUAL_LABEL_REF_PREFIX.length).replace(/^\/+/, "");
+  return path || null;
+}
+
 export function getTrackingNumber(tx: TrackingFields): string | null {
   if (tx.tracking_number?.trim()) return tx.tracking_number.trim();
   if (tx.shippo_tracking_number?.trim()) return tx.shippo_tracking_number.trim();

@@ -102,6 +102,19 @@ const BOX_LABELS: Record<string, string> = {
   SMALL_BOX: "Small box (£4.99)",
 };
 
+function ManualShippingLabelLink({ transactionId }: { transactionId: string }) {
+  return (
+    <a
+      href={`/api/transactions/${transactionId}/shipping-label`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="rounded-lg border border-par-3-punch/30 text-par-3-punch px-4 py-2 text-sm font-medium hover:bg-par-3-punch/10 transition-colors w-fit"
+    >
+      View shipping label
+    </a>
+  );
+}
+
 function firstImagePath(images: ListingImage[] | null | undefined): string | null {
   if (!images?.length) return null;
   const sorted = [...images].sort((a, b) => a.sort_order - b.sort_order);
@@ -723,18 +736,21 @@ function DashboardSalesContent() {
                       t.fulfilment_mode === FulfilmentMode.MANUAL &&
                       !!t.shipping_label_url && (
                         <div className="w-full sm:w-auto max-w-md rounded-lg border border-mowing-green/20 bg-mowing-green/5 px-4 py-3 space-y-2">
-                          <p className="text-sm font-medium text-mowing-green">Shipping label sent</p>
+                          <p className="text-sm font-medium text-mowing-green">Shipping label ready</p>
                           <p className="text-sm text-mowing-green/80">
-                            Your shipping label and tracking details have been emailed to you. Please print the label,
-                            attach it securely to your parcel, then drop it off with the courier.
+                            You can view or download your shipping label here. We&apos;ve also emailed it to you.
+                            Print the label, attach it securely to your parcel, then drop it off with the courier.
                           </p>
-                          <button
-                            type="button"
-                            onClick={() => markShipped(t.id)}
-                            className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium hover:opacity-90"
-                          >
-                            Mark as shipped
-                          </button>
+                          <div className="flex flex-wrap gap-2">
+                            <ManualShippingLabelLink transactionId={t.id} />
+                            <button
+                              type="button"
+                              onClick={() => markShipped(t.id)}
+                              className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium hover:opacity-90"
+                            >
+                              Mark as shipped
+                            </button>
+                          </div>
                         </div>
                       )}
                     {canDispatch && t.shippo_label_url && (
@@ -776,6 +792,9 @@ function DashboardSalesContent() {
                       >
                         {t.shippo_qr_code_url ? "Download label PDF" : "Download label"}
                       </a>
+                    )}
+                    {t.fulfilment_mode === FulfilmentMode.MANUAL && t.shipping_label_url && !canDispatch && (
+                      <ManualShippingLabelLink transactionId={t.id} />
                     )}
                     {getTrackingNumber(t) && (
                       <span className="text-sm text-mowing-green/70" title="Tracking number">

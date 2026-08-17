@@ -164,7 +164,7 @@ export async function notifyDispatchExtensionRequested(
       userId: opts.buyerId,
       type: NotificationType.DISPATCH_EXTENSION_REQUESTED,
       title: "Seller needs more time",
-      message: `The seller of your ${title} has requested an additional ${opts.extraBusinessDays} business days to dispatch your order.`,
+      message: `The seller of your ${title} has requested an additional ${opts.extraBusinessDays} days to dispatch your order.`,
       entityId: opts.transactionId,
       actionUrl: purchasesUrl(opts.transactionId),
       actionLabel: "Review request",
@@ -180,7 +180,7 @@ export async function notifyDispatchExtensionRequested(
         type: "transactional",
         variables: {
           title: "Seller needs more time",
-          subtitle: `The seller has asked for an additional ${opts.extraBusinessDays} business days to dispatch your ${itemName}.`,
+          subtitle: `The seller has asked for an additional ${opts.extraBusinessDays} days to dispatch your ${itemName}.`,
           body: "You can allow the extra time or keep the original dispatch date. Sign in to Teevo to decide.",
           order_number: opts.transactionId.slice(0, 8),
           item_name: itemName,

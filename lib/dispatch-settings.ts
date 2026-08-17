@@ -30,6 +30,7 @@ export async function getDispatchDeadlineBusinessDays(admin: SupabaseClient): Pr
   return getDispatchDeadlineDays(admin);
 }
 
+/** Calendar days added when a buyer-approved extension is granted. Setting key is historical. */
 export async function getDispatchExtensionBusinessDays(admin: SupabaseClient): Promise<number> {
   const value = await readSetting(admin, PLATFORM_SETTING_DISPATCH_EXTENSION_DAYS);
   return parsePositiveInt(value, DEFAULT_DISPATCH_EXTENSION_BUSINESS_DAYS);

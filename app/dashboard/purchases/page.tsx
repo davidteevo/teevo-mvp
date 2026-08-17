@@ -246,7 +246,7 @@ function DashboardPurchasesContent() {
                       <p className="text-sm font-semibold text-mowing-green">Seller needs more time</p>
                       <p className="text-sm text-mowing-green/80">
                         The seller has asked for an additional {t.dispatch_extension_business_days ?? 3}{" "}
-                        business days to dispatch your order.
+                        days to dispatch your order.
                       </p>
                       <div className="flex flex-wrap gap-2">
                         <button

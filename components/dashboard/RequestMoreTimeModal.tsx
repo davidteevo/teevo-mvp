@@ -36,7 +36,7 @@ export function RequestMoreTimeModal({
         </h2>
         <p className="mt-2 text-sm text-mowing-green/80">
           You can ask the buyer for an additional{" "}
-          <span className="font-medium">{extraBusinessDays} business days</span> to dispatch your
+          <span className="font-medium">{extraBusinessDays} days</span> to dispatch your
           order.
         </p>
         <p className="mt-2 text-sm text-mowing-green/80">The buyer must approve the extension.</p>
@@ -55,7 +55,7 @@ export function RequestMoreTimeModal({
             disabled={submitting}
             className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-60"
           >
-            {submitting ? "Requesting…" : `Request ${extraBusinessDays} more business days`}
+            {submitting ? "Requesting…" : `Request ${extraBusinessDays} more days`}
           </button>
         </div>
       </div>
