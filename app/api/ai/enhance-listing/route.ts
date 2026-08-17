@@ -3,35 +3,16 @@ import { NextResponse } from "next/server";
 import {
   ALL_CATEGORIES,
   CONDITIONS,
+  clubCategoryTitleNoun,
   isClothingCategory,
   isAccessoriesCategory,
+  normalizeListingTitleForCategory,
 } from "@/lib/listing-categories";
 
 export const dynamic = "force-dynamic";
 
 const ALLOWED_CATEGORIES_SET = new Set<string>(ALL_CATEGORIES);
 const ALLOWED_CONDITIONS_SET = new Set<string>(CONDITIONS);
-
-/** For these categories, use singular in titles (one club per listing). */
-const CATEGORY_TO_SINGULAR_TITLE: Record<string, string> = {
-  Woods: "Wood",
-  "Driving Irons": "Driving Iron",
-  Hybrids: "Hybrid",
-  Irons: "Iron",
-  Wedges: "Wedge",
-};
-
-function ensureSingularTitle(title: string, category: string): string {
-  const singular = CATEGORY_TO_SINGULAR_TITLE[category];
-  if (!singular) return title;
-  let t = title;
-  t = t.replace(/\bDriving Irons\b/g, "Driving Iron");
-  t = t.replace(/\bWoods\b/g, "Wood");
-  t = t.replace(/\bHybrids\b/g, "Hybrid");
-  t = t.replace(/\bIrons\b/g, "Iron");
-  t = t.replace(/\bWedges\b/g, "Wedge");
-  return t;
-}
 
 interface EnhanceBody {
   category?: string;
@@ -76,7 +57,7 @@ DESCRIPTION REWRITE RULES (you must follow these exactly):
 Example: Seller wrote "ping driver good condtion seling as upgrading to new model hardly used" → description: "Ping driver in good condition. Selling as I am upgrading to a new model; this one has been hardly used."
 
 You must return JSON only with these keys:
-- title: A concise listing title (e.g. "Ping G425 Max Driver – 10.5° – Regular Shaft – Excellent Condition"). Include brand, model, key spec if known (loft/lie, shaft, grip), and condition. For categories Woods, Driving Irons, Hybrids, Irons, and Wedges, use the singular form in the title (e.g. "3 Wood", "Driving Iron", "Hybrid", "Iron", "Wedge") because each listing is for one club.
+- title: A concise listing title (e.g. "Ping G425 Max Driver – 10.5° – Regular Shaft – Excellent Condition"). Include brand, model, key spec if known (loft/lie, shaft, grip), and condition. For Woods, Driving Irons, Hybrids, and Wedges, use the singular form (e.g. "3 Wood", "Driving Iron", "Hybrid", "Wedge") because each listing is for one club. For Irons, use the plural "Irons" because the listing is a set of clubs (e.g. "Ping i230 Irons").
 - description: The seller's text rewritten as one flowing, proofread paragraph. All spelling and grammar corrected; same meaning and facts.
 - shaft: Extract shaft model from the seller's text if mentioned; otherwise null.
 - degree: Extract loft/degree (e.g. "10.5") for club types (drivers, woods, irons, wedges, hybrids, driving irons) if mentioned; otherwise null.
@@ -204,7 +185,7 @@ export async function POST(request: Request) {
     const hasValidResult = result && typeof result.title === "string" && llmDescription.length > 0 && !isExactEcho;
 
     if (hasValidResult) {
-      const normalizedTitle = isStructured ? result!.title : ensureSingularTitle(result!.title, category);
+      const normalizedTitle = isStructured ? result!.title : normalizeListingTitleForCategory(result!.title, category);
       return NextResponse.json({
         title: normalizedTitle,
         description: typeof result!.description === "string" ? result!.description : "",
@@ -234,8 +215,7 @@ export async function POST(request: Request) {
       });
     }
 
-    const categoryForTitle = CATEGORY_TO_SINGULAR_TITLE[category] ?? category;
-    const fallbackTitle = [brand, model, categoryForTitle].filter(Boolean).join(" ");
+    const fallbackTitle = [brand, model, clubCategoryTitleNoun(category)].filter(Boolean).join(" ");
     const fallbackParts = [`${brand} ${model} ${category} in ${condition} condition.`];
     if (degree) fallbackParts.push(`Loft: ${degree}°.`);
     if (shaft) fallbackParts.push(`Shaft: ${shaft}.`);
