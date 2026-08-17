@@ -64,6 +64,7 @@ export async function POST(
         status: "verified",
         archived_at: null,
         availability_confirmation_status: AvailabilityConfirmationStatus.CONFIRMED_AVAILABLE,
+        availability_confirmed_at: now,
         updated_at: now,
       })
       .eq("id", listing.id)

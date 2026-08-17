@@ -5,7 +5,7 @@ import { OFFER_EXPIRY_HOURS } from "@/lib/messaging-constants";
 import { sendOfferNotification } from "@/lib/messaging-email";
 import { trackMessagingEvent } from "@/lib/messaging-metrics";
 import { MessagingEventType } from "@/lib/messaging-metrics";
-import { LISTING_NOT_PURCHASABLE_YET } from "@/lib/listing-availability";
+import { listingPurchaseApiError } from "@/lib/listing-availability";
 import { buyingDisabledResponse } from "@/lib/buying";
 
 export const dynamic = "force-dynamic";
@@ -55,20 +55,16 @@ export async function POST(
 
   const { data: listing } = await admin
     .from("listings")
-    .select("id, price, status")
+    .select("id, price, status, archived_at, buying_paused, availability_confirmation_status")
     .eq("id", conv.listing_id)
     .is("archived_at", null)
     .single();
-  if (!listing || listing.status !== "verified") {
-    return NextResponse.json(
-      {
-        error:
-          listing?.status === "pending"
-            ? LISTING_NOT_PURCHASABLE_YET
-            : "Listing is not available",
-      },
-      { status: 400 }
-    );
+  const purchaseErr = listingPurchaseApiError(listing, "Listing is not available");
+  if (purchaseErr) {
+    return NextResponse.json({ error: purchaseErr.error }, { status: purchaseErr.httpStatus });
+  }
+  if (!listing) {
+    return NextResponse.json({ error: "Listing is not available" }, { status: 404 });
   }
   if (amountPence > listing.price) {
     return NextResponse.json({ error: "Offer cannot exceed listing price" }, { status: 400 });

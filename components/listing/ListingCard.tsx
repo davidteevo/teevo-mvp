@@ -137,7 +137,11 @@ export function ListingCard({
               priority={priority}
             />
             <div className="absolute top-1.5 right-1.5">
-              <ListingMarketplaceBadge status={listing.status} />
+              <ListingMarketplaceBadge
+                status={listing.status}
+                buyingPaused={listing.buying_paused === true}
+                awaitingConfirmation={listing.availability_confirmation_status === "required"}
+              />
             </div>
             {unavailableLabel && (
               <div className="absolute inset-0 bg-mowing-green/55 flex items-center justify-center">

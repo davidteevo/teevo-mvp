@@ -15,6 +15,8 @@ type Listing = {
   status: string;
   condition?: string | null;
   imageUrl: string | null;
+  buyingPaused?: boolean;
+  awaitingConfirmation?: boolean;
 };
 
 type Message = {
@@ -311,6 +313,10 @@ export function ConversationDetail({
   const latestPendingFromSeller = pendingFromSeller;
   const { user } = useAuth();
   const isCurrentUserBuyer = user?.id === conversation.buyerId;
+  const listingPurchasable =
+    listing?.status === "verified" &&
+    listing.buyingPaused !== true &&
+    listing.awaitingConfirmation !== true;
 
   const sendOffer = async (amountPounds: string, setLoading: (v: boolean) => void, setAmount: (v: string) => void) => {
     const pence = Math.round(parseFloat(amountPounds) * 100);
@@ -404,6 +410,14 @@ export function ConversationDetail({
         </div>
       )}
 
+      {buyingEnabled && listing && !listingPurchasable && listing.status === "verified" && (
+        <p className="text-sm text-mowing-green/70 mb-4">
+          {listing.awaitingConfirmation
+            ? "We're checking with the seller that this item is still available."
+            : "This item is temporarily unavailable."}
+        </p>
+      )}
+
       {buyingEnabled && (
         <>
           {/* Offer status line */}
@@ -426,7 +440,7 @@ export function ConversationDetail({
           )}
 
           {/* Buy Now: always visible for buyer when listing verified (full price or accepted offer) */}
-          {listing?.status === "verified" && isCurrentUserBuyer && (
+          {listingPurchasable && isCurrentUserBuyer && (
             <div className="shrink-0 rounded-xl bg-mowing-green/15 border border-mowing-green/30 p-4 mb-4">
               <p className="text-mowing-green/70 text-xs mb-2">Payments protected on Teevo</p>
               {acceptedOffer ? (
@@ -542,7 +556,7 @@ export function ConversationDetail({
           )}
 
           {/* Make an offer: seller (when no pending buyer offer) or buyer (when no pending offer from buyer) */}
-          {!acceptedOffer && listing?.status === "verified" && (isCurrentUserBuyer === false || (isCurrentUserBuyer === true && !latestPendingFromBuyer)) && (
+          {!acceptedOffer && listingPurchasable && (isCurrentUserBuyer === false || (isCurrentUserBuyer === true && !latestPendingFromBuyer)) && (
             <div className="shrink-0 rounded-xl bg-mowing-green/10 border border-mowing-green/20 p-4 mb-4">
               <p className="text-sm font-medium text-mowing-green mb-2">Make an offer</p>
               {suggestedOfferPounds.length > 0 && (

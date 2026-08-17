@@ -114,16 +114,47 @@ export type AllListing = {
   created_on_behalf?: boolean;
   created_by_admin_id?: string | null;
   watch_count: number;
+  buying_paused?: boolean;
+  availability_confirmation_status?: string | null;
+  availability_confirmation_source?: string | null;
+  availability_confirmation_requested_at?: string | null;
+  availability_confirmed_at?: string | null;
+  availability_confirmation_batch_id?: string | null;
+  archived_at?: string | null;
 };
 
-export async function getAllListings(opts: { q?: string; status?: string }): Promise<AllListing[]> {
+export async function getAllListings(opts: {
+  q?: string;
+  status?: string;
+  createdBefore?: string;
+  buying?: string;
+  availability?: string;
+}): Promise<AllListing[]> {
   const admin = adminClient();
   let query = admin
     .from("listings")
-    .select("id, user_id, category, brand, model, title, condition, price, status, created_at, item_type, size, colour, created_on_behalf, created_by_admin_id")
+    .select("id, user_id, category, brand, model, title, condition, price, status, created_at, item_type, size, colour, created_on_behalf, created_by_admin_id, buying_paused, availability_confirmation_status, availability_confirmation_source, availability_confirmation_requested_at, availability_confirmed_at, availability_confirmation_batch_id, archived_at")
     .order("created_at", { ascending: false });
   if (opts.status && ["pending", "verified", "rejected", "sold"].includes(opts.status)) {
     query = query.eq("status", opts.status);
+  }
+  if (opts.createdBefore?.trim()) {
+    const day = opts.createdBefore.trim();
+    const end = day.includes("T") ? day : `${day}T23:59:59.999Z`;
+    query = query.lte("created_at", end);
+  }
+  if (opts.buying === "paused") {
+    query = query.eq("buying_paused", true);
+  } else if (opts.buying === "purchasable") {
+    query = query.eq("buying_paused", false);
+  }
+  if (opts.availability === "never") {
+    query = query.is("availability_confirmation_status", null);
+  } else if (
+    opts.availability &&
+    ["required", "confirmed_available", "confirmed_unavailable", "expired"].includes(opts.availability)
+  ) {
+    query = query.eq("availability_confirmation_status", opts.availability);
   }
   if (opts.q?.trim()) {
     const term = opts.q.trim();

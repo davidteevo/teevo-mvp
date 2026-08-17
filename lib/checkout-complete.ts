@@ -10,7 +10,7 @@ import { ensureEmailSent, EmailTriggerType, formatGbp, getListingEmailContext } 
 import { getAppUrl } from "@/lib/app-env";
 import { notifyCheckoutComplete } from "@/lib/notification-events";
 import { notifyWatchersSold } from "@/lib/watchlist-emails";
-import { isPurchasableListingStatus, LISTING_NOT_PURCHASABLE_YET } from "@/lib/listing-availability";
+import { listingPurchaseApiError } from "@/lib/listing-availability";
 import { getDispatchDeadlineDays } from "@/lib/dispatch-settings";
 import { computeInitialDispatchDeadline } from "@/lib/dispatch-deadline";
 import { formatDispatchDeadline } from "@/lib/business-days";
@@ -57,15 +57,12 @@ export async function createTransactionAndSendEmails(
 
   const { data: listingForPurchase } = await admin
     .from("listings")
-    .select("status, archived_at")
+    .select("status, archived_at, buying_paused, availability_confirmation_status")
     .eq("id", listingId)
     .single();
-  if (
-    !listingForPurchase ||
-    listingForPurchase.archived_at ||
-    !isPurchasableListingStatus(listingForPurchase.status)
-  ) {
-    throw new Error(LISTING_NOT_PURCHASABLE_YET);
+  const purchaseErr = listingPurchaseApiError(listingForPurchase);
+  if (purchaseErr) {
+    throw new Error(purchaseErr.error);
   }
 
   const paymentIntentId = getPaymentIntentId(session.payment_intent);

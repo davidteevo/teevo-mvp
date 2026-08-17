@@ -18,8 +18,9 @@ import { formatRatingAverage } from "@/lib/seller-reviews";
 import { getPlatformFulfilmentMode } from "@/lib/fulfilment";
 import { isBuyingEnabled } from "@/lib/buying";
 import {
-  isComingSoonListing,
+  buyerPurchaseBlockCopy,
   isPublicMarketplaceStatus,
+  listingBlocksPurchase,
   marketplaceListingStatus,
 } from "@/lib/listing-availability";
 
@@ -111,7 +112,14 @@ export default async function ListingPage({
     }
   }
 
-  const comingSoon = isComingSoonListing(listing.status);
+  const purchaseBlock = listingBlocksPurchase({
+    status: listing.status,
+    archived_at: (listing as { archived_at?: string | null }).archived_at,
+    buying_paused: (listing as { buying_paused?: boolean }).buying_paused,
+    availability_confirmation_status: (listing as { availability_confirmation_status?: string | null })
+      .availability_confirmation_status,
+  });
+  const purchaseCopy = buyerPurchaseBlockCopy(purchaseBlock);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -249,18 +257,20 @@ export default async function ListingPage({
 
           {!isPurchasedView && listing.status !== "sold" && (
             <div className="mt-8 space-y-3">
-              {comingSoon ? (
+              {purchaseBlock ? (
                 <div>
                   <button
                     type="button"
                     disabled
                     className="w-full sm:w-auto rounded-xl bg-mowing-green/50 text-off-white-pique px-8 py-4 text-lg font-semibold cursor-not-allowed"
                   >
-                    Coming Soon
+                    {purchaseCopy?.title ?? "Unavailable"}
                   </button>
-                  <p className="mt-3 text-sm text-mowing-green/80">
-                    This club isn&apos;t available to buy just yet. Check back soon.
-                  </p>
+                  {purchaseCopy?.body && (
+                    <p className="mt-3 text-sm text-mowing-green/80">
+                      {purchaseCopy.body}
+                    </p>
+                  )}
                 </div>
               ) : (
                 <>

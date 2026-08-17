@@ -6,7 +6,7 @@ import { loadConversationPayload } from "@/lib/conversation-loader";
 import { getListingImageUrl } from "@/lib/listing-images";
 import { trackMessagingEvent } from "@/lib/messaging-metrics";
 import { MessagingEventType } from "@/lib/messaging-metrics";
-import { LISTING_NOT_PURCHASABLE_YET } from "@/lib/listing-availability";
+import { listingPurchaseApiError } from "@/lib/listing-availability";
 
 export const dynamic = "force-dynamic";
 
@@ -130,7 +130,7 @@ export async function POST(request: Request) {
   const admin = createAdminClient();
   const { data: listing, error: listErr } = await admin
     .from("listings")
-    .select("id, user_id, status")
+    .select("id, user_id, status, archived_at, buying_paused, availability_confirmation_status")
     .eq("id", listingId)
     .is("archived_at", null)
     .single();
@@ -141,16 +141,9 @@ export async function POST(request: Request) {
   if (listing.user_id === user.id) {
     return NextResponse.json({ error: "You cannot start a conversation on your own listing" }, { status: 400 });
   }
-  if (listing.status !== "verified") {
-    return NextResponse.json(
-      {
-        error:
-          listing.status === "pending"
-            ? LISTING_NOT_PURCHASABLE_YET
-            : "Listing is not available",
-      },
-      { status: 400 }
-    );
+  const purchaseErr = listingPurchaseApiError(listing, "Listing is not available");
+  if (purchaseErr) {
+    return NextResponse.json({ error: purchaseErr.error }, { status: purchaseErr.httpStatus });
   }
 
   await getOrCreateChatDisplayName(user.id);

@@ -22,7 +22,7 @@ export async function GET() {
   const { data: rows, error } = await admin
     .from("watchlist_items")
     .select(
-      "id, listing_id, created_at, listings(id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, item_type, size, colour, status, archived_at, created_at, listing_images(id, storage_path, sort_order), users!user_id(display_name, rating_average, rating_count))"
+      "id, listing_id, created_at, listings(id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, item_type, size, colour, status, archived_at, buying_paused, availability_confirmation_status, created_at, listing_images(id, storage_path, sort_order), users!user_id(display_name, rating_average, rating_count))"
     )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
