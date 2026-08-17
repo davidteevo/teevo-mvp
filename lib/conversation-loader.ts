@@ -20,7 +20,7 @@ export async function loadConversationPayload(
 
   const { data: listingRow } = await admin
     .from("listings")
-    .select("id, brand, model, price, status, condition, listing_images(storage_path, sort_order)")
+    .select("id, brand, model, price, status, condition, buying_paused, availability_confirmation_status, listing_images(storage_path, sort_order)")
     .eq("id", conv.listing_id)
     .single();
   const otherId = conv.buyer_id === currentUserId ? conv.seller_id : conv.buyer_id;
@@ -53,6 +53,10 @@ export async function loadConversationPayload(
         price: (listingRow as { price: number }).price,
         status: (listingRow as { status: string }).status,
         condition: (listingRow as { condition?: string }).condition ?? null,
+        buyingPaused: (listingRow as { buying_paused?: boolean }).buying_paused === true,
+        awaitingConfirmation:
+          (listingRow as { availability_confirmation_status?: string | null }).availability_confirmation_status ===
+          "required",
         imageUrl: firstImg
           ? getListingImageUrl(firstImg.storage_path, "thumb", process.env.NEXT_PUBLIC_SUPABASE_URL)
           : null,

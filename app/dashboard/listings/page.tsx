@@ -19,6 +19,8 @@ type Listing = {
   admin_feedback?: string | null;
   archived_at?: string | null;
   availability_confirmation_status?: string | null;
+  availability_confirmation_source?: string | null;
+  buying_paused?: boolean;
 };
 
 export default function DashboardListingsPage() {
@@ -80,11 +82,24 @@ export default function DashboardListingsPage() {
     }
   };
 
+  const needsAdminReconfirm = listings.some(
+    (l) =>
+      l.availability_confirmation_status === "required" &&
+      l.availability_confirmation_source === "admin_reconfirm"
+  );
+
   const statusBadge = (listing: Listing) => {
     if (listing.availability_confirmation_status === "required") {
       return (
         <span className="rounded-full px-2 py-0.5 text-xs font-medium bg-golden-tee/30 text-mowing-green">
           Confirm availability
+        </span>
+      );
+    }
+    if (listing.buying_paused) {
+      return (
+        <span className="rounded-full px-2 py-0.5 text-xs font-medium bg-golden-tee/30 text-mowing-green">
+          Buying paused
         </span>
       );
     }
@@ -157,9 +172,23 @@ export default function DashboardListingsPage() {
           href="/sell"
           className="rounded-xl bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium hover:opacity-90"
         >
-          New listing
+          List another club
         </Link>
       </div>
+      {needsAdminReconfirm && (
+        <div className="mt-4 rounded-lg border border-golden-tee/40 bg-golden-tee/10 p-3">
+          <p className="text-sm font-medium text-mowing-green">Some listings need a quick check.</p>
+          <p className="text-sm text-mowing-green/80 mt-1">
+            Confirm they&apos;re still available so buyers can purchase them.
+          </p>
+          <Link
+            href="/dashboard/listings/confirm"
+            className="inline-block mt-2 text-sm font-medium text-par-3-punch hover:underline"
+          >
+            Confirm availability
+          </Link>
+        </div>
+      )}
       <div className="mt-6 rounded-xl border border-par-3-punch/20 bg-white overflow-hidden">
         {listings.length === 0 ? (
           <div className="p-8 text-center text-mowing-green/80">

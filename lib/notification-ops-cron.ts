@@ -3,6 +3,7 @@ import { FulfilmentStatus } from "@/lib/fulfilment";
 import { NotificationType, notifyAdmins, adminTransactionUrl, getListingTitle } from "@/lib/notifications";
 import { sendSellerFeedbackReminders } from "@/lib/seller-review-events";
 import { processDispatchDeadlines } from "@/lib/dispatch-cron";
+import { runAvailabilityReconfirmCron } from "@/lib/listing-availability-admin";
 
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
@@ -55,6 +56,8 @@ export async function runNotificationOpsCron(admin: SupabaseClient): Promise<{
   dispatchRemindersFinal: number;
   dispatchCancelled: number;
   dispatchCancelFailed: number;
+  availabilityReminders: number;
+  availabilityExpired: number;
 }> {
   const counts = {
     sellerNotDispatched: 0,
@@ -67,6 +70,8 @@ export async function runNotificationOpsCron(admin: SupabaseClient): Promise<{
     dispatchRemindersFinal: 0,
     dispatchCancelled: 0,
     dispatchCancelFailed: 0,
+    availabilityReminders: 0,
+    availabilityExpired: 0,
   };
 
   const dispatch = await processDispatchDeadlines(admin);
@@ -163,6 +168,10 @@ export async function runNotificationOpsCron(admin: SupabaseClient): Promise<{
   }
 
   counts.feedbackReminders = await sendSellerFeedbackReminders(admin);
+
+  const availability = await runAvailabilityReconfirmCron(admin);
+  counts.availabilityReminders = availability.reminders;
+  counts.availabilityExpired = availability.expired;
 
   return counts;
 }

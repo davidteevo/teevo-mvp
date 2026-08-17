@@ -29,6 +29,8 @@ Automated emails fire from real user actions. Each send is recorded in `sent_ema
 | `watchlist.price_drop` | Price drop: [Brand] [Model] is now £X | Watcher | Standard | `POST /api/listings/[id]/reduce-price` |
 | `watchlist.sold` | The [Brand] [Model] you were watching has sold | Watcher | Standard | Checkout complete (`createTransactionAndSendEmails`) |
 | `watchlist.unavailable` | [Brand] [Model] is no longer available | Watcher | Standard | Reject / archive / admin delete |
+| `listing_availability_reconfirm` | Is your [Product] still available? | Seller | Standard | Admin reconfirm availability |
+| `listing_availability_reconfirm_reminder` | Reminder: is your [Product] still available? | Seller | Standard | Hourly cron, day 2 |
 
 ## Idempotency
 

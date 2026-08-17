@@ -26,7 +26,13 @@ export type ListingStatus = "pending" | "verified" | "rejected" | "sold";
 export type AvailabilityConfirmationStatus =
   | "required"
   | "confirmed_available"
-  | "confirmed_unavailable";
+  | "confirmed_unavailable"
+  | "expired";
+
+export type AvailabilityConfirmationSource =
+  | "dispatch_timeout"
+  | "admin_reconfirm"
+  | "stale_listing";
 
 export type DispatchClockPauseReason = "starter_pack" | "packaging_review" | "manual_label";
 
@@ -119,7 +125,13 @@ export interface Listing {
   created_by_admin_id?: string | null;
   created_on_behalf?: boolean;
   archived_at?: string | null;
+  buying_paused?: boolean;
   availability_confirmation_status?: AvailabilityConfirmationStatus | null;
+  availability_confirmation_source?: AvailabilityConfirmationSource | null;
+  availability_confirmation_requested_at?: string | null;
+  availability_confirmed_at?: string | null;
+  availability_confirmation_reminder_sent_at?: string | null;
+  availability_confirmation_batch_id?: string | null;
   created_at: string;
   updated_at: string;
   listing_images?: { id: string; storage_path: string; sort_order: number }[];

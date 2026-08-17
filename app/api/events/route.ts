@@ -69,6 +69,7 @@ const ALLOWED_EVENTS = [
   "dispatch_refund_failed",
   "listing_availability_confirmed",
   "listing_availability_unavailable",
+  "listing_availability_expired",
   "referral_link_generated",
   "referral_link_shared",
   "referral_link_clicked",

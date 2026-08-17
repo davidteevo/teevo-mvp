@@ -3,7 +3,7 @@ import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { createCheckoutSession } from "@/lib/stripe-checkout";
 import { getAppUrl } from "@/lib/app-env";
-import { listingPurchaseApiError } from "@/lib/listing-availability";
+import { LISTING_PURCHASE_SELECT, listingPurchaseApiError } from "@/lib/listing-availability";
 import { buyingDisabledResponse, BuyingDisabledError } from "@/lib/buying";
 
 export const dynamic = "force-dynamic";
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
 
   const { data: listing, error: listErr } = await admin
     .from("listings")
-    .select("id, user_id, price, status")
+    .select(LISTING_PURCHASE_SELECT)
     .eq("id", listingId)
     .is("archived_at", null)
     .single();
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
   if (listErr || !listing) {
     return NextResponse.json({ error: "Listing not found or not available" }, { status: 404 });
   }
-  const purchaseErr = listingPurchaseApiError(listing.status);
+  const purchaseErr = listingPurchaseApiError(listing);
   if (purchaseErr) {
     return NextResponse.json({ error: purchaseErr.error }, { status: purchaseErr.httpStatus });
   }

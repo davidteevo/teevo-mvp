@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 import { FulfilmentStatus } from "@/lib/fulfilment";
 import {
+  AvailabilityConfirmationSource,
   AvailabilityConfirmationStatus,
   CancellationReason,
   CancellationStatus,
@@ -251,6 +252,8 @@ export async function cancelUndispatchedOrder(
       .from("listings")
       .update({
         availability_confirmation_status: AvailabilityConfirmationStatus.REQUIRED,
+        availability_confirmation_source: AvailabilityConfirmationSource.DISPATCH_TIMEOUT,
+        availability_confirmation_requested_at: completedAt,
         updated_at: completedAt,
       })
       .eq("id", tx.listing_id);

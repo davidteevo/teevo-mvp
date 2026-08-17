@@ -9,6 +9,7 @@ import { AdminListingActions } from "./AdminListingActions";
 import { AdminListingFeedback } from "./AdminListingFeedback";
 import { ReducePriceControl } from "@/components/listing/ReducePriceControl";
 import { getListingWatchCount } from "@/lib/watchlist";
+import { listingHasOpenPaidOrder } from "@/lib/listing-availability-admin";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +33,7 @@ export default async function AdminListingDetailPage({
     admin
       .from("listings")
       .select(`
-      id, user_id, category, brand, model, title, condition, price, description, shaft, degree, shaft_flex, handed, item_type, size, colour, status, created_at, admin_feedback, created_on_behalf, created_by_admin_id,
+      id, user_id, category, brand, model, title, condition, price, description, shaft, degree, shaft_flex, handed, item_type, size, colour, status, created_at, admin_feedback, created_on_behalf, created_by_admin_id, buying_paused, availability_confirmation_status, availability_confirmation_source, availability_confirmation_requested_at, availability_confirmed_at, availability_confirmation_batch_id,
       listing_images(storage_path, sort_order),
       users!user_id(id, email, role, created_at)
     `)
@@ -59,6 +60,25 @@ export default async function AdminListingDetailPage({
   );
   const imageUrls = images.map((img: { storage_path: string }) => imageUrl(img.storage_path, "main"));
   const displayTitle = getListingDisplayTitle(listing as unknown as Listing);
+  const listingRow = listing as {
+    buying_paused?: boolean;
+    availability_confirmation_status?: string | null;
+    availability_confirmation_source?: string | null;
+    availability_confirmation_requested_at?: string | null;
+    availability_confirmed_at?: string | null;
+    availability_confirmation_batch_id?: string | null;
+  };
+  const [hasOpenOrder, batch] = await Promise.all([
+    listingHasOpenPaidOrder(admin, listing.id, listing.status),
+    listingRow.availability_confirmation_batch_id
+      ? admin
+          .from("listing_availability_batches")
+          .select("email_error")
+          .eq("id", listingRow.availability_confirmation_batch_id)
+          .maybeSingle()
+          .then(({ data }) => data)
+      : Promise.resolve(null),
+  ]);
   const structuredMeta = [
     (listing as { item_type?: string | null }).item_type?.trim(),
     (listing as { size?: string | null }).size?.trim(),
@@ -166,7 +186,18 @@ export default async function AdminListingDetailPage({
                   <> · Watchers: {watchCount}</>
                 </p>
               </div>
-              <AdminListingActions listingId={listing.id} status={listing.status} />
+              <AdminListingActions
+                listingId={listing.id}
+                status={listing.status}
+                buyingPaused={listingRow.buying_paused === true}
+                availabilityStatus={listingRow.availability_confirmation_status}
+                availabilitySource={listingRow.availability_confirmation_source}
+                availabilityRequestedAt={listingRow.availability_confirmation_requested_at}
+                availabilityConfirmedAt={listingRow.availability_confirmed_at}
+                batchId={listingRow.availability_confirmation_batch_id}
+                emailError={batch?.email_error ?? null}
+                hasOpenOrder={hasOpenOrder}
+              />
             </div>
 
             {sellerData && (

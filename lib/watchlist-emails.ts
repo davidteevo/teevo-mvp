@@ -13,7 +13,7 @@ import {
   similarClubsAbsoluteUrl,
   similarClubsPath,
 } from "@/lib/watchlist";
-import { isPurchasableListingStatus } from "@/lib/listing-availability";
+import { isListingPurchasable } from "@/lib/listing-availability";
 
 type ListingRow = {
   id: string;
@@ -24,6 +24,8 @@ type ListingRow = {
   price: number;
   status: string;
   archived_at: string | null;
+  buying_paused?: boolean | null;
+  availability_confirmation_status?: string | null;
   listing_images?: { storage_path: string; sort_order?: number | null }[] | null;
 };
 
@@ -44,7 +46,7 @@ type UserRow = { id: string; email: string | null };
 async function loadListing(admin: SupabaseClient, listingId: string): Promise<ListingRow | null> {
   const { data } = await admin
     .from("listings")
-    .select("id, brand, model, title, category, price, status, archived_at, listing_images(storage_path, sort_order)")
+    .select("id, brand, model, title, category, price, status, archived_at, buying_paused, availability_confirmation_status, listing_images(storage_path, sort_order)")
     .eq("id", listingId)
     .maybeSingle();
   return (data as ListingRow | null) ?? null;
@@ -77,7 +79,7 @@ async function loadUsers(admin: SupabaseClient, userIds: string[]): Promise<Map<
 }
 
 function listingPurchasable(listing: ListingRow): boolean {
-  return !listing.archived_at && isPurchasableListingStatus(listing.status);
+  return isListingPurchasable(listing);
 }
 
 function listingHero(listing: ListingRow, name: string): string {
@@ -409,7 +411,7 @@ export async function runWatchlistReminderCron(
   const { data: rows, error } = await admin
     .from("watchlist_items")
     .select(
-      "id, user_id, listing_id, last_availability_email_at, last_now_available_email_at, created_at, listings(id, brand, model, title, category, price, status, archived_at, listing_images(storage_path, sort_order))"
+      "id, user_id, listing_id, last_availability_email_at, last_now_available_email_at, created_at, listings(id, brand, model, title, category, price, status, archived_at, buying_paused, availability_confirmation_status, listing_images(storage_path, sort_order))"
     )
     .is("last_availability_email_at", null)
     .lte("created_at", cutoffIso)

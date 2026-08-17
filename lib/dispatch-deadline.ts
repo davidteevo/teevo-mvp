@@ -42,9 +42,18 @@ export const AvailabilityConfirmationStatus = {
   REQUIRED: "required",
   CONFIRMED_AVAILABLE: "confirmed_available",
   CONFIRMED_UNAVAILABLE: "confirmed_unavailable",
+  EXPIRED: "expired",
 } as const;
 export type AvailabilityConfirmationStatusType =
   (typeof AvailabilityConfirmationStatus)[keyof typeof AvailabilityConfirmationStatus];
+
+export const AvailabilityConfirmationSource = {
+  DISPATCH_TIMEOUT: "dispatch_timeout",
+  ADMIN_RECONFIRM: "admin_reconfirm",
+  STALE_LISTING: "stale_listing",
+} as const;
+export type AvailabilityConfirmationSourceType =
+  (typeof AvailabilityConfirmationSource)[keyof typeof AvailabilityConfirmationSource];
 
 export const DISPATCH_CLOCK_SELECT =
   "id, status, shipped_at, cancellation_status, packaging_source, starter_pack_dispatched_at, packaging_status, fulfilment_mode, fulfilment_status, shippo_label_url, shipping_label_url, dispatch_deadline_at, original_dispatch_deadline_at, dispatch_clock_paused_at, dispatch_clock_pause_reason, created_at, dispatch_extension_status";
