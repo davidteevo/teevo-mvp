@@ -194,7 +194,11 @@ export function clubCategoryTitleNoun(category: string): string {
 }
 
 /** Keep the category noun in a listing title consistent (e.g. Irons stay plural). */
-export function normalizeListingTitleForCategory(title: string, category: string): string {
+export function normalizeListingTitleForCategory(
+  title: string,
+  category: string | null | undefined
+): string {
+  if (!category) return title;
   if (category === "Irons") {
     return title
       .replace(/\bDriving Iron\b/g, "Driving\u0000Iron")

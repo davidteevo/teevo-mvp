@@ -2,6 +2,7 @@ import type { EmailAttachment, EmailType } from "@/lib/email";
 import { listingHeroImageHtml, sendEmail } from "@/lib/email";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { firstListingImageUrl, type ListingImageRow } from "@/lib/listing-images";
+import { normalizeListingTitleForCategory } from "@/lib/listing-categories";
 
 /** Email types from the Automated Emails spec. Used for idempotency key. */
 export const EmailTriggerType = {
@@ -54,16 +55,17 @@ export const EmailTriggerType = {
 
 export type EmailTriggerTypeValue = (typeof EmailTriggerType)[keyof typeof EmailTriggerType];
 
-const LISTING_EMAIL_SELECT = "brand, model, title, listing_images(storage_path, sort_order)";
+const LISTING_EMAIL_SELECT = "brand, model, title, category, listing_images(storage_path, sort_order)";
 
 export function listingItemName(listing: {
   brand?: string | null;
   model?: string | null;
   title?: string | null;
+  category?: string | null;
 } | null | undefined): string {
   if (!listing) return "Your item";
   const title = typeof listing.title === "string" ? listing.title.trim() : "";
-  if (title) return title;
+  if (title) return normalizeListingTitleForCategory(title, listing.category);
   const fromParts = [listing.brand, listing.model].filter(Boolean).join(" ").trim();
   return fromParts || "Your item";
 }
@@ -89,6 +91,7 @@ export async function getListingEmailContext(
     brand?: string | null;
     model?: string | null;
     title?: string | null;
+    category?: string | null;
     listing_images?: ListingImageRow[] | null;
   } | null;
   const itemName = listingItemName(listing);
