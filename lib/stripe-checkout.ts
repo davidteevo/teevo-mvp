@@ -113,7 +113,7 @@ export async function createCheckoutSession(params: CreateCheckoutParams): Promi
         price_data: {
           currency: "gbp",
           unit_amount: authenticityPence,
-          product_data: { name: "Authenticity & Protection (8% + £0.50)", images: [] },
+          product_data: { name: "Authenticity & Protection", images: [] },
         },
         quantity: 1,
       },
