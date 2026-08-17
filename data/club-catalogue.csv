@@ -1,710 +1,2622 @@
 Club Type / Category,Brand,Model,Release Year
-Driver,Titleist,910D2,2011
-Driver,Titleist,910D3,2011
-Driver,Titleist,913D2,2013
-Driver,Titleist,913D3,2013
-Driver,Titleist,915D2,2014
-Driver,Titleist,915D3,2014
-Driver,Titleist,917D2,2016
-Driver,Titleist,917D3,2016
-Driver,Titleist,TS1,2018
-Driver,Titleist,TS2,2018
-Driver,Titleist,TS3,2018
-Driver,Titleist,TS4,2019
-Driver,Titleist,TSi1,2021
-Driver,Titleist,TSi2,2020
-Driver,Titleist,TSi3,2020
-Driver,Titleist,TSi4,2021
-Driver,Titleist,GT2,2024
-Driver,Titleist,GT3,2024
-Driver,Titleist,GT4,2024
-Irons,Titleist,AP1 710,2010
-Irons,Titleist,AP2 710,2010
-Irons,Titleist,AP1 712,2012
-Irons,Titleist,AP2 712,2012
-Irons,Titleist,AP1 714,2014
-Irons,Titleist,AP2 714,2014
-Irons,Titleist,AP1 716,2016
-Irons,Titleist,AP2 716,2016
-Irons,Titleist,T100,2019
-Irons,Titleist,T100S,2021
-Irons,Titleist,T200,2019
-Irons,Titleist,T300,2019
-Irons,Titleist,T350,2023
-Irons,Titleist,CB,2019
-Irons,Titleist,MB,2019
-Wedges,Titleist,Vokey SM5,2014
-Wedges,Titleist,Vokey SM6,2016
-Wedges,Titleist,Vokey SM7,2018
-Wedges,Titleist,Vokey SM8,2020
-Wedges,Titleist,Vokey SM9,2022
-Wedges,Titleist,Vokey SM10,2024
-Driving Irons,Titleist,712U,2012
-Driving Irons,Titleist,716 T-MB,2015
-Driving Irons,Titleist,U500,2019
-Driving Irons,Titleist,U510,2019
-Driving Irons,Titleist,T200 Utility,2021
-Driving Irons,Titleist,U505,2023
-Driver,TaylorMade,R11,2011
-Driver,TaylorMade,R11S,2012
-Driver,TaylorMade,RocketBallz,2012
-Driver,TaylorMade,SLDR,2013
-Driver,TaylorMade,M1,2015
-Driver,TaylorMade,M2,2016
-Driver,TaylorMade,M3,2018
-Driver,TaylorMade,M4,2018
-Driver,TaylorMade,M5,2019
-Driver,TaylorMade,M6,2019
-Driver,TaylorMade,SIM,2020
-Driver,TaylorMade,SIM2,2021
-Driver,TaylorMade,Stealth,2022
-Driver,TaylorMade,Stealth 2,2023
-Driver,TaylorMade,Qi10,2024
-Irons,TaylorMade,RocketBladez,2012
-Irons,TaylorMade,SpeedBlade,2013
-Irons,TaylorMade,SLDR Irons,2014
-Irons,TaylorMade,M2 Irons,2017
-Irons,TaylorMade,P770,2020
-Irons,TaylorMade,P790,2017
-Irons,TaylorMade,P760,2018
-Irons,TaylorMade,P7MC,2020
-Irons,TaylorMade,P7MB,2020
-Irons,TaylorMade,Stealth Irons,2022
-Irons,TaylorMade,Qi Irons,2024
-Wedges,TaylorMade,Milled Grind MG,2018
-Wedges,TaylorMade,Milled Grind MG2,2019
-Wedges,TaylorMade,Milled Grind MG3,2021
-Wedges,TaylorMade,Milled Grind MG4,2023
-Driving Irons,TaylorMade,UDI,2014
-Driving Irons,TaylorMade,SIM UDI,2020
-Driving Irons,TaylorMade,P790 UDI,2017
-Driving Irons,TaylorMade,Stealth UDI,2022
-Driver,Callaway,Razr Fit,2012
-Driver,Callaway,X Hot,2013
-Driver,Callaway,Big Bertha Alpha,2014
-Driver,Callaway,XR,2015
-Driver,Callaway,Epic,2017
-Driver,Callaway,Rogue,2018
-Driver,Callaway,Epic Flash,2019
-Driver,Callaway,Mavrik,2020
-Driver,Callaway,Epic Speed,2021
-Driver,Callaway,Rogue ST,2022
-Driver,Callaway,Paradym,2023
-Driver,Callaway,Paradym Ai Smoke,2024
-Irons,Callaway,Apex 2014,2014
-Irons,Callaway,Apex 2016,2016
-Irons,Callaway,Apex 2019,2019
-Irons,Callaway,Apex 2021,2021
-Irons,Callaway,Apex 2024,2024
-Irons,Callaway,X Forged,2018
-Irons,Callaway,Rogue Irons,2018
-Irons,Callaway,Mavrik Irons,2020
-Irons,Callaway,Paradym Irons,2023
-Wedges,Callaway,Mack Daddy 2,2014
-Wedges,Callaway,Mack Daddy 3,2016
-Wedges,Callaway,Jaws,2019
-Wedges,Callaway,Jaws Raw,2022
-Driving Irons,Callaway,X Forged UT,2017
-Driving Irons,Callaway,Apex UT,2019
-Driving Irons,Callaway,Apex UW,2021
-Driver,Ping,G20,2011
-Driver,Ping,G25,2013
-Driver,Ping,G30,2014
-Driver,Ping,G,2016
-Driver,Ping,G400,2017
-Driver,Ping,G410,2019
-Driver,Ping,G425,2021
-Driver,Ping,G430,2023
-Irons,Ping,i20,2012
-Irons,Ping,i25,2014
-Irons,Ping,iBlade,2016
-Irons,Ping,i210,2018
-Irons,Ping,i230,2023
-Irons,Ping,G25 Irons,2013
-Irons,Ping,G30 Irons,2014
-Irons,Ping,G400 Irons,2017
-Irons,Ping,G410 Irons,2019
-Irons,Ping,G425 Irons,2021
-Wedges,Ping,Glide,2015
-Wedges,Ping,Glide 2.0,2017
-Wedges,Ping,Glide 3.0,2019
-Wedges,Ping,Glide 4.0,2022
-Driving Irons,Ping,Rapture DI,2014
-Driving Irons,Ping,G Crossover,2016
-Driving Irons,Ping,G410 Crossover,2019
-Driving Irons,Ping,iCrossover,2022
-Driver,Cobra,AMP Cell,2013
-Driver,Cobra,Bio Cell,2014
-Driver,Cobra,Fly Z,2015
-Driver,Cobra,King LTD,2016
-Driver,Cobra,F7,2017
-Driver,Cobra,F8,2018
-Driver,Cobra,F9,2019
-Driver,Cobra,SpeedZone,2020
-Driver,Cobra,Radspeed,2021
-Driver,Cobra,LTDx,2022
-Driver,Cobra,Darkspeed,2024
-Irons,Cobra,AMP Irons,2012
-Irons,Cobra,Bio Cell Irons,2014
-Irons,Cobra,Fly Z Irons,2015
-Irons,Cobra,King Forged TEC,2019
-Irons,Cobra,Forged TEC X,2022
-Irons,Cobra,SpeedZone Irons,2020
-Irons,Cobra,LTDx Irons,2022
-Irons,Cobra,Darkspeed Irons,2024
-Wedges,Cobra,Trusty Rusty,2014
-Wedges,Cobra,King Wedge,2016
-Wedges,Cobra,Snakebite,2021
-Driving Irons,Cobra,King Utility,2017
-Driving Irons,Cobra,King Tec Utility,2023
-Driver,Mizuno,JPX 850,2014
-Driver,Mizuno,JPX 900,2016
-Driver,Mizuno,ST180,2018
-Driver,Mizuno,ST190,2019
-Driver,Mizuno,ST200,2020
-Driver,Mizuno,STZ,2021
-Driver,Mizuno,STX,2021
-Driver,Mizuno,STG,2023
-Irons,Mizuno,MP-64,2012
-Irons,Mizuno,MP-69,2011
-Irons,Mizuno,MP-18,2017
-Irons,Mizuno,MP-20,2019
-Irons,Mizuno,JPX 900 Forged,2016
-Irons,Mizuno,JPX 919 Forged,2018
-Irons,Mizuno,JPX 921 Forged,2020
-Irons,Mizuno,JPX 923 Forged,2022
-Irons,Mizuno,Pro 221,2021
-Irons,Mizuno,Pro 223,2021
-Irons,Mizuno,Pro 225,2021
-Wedges,Mizuno,T7,2016
-Wedges,Mizuno,T20,2019
-Wedges,Mizuno,T22,2021
-Wedges,Mizuno,T24,2023
-Driving Irons,Mizuno,MP-H4,2012
-Driving Irons,Mizuno,MP-H5,2014
-Driving Irons,Mizuno,MP-20 HMB,2019
-Driving Irons,Mizuno,Pro Fli-Hi,2021
-Driver,Srixon,Z545,2014
-Driver,Srixon,Z565,2016
-Driver,Srixon,Z585,2018
-Driver,Srixon,ZX5,2020
-Driver,Srixon,ZX7,2020
-Driver,Srixon,ZX5 Mk II,2022
-Driver,Srixon,ZX7 Mk II,2022
-Irons,Srixon,Z545 Irons,2014
-Irons,Srixon,Z565 Irons,2016
-Irons,Srixon,Z585 Irons,2018
-Irons,Srixon,Z785 Irons,2018
-Irons,Srixon,ZX4,2020
-Irons,Srixon,ZX5,2020
-Irons,Srixon,ZX7,2020
-Irons,Srixon,ZX5 Mk II,2022
-Irons,Srixon,ZX7 Mk II,2022
-Wedges,Srixon,RTX 2.0,2014
-Wedges,Srixon,RTX 3,2017
-Wedges,Srixon,RTX ZipCore,2020
-Wedges,Srixon,RTX 6 ZipCore,2023
-Driving Irons,Srixon,Z U45,2015
-Driving Irons,Srixon,Z U65,2017
-Driving Irons,Srixon,ZX Utility,2020
-Driver,Wilson,C200,2016
-Driver,Wilson,D200,2015
-Driver,Wilson,D300,2017
-Driver,Wilson,D7,2019
-Driver,Wilson,D9,2021
-Irons,Wilson,FG Tour V6,2017
-Irons,Wilson,V6 Staff,2017
-Irons,Wilson,D7 Irons,2019
-Irons,Wilson,D9 Irons,2021
-Irons,Wilson,Staff Model CB,2020
-Irons,Wilson,Staff Model Blade,2020
-Wedges,Wilson,Staff Model Wedge,2020
-Driving Irons,Wilson,Staff Model Utility,2022
+Driver,Adams,Speedline 9064LS,2011
+Driver,Adams,Speedline F11,2011
+Driver,Adams,Speedline Fast 12,2012
+Driver,Adams,Speedline Fast 12 LS,2012
+Driver,Adams,Speedline Super LS,2013
+Driver,Adams,Speedline Super S,2013
+Driver,Adams,XTD,2014
 Driver,Adams,XTD Ti,2014
 Driver,Adams,Blue,2015
-Fairway Wood,Adams,Tight Lies Fairway,2014
-Hybrid,Adams,Idea Super Hybrid,2014
-Hybrid,Adams,Tight Lies Hybrid,2014
-Irons,Adams,CB2,2012
-Irons,Adams,Blue Irons,2015
 Driving Irons,Adams,DHY,2014
+Fairway Wood,Adams,Speedline F11,2011
+Fairway Wood,Adams,Speedline Fast 12,2012
+Fairway Wood,Adams,Speedline Super LS,2013
+Fairway Wood,Adams,Speedline Super S,2013
+Fairway Wood,Adams,Tight Lies,2014
+Fairway Wood,Adams,XTD Ti,2014
+Fairway Wood,Adams,Blue,2015
+Hybrid,Adams,Idea a12,2011
+Hybrid,Adams,Idea a12 OS,2011
+Hybrid,Adams,Idea Black Super,2011
+Hybrid,Adams,Idea Super XTD,2012
+Hybrid,Adams,Idea Tech V3,2012
+Hybrid,Adams,Idea DHy,2013
+Hybrid,Adams,Idea Super LS,2013
+Hybrid,Adams,Idea Super S,2013
+Hybrid,Adams,Idea Super,2014
+Hybrid,Adams,Pro DHy,2014
+Hybrid,Adams,Pro Mini,2014
+Hybrid,Adams,Tight Lies,2014
+Hybrid,Adams,XTD Ti,2014
+Hybrid,Adams,Blue,2015
+Irons,Adams,Idea a12 OS,2011
+Irons,Adams,Idea Black CB3,2011
+Irons,Adams,Idea Pro a12,2011
+Irons,Adams,CB2,2012
+Irons,Adams,Idea CMB,2012
+Irons,Adams,Idea Tech V4,2012
+Irons,Adams,Idea Super LS,2013
+Irons,Adams,Idea Super S,2013
+Irons,Adams,XTD,2014
+Irons,Adams,XTD Forged,2014
+Irons,Adams,Blue,2015
+Driver,Ben Hogan,GS53,2019
+Driving Irons,Ben Hogan,UiHi,2017
+Irons,Ben Hogan,Fort Worth 15,2015
 Irons,Ben Hogan,Ft. Worth 15,2015
 Irons,Ben Hogan,PTx,2017
 Irons,Ben Hogan,GS53,2019
 Irons,Ben Hogan,PTx Pro,2020
 Irons,Ben Hogan,Fort Worth CB,2024
-Driving Irons,Ben Hogan,UiHi,2017
 Wedge,Ben Hogan,Equalizer,2015
 Wedge,Ben Hogan,TK,2019
-Driver,Ben Sayers,M8 Driver,2021
-Fairway Wood,Ben Sayers,M8 Fairway,2021
-Hybrid,Ben Sayers,M8 Hybrid,2021
-Irons,Ben Sayers,M8 Irons,2021
-Wedge,Ben Sayers,M8 Wedge,2021
-Driver,Bridgestone,JGR Driver,2017
+Driver,Ben Sayers,M8,2021
+Fairway Wood,Ben Sayers,M8,2021
+Hybrid,Ben Sayers,M8,2021
+Irons,Ben Sayers,M8,2021
+Wedge,Ben Sayers,M8,2021
+Driver,Benross,Quad Speed,2011
+Driver,Benross,VX Proto,2011
+Driver,Benross,Hot Speed 2,2013
+Driver,Benross,Max Speed 2,2013
+Driver,Benross,HTX,2015
+Driver,Benross,Speed 10,2015
+Driver,Benross,HTX Compressor Type P,2017
+Driver,Benross,HTX Compressor Type R,2017
+Driver,Benross,Delta X,2019
+Driver,Benross,Delta X2,2019
+Driver,Benross,Aero X,2021
+Driver,Benross,BR-Pro,2023
+Driver,Benross,Pearl,2023
+Fairway Wood,Benross,Quad Speed,2011
+Fairway Wood,Benross,Hot Speed 2,2013
+Fairway Wood,Benross,HTX,2015
+Fairway Wood,Benross,HTX Compressor,2017
+Fairway Wood,Benross,Delta X,2019
+Fairway Wood,Benross,Aero X,2021
+Fairway Wood,Benross,BR-Pro,2023
+Hybrid,Benross,Quad Speed,2011
+Hybrid,Benross,Hot Speed 2,2013
+Hybrid,Benross,HTX,2015
+Hybrid,Benross,HTX Compressor,2017
+Hybrid,Benross,Delta X,2019
+Hybrid,Benross,Aero X,2021
+Hybrid,Benross,BR-Pro,2023
+Irons,Benross,Quad,2011
+Irons,Benross,VX Proto,2011
+Irons,Benross,Hot Speed 2,2013
+Irons,Benross,Max Speed 2,2013
+Irons,Benross,HTX,2015
+Irons,Benross,HTX Type R (2015),2015
+Irons,Benross,HTX Compressor,2017
+Irons,Benross,HTX Type R (2017),2017
+Irons,Benross,Delta X,2019
+Irons,Benross,Delta X2,2019
+Irons,Benross,Aero X,2021
+Irons,Benross,BR-Pro,2023
+Wedge,Benross,HTX Zip-It,2015
+Wedge,Benross,Delta X,2019
+Putter,Bettinardi,BB Series BB1 (2011),2011
+Putter,Bettinardi,BB Series BB8,2011
+Putter,Bettinardi,BB Series BB27,2011
+Putter,Bettinardi,BB Series BB32,2011
+Putter,Bettinardi,BB Series BB53,2011
+Putter,Bettinardi,Studio Stock 5,2012
+Putter,Bettinardi,Studio Stock 8 (2012),2012
+Putter,Bettinardi,Studio Stock 10,2012
+Putter,Bettinardi,Studio Stock 12,2012
+Putter,Bettinardi,Queen B 5,2014
+Putter,Bettinardi,Queen B 6 (2014),2014
+Putter,Bettinardi,Queen B 7,2014
+Putter,Bettinardi,Queen B 8 (2014),2014
+Putter,Bettinardi,Queen B 9,2014
+Putter,Bettinardi,Queen B 10,2014
+Putter,Bettinardi,Inovai 1.0,2016
+Putter,Bettinardi,Inovai 3.0,2016
+Putter,Bettinardi,Inovai 5.0,2016
+Putter,Bettinardi,Inovai 6.0 (2016),2016
+Putter,Bettinardi,BB Series BB1 (2018),2018
+Putter,Bettinardi,BB Series BB1F,2018
+Putter,Bettinardi,BB Series BB8W,2018
+Putter,Bettinardi,BB Series BB29,2018
+Putter,Bettinardi,BB Series BB39,2018
+Putter,Bettinardi,Studio Stock 28,2018
+Putter,Bettinardi,Hive,2019
+Putter,Bettinardi,Studio Stock 2,2019
+Putter,Bettinardi,Studio Stock 3,2019
+Putter,Bettinardi,Studio Stock 8 (2019),2019
+Putter,Bettinardi,Studio Stock 28 (2019),2019
+Putter,Bettinardi,Studio Stock 38,2019
+Putter,Bettinardi,BB1,2020
+Putter,Bettinardi,BB8,2021
+Putter,Bettinardi,Queen B 6 (2021),2021
+Putter,Bettinardi,Queen B 8 (2021),2021
+Putter,Bettinardi,Queen B 11,2021
+Putter,Bettinardi,Queen B 12,2021
+Putter,Bettinardi,Inovai 6.0,2022
+Putter,Bettinardi,Inovai 6.0 (2022),2022
+Putter,Bettinardi,Inovai 7.0,2022
+Putter,Bettinardi,Inovai 8.0,2022
+Putter,Bettinardi,Inovai Rev 6.0,2022
+Putter,Bettinardi,Queen B 6,2023
+Putter,Bettinardi,Studio Stock 9,2023
+Putter,Bettinardi,Studio Stock 14,2023
+Putter,Bettinardi,Studio Stock 16,2023
+Putter,Bettinardi,Studio Stock 17,2023
+Putter,Bettinardi,Studio Stock 28 (2023),2023
+Putter,Bettinardi,BB Series BB1 (2024),2024
+Putter,Bettinardi,BB Series BB1 Wide,2024
+Putter,Bettinardi,BB Series BB8 Flow,2024
+Putter,Bettinardi,BB Series BB28,2024
+Putter,Bettinardi,BB Series BB48,2024
+Putter,Bettinardi,Antidote SB1,2025
+Putter,Bettinardi,Antidote SB2,2025
+Putter,Bettinardi,Antidote SB3,2025
+Driver,Bridgestone,JGR,2017
 Driver,Bridgestone,Tour B JGR,2020
-Driver,Bridgestone,B1 Driver,2022
-Driver,Bridgestone,B2 Driver,2022
-Fairway Wood,Bridgestone,Tour B JGR Fairway,2020
-Hybrid,Bridgestone,Tour B JGR Hybrid,2020
+Driver,Bridgestone,B1,2022
+Driver,Bridgestone,B2,2022
+Fairway Wood,Bridgestone,Tour B JGR,2020
+Hybrid,Bridgestone,Tour B JGR,2020
 Irons,Bridgestone,J15 CB,2014
 Irons,Bridgestone,Tour B HF3,2020
 Irons,Bridgestone,221CB,2022
 Wedge,Bridgestone,BRM2,2022
-Driver,Callaway,Elyte,2025
-Driver,Callaway,Elyte Triple Diamond,2025
-Driver,Callaway,Elyte X,2025
-Fairway Wood,Callaway,Elyte Fairway,2025
-Hybrid,Callaway,Elyte Hybrid,2025
-Irons,Callaway,Elyte Irons,2025
+Driver,Callaway,RAZR Hawk,2011
+Driver,Callaway,RAZR Hawk Tour,2011
+Driver,Callaway,RAZR Fit,2012
+Driver,Callaway,RAZR Fit Tour Authentic,2012
+Driver,Callaway,FT Optiforce 440,2013
+Driver,Callaway,FT Optiforce 460,2013
+Driver,Callaway,X Hot,2013
+Driver,Callaway,X Hot Pro,2013
+Driver,Callaway,Big Bertha,2014
+Driver,Callaway,Big Bertha Alpha,2014
+Driver,Callaway,Big Bertha V Series,2014
+Driver,Callaway,Big Bertha Alpha 815,2015
+Driver,Callaway,Big Bertha Alpha 815 Double Black Diamond,2015
+Driver,Callaway,Great Big Bertha,2015
+Driver,Callaway,XR,2015
+Driver,Callaway,XR Pro,2015
+Driver,Callaway,Big Bertha Fusion,2016
+Driver,Callaway,XR 16,2016
+Driver,Callaway,XR 16 Pro,2016
+Driver,Callaway,Epic,2017
+Driver,Callaway,Great Big Bertha Epic,2017
+Driver,Callaway,Great Big Bertha Epic Sub Zero,2017
+Driver,Callaway,Rogue,2018
+Driver,Callaway,Rogue Draw,2018
+Driver,Callaway,Rogue Sub Zero,2018
+Driver,Callaway,Epic Flash,2019
+Driver,Callaway,Epic Flash Sub Zero,2019
+Driver,Callaway,Big Bertha B21,2020
+Driver,Callaway,MAVRIK,2020
+Driver,Callaway,MAVRIK Max,2020
+Driver,Callaway,MAVRIK Sub Zero,2020
+Driver,Callaway,Epic Max,2021
+Driver,Callaway,Epic Max LS,2021
+Driver,Callaway,Epic Speed,2021
+Driver,Callaway,Rogue ST,2022
+Driver,Callaway,Rogue ST Max,2022
+Driver,Callaway,Rogue ST Max D,2022
+Driver,Callaway,Rogue ST Max LS,2022
+Driver,Callaway,Rogue ST Triple Diamond LS,2022
+Driver,Callaway,Big Bertha (2023),2023
+Driver,Callaway,Paradym,2023
+Driver,Callaway,Paradym Triple Diamond,2023
+Driver,Callaway,Paradym X,2023
+Driver,Callaway,Paradym Ai Smoke,2024
+Driver,Callaway,Paradym Ai Smoke Max,2024
+Driver,Callaway,Paradym Ai Smoke Max D,2024
+Driver,Callaway,Paradym Ai Smoke Max Fast,2024
+Driver,Callaway,Paradym Ai Smoke Triple Diamond,2024
+Driver,Callaway,ELYTE,2025
+Driver,Callaway,ELYTE Max Fast,2025
+Driver,Callaway,ELYTE Mini,2025
+Driver,Callaway,ELYTE Triple Diamond,2025
+Driver,Callaway,ELYTE X,2025
+Driver,Callaway,Quantum Max,2026
+Driver,Callaway,Quantum Max D,2026
+Driver,Callaway,Quantum Max Fast,2026
+Driver,Callaway,Quantum Mini,2026
+Driver,Callaway,Quantum Triple Diamond,2026
+Driver,Callaway,Quantum Triple Diamond Max,2026
+Driving Irons,Callaway,Apex UT (2014),2014
+Driving Irons,Callaway,X Forged UT,2017
+Driving Irons,Callaway,X Forged UT (2018),2018
+Driving Irons,Callaway,Apex UT,2019
+Driving Irons,Callaway,X Forged UT (2020),2020
+Driving Irons,Callaway,Apex UT 21,2021
+Driving Irons,Callaway,Apex UW,2021
+Driving Irons,Callaway,Apex UT 24,2024
+Fairway Wood,Callaway,Diablo Octane,2011
+Fairway Wood,Callaway,Diablo Octane Tour,2011
+Fairway Wood,Callaway,RAZR Hawk,2011
+Fairway Wood,Callaway,RAZR Fit,2012
+Fairway Wood,Callaway,FT Optiforce,2013
+Fairway Wood,Callaway,X Hot,2013
+Fairway Wood,Callaway,X Hot Pro,2013
+Fairway Wood,Callaway,Big Bertha,2014
+Fairway Wood,Callaway,Big Bertha V Series,2014
+Fairway Wood,Callaway,Great Big Bertha,2015
+Fairway Wood,Callaway,XR,2015
+Fairway Wood,Callaway,XR Pro,2015
+Fairway Wood,Callaway,Steelhead XR,2016
+Fairway Wood,Callaway,XR 16,2016
+Fairway Wood,Callaway,XR 16 Pro,2016
+Fairway Wood,Callaway,Great Big Bertha Epic,2017
+Fairway Wood,Callaway,Great Big Bertha Epic Sub Zero,2017
+Fairway Wood,Callaway,Rogue,2018
+Fairway Wood,Callaway,Rogue Sub Zero,2018
+Fairway Wood,Callaway,Epic Flash,2019
+Fairway Wood,Callaway,Epic Flash Sub Zero,2019
+Fairway Wood,Callaway,MAVRIK,2020
+Fairway Wood,Callaway,MAVRIK Max,2020
+Fairway Wood,Callaway,MAVRIK Sub Zero,2020
+Fairway Wood,Callaway,Big Bertha B21,2021
+Fairway Wood,Callaway,Epic Max,2021
+Fairway Wood,Callaway,Epic Speed,2021
+Fairway Wood,Callaway,Rogue ST LS,2022
+Fairway Wood,Callaway,Rogue ST Max,2022
+Fairway Wood,Callaway,Rogue ST Max D,2022
+Fairway Wood,Callaway,Big Bertha (2023),2023
+Fairway Wood,Callaway,Paradym,2023
+Fairway Wood,Callaway,Paradym Triple Diamond,2023
+Fairway Wood,Callaway,Paradym X,2023
+Fairway Wood,Callaway,Paradym Ai Smoke Max,2024
+Fairway Wood,Callaway,Paradym Ai Smoke Max D,2024
+Fairway Wood,Callaway,Paradym Ai Smoke Max Fast,2024
+Fairway Wood,Callaway,Paradym Ai Smoke Triple Diamond,2024
+Fairway Wood,Callaway,ELYTE,2025
+Fairway Wood,Callaway,ELYTE Ti,2025
+Fairway Wood,Callaway,ELYTE Triple Diamond,2025
+Fairway Wood,Callaway,ELYTE X,2025
+Fairway Wood,Callaway,Quantum Max,2026
+Fairway Wood,Callaway,Quantum Max D,2026
+Fairway Wood,Callaway,Quantum Max Fast,2026
+Fairway Wood,Callaway,Quantum Ti,2026
+Fairway Wood,Callaway,Quantum Triple Diamond,2026
+Hybrid,Callaway,RAZR X,2011
+Hybrid,Callaway,RAZR X Tour,2011
+Hybrid,Callaway,X Hot,2013
+Hybrid,Callaway,X Hot Pro,2013
+Hybrid,Callaway,Big Bertha,2014
+Hybrid,Callaway,X2 Hot,2014
+Hybrid,Callaway,X2 Hot Pro,2014
+Hybrid,Callaway,Big Bertha Alpha 815,2015
+Hybrid,Callaway,XR,2015
+Hybrid,Callaway,XR Pro,2015
+Hybrid,Callaway,Apex,2016
+Hybrid,Callaway,XR OS,2016
+Hybrid,Callaway,Great Big Bertha Epic,2017
+Hybrid,Callaway,Steelhead XR,2017
+Hybrid,Callaway,Rogue,2018
+Hybrid,Callaway,Rogue X,2018
+Hybrid,Callaway,Apex (2019),2019
+Hybrid,Callaway,MAVRIK,2020
+Hybrid,Callaway,MAVRIK Max,2020
+Hybrid,Callaway,MAVRIK Pro,2020
+Hybrid,Callaway,Apex 21,2021
+Hybrid,Callaway,Apex Pro 21,2021
+Hybrid,Callaway,Apex UW,2021
+Hybrid,Callaway,Big Bertha B21,2021
+Hybrid,Callaway,Epic Super,2021
+Hybrid,Callaway,Rogue ST Max,2022
+Hybrid,Callaway,Rogue ST Max OS,2022
+Hybrid,Callaway,Rogue ST Pro,2022
+Hybrid,Callaway,Apex UW (2023),2023
+Hybrid,Callaway,Big Bertha (2023),2023
+Hybrid,Callaway,Paradym,2023
+Hybrid,Callaway,Paradym X,2023
+Hybrid,Callaway,Paradym Ai Smoke,2024
+Hybrid,Callaway,Paradym Ai Smoke HL,2024
+Hybrid,Callaway,Paradym Ai Smoke Max Fast,2024
+Hybrid,Callaway,ELYTE,2025
+Hybrid,Callaway,ELYTE Max Fast,2025
+Hybrid,Callaway,ELYTE X,2025
+Hybrid,Callaway,Quantum Max,2026
+Hybrid,Callaway,Quantum Max Fast,2026
+Hybrid,Callaway,Quantum Max OS,2026
+Hybrid,Callaway,Quantum Triple Diamond,2026
+Irons,Callaway,Diablo Forged,2011
+Irons,Callaway,RAZR X,2011
+Irons,Callaway,RAZR X Forged,2011
+Irons,Callaway,RAZR X Tour,2011
+Irons,Callaway,RAZR X Black,2012
+Irons,Callaway,X Forged (2013),2013
+Irons,Callaway,X Hot,2013
+Irons,Callaway,X Hot Pro,2013
+Irons,Callaway,Apex (2014),2014
+Irons,Callaway,Apex 2014,2014
+Irons,Callaway,Apex Pro (2014),2014
+Irons,Callaway,Big Bertha (2014),2014
+Irons,Callaway,Big Bertha Alpha 815,2015
+Irons,Callaway,XR,2015
+Irons,Callaway,XR Pro,2015
+Irons,Callaway,Apex 2016,2016
+Irons,Callaway,Apex CF16,2016
+Irons,Callaway,Apex Pro 16,2016
+Irons,Callaway,Steelhead XR,2016
+Irons,Callaway,XR OS,2016
+Irons,Callaway,Great Big Bertha Epic,2017
+Irons,Callaway,Great Big Bertha Epic Pro,2017
+Irons,Callaway,Steelhead XR Pro,2017
+Irons,Callaway,Rogue,2018
+Irons,Callaway,Rogue Pro,2018
+Irons,Callaway,Rogue Women’s,2018
+Irons,Callaway,Rogue X,2018
+Irons,Callaway,X Forged,2018
+Irons,Callaway,X Forged (2018),2018
+Irons,Callaway,Apex 19,2019
+Irons,Callaway,Apex 2019,2019
+Irons,Callaway,Apex MB 18,2019
+Irons,Callaway,Apex Pro 19,2019
+Irons,Callaway,Big Bertha (2019),2019
+Irons,Callaway,MAVRIK,2020
+Irons,Callaway,MAVRIK Max,2020
+Irons,Callaway,MAVRIK Pro,2020
+Irons,Callaway,Apex 21,2021
+Irons,Callaway,Apex 2021,2021
+Irons,Callaway,Apex DCB 21,2021
+Irons,Callaway,Apex MB 21,2021
+Irons,Callaway,Apex Pro 21,2021
+Irons,Callaway,Apex TCB,2021
+Irons,Callaway,Big Bertha B21,2021
+Irons,Callaway,Rogue ST Max,2022
+Irons,Callaway,Rogue ST Max OS,2022
+Irons,Callaway,Rogue ST Max OS Lite,2022
+Irons,Callaway,Rogue ST Pro,2022
+Irons,Callaway,Apex CB 24,2023
+Irons,Callaway,Apex MB 24,2023
+Irons,Callaway,Apex Pro 24,2023
+Irons,Callaway,Big Bertha (2023),2023
+Irons,Callaway,Paradym,2023
+Irons,Callaway,Paradym X,2023
+Irons,Callaway,Apex 2024,2024
+Irons,Callaway,Apex Ai200,2024
+Irons,Callaway,Apex Ai300,2024
+Irons,Callaway,Apex Ti Fusion,2024
+Irons,Callaway,Paradym Ai Smoke,2024
+Irons,Callaway,Paradym Ai Smoke HL,2024
+Irons,Callaway,Paradym Ai Smoke Max Fast,2024
+Irons,Callaway,ELYTE,2025
+Irons,Callaway,ELYTE HL,2025
+Irons,Callaway,ELYTE X,2025
+Irons,Callaway,Quantum Max,2026
+Irons,Callaway,Quantum Max Fast,2026
+Irons,Callaway,Quantum Max OS,2026
+Wedge,Callaway,X Series JAWS CC,2011
+Wedge,Callaway,Forged,2012
 Wedge,Callaway,Mack Daddy 2,2014
+Wedge,Callaway,Mack Daddy 2 Tour Grind,2014
+Wedge,Callaway,Mack Daddy PM Grind,2015
 Wedge,Callaway,Mack Daddy 3,2016
+Wedge,Callaway,Mack Daddy 4,2018
+Wedge,Callaway,Mack Daddy 4 Tactical,2018
 Wedge,Callaway,Jaws,2019
+Wedge,Callaway,JAWS MD5,2019
+Wedge,Callaway,PM Grind 19,2019
+Wedge,Callaway,JAWS Full Toe,2021
+Wedge,Callaway,Mack Daddy CB,2021
 Wedge,Callaway,Jaws Raw,2022
+Wedge,Callaway,JAWS Raw Full Toe,2022
 Wedge,Callaway,Opus,2024
+Wedge,Callaway,Opus Platinum,2024
+Wedge,Callaway,Opus SP,2025
+Driver,Cleveland,Launcher SL290,2011
+Driver,Cleveland,Launcher TL310,2011
+Driver,Cleveland,Launcher XL270,2011
+Driver,Cleveland,Classic XL,2013
+Driver,Cleveland,Classic XL Custom,2013
+Driver,Cleveland,CG Black (2015),2015
+Driver,Cleveland,Launcher HB,2017
+Driver,Cleveland,Launcher HB Turbo,2020
 Driver,Cleveland,Launcher XL,2022
-Fairway Wood,Cleveland,Launcher XL Fairway,2022
-Hybrid,Cleveland,Launcher XL Halo,2022
-Hybrid,Cleveland,Halo XL Hy-Wood,2024
-Irons,Cleveland,Launcher XL Irons,2022
-Irons,Cleveland,Halo XL Full-Face,2024
+Driver,Cleveland,Launcher XL Lite,2022
+Driver,Cleveland,Launcher XL 2,2024
+Driver,Cleveland,Launcher XL 2 Draw,2024
 Driving Irons,Cleveland,UHX Utility,2019
-Wedge,Cleveland,CBX ZipCore,2020
+Fairway Wood,Cleveland,Launcher FL,2011
+Fairway Wood,Cleveland,Classic XL,2013
+Fairway Wood,Cleveland,CG Black,2015
+Fairway Wood,Cleveland,Launcher HB,2017
+Fairway Wood,Cleveland,Launcher HB Turbo,2020
+Fairway Wood,Cleveland,Launcher XL,2022
+Fairway Wood,Cleveland,Launcher XL Halo,2022
+Fairway Wood,Cleveland,Launcher XL 2 Halo,2024
+Hybrid,Cleveland,Mashie,2011
+Hybrid,Cleveland,Mashie Plus,2012
+Hybrid,Cleveland,Classic,2013
+Hybrid,Cleveland,CG Black,2015
+Hybrid,Cleveland,Launcher HB,2017
+Hybrid,Cleveland,Launcher Halo,2020
+Hybrid,Cleveland,Launcher XL Halo,2022
+Hybrid,Cleveland,Launcher XL Halo Hy-Wood,2022
+Hybrid,Cleveland,Halo XL,2024
+Hybrid,Cleveland,Halo XL Hy-Wood,2024
+Irons,Cleveland,CG16,2011
+Irons,Cleveland,CG16 Tour,2011
+Irons,Cleveland,588 Altitude,2012
+Irons,Cleveland,588 MT,2012
+Irons,Cleveland,588 TT,2012
+Irons,Cleveland,588 CB,2014
+Irons,Cleveland,588 MB,2014
+Irons,Cleveland,CG Black (2015),2015
+Irons,Cleveland,Launcher CBX,2017
+Irons,Cleveland,Launcher HB,2017
+Irons,Cleveland,Launcher HB Turbo,2020
+Irons,Cleveland,Launcher UHX,2020
+Irons,Cleveland,Launcher XL,2022
+Irons,Cleveland,Launcher XL Halo,2022
+Irons,Cleveland,Halo XL Full-Face,2024
+Irons,Cleveland,ZipCore XL,2024
+Wedge,Cleveland,CG16,2011
+Wedge,Cleveland,588 Forged,2012
+Wedge,Cleveland,588 RTX,2013
+Wedge,Cleveland,588 RTX CB,2013
+Wedge,Cleveland,RTX 2.0,2014
+Wedge,Cleveland,RTX 2.0 CB,2014
+Wedge,Cleveland,Smart Sole,2014
+Wedge,Cleveland,Smart Sole 2.0,2016
+Wedge,Cleveland,CBX,2017
+Wedge,Cleveland,RTX 3,2017
+Wedge,Cleveland,RTX-4,2018
+Wedge,Cleveland,Smart Sole 3,2018
+Wedge,Cleveland,CBX 2,2020
+Wedge,Cleveland,RTX ZipCore,2020
+Wedge,Cleveland,Smart Sole 4,2020
+Wedge,Cleveland,CBX Full-Face,2021
+Wedge,Cleveland,RTX Full-Face,2021
+Wedge,Cleveland,CBX ZipCore,2022
 Wedge,Cleveland,RTX 6 ZipCore,2023
+Wedge,Cleveland,RTX Full-Face 2,2023
+Wedge,Cleveland,CBX 4 ZipCore,2024
 Wedge,Cleveland,Smart Sole Full-Face,2024
+Wedge,Cleveland,RTZ,2025
+Wedge,Cleveland,RTZ Full-Face,2025
+Putter,Cleveland,Classic Collection 1,2013
+Putter,Cleveland,Classic Collection 2,2013
+Putter,Cleveland,Classic Collection 4,2013
+Putter,Cleveland,Classic Collection 5.5,2013
+Putter,Cleveland,Classic Collection 6,2013
+Putter,Cleveland,Classic Collection 10,2013
+Putter,Cleveland,TFi 2135 1.0,2016
+Putter,Cleveland,TFi 2135 6.5,2016
+Putter,Cleveland,TFi 2135 8.0,2016
+Putter,Cleveland,TFi 2135 Cero,2016
+Putter,Cleveland,TFi 2135 Mezzo,2016
+Putter,Cleveland,Huntington Beach 1,2018
+Putter,Cleveland,Huntington Beach 3,2018
+Putter,Cleveland,Huntington Beach 4,2018
+Putter,Cleveland,Huntington Beach 6,2018
+Putter,Cleveland,Huntington Beach 10,2018
+Putter,Cleveland,Huntington Beach 11,2018
+Putter,Cleveland,Huntington Beach 12,2018
+Putter,Cleveland,Huntington Beach Soft 1,2019
+Putter,Cleveland,Huntington Beach Soft 4,2019
+Putter,Cleveland,Huntington Beach Soft 6,2019
+Putter,Cleveland,Huntington Beach Soft 8.5,2019
+Putter,Cleveland,Huntington Beach Soft 10.5,2019
+Putter,Cleveland,Huntington Beach Soft 11,2019
+Putter,Cleveland,Huntington Beach Soft 12,2019
+Putter,Cleveland,Frontline 2.0,2021
+Putter,Cleveland,Frontline 4.0,2021
+Putter,Cleveland,Frontline 8.0,2021
+Putter,Cleveland,Frontline Cero,2021
+Putter,Cleveland,Frontline Elevado,2021
+Putter,Cleveland,Frontline Iso,2021
+Putter,Cleveland,Huntington Beach Soft Premier 4,2022
+Putter,Cleveland,Huntington Beach Soft Premier 8,2022
+Putter,Cleveland,Huntington Beach Soft Premier 10.5,2022
+Putter,Cleveland,Huntington Beach Soft Premier 11,2022
+Putter,Cleveland,Huntington Beach Soft Premier 14,2022
+Putter,Cleveland,Frontline Elite 1.0,2023
+Putter,Cleveland,Frontline Elite 8.0,2023
+Putter,Cleveland,Frontline Elite Cero,2023
+Putter,Cleveland,Frontline Elite Elevado,2023
+Putter,Cleveland,Frontline Elite Rho,2023
+Putter,Cleveland,HB Soft 2,2024
+Putter,Cleveland,HB Soft 2 1,2024
+Putter,Cleveland,HB Soft 2 8,2024
+Putter,Cleveland,HB Soft 2 10.5,2024
+Putter,Cleveland,HB Soft 2 11,2024
+Putter,Cleveland,HB Soft 2 14,2024
+Driver,Cobra,S3,2011
+Driver,Cobra,S3 Max,2011
+Driver,Cobra,ZL Encore,2011
+Driver,Cobra,AMP,2012
+Driver,Cobra,AMP Offset,2012
+Driver,Cobra,AMP Cell,2013
+Driver,Cobra,AMP Cell Pro,2013
+Driver,Cobra,Bio Cell,2014
+Driver,Cobra,Bio Cell Plus,2014
+Driver,Cobra,Bio Cell Pro,2014
+Driver,Cobra,Fly Z,2015
+Driver,Cobra,Fly-Z,2015
+Driver,Cobra,Fly-Z Plus,2015
+Driver,Cobra,Fly-Z XL,2015
+Driver,Cobra,King F6,2016
+Driver,Cobra,King F6 Plus,2016
+Driver,Cobra,King LTD,2016
+Driver,Cobra,King LTD Pro,2016
+Driver,Cobra,Max,2016
+Driver,Cobra,F7,2017
+Driver,Cobra,King F7,2017
+Driver,Cobra,King F7 Plus,2017
+Driver,Cobra,King LTD Black,2017
+Driver,Cobra,F8,2018
+Driver,Cobra,King F8,2018
+Driver,Cobra,King F8 Plus,2018
+Driver,Cobra,F9,2019
+Driver,Cobra,King F9 SPEEDBACK,2019
+Driver,Cobra,King SPEEDZONE,2020
+Driver,Cobra,King SPEEDZONE Xtreme,2020
+Driver,Cobra,SPEEDZONE,2020
+Driver,Cobra,King RADSpeed,2021
+Driver,Cobra,King RADSpeed XB,2021
+Driver,Cobra,King RADSpeed XD,2021
+Driver,Cobra,RADSpeed,2021
+Driver,Cobra,King LTDx,2022
+Driver,Cobra,King LTDx LS,2022
+Driver,Cobra,King LTDx Max,2022
+Driver,Cobra,LTDx,2022
+Driver,Cobra,Aerojet,2023
+Driver,Cobra,Aerojet LS,2023
+Driver,Cobra,Aerojet Max,2023
+Driver,Cobra,DARKSPEED,2024
+Driver,Cobra,DARKSPEED LS,2024
+Driver,Cobra,DARKSPEED Max,2024
+Driver,Cobra,DARKSPEED X,2024
 Driver,Cobra,DS-Adapt,2025
 Driver,Cobra,DS-Adapt LS,2025
-Driver,Cobra,DS-Adapt Max-K,2025
+Driver,Cobra,DS-ADAPT MAX-D,2025
+Driver,Cobra,DS-Adapt MAX-K,2025
 Driver,Cobra,DS-Adapt X,2025
-Fairway Wood,Cobra,DS-Adapt Fairway,2025
-Hybrid,Cobra,DS-Adapt Hybrid,2025
+Driver,Cobra,KING TEC-MD Mini,2026
+Driver,Cobra,OPTM LS,2026
+Driver,Cobra,OPTM MAX-D,2026
+Driver,Cobra,OPTM MAX-K,2026
+Driver,Cobra,OPTM X,2026
+Driving Irons,Cobra,King Utility,2017
+Driving Irons,Cobra,King Utility Black,2018
+Driving Irons,Cobra,King Utility (2020),2020
+Driving Irons,Cobra,King Tec Utility,2023
+Fairway Wood,Cobra,S3,2011
+Fairway Wood,Cobra,AMP,2012
+Fairway Wood,Cobra,AMP Cell,2013
+Fairway Wood,Cobra,AMP Cell Pro,2013
+Fairway Wood,Cobra,Bio Cell,2014
+Fairway Wood,Cobra,Bio Cell Plus,2014
+Fairway Wood,Cobra,Fly-Z,2015
+Fairway Wood,Cobra,Fly-Z Plus,2015
+Fairway Wood,Cobra,Fly-Z XL,2015
+Fairway Wood,Cobra,King F6,2016
+Fairway Wood,Cobra,King F6 Baffler,2016
+Fairway Wood,Cobra,King F7,2017
+Fairway Wood,Cobra,King F7 Baffler,2017
+Fairway Wood,Cobra,King F8,2018
+Fairway Wood,Cobra,King F8 Tour,2018
+Fairway Wood,Cobra,King F9 SPEEDBACK,2019
+Fairway Wood,Cobra,King F9 SPEEDBACK Tour,2019
+Fairway Wood,Cobra,King SPEEDZONE,2020
+Fairway Wood,Cobra,King SPEEDZONE Big Tour,2020
+Fairway Wood,Cobra,King SPEEDZONE Tour,2020
+Fairway Wood,Cobra,King RADSpeed,2021
+Fairway Wood,Cobra,King RADSpeed Big Tour,2021
+Fairway Wood,Cobra,King RADSpeed Draw,2021
+Fairway Wood,Cobra,King RADSpeed Tour,2021
+Fairway Wood,Cobra,King LTDx,2022
+Fairway Wood,Cobra,King LTDx LS,2022
+Fairway Wood,Cobra,King LTDx Max,2022
+Fairway Wood,Cobra,Aerojet,2023
+Fairway Wood,Cobra,Aerojet LS,2023
+Fairway Wood,Cobra,Aerojet Max,2023
+Fairway Wood,Cobra,DARKSPEED,2024
+Fairway Wood,Cobra,DARKSPEED LS,2024
+Fairway Wood,Cobra,DARKSPEED Max,2024
+Fairway Wood,Cobra,DARKSPEED X,2024
+Fairway Wood,Cobra,DS-Adapt,2025
+Fairway Wood,Cobra,DS-ADAPT LS,2025
+Fairway Wood,Cobra,DS-ADAPT MAX-K,2025
+Fairway Wood,Cobra,DS-ADAPT X,2025
+Fairway Wood,Cobra,OPTM,2026
+Fairway Wood,Cobra,OPTM LS,2026
+Fairway Wood,Cobra,OPTM MAX,2026
+Fairway Wood,Cobra,OPTM X,2026
+Hybrid,Cobra,Baffler Rail H,2011
+Hybrid,Cobra,AMP,2012
+Hybrid,Cobra,AMP Cell,2013
+Hybrid,Cobra,Bio Cell,2014
+Hybrid,Cobra,Fly-Z,2015
+Hybrid,Cobra,Fly-Z XL,2015
+Hybrid,Cobra,King F6,2016
+Hybrid,Cobra,King F6 Baffler,2016
+Hybrid,Cobra,King F7,2017
+Hybrid,Cobra,King F8,2018
+Hybrid,Cobra,King F9 SPEEDBACK,2019
+Hybrid,Cobra,King SPEEDZONE,2020
+Hybrid,Cobra,King RADSpeed,2021
+Hybrid,Cobra,King LTDx,2022
+Hybrid,Cobra,Aerojet,2023
+Hybrid,Cobra,King TEC,2023
+Hybrid,Cobra,DARKSPEED,2024
+Hybrid,Cobra,DS-Adapt,2025
+Hybrid,Cobra,King TEC Hybrid (2025),2025
+Hybrid,Cobra,OPTM,2026
+Irons,Cobra,S3,2011
+Irons,Cobra,S3 Max,2011
+Irons,Cobra,S3 Pro,2011
+Irons,Cobra,AMP,2012
+Irons,Cobra,AMP Forged,2012
+Irons,Cobra,AMP Cell,2013
+Irons,Cobra,AMP Cell Pro,2013
+Irons,Cobra,Bio Cell,2014
+Irons,Cobra,Bio Cell Plus,2014
+Irons,Cobra,Fly Z,2015
+Irons,Cobra,Fly-Z,2015
+Irons,Cobra,Fly-Z Plus,2015
+Irons,Cobra,Fly-Z XL,2015
+Irons,Cobra,King F6,2016
+Irons,Cobra,King Forged CB/MB,2016
+Irons,Cobra,King Forged TEC (2016),2016
+Irons,Cobra,King F7,2017
+Irons,Cobra,King F7 One Length,2017
+Irons,Cobra,King Forged Tour,2017
+Irons,Cobra,King F8,2018
+Irons,Cobra,King F8 One Length,2018
+Irons,Cobra,King F9 SPEEDBACK,2019
+Irons,Cobra,King F9 SPEEDBACK One Length,2019
+Irons,Cobra,King Forged TEC,2019
+Irons,Cobra,King Forged TEC (2019),2019
+Irons,Cobra,King SPEEDZONE,2020
+Irons,Cobra,King SPEEDZONE One Length,2020
+Irons,Cobra,King Tour MIM,2020
+Irons,Cobra,SPEEDZONE,2020
+Irons,Cobra,King RADSpeed,2021
+Irons,Cobra,King RADSpeed One Length,2021
+Irons,Cobra,Forged TEC X,2022
+Irons,Cobra,King Forged TEC (2022),2022
+Irons,Cobra,King Forged TEC X,2022
+Irons,Cobra,King LTDx,2022
+Irons,Cobra,King LTDx One Length,2022
+Irons,Cobra,LTDx,2022
+Irons,Cobra,Aerojet,2023
+Irons,Cobra,Aerojet One Length,2023
+Irons,Cobra,King CB,2023
+Irons,Cobra,King MB,2023
 Irons,Cobra,King Tec,2023
+Irons,Cobra,King Tec (2023),2023
+Irons,Cobra,King Tour,2023
+Irons,Cobra,DARKSPEED,2024
+Irons,Cobra,DARKSPEED One Length,2024
 Irons,Cobra,3DP Tour,2025
-Wedge,Cobra,Trusty Rusty,2014
-Wedge,Cobra,King Wedge,2016
+Irons,Cobra,King TEC (2025),2025
+Irons,Cobra,King TEC X,2025
+Irons,Cobra,3DP X,2026
+Wedge,Cobra,Trusty Rusty,2012
+Wedge,Cobra,Tour Trusty,2015
+Wedge,Cobra,King,2016
+Wedge,Cobra,King Pur,2017
+Wedge,Cobra,King MIM,2019
 Wedge,Cobra,Snakebite,2021
-Driver,Edel,SMS Driver,2022
-Fairway Wood,Edel,SMS Fairway,2022
-Hybrid,Edel,SMS Hybrid,2022
-Irons,Edel,SMS Irons,2023
-Wedge,Edel,SMS Wedge,2021
+Wedge,Cobra,Snakebite One Length,2021
+Wedge,Cobra,Snakebite (2023),2023
+Wedge,Cobra,Snakebite X,2023
+Wedge,Cobra,King Wedge (2025),2025
+Putter,Cobra,3D Printed Agera,2021
+Putter,Cobra,King 3D Printed Agera,2021
+Putter,Cobra,King 3D Printed Grandsport-35,2021
+Putter,Cobra,King 3D Printed Nova,2021
+Putter,Cobra,King Vintage Sport-45,2021
+Putter,Cobra,King Vintage Stingray,2021
+Putter,Cobra,King Vintage Torino,2021
+Putter,Cobra,King 3D Printed Agera (2023),2023
+Putter,Cobra,King 3D Printed Agera RS,2023
+Putter,Cobra,King 3D Printed Grandsport-35 (2023),2023
+Putter,Cobra,King Vintage Cuda,2023
+Putter,Cobra,King Vintage Sport-60,2023
+Putter,Cobra,King Vintage Stingray (2023),2023
+Putter,Cobra,Sport-60,2023
+Putter,Cobra,Vintage Nova,2024
+Driver,Edel,SMS,2022
+Fairway Wood,Edel,SMS,2022
+Hybrid,Edel,SMS,2022
+Irons,Edel,SMS,2023
+Wedge,Edel,SMS,2021
 Driver,Epon,AF-157,2020
-Fairway Wood,Epon,AF-257 Fairway,2020
-Hybrid,Epon,AF-957 Hybrid,2020
+Fairway Wood,Epon,AF-257,2020
+Hybrid,Epon,AF-957,2020
 Irons,Epon,AF-305,2018
 Irons,Epon,AF-506,2020
 Irons,Epon,AF-Tour CB2,2023
-Wedge,Epon,Tour Wedge,2021
-Driver,Forgan,F100 Driver,2021
-Fairway Wood,Forgan,F100 Fairway,2021
-Hybrid,Forgan,F100 Hybrid,2021
-Irons,Forgan,F100 Irons,2021
-Wedge,Forgan,F100 Wedge,2021
+Wedge,Epon,Tour,2021
+Putter,Evnroll,ER1 Blade,2016
+Putter,Evnroll,ER2 MidBlade,2016
+Putter,Evnroll,ER3 WingBlade,2016
+Putter,Evnroll,ER5 Hatchback,2016
+Putter,Evnroll,ER6 iRoll,2016
+Putter,Evnroll,ER7 FullMallet,2016
+Putter,Evnroll,ER8 TourMallet,2016
+Putter,Evnroll,ER2,2017
+Putter,Evnroll,ER5,2017
+Putter,Evnroll,ER1.2 TourBlade,2018
+Putter,Evnroll,ER2.2 MidBlade,2018
+Putter,Evnroll,ER5B Hatchback,2018
+Putter,Evnroll,ER7,2018
+Putter,Evnroll,ER8.3 PlayersMallet,2018
+Putter,Evnroll,ER1V,2020
+Putter,Evnroll,ER2V,2020
+Putter,Evnroll,ER5V,2020
+Putter,Evnroll,ER7V,2020
+Putter,Evnroll,ER8V,2020
+Putter,Evnroll,ER11,2020
+Putter,Evnroll,ER11V,2020
+Putter,Evnroll,ER1v2,2022
+Putter,Evnroll,ER2v2,2022
+Putter,Evnroll,ER5v2,2022
+Putter,Evnroll,ER8v2,2022
+Putter,Evnroll,ER10 Outback,2022
+Putter,Evnroll,ER11vx,2022
+Putter,Evnroll,Neo Classic ER1,2024
+Putter,Evnroll,Neo Classic ER2,2024
+Putter,Evnroll,Neo Classic ER5,2024
+Putter,Evnroll,Neo Classic ER8,2024
+Putter,Evnroll,Zero Z1,2024
+Putter,Evnroll,Zero Z2,2024
+Putter,Evnroll,Zero Z1.2,2025
+Putter,Evnroll,Zero Z2s,2025
+Putter,Evnroll,Zero Z5s,2025
+Driver,Forgan,F100,2021
+Fairway Wood,Forgan,F100,2021
+Hybrid,Forgan,F100,2021
+Irons,Forgan,F100,2021
+Wedge,Forgan,F100,2021
 Irons,Fourteen,TB-5 Forged,2020
 Irons,Fourteen,TB-7 Forged,2023
 Wedge,Fourteen,RM-11,2012
 Wedge,Fourteen,RM-22,2014
 Wedge,Fourteen,RM-4,2020
 Wedge,Fourteen,DJ-5,2022
+Driving Irons,Haywood,Driving Iron,2023
 Irons,Haywood,Signature,2021
 Irons,Haywood,CB/MB,2023
-Driving Irons,Haywood,Driving Iron,2023
-Wedge,Haywood,Signature Wedge,2022
+Wedge,Haywood,Signature,2022
+Driver,Honma,Beres S-02,2013
+Driver,Honma,Tour World TW717,2013
+Driver,Honma,Beres S-03,2015
+Driver,Honma,Tour World TW727,2015
+Driver,Honma,Beres S-05,2017
+Driver,Honma,Tour World TW737,2017
+Driver,Honma,Tour World TW747,2018
+Driver,Honma,Beres S-06,2019
 Driver,Honma,XP-1,2019
+Driver,Honma,TR20 440,2020
 Driver,Honma,TR20 460,2020
 Driver,Honma,T//World GS,2021
 Driver,Honma,TW757,2022
+Driver,Honma,TW757 D,2022
+Driver,Honma,TW757 S,2022
 Driver,Honma,Beres 09,2024
-Fairway Wood,Honma,T//World GS Fairway,2021
-Hybrid,Honma,T//World GS Hybrid,2021
+Fairway Wood,Honma,Beres S-02,2013
+Fairway Wood,Honma,Tour World TW717,2013
+Fairway Wood,Honma,Beres S-03,2015
+Fairway Wood,Honma,Tour World TW727,2015
+Fairway Wood,Honma,Beres S-05,2017
+Fairway Wood,Honma,Tour World TW737,2017
+Fairway Wood,Honma,Tour World TW747,2018
+Fairway Wood,Honma,XP-1,2019
+Fairway Wood,Honma,TR21,2020
+Fairway Wood,Honma,T//World GS,2021
+Fairway Wood,Honma,TW757,2022
+Fairway Wood,Honma,Beres 09,2024
+Hybrid,Honma,Beres U-02,2013
+Hybrid,Honma,Beres U-03,2015
+Hybrid,Honma,Beres U-05,2017
+Hybrid,Honma,Tour World TW737,2017
+Hybrid,Honma,Tour World TW747,2018
+Hybrid,Honma,XP-1,2019
+Hybrid,Honma,TR21,2020
+Hybrid,Honma,T//World GS,2021
+Hybrid,Honma,TW757,2022
+Hybrid,Honma,Beres 09,2024
+Irons,Honma,Beres IS-02,2013
+Irons,Honma,Tour World TW717 P,2013
+Irons,Honma,Tour World TW717 V,2013
+Irons,Honma,Beres IS-03,2015
+Irons,Honma,Tour World TW727 P,2015
+Irons,Honma,Tour World TW727 V,2015
+Irons,Honma,Beres IS-05,2017
+Irons,Honma,Tour World TW737 P,2017
+Irons,Honma,Tour World TW737 V,2017
+Irons,Honma,Tour World TW747 P,2018
+Irons,Honma,Tour World TW747 V,2018
+Irons,Honma,Beres IS-06,2019
+Irons,Honma,XP-1,2019
 Irons,Honma,TR20 P,2020
 Irons,Honma,TR20 V,2020
+Irons,Honma,T//World GS,2021
 Irons,Honma,TW757 P,2022
-Irons,Honma,Beres 09 Irons,2024
-Driver,John Letters,T9+ Driver,2020
-Fairway Wood,John Letters,T9+ Fairway,2020
-Hybrid,John Letters,T9+ Hybrid,2020
-Irons,John Letters,T9+ Irons,2020
-Wedge,John Letters,T9+ Wedge,2020
-Fairway Wood,Kasco,UFO Air Fairway,2024
+Irons,Honma,TW757 Vx,2022
+Irons,Honma,Beres 09,2024
+Driver,John Letters,T9+,2020
+Fairway Wood,John Letters,T9+,2020
+Hybrid,John Letters,T9+,2020
+Irons,John Letters,T9+,2020
+Wedge,John Letters,T9+,2020
+Fairway Wood,Kasco,UFO Air,2024
 Hybrid,Kasco,UFO Speed,2022
 Hybrid,Kasco,UFO Air,2024
 Irons,Kasco,Dolphin Iron DI,2022
-Wedge,Kasco,Dolphin Wedge,2021
+Wedge,Kasco,Dolphin,2021
 Driver,Katana,Voltio Ninja 880Hi,2017
 Driver,Katana,Voltio IV,2020
-Fairway Wood,Katana,Voltio Fairway,2020
-Hybrid,Katana,Voltio Hybrid,2020
+Fairway Wood,Katana,Voltio,2020
+Hybrid,Katana,Voltio,2020
 Irons,Katana,Sword Sniper,2018
-Irons,Katana,Voltio Ninja Irons,2020
+Irons,Katana,Voltio Ninja,2020
 Driver,Krank,Formula Fire,2017
 Driver,Krank,Formula X Extreme,2022
-Fairway Wood,Krank,Formula Fairway,2022
+Fairway Wood,Krank,Formula,2022
+Putter,L.A.B. Golf,Directed Force 2.1,2018
+Putter,L.A.B. Golf,DF 2.1,2020
+Putter,L.A.B. Golf,B.2,2021
+Putter,L.A.B. Golf,MEZZ.1,2022
+Putter,L.A.B. Golf,MEZZ.1 MAX,2022
+Putter,L.A.B. Golf,LINK.1,2023
+Putter,L.A.B. Golf,DF3,2024
+Putter,L.A.B. Golf,DF3 Counterbalanced,2025
+Putter,L.A.B. Golf,OZ.1,2025
+Putter,L.A.B. Golf,OZ.1i,2025
 Driver,Lynx,Predator,2018
-Fairway Wood,Lynx,Predator Fairway,2018
-Hybrid,Lynx,Predator Hybrid,2018
+Fairway Wood,Lynx,Predator,2018
+Hybrid,Lynx,Predator,2018
 Irons,Lynx,Black Cat,2021
 Irons,Lynx,Boom Boom,2023
 Wedge,Lynx,Prowler VT,2023
 Driver,MacGregor,V-Foil Speed,2020
-Fairway Wood,MacGregor,V-Foil Fairway,2020
-Hybrid,MacGregor,V-Foil Hybrid,2020
+Fairway Wood,MacGregor,V-Foil,2020
+Hybrid,MacGregor,V-Foil,2020
 Irons,MacGregor,VIP,2019
-Irons,MacGregor,V-Foil Irons,2020
-Wedge,MacGregor,VIP Wedge,2020
+Irons,MacGregor,V-Foil,2020
+Wedge,MacGregor,VIP,2020
 Driver,Majesty,Prestigio XI,2019
 Driver,Majesty,Royale,2023
 Driver,Majesty,Prestigio 13,2024
-Fairway Wood,Majesty,Royale Fairway,2023
-Hybrid,Majesty,Royale Hybrid,2023
-Irons,Majesty,Royale Irons,2023
-Irons,Majesty,Prestigio Irons,2024
+Fairway Wood,Majesty,Royale,2023
+Hybrid,Majesty,Royale,2023
+Irons,Majesty,Royale,2023
+Irons,Majesty,Prestigio,2024
 Driver,Maltby,KE4 Tour TC,2021
-Fairway Wood,Maltby,KE4 Fairway,2021
-Hybrid,Maltby,KE4 Hybrid,2021
+Fairway Wood,Maltby,KE4,2021
+Hybrid,Maltby,KE4,2021
 Irons,Maltby,TS-1,2019
 Irons,Maltby,KE4 Max,2020
 Irons,Maltby,TS3,2023
 Wedge,Maltby,TSW,2020
+Irons,McLaren Golf,Series 1,2026
+Irons,McLaren Golf,Series 3,2026
+Driving Irons,Miura,IC-601,2022
 Irons,Miura,CB-301,2019
 Irons,Miura,MC-502,2019
 Irons,Miura,TC-201,2019
 Irons,Miura,KM-700,2020
 Irons,Miura,PI-401,2023
-Driving Irons,Miura,IC-601,2022
-Wedge,Miura,Tour Wedge,2021
-Driver,Mizuno,ST-Max 230,2024
-Fairway Wood,Mizuno,ST-Max Fairway,2024
-Hybrid,Mizuno,ST-Max Hybrid,2024
+Wedge,Miura,Tour,2021
+Driver,Mizuno,JPX800,2011
+Driver,Mizuno,MP-650,2012
+Driver,Mizuno,JPX 850,2014
+Driver,Mizuno,JPX EZ,2014
+Driver,Mizuno,JPX 900,2016
+Driver,Mizuno,JPX EZ (2016),2016
+Driver,Mizuno,GT180,2018
+Driver,Mizuno,ST180,2018
+Driver,Mizuno,ST190,2019
+Driver,Mizuno,ST190G,2019
+Driver,Mizuno,ST200,2020
+Driver,Mizuno,ST200G,2020
+Driver,Mizuno,ST200X,2020
+Driver,Mizuno,ST-X,2021
+Driver,Mizuno,ST-Z,2021
+Driver,Mizuno,STX,2021
+Driver,Mizuno,STZ,2021
+Driver,Mizuno,ST-X 220,2022
+Driver,Mizuno,ST-Z 220,2022
+Driver,Mizuno,ST-G,2023
+Driver,Mizuno,ST-G 440,2023
+Driver,Mizuno,ST-X 230,2023
+Driver,Mizuno,ST-Z 230,2023
+Driver,Mizuno,STG,2023
+Driver,Mizuno,ST-MAX 230,2024
+Driver,Mizuno,JPX ONE,2025
+Driving Irons,Mizuno,MP-H4,2012
+Driving Irons,Mizuno,MP-H5,2014
+Driving Irons,Mizuno,MP-18 MMC Fli-Hi,2017
+Driving Irons,Mizuno,MP-20 HMB,2019
+Driving Irons,Mizuno,JPX 921 Fli-Hi,2020
+Driving Irons,Mizuno,Pro Fli-Hi,2021
+Driving Irons,Mizuno,JPX 923 Fli-Hi,2022
+Driving Irons,Mizuno,JPX 925 Fli-Hi,2024
+Driving Irons,Mizuno,Mizuno Pro Fli-Hi (2024),2024
+Fairway Wood,Mizuno,JPX800,2011
+Fairway Wood,Mizuno,MP-650,2012
+Fairway Wood,Mizuno,JPX EZ,2014
+Fairway Wood,Mizuno,JPX 850,2015
+Fairway Wood,Mizuno,JPX EZ (2016),2016
+Fairway Wood,Mizuno,JPX 900,2017
+Fairway Wood,Mizuno,GT180,2018
+Fairway Wood,Mizuno,ST180,2018
+Fairway Wood,Mizuno,ST190,2019
+Fairway Wood,Mizuno,ST190 TS,2019
+Fairway Wood,Mizuno,ST200,2020
+Fairway Wood,Mizuno,ST200 TS,2020
+Fairway Wood,Mizuno,ST200X,2020
+Fairway Wood,Mizuno,ST-X,2021
+Fairway Wood,Mizuno,ST-Z,2021
+Fairway Wood,Mizuno,ST-X 220,2022
+Fairway Wood,Mizuno,ST-Z 220,2022
+Fairway Wood,Mizuno,ST-Z 230,2023
+Fairway Wood,Mizuno,ST-MAX,2024
+Fairway Wood,Mizuno,ST-MAX 230,2024
+Hybrid,Mizuno,JPX800,2011
+Hybrid,Mizuno,JPX EZ,2014
+Hybrid,Mizuno,JPX 850,2015
+Hybrid,Mizuno,JPX EZ (2016),2016
+Hybrid,Mizuno,JPX 900,2017
+Hybrid,Mizuno,CLK,2018
+Hybrid,Mizuno,CLK (2020),2020
+Hybrid,Mizuno,ST-Z,2021
+Hybrid,Mizuno,ST-Z 220,2022
+Hybrid,Mizuno,ST-Z 230,2023
+Hybrid,Mizuno,ST-MAX,2024
+Hybrid,Mizuno,ST-MAX 230,2024
+Irons,Mizuno,JPX800,2011
+Irons,Mizuno,JPX800 Pro,2011
+Irons,Mizuno,MP-53,2011
+Irons,Mizuno,MP-63,2011
+Irons,Mizuno,MP-69,2011
+Irons,Mizuno,JPX825,2012
+Irons,Mizuno,JPX825 Pro,2012
+Irons,Mizuno,MP-59,2012
+Irons,Mizuno,MP-64,2012
+Irons,Mizuno,JPX EZ,2013
+Irons,Mizuno,JPX EZ Forged,2013
+Irons,Mizuno,MP-4,2013
+Irons,Mizuno,MP-54,2013
+Irons,Mizuno,JPX850,2014
+Irons,Mizuno,JPX850 Forged,2014
+Irons,Mizuno,MP-15,2014
+Irons,Mizuno,MP-H5,2014
+Irons,Mizuno,JPX EZ (2016),2015
+Irons,Mizuno,JPX EZ Forged (2016),2015
+Irons,Mizuno,MP-5,2015
+Irons,Mizuno,MP-25,2015
+Irons,Mizuno,JPX 900 Forged,2016
+Irons,Mizuno,JPX 900 Hot Metal,2016
+Irons,Mizuno,JPX 900 Tour,2016
+Irons,Mizuno,MP-18,2017
+Irons,Mizuno,MP-18 MMC,2017
+Irons,Mizuno,MP-18 MMC Fli-Hi,2017
+Irons,Mizuno,MP-18 SC,2017
+Irons,Mizuno,JPX 919 Forged,2018
+Irons,Mizuno,JPX 919 Hot Metal,2018
+Irons,Mizuno,JPX 919 Hot Metal Pro,2018
+Irons,Mizuno,JPX 919 Tour,2018
+Irons,Mizuno,MP-20,2019
+Irons,Mizuno,MP-20 HMB,2019
+Irons,Mizuno,MP-20 MMC,2019
+Irons,Mizuno,JPX 921 Forged,2020
+Irons,Mizuno,JPX 921 Hot Metal,2020
+Irons,Mizuno,JPX 921 Hot Metal Pro,2020
+Irons,Mizuno,JPX 921 Tour,2020
+Irons,Mizuno,Mizuno Pro 221,2021
+Irons,Mizuno,Mizuno Pro 223,2021
+Irons,Mizuno,Mizuno Pro 225,2021
+Irons,Mizuno,Pro 221,2021
+Irons,Mizuno,Pro 223,2021
+Irons,Mizuno,Pro 225,2021
+Irons,Mizuno,JPX 923 Forged,2022
+Irons,Mizuno,JPX 923 Hot Metal,2022
+Irons,Mizuno,JPX 923 Hot Metal HL,2022
+Irons,Mizuno,JPX 923 Hot Metal Pro,2022
+Irons,Mizuno,JPX 923 Tour,2022
+Irons,Mizuno,Mizuno Pro 241,2023
+Irons,Mizuno,Mizuno Pro 243,2023
+Irons,Mizuno,Mizuno Pro 245,2023
 Irons,Mizuno,Pro 245,2023
 Irons,Mizuno,JPX 925 Forged,2024
+Irons,Mizuno,JPX 925 Hot Metal,2024
+Irons,Mizuno,JPX 925 Hot Metal HL,2024
+Irons,Mizuno,JPX 925 Hot Metal Pro,2024
+Irons,Mizuno,JPX 925 Tour,2024
 Irons,Mizuno,Pro S-3,2024
+Irons,Mizuno,Mizuno Pro M-13,2025
+Irons,Mizuno,Mizuno Pro M-15,2025
+Irons,Mizuno,Mizuno Pro S-1,2025
+Irons,Mizuno,Mizuno Pro S-3,2025
+Irons,Mizuno,Mizuno Pro X,2025
+Wedge,Mizuno,JPX Series,2011
+Wedge,Mizuno,MP T-11,2011
+Wedge,Mizuno,MP R-12,2012
+Wedge,Mizuno,MP T-4,2013
+Wedge,Mizuno,MP T-5,2015
+Wedge,Mizuno,S5,2015
 Wedge,Mizuno,T7,2016
+Wedge,Mizuno,S18,2018
 Wedge,Mizuno,T20,2019
+Wedge,Mizuno,ES21,2021
 Wedge,Mizuno,T22,2021
 Wedge,Mizuno,T24,2023
 Wedge,Mizuno,Pro T-1,2024
 Wedge,Mizuno,Pro T-3,2024
+Wedge,Mizuno,Mizuno Pro T-1,2025
+Wedge,Mizuno,Mizuno Pro T-3,2025
+Putter,Mizuno,M.CRAFT I,2020
+Putter,Mizuno,M.CRAFT II,2020
+Putter,Mizuno,M.CRAFT III,2020
+Putter,Mizuno,M.CRAFT IV,2021
+Putter,Mizuno,M.CRAFT V,2021
+Putter,Mizuno,M.CRAFT VI,2021
+Putter,Mizuno,OMOI Type 1,2021
+Putter,Mizuno,M-Craft X,2023
+Putter,Mizuno,M.CRAFT OMOI 01,2023
+Putter,Mizuno,M.CRAFT OMOI 02,2023
+Putter,Mizuno,M.CRAFT OMOI 03,2023
+Putter,Mizuno,M.CRAFT OMOI 04,2024
+Putter,Mizuno,M.CRAFT OMOI 05,2024
+Putter,Mizuno,M.CRAFT OMOI 06,2024
+Putter,Mizuno,M.CRAFT X 01,2025
+Putter,Mizuno,M.CRAFT X 02,2025
+Putter,Mizuno,M.CRAFT X 03,2025
+Putter,Mizuno,M.CRAFT X 04,2025
+Driving Irons,New Level,NLU-01,2023
 Irons,New Level,902,2020
 Irons,New Level,902 OS,2021
 Irons,New Level,623M,2022
 Irons,New Level,480-DB,2024
-Driving Irons,New Level,NLU-01,2023
 Wedge,New Level,NLH-01,2022
+Driver,Nike,SQ Machspeed Black,2011
+Driver,Nike,VR Pro,2011
+Driver,Nike,VR Pro STR8-FIT,2011
+Driver,Nike,VR_S,2012
 Driver,Nike,VR_S Covert,2013
+Driver,Nike,VR_S Covert Tour,2013
 Driver,Nike,Covert 2.0,2014
+Driver,Nike,VR_S Covert 2.0,2014
+Driver,Nike,VR_S Covert 2.0 Tour,2014
 Driver,Nike,Vapor Flex,2015
+Driver,Nike,Vapor Pro,2015
+Driver,Nike,Vapor Speed,2015
+Driver,Nike,Vapor Flex 440,2016
 Driver,Nike,Vapor Fly,2016
-Fairway Wood,Nike,Vapor Speed Fairway,2015
-Hybrid,Nike,Vapor Fly Hybrid,2016
+Driver,Nike,Vapor Fly Pro,2016
+Fairway Wood,Nike,VR Pro,2011
+Fairway Wood,Nike,VR_S,2012
+Fairway Wood,Nike,VR_S Covert,2013
+Fairway Wood,Nike,VR_S Covert Tour,2013
+Fairway Wood,Nike,VR_S Covert 2.0,2014
+Fairway Wood,Nike,VR_S Covert 2.0 Tour,2014
+Fairway Wood,Nike,Vapor Flex,2015
+Fairway Wood,Nike,Vapor Speed,2015
+Fairway Wood,Nike,Vapor Fly,2016
+Fairway Wood,Nike,Vapor Fly Pro,2016
+Hybrid,Nike,VR Pro,2011
+Hybrid,Nike,VR_S,2012
+Hybrid,Nike,VR_S Covert,2013
+Hybrid,Nike,VR_S Covert 2.0,2014
+Hybrid,Nike,Vapor Speed,2015
+Hybrid,Nike,Vapor Fly,2016
+Irons,Nike,VR Pro Blade,2011
+Irons,Nike,VR Pro Cavity,2011
+Irons,Nike,VR Pro Combo,2011
+Irons,Nike,VR_S,2012
+Irons,Nike,VR_S Forged,2012
+Irons,Nike,VR Forged Pro Combo,2014
+Irons,Nike,VR_S Covert 2.0,2014
 Irons,Nike,Vapor Pro,2015
-Irons,Nike,Vapor Fly Irons,2016
-Driver,ONOFF,AKA Driver,2022
-Driver,ONOFF,KURO Driver,2023
-Fairway Wood,ONOFF,AKA Fairway,2022
+Irons,Nike,Vapor Pro Combo,2015
+Irons,Nike,Vapor Speed,2015
+Irons,Nike,Vapor Fly,2016
+Irons,Nike,Vapor Fly Pro,2016
+Wedge,Nike,VR Pro Forged,2011
+Wedge,Nike,VR X3X Toe Sweep,2014
+Wedge,Nike,Engage Dual Sole,2015
+Wedge,Nike,Engage Square,2015
+Wedge,Nike,Engage Toe Sweep,2015
+Putter,Nike,Method Core,2014
+Putter,Nike,Method Converge,2015
+Putter,Nike,Method Matter,2016
+Putter,Odyssey,Black Series Tour Designs #1,2011
+Putter,Odyssey,Black Series Tour Designs #2,2011
+Putter,Odyssey,Black Series Tour Designs #4,2011
+Putter,Odyssey,Black Series Tour Designs #5,2011
+Putter,Odyssey,Black Series Tour Designs #6,2011
+Putter,Odyssey,Black Series Tour Designs #9,2011
+Putter,Odyssey,White Ice #1,2011
+Putter,Odyssey,White Ice #1 Wide,2011
+Putter,Odyssey,White Ice #5,2011
+Putter,Odyssey,White Ice #7,2011
+Putter,Odyssey,White Ice 2-Ball,2011
+Putter,Odyssey,White Ice Rossie,2011
+Putter,Odyssey,Metal-X #1,2012
+Putter,Odyssey,Metal-X #5,2012
+Putter,Odyssey,Metal-X #6,2012
+Putter,Odyssey,Metal-X #7,2012
+Putter,Odyssey,Metal-X #8,2012
+Putter,Odyssey,Metal-X 2-Ball,2012
+Putter,Odyssey,Metal-X DART,2012
+Putter,Odyssey,Versa #1,2013
+Putter,Odyssey,Versa #7,2013
+Putter,Odyssey,Versa #9,2013
+Putter,Odyssey,Versa 2-Ball,2013
+Putter,Odyssey,Versa Sabertooth,2013
+Putter,Odyssey,White Hot Pro #1,2013
+Putter,Odyssey,White Hot Pro #1 Wide,2013
+Putter,Odyssey,White Hot Pro #5,2013
+Putter,Odyssey,White Hot Pro #7,2013
+Putter,Odyssey,White Hot Pro #9,2013
+Putter,Odyssey,White Hot Pro 2-Ball,2013
+Putter,Odyssey,White Hot Pro Rossie,2013
+Putter,Odyssey,Metal-X Milled #1,2014
+Putter,Odyssey,Metal-X Milled #2,2014
+Putter,Odyssey,Metal-X Milled #6,2014
+Putter,Odyssey,Metal-X Milled #9,2014
+Putter,Odyssey,Metal-X Milled 330M,2014
+Putter,Odyssey,Tank #1,2014
+Putter,Odyssey,Tank #7,2014
+Putter,Odyssey,Tank 2-Ball,2014
+Putter,Odyssey,Tank Cruiser V-Line,2014
+Putter,Odyssey,White Hot RX #1,2015
+Putter,Odyssey,White Hot RX #2,2015
+Putter,Odyssey,White Hot RX #7,2015
+Putter,Odyssey,White Hot RX 2-Ball V-Line,2015
+Putter,Odyssey,White Hot RX Rossie,2015
+Putter,Odyssey,Works Versa #1,2015
+Putter,Odyssey,Works Versa #1 Wide,2015
+Putter,Odyssey,Works Versa #7,2015
+Putter,Odyssey,Works Versa #9,2015
+Putter,Odyssey,Works Versa 2-Ball Fang,2015
+Putter,Odyssey,Works Versa V-Line,2015
+Putter,Odyssey,O-Works #1,2016
+Putter,Odyssey,O-Works #1 Wide,2016
+Putter,Odyssey,O-Works #2,2016
+Putter,Odyssey,O-Works #7,2016
+Putter,Odyssey,O-Works #9,2016
+Putter,Odyssey,O-Works 2-Ball,2016
+Putter,Odyssey,O-Works R-Line,2016
+Putter,Odyssey,Toe Up #1,2016
+Putter,Odyssey,Toe Up #9,2016
+Putter,Odyssey,O-Works Red #1,2017
+Putter,Odyssey,O-Works Red #1 Wide,2017
+Putter,Odyssey,O-Works Red #7,2017
+Putter,Odyssey,O-Works Red #9,2017
+Putter,Odyssey,O-Works Red 2-Ball,2017
+Putter,Odyssey,O-Works Red R-Line,2017
+Putter,Odyssey,O-Works Black #1,2018
+Putter,Odyssey,O-Works Black #1 Wide,2018
+Putter,Odyssey,O-Works Black #2W,2018
+Putter,Odyssey,O-Works Black #7,2018
+Putter,Odyssey,O-Works Black #9,2018
+Putter,Odyssey,O-Works Black 2-Ball,2018
+Putter,Odyssey,EXO #7,2019
+Putter,Odyssey,EXO 2-Ball,2019
+Putter,Odyssey,EXO Indianapolis,2019
+Putter,Odyssey,EXO Marxman,2019
+Putter,Odyssey,EXO Rossie,2019
+Putter,Odyssey,EXO Seven,2019
+Putter,Odyssey,Stroke Lab #1,2019
+Putter,Odyssey,Stroke Lab #2,2019
+Putter,Odyssey,Stroke Lab #3,2019
+Putter,Odyssey,Stroke Lab #7,2019
+Putter,Odyssey,Stroke Lab #9,2019
+Putter,Odyssey,Stroke Lab 2-Ball Fang,2019
+Putter,Odyssey,Stroke Lab Double Wide,2019
+Putter,Odyssey,Stroke Lab Marxman,2019
+Putter,Odyssey,Stroke Lab Rossie,2019
+Putter,Odyssey,Stroke Lab Seven,2019
+Putter,Odyssey,Stroke Lab Tuttle,2019
+Putter,Odyssey,2-Ball Ten,2020
+Putter,Odyssey,2-Ball Ten Lined,2020
+Putter,Odyssey,Stroke Lab Black #1,2020
+Putter,Odyssey,Stroke Lab Black #7,2020
+Putter,Odyssey,Stroke Lab Black #10,2020
+Putter,Odyssey,Stroke Lab Black 2-Ball,2020
+Putter,Odyssey,Stroke Lab Black Bird of Prey,2020
+Putter,Odyssey,Stroke Lab Black Double Wide,2020
+Putter,Odyssey,Stroke Lab Black Rossie,2020
+Putter,Odyssey,Triple Track #1,2020
+Putter,Odyssey,Triple Track #2,2020
+Putter,Odyssey,Triple Track #7,2020
+Putter,Odyssey,Triple Track 2-Ball,2020
+Putter,Odyssey,Triple Track 2-Ball Blade,2020
+Putter,Odyssey,Triple Track Double Wide,2020
+Putter,Odyssey,Triple Track Marxman,2020
+Putter,Odyssey,Triple Track Ten,2020
+Putter,Odyssey,Ten 2-Ball Ten,2021
+Putter,Odyssey,Ten Ten,2021
+Putter,Odyssey,Ten Tour Lined Ten,2021
+Putter,Odyssey,Ten Triple Track Ten,2021
+Putter,Odyssey,White Hot OG #1,2021
+Putter,Odyssey,White Hot OG #1 Wide,2021
+Putter,Odyssey,White Hot OG #5,2021
+Putter,Odyssey,White Hot OG #7,2021
+Putter,Odyssey,White Hot OG 2-Ball,2021
+Putter,Odyssey,White Hot OG 2-Ball Blade,2021
+Putter,Odyssey,White Hot OG Double Wide,2021
+Putter,Odyssey,White Hot OG Rossie,2021
+Putter,Odyssey,Eleven 2-Ball,2022
+Putter,Odyssey,Eleven Eleven,2022
+Putter,Odyssey,Eleven Tour Lined,2022
+Putter,Odyssey,Eleven Triple Track,2022
+Putter,Odyssey,Tri-Hot 5K Double Wide (2022),2022
+Putter,Odyssey,Tri-Hot 5K One,2022
+Putter,Odyssey,Tri-Hot 5K Three,2022
+Putter,Odyssey,Tri-Hot 5K Triple Wide,2022
+Putter,Odyssey,Tri-Hot 5K Two,2022
+Putter,Odyssey,Tri-Hot 5K Two (2022),2022
+Putter,Odyssey,Ai-One Double Wide DB,2023
+Putter,Odyssey,Ai-One Milled One T,2023
+Putter,Odyssey,Ai-One Milled Six T,2023
+Putter,Odyssey,Ai-One Milled Three T,2023
+Putter,Odyssey,Ai-One Milled Two T,2023
+Putter,Odyssey,Ai-One One,2023
+Putter,Odyssey,Ai-One Seven S (2023),2023
+Putter,Odyssey,Tri-Hot 5K Double Wide (2023),2023
+Putter,Odyssey,Tri-Hot 5K Rossie,2023
+Putter,Odyssey,Tri-Hot 5K Seven,2023
+Putter,Odyssey,Tri-Hot 5K Two (2023),2023
+Putter,Odyssey,White Hot Versa Double Wide,2023
+Putter,Odyssey,White Hot Versa One,2023
+Putter,Odyssey,White Hot Versa Seven,2023
+Putter,Odyssey,White Hot Versa Three T,2023
+Putter,Odyssey,White Hot Versa Twelve,2023
+Putter,Odyssey,Ai-One 2-Ball DB,2024
+Putter,Odyssey,Ai-One 7,2024
+Putter,Odyssey,Ai-One Jailbird Mini,2024
+Putter,Odyssey,Ai-One Rossie DB,2024
+Putter,Odyssey,Ai-One Square 2 Square #7,2024
+Putter,Odyssey,Ai-One Square 2 Square Double Wide,2024
+Putter,Odyssey,Ai-One Square 2 Square Jailbird,2024
+Putter,Odyssey,Ai-One Double Wide CRUISER,2025
+Putter,Odyssey,Ai-One Jailbird Cruiser,2025
+Putter,Odyssey,Ai-One Jailbird Mini Versa 90,2025
+Putter,Odyssey,Ai-One Seven S (2025),2025
+Putter,Odyssey,Ai-DUAL Double Wide,2026
+Putter,Odyssey,Ai-DUAL Jailbird,2026
+Putter,Odyssey,Ai-DUAL One,2026
+Putter,Odyssey,Ai-DUAL Seven,2026
+Putter,Odyssey,Ai-DUAL Square 2 Square Jailbird,2026
+Putter,Odyssey,Ai-DUAL Square 2 Square Max 1,2026
+Putter,Odyssey,Ai-DUAL Square 2 Square Max Stripe,2026
+Driver,ONOFF,AKA,2022
+Driver,ONOFF,KURO,2023
+Fairway Wood,ONOFF,AKA,2022
 Hybrid,ONOFF,AKA Utility,2022
-Irons,ONOFF,AKA Irons,2022
+Irons,ONOFF,AKA,2022
 Irons,ONOFF,Forged KURO,2023
-Wedge,ONOFF,Forged Wedge,2023
-Driver,Orlimar,Escape Driver,2021
-Fairway Wood,Orlimar,Escape Fairway,2021
-Hybrid,Orlimar,Escape Hybrid,2021
+Wedge,ONOFF,Forged,2023
+Driver,Orlimar,Escape,2021
+Driving Irons,Orlimar,Escape,2022
+Fairway Wood,Orlimar,Escape,2021
+Hybrid,Orlimar,Escape,2021
 Irons,Orlimar,Escape HL,2021
-Driving Irons,Orlimar,Escape Driving Iron,2022
-Driver,PRGR,RS Driver,2016
-Driver,PRGR,RS F,2018
-Driver,PRGR,RS JUST,2022
-Fairway Wood,PRGR,RS Fairway,2022
-Hybrid,PRGR,RS Utility,2022
-Irons,PRGR,01 Irons,2023
-Irons,PRGR,02 Irons,2023
-Wedge,PRGR,0 Wedge,2023
-Driver,PXG,0811 X,2017
-Driver,PXG,0811 XF,2020
-Driver,PXG,Black Ops,2024
-Fairway Wood,PXG,0341 X,2017
-Fairway Wood,PXG,Black Ops Fairway,2024
-Hybrid,PXG,0317 X,2017
-Hybrid,PXG,Black Ops Hybrid,2024
-Irons,PXG,0311 P,2016
-Irons,PXG,0311 XP,2016
-Irons,PXG,0317 T,2022
-Driving Irons,PXG,0317 X Driving Iron,2022
-Wedge,PXG,Sugar Daddy,2022
-Driver,Ping,G440 LST,2025
-Driver,Ping,G440 MAX,2025
-Driver,Ping,G440 SFT,2025
-Fairway Wood,Ping,G440 Fairway,2025
-Hybrid,Ping,G440 Hybrid,2025
-Irons,Ping,G440 Irons,2025
-Irons,Ping,i240,2025
-Wedge,Ping,Glide,2015
-Wedge,Ping,Glide 2.0,2017
-Wedge,Ping,Glide 3.0,2019
-Wedge,Ping,Glide 4.0,2022
-Wedge,Ping,s159,2024
+Driver,PING,G20,2011
+Driver,PING,Anser,2012
+Driver,PING,G25,2013
+Driver,PING,G30,2014
+Driver,PING,G30 SF Tec,2014
+Driver,PING,G30 LS Tec,2015
+Driver,PING,G,2016
+Driver,PING,G LS Tec,2016
+Driver,PING,G SF Tec,2016
+Driver,PING,G400,2017
+Driver,PING,G400 LST,2017
+Driver,PING,G400 SFT,2017
+Driver,PING,G400 Max,2018
+Driver,PING,G410,2019
+Driver,PING,G410 LST,2019
+Driver,PING,G410 Plus,2019
+Driver,PING,G410 SFT,2019
+Driver,PING,G425,2021
+Driver,PING,G425 LST,2021
+Driver,PING,G425 Max,2021
+Driver,PING,G425 SFT,2021
+Driver,PING,G430,2023
+Driver,PING,G430 HL,2023
+Driver,PING,G430 LST,2023
+Driver,PING,G430 Max,2023
+Driver,PING,G430 SFT,2023
+Driver,PING,G430 Max 10K,2024
+Driver,PING,G440 HL,2025
+Driver,PING,G440 LST,2025
+Driver,PING,G440 MAX,2025
+Driver,PING,G440 SFT,2025
+Driver,PING,G Le4,2026
+Driver,PING,G440 K,2026
+Driver,PING,G440 K HL,2026
+Driving Irons,PING,Rapture DI,2014
+Driving Irons,PING,G Crossover,2016
+Driving Irons,PING,G400 Crossover,2018
+Driving Irons,PING,G410 Crossover,2019
+Driving Irons,PING,iCrossover,2022
+Driving Irons,PING,iDi,2025
+Fairway Wood,PING,G20,2011
+Fairway Wood,PING,K15,2011
+Fairway Wood,PING,Anser,2012
+Fairway Wood,PING,G25,2013
+Fairway Wood,PING,G30,2014
+Fairway Wood,PING,G30 SF Tec,2014
+Fairway Wood,PING,G,2016
+Fairway Wood,PING,G SF Tec,2016
+Fairway Wood,PING,G Stretch,2016
+Fairway Wood,PING,G400,2017
+Fairway Wood,PING,G400 SFT,2017
+Fairway Wood,PING,G400 Stretch,2017
+Fairway Wood,PING,G410,2019
+Fairway Wood,PING,G410 LST,2019
+Fairway Wood,PING,G410 SFT,2019
+Fairway Wood,PING,G425 LST,2021
+Fairway Wood,PING,G425 Max,2021
+Fairway Wood,PING,G425 SFT,2021
+Fairway Wood,PING,G430 HL,2023
+Fairway Wood,PING,G430 LST,2023
+Fairway Wood,PING,G430 Max,2023
+Fairway Wood,PING,G430 SFT,2023
+Fairway Wood,PING,G440,2025
+Fairway Wood,PING,G440 HL,2025
+Fairway Wood,PING,G440 LST,2025
+Fairway Wood,PING,G440 Max,2025
+Fairway Wood,PING,G440 SFT,2025
+Fairway Wood,PING,G Le4,2026
+Hybrid,PING,G20,2011
+Hybrid,PING,K15,2011
+Hybrid,PING,Anser,2012
+Hybrid,PING,G25,2013
+Hybrid,PING,G30,2014
+Hybrid,PING,G,2016
+Hybrid,PING,G400,2017
+Hybrid,PING,G410,2019
+Hybrid,PING,G425,2021
+Hybrid,PING,G430,2023
+Hybrid,PING,G430 HL,2023
+Hybrid,PING,G440,2025
+Hybrid,PING,G440 HL,2025
+Hybrid,PING,G Le4,2026
+Irons,PING,Anser Forged,2011
+Irons,PING,G20,2011
+Irons,PING,i20,2012
+Irons,PING,G25,2013
+Irons,PING,Serene,2013
+Irons,PING,G30,2014
+Irons,PING,i25,2014
+Irons,PING,Karsten,2014
+Irons,PING,GMax,2015
+Irons,PING,i,2015
+Irons,PING,Rhapsody,2015
+Irons,PING,G,2016
+Irons,PING,iBlade,2016
+Irons,PING,G400,2017
+Irons,PING,i200,2017
+Irons,PING,i210,2018
+Irons,PING,i500,2018
+Irons,PING,Blueprint,2019
+Irons,PING,G410,2019
+Irons,PING,G710,2020
+Irons,PING,G425,2021
+Irons,PING,i59,2021
+Irons,PING,G Le3,2023
+Irons,PING,G430,2023
+Irons,PING,G430 HL,2023
+Irons,PING,i230,2023
+Irons,PING,Blueprint S,2024
+Irons,PING,Blueprint T,2024
+Irons,PING,G730,2024
+Irons,PING,i530,2024
+Irons,PING,G440,2025
+Irons,PING,G440 HL,2025
+Irons,PING,i240,2025
+Irons,PING,iDi,2025
+Irons,PING,G Le4,2026
+Irons,PING,G740,2026
+Irons,PING,i540,2026
+Wedge,PING,Tour-S,2011
+Wedge,PING,Tour Gorge,2013
+Wedge,PING,Glide,2015
+Wedge,PING,Glide 2.0,2017
+Wedge,PING,Glide 2.0 Stealth,2017
+Wedge,PING,Glide 3.0,2019
+Wedge,PING,Glide Forged Pro,2021
+Wedge,PING,Glide 4.0,2022
+Wedge,PING,s159,2024
+Wedge,PING,s259,2026
+Putter,PING,Anser 2,2011
+Putter,PING,Anser Anser,2011
+Putter,PING,Anser Anser 1,2011
+Putter,PING,Anser Anser 2,2011
+Putter,PING,Anser Anser 4,2011
+Putter,PING,Anser Anser 5,2011
+Putter,PING,Anser Anser 6,2011
+Putter,PING,Anser Milled Anser,2011
+Putter,PING,Anser Milled Anser 2,2011
+Putter,PING,Anser Milled Anser 4,2011
+Putter,PING,Scottsdale TR Anser 2,2013
+Putter,PING,Scottsdale TR B60,2013
+Putter,PING,Scottsdale TR Craz-E,2013
+Putter,PING,Scottsdale TR Piper C,2013
+Putter,PING,Scottsdale TR Senita,2013
+Putter,PING,Scottsdale TR Shea,2013
+Putter,PING,Scottsdale TR Tatum,2013
+Putter,PING,Karsten TR Anser,2014
+Putter,PING,Karsten TR Anser 2,2014
+Putter,PING,Karsten TR B60,2014
+Putter,PING,Karsten TR Craz-E,2014
+Putter,PING,Karsten TR Pal,2014
+Putter,PING,Karsten TR Piper,2014
+Putter,PING,Karsten TR Zing,2014
+Putter,PING,Cadence TR Anser 2,2015
+Putter,PING,Cadence TR B65,2015
+Putter,PING,Cadence TR Ketsch,2015
+Putter,PING,Cadence TR Shea H,2015
+Putter,PING,Cadence TR Tomcat C,2015
+Putter,PING,Cadence TR Wolverine T,2015
+Putter,PING,Vault Anser 2,2016
+Putter,PING,Vault Bergen,2016
+Putter,PING,Vault Oslo,2016
+Putter,PING,Vault Voss,2016
+Putter,PING,Sigma G Anser,2017
+Putter,PING,Sigma G Anser 2,2017
+Putter,PING,Sigma G B60,2017
+Putter,PING,Sigma G Darby,2017
+Putter,PING,Sigma G Kinloch C,2017
+Putter,PING,Sigma G Kushin,2017
+Putter,PING,Sigma G Piper 3,2017
+Putter,PING,Sigma G Tyne,2017
+Putter,PING,Vault 2.0 B60,2018
+Putter,PING,Vault 2.0 Dale Anser,2018
+Putter,PING,Vault 2.0 Ketsch,2018
+Putter,PING,Vault 2.0 Piper C,2018
+Putter,PING,Vault 2.0 Voss,2018
+Putter,PING,Vault 2.0 ZB,2018
+Putter,PING,Sigma 2 Anser,2019
+Putter,PING,Sigma 2 Arna,2019
+Putter,PING,Sigma 2 Fetch,2019
+Putter,PING,Sigma 2 Kushin C,2019
+Putter,PING,Sigma 2 Piper C,2019
+Putter,PING,Sigma 2 Tyne,2019
+Putter,PING,Sigma 2 Tyne 4,2019
+Putter,PING,Sigma 2 Wolverine H,2019
+Putter,PING,Heppler Anser 2,2020
+Putter,PING,Heppler Fetch,2020
+Putter,PING,2021 Anser,2021
+Putter,PING,2021 Anser 2,2021
+Putter,PING,2021 Anser 4,2021
+Putter,PING,2021 CA 70,2021
+Putter,PING,2021 DS72,2021
+Putter,PING,2021 Fetch,2021
+Putter,PING,2021 Harwood,2021
+Putter,PING,2021 Kushin 4,2021
+Putter,PING,2021 Oslo H,2021
+Putter,PING,2021 Prime Tyne 4,2021
+Putter,PING,2021 Tyne C,2021
+Putter,PING,PLD Milled Anser,2021
+Putter,PING,PLD Milled Anser (2022),2022
+Putter,PING,PLD Milled Anser 2,2022
+Putter,PING,PLD Milled Anser 4,2022
+Putter,PING,PLD Milled DS72 (2022),2022
+Putter,PING,PLD Milled Prime Tyne 4,2022
+Putter,PING,2023 Anser,2023
+Putter,PING,2023 Anser 2D,2023
+Putter,PING,2023 DS72,2023
+Putter,PING,2023 Fetch,2023
+Putter,PING,2023 Kushin 4,2023
+Putter,PING,2023 Mundy,2023
+Putter,PING,2023 Prime Tyne 4,2023
+Putter,PING,2023 Shea,2023
+Putter,PING,2023 Tomcat 14,2023
+Putter,PING,2023 Tyne G,2023
+Putter,PING,PLD Milled DS72,2023
+Putter,PING,Kushin 4,2024
+Putter,PING,PLD Milled Ally Blue 4,2024
+Putter,PING,PLD Milled Anser (2024),2024
+Putter,PING,PLD Milled Anser 2D,2024
+Putter,PING,PLD Milled DS72 (2024),2024
+Putter,PING,PLD Milled Oslo 3,2024
+Putter,PING,Scottsdale Anser,2025
+Putter,PING,Scottsdale Anser 2D,2025
+Putter,PING,Scottsdale B63,2025
+Putter,PING,Scottsdale Craz-E,2025
+Putter,PING,Scottsdale DS72,2025
+Putter,PING,Scottsdale Prime Tyne 4,2025
+Putter,PING,Scottsdale Tyne C,2025
+Putter,PING,Scottsdale TEC Ally Blue Onset,2026
+Putter,PING,Scottsdale TEC Ally Blue Onset CB,2026
+Putter,PING,Scottsdale TEC Hayden,2026
+Putter,PING,Scottsdale TEC Ketsch Onset,2026
+Putter,Piretti,Cottonwood II,2013
+Putter,Piretti,Forza,2013
+Putter,Piretti,Potenza,2013
+Putter,Piretti,Teramo,2013
+Putter,Piretti,Matera Elite,2018
+Putter,Piretti,Potenza II Elite,2018
+Putter,Piretti,Savona Elite,2018
+Putter,Piretti,Tesora Elite,2018
+Putter,Piretti,GOAT,2023
+Putter,Piretti,Matera Elite (2023),2023
+Putter,Piretti,Potenza II Elite (2023),2023
+Putter,Piretti,Tesora Elite (2023),2023
 Driver,PowerBilt,Air Force One DFX,2014
 Driver,PowerBilt,TPS Supertech,2020
-Fairway Wood,PowerBilt,TPS Fairway,2020
-Hybrid,PowerBilt,TPS Hybrid,2020
-Irons,PowerBilt,TPS Irons,2020
+Fairway Wood,PowerBilt,TPS,2020
+Hybrid,PowerBilt,TPS,2020
+Irons,PowerBilt,TPS,2020
+Driver,PRGR,RS,2016
+Driver,PRGR,RS F,2018
+Driver,PRGR,RS JUST,2022
+Fairway Wood,PRGR,RS,2022
+Hybrid,PRGR,RS Utility,2022
+Irons,PRGR,01,2023
+Irons,PRGR,02,2023
+Wedge,PRGR,0,2023
+Driving Irons,ProtoConcept,C01D,2021
 Irons,ProtoConcept,C01,2020
 Irons,ProtoConcept,C03,2020
 Irons,ProtoConcept,C05,2021
 Irons,ProtoConcept,C07,2023
-Driving Irons,ProtoConcept,C01D,2021
-Wedge,ProtoConcept,Forged Wedge,2023
-Driver,Ram,FX Driver,2022
-Fairway Wood,Ram,FX Fairway,2022
-Hybrid,Ram,FX Hybrid,2022
+Wedge,ProtoConcept,Forged,2023
+Driver,PXG,0811,2016
+Driver,PXG,0811 X,2017
+Driver,PXG,0811LX,2017
+Driver,PXG,0811X,2017
+Driver,PXG,0811X GEN2,2019
+Driver,PXG,0811XF GEN2 (2019),2019
+Driver,PXG,0811 XF,2020
+Driver,PXG,0811X Proto,2020
+Driver,PXG,0811X+ Proto,2020
+Driver,PXG,0811XF GEN2 (2020),2020
+Driver,PXG,0211,2021
+Driver,PXG,0811X GEN4,2021
+Driver,PXG,0811XF GEN4,2021
+Driver,PXG,0811XT GEN4,2021
+Driver,PXG,0211 (2022),2022
+Driver,PXG,0311 GEN5,2022
+Driver,PXG,0311XF GEN5,2022
+Driver,PXG,0311 GEN6,2023
+Driver,PXG,0311XF GEN6,2023
+Driver,PXG,Black Ops,2024
+Driver,PXG,Black Ops Tour-1,2024
+Driver,PXG,Black Ops Ultra Lite,2025
+Driving Irons,PXG,0311X GEN2,2018
+Driving Irons,PXG,0311X GEN3,2020
+Driving Irons,PXG,0311X GEN4,2021
+Driving Irons,PXG,0317 X,2022
+Driving Irons,PXG,0317X GEN5,2022
+Driving Irons,PXG,0317X GEN6,2023
+Fairway Wood,PXG,0341,2016
+Fairway Wood,PXG,0341 X,2017
+Fairway Wood,PXG,0341X,2017
+Fairway Wood,PXG,0341X GEN2,2019
+Fairway Wood,PXG,0341X Proto,2020
+Fairway Wood,PXG,0211,2021
+Fairway Wood,PXG,0341X GEN4,2021
+Fairway Wood,PXG,0311 GEN5,2022
+Fairway Wood,PXG,0311XF GEN5,2022
+Fairway Wood,PXG,0311 GEN6,2023
+Fairway Wood,PXG,0311XF GEN6,2023
+Fairway Wood,PXG,Black Ops,2024
+Fairway Wood,PXG,Black Ops Tour,2024
+Fairway Wood,PXG,Black Ops Ultra Lite,2025
+Hybrid,PXG,0317,2016
+Hybrid,PXG,0317 X,2017
+Hybrid,PXG,0317X,2017
+Hybrid,PXG,0317X GEN2,2019
+Hybrid,PXG,0317X Proto,2020
+Hybrid,PXG,0211,2021
+Hybrid,PXG,0317X GEN4,2021
+Hybrid,PXG,0317 GEN5,2022
+Hybrid,PXG,0317XF GEN5,2022
+Hybrid,PXG,0317 GEN6,2023
+Hybrid,PXG,0317XF GEN6,2023
+Hybrid,PXG,Black Ops,2024
+Hybrid,PXG,Black Ops Ultra Lite,2025
+Irons,PXG,0311,2016
+Irons,PXG,0311 P,2016
+Irons,PXG,0311 XP,2016
+Irons,PXG,0311T,2016
+Irons,PXG,0311XF,2016
+Irons,PXG,0311P GEN2,2018
+Irons,PXG,0311SGI GEN2,2018
+Irons,PXG,0311T GEN2,2018
+Irons,PXG,0311XF GEN2,2018
+Irons,PXG,0311P GEN3,2020
+Irons,PXG,0311ST,2020
+Irons,PXG,0311T GEN3,2020
+Irons,PXG,0311XP GEN3,2020
+Irons,PXG,0211,2021
+Irons,PXG,0211 ST,2021
+Irons,PXG,0311P GEN4,2021
+Irons,PXG,0311T GEN4,2021
+Irons,PXG,0311XP GEN4,2021
+Irons,PXG,0311P GEN5,2022
+Irons,PXG,0311T GEN5,2022
+Irons,PXG,0311XP GEN5,2022
+Irons,PXG,0317 ST (2022),2022
+Irons,PXG,0317 T,2022
+Irons,PXG,0311P GEN6,2023
+Irons,PXG,0311T GEN6,2023
+Irons,PXG,0311XP GEN6,2023
+Irons,PXG,0311 P GEN7,2024
+Irons,PXG,0311 XP GEN7,2024
+Irons,PXG,Black Ops,2024
+Irons,PXG,0317 CB,2025
+Irons,PXG,0317 ST (2025),2025
+Irons,PXG,0317 T GEN7,2025
+Wedge,PXG,0311 Forged,2016
+Wedge,PXG,Sugar Daddy,2019
+Wedge,PXG,Sugar Daddy II,2022
+Wedge,PXG,Sugar Daddy III,2024
+Putter,PXG,Bat Attack,2019
+Putter,PXG,Closer,2020
+Putter,PXG,Mustang,2021
+Putter,PXG,Battle Ready II,2022
+Driver,Ram,FX,2022
+Fairway Wood,Ram,FX,2022
+Hybrid,Ram,FX,2022
 Irons,Ram,FX77,2022
 Wedge,Ram,Laser Face,2023
-Driver,Robin,The Driver,2021
-Fairway Wood,Robin,The Fairway,2021
-Hybrid,Robin,The Hybrid,2021
-Irons,Robin,The Irons,2021
-Wedge,Robin,The Wedge,2021
+Putter,Rife,Barbados,2011
+Putter,Rife,Bimini,2011
+Putter,Rife,Cayman Brac,2011
+Putter,Rife,Deep Blue,2011
+Putter,Rife,Legend Z,2011
+Putter,Rife,Two Bar Hybrid,2011
+Putter,Rife,Switchback,2015
+Putter,Rife,Vault 001,2015
+Putter,Rife,Vault 002,2015
+Putter,Rife,Vault 003,2015
+Putter,Rife,RX2,2018
+Putter,Rife,RX4,2018
+Putter,Rife,RX5,2018
+Putter,Rife,RX6,2018
+Putter,Rife,RFX Raider,2021
+Putter,Rife,RFX Rival,2021
+Putter,Rife,RFX Savvy,2021
+Putter,Rife,RFX Shooter,2021
+Driver,Robin,The,2021
+Fairway Wood,Robin,The,2021
+Hybrid,Robin,The,2021
+Irons,Robin,The,2021
+Wedge,Robin,The,2021
 Driver,Ryoma,D-1 MAXIMA,2016
 Driver,Ryoma,MAXIMA III,2023
-Fairway Wood,Ryoma,F Fairway,2023
+Fairway Wood,Ryoma,F,2023
 Hybrid,Ryoma,U Utility,2023
-Irons,Ryoma,Maxima Irons,2023
+Irons,Ryoma,Maxima,2023
+Putter,Scotty Cameron,Select Fastback (2012),2012
+Putter,Scotty Cameron,Select GoLo,2012
+Putter,Scotty Cameron,Select GoLo S,2012
+Putter,Scotty Cameron,Select Newport (2012),2012
+Putter,Scotty Cameron,Select Newport 1.5,2012
+Putter,Scotty Cameron,Select Newport 2,2012
+Putter,Scotty Cameron,Select Newport 2 (2012),2012
+Putter,Scotty Cameron,Select Newport 2.5,2012
+Putter,Scotty Cameron,Select Newport 2.5 (2012),2012
+Putter,Scotty Cameron,Select Fastback (2014),2014
+Putter,Scotty Cameron,Select GoLo 3 (2014),2014
+Putter,Scotty Cameron,Select GoLo 5 (2014),2014
+Putter,Scotty Cameron,Select GoLo 7 (2014),2014
+Putter,Scotty Cameron,Select Newport (2014),2014
+Putter,Scotty Cameron,Select Newport 2 (2014),2014
+Putter,Scotty Cameron,Select Newport 2.5 (2014),2014
+Putter,Scotty Cameron,Select Squareback (2014),2014
+Putter,Scotty Cameron,Futura X X5,2015
+Putter,Scotty Cameron,Futura X X5R,2015
+Putter,Scotty Cameron,Futura X X7,2015
+Putter,Scotty Cameron,Futura X X7M,2015
+Putter,Scotty Cameron,Futura X5,2015
+Putter,Scotty Cameron,Futura X7,2015
+Putter,Scotty Cameron,Select 2016 Newport 2,2016
+Putter,Scotty Cameron,Select Fastback (2016),2016
+Putter,Scotty Cameron,Select GoLo 3 (2016),2016
+Putter,Scotty Cameron,Select GoLo 5 (2016),2016
+Putter,Scotty Cameron,Select GoLo 7 (2016),2016
+Putter,Scotty Cameron,Select Newport (2016),2016
+Putter,Scotty Cameron,Select Newport 2 (2016),2016
+Putter,Scotty Cameron,Select Newport 2.5 (2016),2016
+Putter,Scotty Cameron,Select Newport 3 (2016),2016
+Putter,Scotty Cameron,Select Squareback (2016),2016
+Putter,Scotty Cameron,Futura 5CB,2017
+Putter,Scotty Cameron,Futura 5S,2017
+Putter,Scotty Cameron,Futura 5W,2017
+Putter,Scotty Cameron,Futura 6M,2017
+Putter,Scotty Cameron,Futura 6M Dual Balance,2017
+Putter,Scotty Cameron,Futura 7M,2017
+Putter,Scotty Cameron,Select 2018 Newport 2,2018
+Putter,Scotty Cameron,Select Fastback (2018),2018
+Putter,Scotty Cameron,Select Laguna,2018
+Putter,Scotty Cameron,Select Newport (2018),2018
+Putter,Scotty Cameron,Select Newport 2 (2018),2018
+Putter,Scotty Cameron,Select Newport 2.5 (2018),2018
+Putter,Scotty Cameron,Select Newport 3 (2018),2018
+Putter,Scotty Cameron,Select Squareback (2018),2018
+Putter,Scotty Cameron,Phantom X 5,2019
+Putter,Scotty Cameron,Phantom X 5 (2019),2019
+Putter,Scotty Cameron,Phantom X 5.5 (2019),2019
+Putter,Scotty Cameron,Phantom X 6,2019
+Putter,Scotty Cameron,Phantom X 7,2019
+Putter,Scotty Cameron,Phantom X 7 (2019),2019
+Putter,Scotty Cameron,Phantom X 7.5 (2019),2019
+Putter,Scotty Cameron,Phantom X 8,2019
+Putter,Scotty Cameron,Phantom X 8.5,2019
+Putter,Scotty Cameron,Phantom X 12 (2019),2019
+Putter,Scotty Cameron,Special Select Del Mar,2020
+Putter,Scotty Cameron,Special Select Fastback 1.5,2020
+Putter,Scotty Cameron,Special Select Flowback 5,2020
+Putter,Scotty Cameron,Special Select Flowback 5.5,2020
+Putter,Scotty Cameron,Special Select Newport,2020
+Putter,Scotty Cameron,Special Select Newport 2,2020
+Putter,Scotty Cameron,Special Select Newport 2.5,2020
+Putter,Scotty Cameron,Special Select Squareback 2,2020
+Putter,Scotty Cameron,Phantom X 5 (2021),2021
+Putter,Scotty Cameron,Phantom X 5.5,2021
+Putter,Scotty Cameron,Phantom X 5.5 (2021),2021
+Putter,Scotty Cameron,Phantom X 7 (2021),2021
+Putter,Scotty Cameron,Phantom X 7.5 (2021),2021
+Putter,Scotty Cameron,Phantom X 9 (2021),2021
+Putter,Scotty Cameron,Phantom X 9.5 (2021),2021
+Putter,Scotty Cameron,Phantom X 11 (2021),2021
+Putter,Scotty Cameron,Phantom X 11.5,2021
+Putter,Scotty Cameron,Phantom X 12 (2021),2021
+Putter,Scotty Cameron,Phantom X 5 (2022),2022
+Putter,Scotty Cameron,Phantom X 5.5 (2022),2022
+Putter,Scotty Cameron,Phantom X 7 (2022),2022
+Putter,Scotty Cameron,Phantom X 7.5 (2022),2022
+Putter,Scotty Cameron,Phantom X 9 (2022),2022
+Putter,Scotty Cameron,Phantom X 9.5 (2022),2022
+Putter,Scotty Cameron,Phantom X 11,2022
+Putter,Scotty Cameron,Phantom X 11 (2022),2022
+Putter,Scotty Cameron,Phantom X 12 (2022),2022
+Putter,Scotty Cameron,Super Select Del Mar,2023
+Putter,Scotty Cameron,Super Select Fastback,2023
+Putter,Scotty Cameron,Super Select Fastback 1.5,2023
+Putter,Scotty Cameron,Super Select GoLo 6,2023
+Putter,Scotty Cameron,Super Select GoLo 6.5,2023
+Putter,Scotty Cameron,Super Select Newport,2023
+Putter,Scotty Cameron,Super Select Newport 2,2023
+Putter,Scotty Cameron,Super Select Newport 2 Plus,2023
+Putter,Scotty Cameron,Super Select Newport 2.5 Plus,2023
+Putter,Scotty Cameron,Super Select Squareback 2,2023
+Putter,Scotty Cameron,Phantom 5 (2024),2024
+Putter,Scotty Cameron,Phantom 5.5 (2024),2024
+Putter,Scotty Cameron,Phantom 7,2024
+Putter,Scotty Cameron,Phantom 7 (2024),2024
+Putter,Scotty Cameron,Phantom 7.5 (2024),2024
+Putter,Scotty Cameron,Phantom 9,2024
+Putter,Scotty Cameron,Phantom 9.5,2024
+Putter,Scotty Cameron,Phantom 11,2024
+Putter,Scotty Cameron,Phantom 11.5,2024
+Putter,Scotty Cameron,Studio Style Catalina,2025
+Putter,Scotty Cameron,Studio Style Fastback 1.5,2025
+Putter,Scotty Cameron,Studio Style Newport,2025
+Putter,Scotty Cameron,Studio Style Newport 2,2025
+Putter,Scotty Cameron,Studio Style Newport 2 Plus,2025
+Putter,Scotty Cameron,Studio Style Newport 2.5 Plus,2025
+Putter,Scotty Cameron,Studio Style Squareback 2,2025
+Putter,Scotty Cameron,Phantom 5 (2026),2026
+Putter,Scotty Cameron,Phantom 5 OC,2026
+Putter,Scotty Cameron,Phantom 5.2,2026
+Putter,Scotty Cameron,Phantom 5.5 (2026),2026
+Putter,Scotty Cameron,Phantom 7 (2026),2026
+Putter,Scotty Cameron,Phantom 7.2,2026
+Putter,Scotty Cameron,Phantom 7.5 (2026),2026
+Putter,Scotty Cameron,Phantom 9.2R,2026
+Putter,Scotty Cameron,Phantom 9R,2026
+Putter,Scotty Cameron,Phantom 11R OC,2026
+Putter,Scotty Cameron,Studio Style Fastback 2,2026
+Putter,Scotty Cameron,Studio Style Fastback 2 Long Design,2026
+Putter,Scotty Cameron,Studio Style Santa Fe,2026
+Putter,SeeMore,FGP Mallet,2011
+Putter,SeeMore,m1,2011
+Putter,SeeMore,m2,2011
+Putter,SeeMore,m3,2011
+Putter,SeeMore,mFGP,2011
+Putter,SeeMore,Original FGP,2011
+Putter,SeeMore,Si1,2011
+Putter,SeeMore,Si2,2011
+Putter,SeeMore,Si3,2011
+Putter,SeeMore,Si4,2011
+Putter,SeeMore,Corona Del Mar X2,2015
+Putter,SeeMore,FGP,2015
+Putter,SeeMore,PTM1,2015
+Putter,SeeMore,PTM2,2015
+Putter,SeeMore,PTM3,2015
+Putter,SeeMore,Mini Giant Deep Flange,2018
+Putter,SeeMore,Mini Giant FGP,2018
+Putter,SeeMore,Mini Giant HTX,2018
+Putter,SeeMore,Platinum M5 HT,2021
+Putter,SeeMore,Platinum M7 Tour,2021
+Putter,SeeMore,Platinum SB20,2021
+Putter,SeeMore,Mini Giant DF,2024
+Putter,SeeMore,SBc20,2024
+Putter,SeeMore,Tri-Mallet,2024
+Driver,Srixon,Z-TX,2011
+Driver,Srixon,Z525,2013
+Driver,Srixon,Z545,2014
+Driver,Srixon,Z745,2014
+Driver,Srixon,Z565,2016
+Driver,Srixon,Z765,2016
+Driver,Srixon,Z585,2018
+Driver,Srixon,Z785,2018
+Driver,Srixon,ZX5,2020
+Driver,Srixon,ZX7,2020
+Driver,Srixon,ZX5 LS Mk II,2022
+Driver,Srixon,ZX5 Mk II,2022
+Driver,Srixon,ZX7 Mk II,2022
 Driver,Srixon,ZXi,2025
 Driver,Srixon,ZXi LS,2025
-Fairway Wood,Srixon,ZXi Fairway,2025
-Hybrid,Srixon,ZXi Hybrid,2025
+Driver,Srixon,ZXi Max,2025
+Driver,Srixon,ZXi TR,2025
+Driving Irons,Srixon,Z U45,2015
+Driving Irons,Srixon,Z U65,2017
+Driving Irons,Srixon,Z U85,2019
+Driving Irons,Srixon,ZX Utility,2020
+Driving Irons,Srixon,ZX Mk II Utility,2023
+Driving Irons,Srixon,ZXiU,2025
+Fairway Wood,Srixon,Z-TX,2011
+Fairway Wood,Srixon,Z525,2013
+Fairway Wood,Srixon,Z F45,2015
+Fairway Wood,Srixon,Z F65,2017
+Fairway Wood,Srixon,Z F85,2019
+Fairway Wood,Srixon,ZX,2021
+Fairway Wood,Srixon,ZX Mk II,2023
+Fairway Wood,Srixon,ZXi,2025
+Hybrid,Srixon,Z H45,2014
+Hybrid,Srixon,Z H65,2017
+Hybrid,Srixon,Z H85,2019
+Hybrid,Srixon,ZX,2021
+Hybrid,Srixon,ZX Mk II,2023
+Hybrid,Srixon,ZXi,2025
+Irons,Srixon,Z-Star,2011
+Irons,Srixon,Z-TX,2011
+Irons,Srixon,Z525,2013
+Irons,Srixon,Z725,2013
+Irons,Srixon,Z545,2014
+Irons,Srixon,Z745,2014
+Irons,Srixon,Z945,2014
+Irons,Srixon,Z565,2016
+Irons,Srixon,Z765,2016
+Irons,Srixon,Z965,2016
+Irons,Srixon,Z-Forged,2018
+Irons,Srixon,Z585,2018
+Irons,Srixon,Z785,2018
+Irons,Srixon,ZX4,2020
+Irons,Srixon,ZX5,2020
+Irons,Srixon,ZX7,2020
+Irons,Srixon,Z-Forged II,2022
+Irons,Srixon,ZX4 Mk II,2022
+Irons,Srixon,ZX5 Mk II,2022
+Irons,Srixon,ZX7 Mk II,2022
+Irons,Srixon,Z-Forged II (2025),2025
+Irons,Srixon,ZXi4,2025
 Irons,Srixon,ZXi5,2025
 Irons,Srixon,ZXi7,2025
-Driving Irons,Srixon,ZXiU,2025
+Irons,Srixon,ZXiR,2026
+Irons,Srixon,ZXiR HL,2026
 Wedge,Srixon,RTX 2.0,2014
 Wedge,Srixon,RTX 3,2017
 Wedge,Srixon,RTX ZipCore,2020
 Wedge,Srixon,RTX 6 ZipCore,2023
-Driver,Stix,Perform Driver,2022
-Fairway Wood,Stix,Perform Fairway,2022
-Hybrid,Stix,Perform Hybrid,2022
-Irons,Stix,Perform Irons,2022
-Wedge,Stix,Perform Wedge,2022
-Driver,Strata,Plus Driver,2019
-Fairway Wood,Strata,Plus Fairway,2019
-Hybrid,Strata,Plus Hybrid,2019
-Irons,Strata,Plus Irons,2019
-Wedge,Strata,Plus Wedge,2019
+Putter,Srixon,Z-Forged,2020
+Driver,Stix,Perform,2022
+Fairway Wood,Stix,Perform,2022
+Hybrid,Stix,Perform,2022
+Irons,Stix,Perform,2022
+Wedge,Stix,Perform,2022
+Driver,Strata,Plus,2019
+Fairway Wood,Strata,Plus,2019
+Hybrid,Strata,Plus,2019
+Irons,Strata,Plus,2019
+Wedge,Strata,Plus,2019
 Driver,Sub 70,849D,2020
-Fairway Wood,Sub 70,939X Fairway,2021
-Hybrid,Sub 70,949X Hybrid,2021
+Driving Irons,Sub 70,699U,2023
+Fairway Wood,Sub 70,939X,2021
+Hybrid,Sub 70,949X,2021
 Irons,Sub 70,639 MB,2020
 Irons,Sub 70,659 CB,2020
 Irons,Sub 70,699,2020
-Driving Irons,Sub 70,699U,2023
 Wedge,Sub 70,JB,2021
+Driving Irons,Takomo,Utility Iron 201,2024
 Irons,Takomo,101,2021
 Irons,Takomo,201,2022
 Irons,Takomo,101T,2023
 Irons,Takomo,301 CB,2024
-Driving Irons,Takomo,Utility Iron 201,2024
 Wedge,Takomo,Skyforger,2024
+Driver,TaylorMade,R11,2011
+Driver,TaylorMade,R11S,2012
+Driver,TaylorMade,RocketBallz,2012
+Driver,TaylorMade,RocketBallz Tour,2012
+Driver,TaylorMade,R1,2013
+Driver,TaylorMade,RBZ Stage 2,2013
+Driver,TaylorMade,RBZ Stage 2 Tour,2013
+Driver,TaylorMade,SLDR,2013
+Driver,TaylorMade,SLDR 430,2013
+Driver,TaylorMade,JetSpeed,2014
+Driver,TaylorMade,SLDR Mini,2014
+Driver,TaylorMade,SLDR S,2014
+Driver,TaylorMade,AeroBurner,2015
+Driver,TaylorMade,AeroBurner Mini,2015
+Driver,TaylorMade,M1,2015
+Driver,TaylorMade,M1 (2016),2016
+Driver,TaylorMade,M2,2016
+Driver,TaylorMade,M2 (2016),2016
+Driver,TaylorMade,M1 (2017),2017
+Driver,TaylorMade,M2 (2017),2017
+Driver,TaylorMade,M3,2018
+Driver,TaylorMade,M3 440,2018
+Driver,TaylorMade,M3 460,2018
+Driver,TaylorMade,M4,2018
+Driver,TaylorMade,M5,2019
+Driver,TaylorMade,M5 Tour,2019
+Driver,TaylorMade,M6,2019
+Driver,TaylorMade,Original One Mini,2019
+Driver,TaylorMade,SIM,2020
+Driver,TaylorMade,SIM Max,2020
+Driver,TaylorMade,SIM Max D,2020
+Driver,TaylorMade,300 Mini,2021
+Driver,TaylorMade,SIM2,2021
+Driver,TaylorMade,SIM2 Max,2021
+Driver,TaylorMade,SIM2 Max D,2021
+Driver,TaylorMade,Stealth,2022
+Driver,TaylorMade,Stealth HD,2022
+Driver,TaylorMade,Stealth Plus,2022
+Driver,TaylorMade,BRNR Mini,2023
+Driver,TaylorMade,Stealth 2,2023
+Driver,TaylorMade,Stealth 2 HD,2023
+Driver,TaylorMade,Stealth 2 Plus,2023
+Driver,TaylorMade,Qi10,2024
+Driver,TaylorMade,Qi10 LS,2024
+Driver,TaylorMade,Qi10 Max,2024
+Driver,TaylorMade,Qi10 Max 10K,2024
 Driver,TaylorMade,Qi35,2025
 Driver,TaylorMade,Qi35 LS,2025
 Driver,TaylorMade,Qi35 Max,2025
-Fairway Wood,TaylorMade,Qi35 Fairway,2025
+Driver,TaylorMade,Qi35 Max Lite,2025
+Driver,TaylorMade,R7 Quad Mini,2025
+Driver,TaylorMade,Qi4D,2026
+Driver,TaylorMade,Qi4D LS,2026
+Driver,TaylorMade,Qi4D Max,2026
+Driver,TaylorMade,Qi4D Max Lite,2026
+Driving Irons,TaylorMade,UDI,2014
+Driving Irons,TaylorMade,P790 UDI,2017
+Driving Irons,TaylorMade,GAPR Lo,2018
+Driving Irons,TaylorMade,GAPR Mid,2018
+Driving Irons,TaylorMade,SIM UDI,2020
+Driving Irons,TaylorMade,P790 UDI (2021),2021
+Driving Irons,TaylorMade,SIM2 DHY,2021
+Driving Irons,TaylorMade,SIM2 UDI,2021
+Driving Irons,TaylorMade,Stealth DHY,2022
+Driving Irons,TaylorMade,Stealth UDI,2022
+Driving Irons,TaylorMade,P·DHY,2024
+Driving Irons,TaylorMade,P·UDI,2024
+Fairway Wood,TaylorMade,Burner SuperFast 2.0,2011
+Fairway Wood,TaylorMade,R11,2011
+Fairway Wood,TaylorMade,RocketBallz,2012
+Fairway Wood,TaylorMade,RocketBallz Tour,2012
+Fairway Wood,TaylorMade,RBZ Stage 2,2013
+Fairway Wood,TaylorMade,RBZ Stage 2 Tour,2013
+Fairway Wood,TaylorMade,SLDR,2013
+Fairway Wood,TaylorMade,JetSpeed,2014
+Fairway Wood,TaylorMade,SLDR S,2014
+Fairway Wood,TaylorMade,AeroBurner,2015
+Fairway Wood,TaylorMade,M1 (2016),2016
+Fairway Wood,TaylorMade,M2 (2016),2016
+Fairway Wood,TaylorMade,M1 (2017),2017
+Fairway Wood,TaylorMade,M2 (2017),2017
+Fairway Wood,TaylorMade,M3,2018
+Fairway Wood,TaylorMade,M4,2018
+Fairway Wood,TaylorMade,M5,2019
+Fairway Wood,TaylorMade,M6,2019
+Fairway Wood,TaylorMade,SIM Max,2020
+Fairway Wood,TaylorMade,SIM Max D,2020
+Fairway Wood,TaylorMade,SIM Ti,2020
+Fairway Wood,TaylorMade,SIM2 Max,2021
+Fairway Wood,TaylorMade,SIM2 Max D,2021
+Fairway Wood,TaylorMade,SIM2 Ti,2021
+Fairway Wood,TaylorMade,Stealth,2022
+Fairway Wood,TaylorMade,Stealth Plus,2022
+Fairway Wood,TaylorMade,Stealth 2,2023
+Fairway Wood,TaylorMade,Stealth 2 HD,2023
+Fairway Wood,TaylorMade,Stealth 2 Plus,2023
+Fairway Wood,TaylorMade,Qi10,2024
+Fairway Wood,TaylorMade,Qi10 Max,2024
+Fairway Wood,TaylorMade,Qi10 Tour,2024
+Fairway Wood,TaylorMade,Qi35,2025
+Fairway Wood,TaylorMade,Qi35 Max,2025
+Fairway Wood,TaylorMade,Qi35 Max Lite,2025
+Fairway Wood,TaylorMade,Qi35 Tour,2025
+Fairway Wood,TaylorMade,Qi4D,2026
+Fairway Wood,TaylorMade,Qi4D Max,2026
+Fairway Wood,TaylorMade,Qi4D Max Lite,2026
+Fairway Wood,TaylorMade,Qi4D Tour,2026
+Hybrid,TaylorMade,Rescue 11,2011
+Hybrid,TaylorMade,RocketBallz Rescue,2012
+Hybrid,TaylorMade,RocketBallz Tour Rescue,2012
+Hybrid,TaylorMade,RBZ Stage 2 Rescue,2013
+Hybrid,TaylorMade,SLDR Rescue,2013
+Hybrid,TaylorMade,JetSpeed Rescue,2014
+Hybrid,TaylorMade,AeroBurner Rescue,2015
+Hybrid,TaylorMade,M1 Rescue (2016),2016
+Hybrid,TaylorMade,M2 Rescue (2016),2016
+Hybrid,TaylorMade,M1 Rescue (2017),2017
+Hybrid,TaylorMade,M2 Rescue (2017),2017
+Hybrid,TaylorMade,M3 Rescue,2018
+Hybrid,TaylorMade,M4 Rescue,2018
+Hybrid,TaylorMade,GAPR Hi,2019
+Hybrid,TaylorMade,GAPR Lo,2019
+Hybrid,TaylorMade,GAPR Mid,2019
+Hybrid,TaylorMade,M6 Rescue,2019
+Hybrid,TaylorMade,SIM Max Rescue,2020
+Hybrid,TaylorMade,SIM Max Rescue Women’s,2020
+Hybrid,TaylorMade,SIM2 Max Rescue,2021
+Hybrid,TaylorMade,SIM2 Rescue,2021
+Hybrid,TaylorMade,Stealth Plus Rescue,2022
+Hybrid,TaylorMade,Stealth Rescue,2022
+Hybrid,TaylorMade,Stealth 2 HD Rescue,2023
+Hybrid,TaylorMade,Stealth 2 Plus Rescue,2023
+Hybrid,TaylorMade,Stealth 2 Rescue,2023
+Hybrid,TaylorMade,Qi10 Max Rescue,2024
+Hybrid,TaylorMade,Qi10 Rescue,2024
+Hybrid,TaylorMade,Qi10 Tour Rescue,2024
+Hybrid,TaylorMade,Qi35 Max Lite Rescue,2025
+Hybrid,TaylorMade,Qi35 Max Rescue,2025
 Hybrid,TaylorMade,Qi35 Rescue,2025
+Hybrid,TaylorMade,Qi4D Max Lite Rescue,2026
+Hybrid,TaylorMade,Qi4D Max Rescue,2026
+Hybrid,TaylorMade,Qi4D Rescue,2026
+Irons,TaylorMade,Burner 2.0,2011
+Irons,TaylorMade,Tour Preferred CB,2011
+Irons,TaylorMade,Tour Preferred MB,2011
+Irons,TaylorMade,Tour Preferred MC,2011
+Irons,TaylorMade,R11,2012
+Irons,TaylorMade,RocketBallz,2012
+Irons,TaylorMade,RocketBallz Max,2012
+Irons,TaylorMade,RocketBladez,2012
+Irons,TaylorMade,RocketBladez Max,2013
+Irons,TaylorMade,RocketBladez Tour,2013
+Irons,TaylorMade,SpeedBlade,2013
+Irons,TaylorMade,SLDR,2014
+Irons,TaylorMade,SpeedBlade HL,2014
+Irons,TaylorMade,Tour Preferred CB (2014),2014
+Irons,TaylorMade,Tour Preferred MB (2014),2014
+Irons,TaylorMade,Tour Preferred MC (2014),2014
+Irons,TaylorMade,AeroBurner,2015
+Irons,TaylorMade,RSi 1,2015
+Irons,TaylorMade,RSi 2,2015
+Irons,TaylorMade,RSi TP,2015
+Irons,TaylorMade,M1 Irons (2016),2016
+Irons,TaylorMade,M2 Irons (2016),2016
+Irons,TaylorMade,PSi,2016
+Irons,TaylorMade,PSi Tour,2016
+Irons,TaylorMade,M1 Irons (2017),2017
+Irons,TaylorMade,M2,2017
+Irons,TaylorMade,M2 Irons (2017),2017
+Irons,TaylorMade,M2 Tour,2017
+Irons,TaylorMade,P730,2017
+Irons,TaylorMade,P750,2017
+Irons,TaylorMade,P770 (2017),2017
+Irons,TaylorMade,P790,2017
+Irons,TaylorMade,P790 (2017),2017
+Irons,TaylorMade,M3,2018
+Irons,TaylorMade,M4,2018
+Irons,TaylorMade,P760,2018
+Irons,TaylorMade,M5,2019
+Irons,TaylorMade,M6,2019
+Irons,TaylorMade,P790 (2019),2019
+Irons,TaylorMade,P7MB,2020
+Irons,TaylorMade,P7MC,2020
+Irons,TaylorMade,P770,2020
+Irons,TaylorMade,P770 (2020),2020
+Irons,TaylorMade,SIM Max,2020
+Irons,TaylorMade,SIM Max OS,2020
+Irons,TaylorMade,P790 (2021),2021
+Irons,TaylorMade,SIM2 Max,2021
+Irons,TaylorMade,SIM2 Max OS,2021
+Irons,TaylorMade,Stealth,2022
+Irons,TaylorMade,Stealth HD,2022
+Irons,TaylorMade,P7MB (2023),2023
+Irons,TaylorMade,P7MC (2023),2023
+Irons,TaylorMade,P770 (2023),2023
+Irons,TaylorMade,P790 (2023),2023
+Irons,TaylorMade,P7CB,2024
+Irons,TaylorMade,Qi,2024
+Irons,TaylorMade,Qi HL,2024
 Irons,TaylorMade,Qi Max,2024
+Irons,TaylorMade,Qi Max (2024),2024
+Irons,TaylorMade,P790 (2025),2025
+Irons,TaylorMade,Qi Max (2025),2025
+Irons,TaylorMade,Qi Max Lite,2025
+Wedge,TaylorMade,ATV,2012
+Wedge,TaylorMade,Tour Preferred,2014
+Wedge,TaylorMade,Hi-Toe,2016
+Wedge,TaylorMade,Milled Grind,2016
 Wedge,TaylorMade,Milled Grind MG,2018
+Wedge,TaylorMade,Hi-Toe Big Foot,2019
+Wedge,TaylorMade,Milled Grind 2,2019
 Wedge,TaylorMade,Milled Grind MG2,2019
+Wedge,TaylorMade,Hi-Toe Raw,2021
+Wedge,TaylorMade,Milled Grind 3,2021
 Wedge,TaylorMade,Milled Grind MG3,2021
+Wedge,TaylorMade,Milled Grind 4,2023
 Wedge,TaylorMade,Milled Grind MG4,2023
 Wedge,TaylorMade,Hi-Toe 4,2024
-Driver,Titleist,GT1,2024
-Fairway Wood,Titleist,GT1 Fairway,2024
-Hybrid,Titleist,GT1 Hybrid,2024
-Irons,Titleist,T150,2023
-Irons,Titleist,T250,2024
+Putter,TaylorMade,Ghost Tour Corza,2011
+Putter,TaylorMade,Ghost Tour Daytona 1,2011
+Putter,TaylorMade,Ghost Tour Fontana,2011
+Putter,TaylorMade,Ghost Tour Maranello,2011
+Putter,TaylorMade,Ghost Tour Monte Carlo,2011
+Putter,TaylorMade,Ghost Manta Manta,2012
+Putter,TaylorMade,Ghost Manta Manta Belly,2012
+Putter,TaylorMade,Ghost Manta Manta Long,2012
+Putter,TaylorMade,Ghost Spider,2012
+Putter,TaylorMade,Spider Blade 12,2013
+Putter,TaylorMade,Spider Blade 32,2013
+Putter,TaylorMade,Spider Blade Counterbalance,2013
+Putter,TaylorMade,Ghost Tour Black Daytona,2014
+Putter,TaylorMade,Ghost Tour Black Maranello,2014
+Putter,TaylorMade,Ghost Tour Black Monte Carlo,2014
+Putter,TaylorMade,Spider Tour Black,2016
+Putter,TaylorMade,Spider Tour Platinum,2016
+Putter,TaylorMade,Spider Tour Red,2016
+Putter,TaylorMade,Spider Tour,2017
+Putter,TaylorMade,Spider Mini Diamond Silver,2018
+Putter,TaylorMade,Spider Mini Jet Black,2018
+Putter,TaylorMade,Spider Mini Red,2018
+Putter,TaylorMade,Spider X,2019
+Putter,TaylorMade,Spider X Chalk,2019
+Putter,TaylorMade,Spider X Copper,2019
+Putter,TaylorMade,Spider X Hydro Blast,2019
+Putter,TaylorMade,Spider X Navy,2019
+Putter,TaylorMade,Truss TB1,2020
+Putter,TaylorMade,Truss TB2,2020
+Putter,TaylorMade,Truss TM1,2020
+Putter,TaylorMade,Truss TM2,2020
+Putter,TaylorMade,Spider EX Ghost White,2021
+Putter,TaylorMade,Spider EX Navy,2021
+Putter,TaylorMade,Spider EX Platinum,2021
+Putter,TaylorMade,Spider S Chalk,2021
+Putter,TaylorMade,Spider S Platinum,2021
+Putter,TaylorMade,Spider GT,2022
+Putter,TaylorMade,Spider GT GT,2022
+Putter,TaylorMade,Spider GT GT Max,2022
+Putter,TaylorMade,Spider GT GT Notchback,2022
+Putter,TaylorMade,Spider GT GT Rollback,2022
+Putter,TaylorMade,Spider GT GT Splitback,2022
+Putter,TaylorMade,Spider GTX,2023
+Putter,TaylorMade,Spider GTX Black,2023
+Putter,TaylorMade,Spider GTX Ice Blue,2023
+Putter,TaylorMade,Spider GTX Red,2023
+Putter,TaylorMade,Spider GTX Silver,2023
+Putter,TaylorMade,TP Reserve B11,2023
+Putter,TaylorMade,TP Reserve B13,2023
+Putter,TaylorMade,TP Reserve B29,2023
+Putter,TaylorMade,TP Reserve B31,2023
+Putter,TaylorMade,TP Reserve M21,2023
+Putter,TaylorMade,TP Reserve M27,2023
+Putter,TaylorMade,TP Reserve M33,2023
+Putter,TaylorMade,TP Reserve M37,2023
+Putter,TaylorMade,Spider Tour Tour,2024
+Putter,TaylorMade,Spider Tour Tour V,2024
+Putter,TaylorMade,Spider Tour Tour X,2024
+Putter,TaylorMade,Spider Tour Tour Z,2024
+Putter,TaylorMade,Spider Tour X,2024
+Putter,TaylorMade,Spider Tour Z,2024
+Putter,TaylorMade,Spider Tour Square to Square,2025
+Putter,TaylorMade,Spider Tour X Double Bend,2025
+Putter,TaylorMade,Spider Tour X L-Neck,2025
+Putter,TaylorMade,Spider Tour X Short Slant,2025
+Driver,Titleist,910D2,2011
+Driver,Titleist,910D3,2011
+Driver,Titleist,913D2,2013
+Driver,Titleist,913D3,2013
+Driver,Titleist,915D2,2014
+Driver,Titleist,915D3,2014
+Driver,Titleist,915D4,2015
+Driver,Titleist,917D2,2016
+Driver,Titleist,917D3,2016
+Driver,Titleist,TS2,2018
+Driver,Titleist,TS3,2018
+Driver,Titleist,TS1,2019
+Driver,Titleist,TS4,2019
+Driver,Titleist,TSi2,2020
+Driver,Titleist,TSi3,2020
+Driver,Titleist,TSi1,2021
+Driver,Titleist,TSi4,2021
+Driver,Titleist,TSR2,2022
+Driver,Titleist,TSR3,2022
+Driver,Titleist,TSR4,2022
+Driver,Titleist,TSR1,2023
+Driver,Titleist,GT2,2024
+Driver,Titleist,GT3,2024
+Driver,Titleist,GT4,2024
+Driver,Titleist,GT1,2025
+Driving Irons,Titleist,712U,2012
+Driving Irons,Titleist,716 T-MB,2015
+Driving Irons,Titleist,718 T-MB,2018
+Driving Irons,Titleist,U500,2019
+Driving Irons,Titleist,U510,2019
+Driving Irons,Titleist,T200 Utility,2021
+Driving Irons,Titleist,U505,2023
 Driving Irons,Titleist,T250•U,2024
+Driving Irons,Titleist,T250·U,2025
+Fairway Wood,Titleist,910F,2011
+Fairway Wood,Titleist,910Fd,2011
+Fairway Wood,Titleist,913F,2013
+Fairway Wood,Titleist,913Fd,2013
+Fairway Wood,Titleist,915F,2015
+Fairway Wood,Titleist,915Fd,2015
+Fairway Wood,Titleist,917F2,2017
+Fairway Wood,Titleist,917F3,2017
+Fairway Wood,Titleist,TS2,2018
+Fairway Wood,Titleist,TS3,2018
+Fairway Wood,Titleist,TSi2,2020
+Fairway Wood,Titleist,TSi3,2020
+Fairway Wood,Titleist,TSi1,2021
+Fairway Wood,Titleist,TSR2,2022
+Fairway Wood,Titleist,TSR3,2022
+Fairway Wood,Titleist,TSR1,2023
+Fairway Wood,Titleist,GT2,2024
+Fairway Wood,Titleist,GT3,2024
+Fairway Wood,Titleist,GT1,2025
+Hybrid,Titleist,910H,2011
+Hybrid,Titleist,913H,2013
+Hybrid,Titleist,913Hd,2013
+Hybrid,Titleist,915H,2015
+Hybrid,Titleist,915Hd,2015
+Hybrid,Titleist,816 H1,2016
+Hybrid,Titleist,816 H2,2016
+Hybrid,Titleist,818 H1,2017
+Hybrid,Titleist,818 H2,2017
+Hybrid,Titleist,TS2,2019
+Hybrid,Titleist,TS3,2019
+Hybrid,Titleist,TSi1,2021
+Hybrid,Titleist,TSi2,2021
+Hybrid,Titleist,TSi3,2021
+Hybrid,Titleist,TSR1,2023
+Hybrid,Titleist,TSR2,2023
+Hybrid,Titleist,TSR3,2023
+Hybrid,Titleist,GT1,2025
+Hybrid,Titleist,GT2,2025
+Hybrid,Titleist,GT3,2025
+Irons,Titleist,AP1 710,2010
+Irons,Titleist,AP2 710,2010
+Irons,Titleist,AP1 712,2012
+Irons,Titleist,AP2 712,2012
+Irons,Titleist,CB 712,2012
+Irons,Titleist,MB 712,2012
+Irons,Titleist,AP1 714,2014
+Irons,Titleist,AP2 714,2014
+Irons,Titleist,CB 714,2014
+Irons,Titleist,MB 714,2014
+Irons,Titleist,AP1 716,2016
+Irons,Titleist,AP2 716,2016
+Irons,Titleist,CB 716,2016
+Irons,Titleist,MB 716,2016
+Irons,Titleist,T-MB 716,2016
+Irons,Titleist,AP1 718,2018
+Irons,Titleist,AP2 718,2018
+Irons,Titleist,AP3 718,2018
+Irons,Titleist,CB 718,2018
+Irons,Titleist,MB 718,2018
+Irons,Titleist,T-MB 718,2018
+Irons,Titleist,620 CB,2019
+Irons,Titleist,620 MB,2019
+Irons,Titleist,CB,2019
+Irons,Titleist,MB,2019
+Irons,Titleist,T100,2019
+Irons,Titleist,T200,2019
+Irons,Titleist,T300,2019
+Irons,Titleist,T100 (2021),2021
+Irons,Titleist,T100S,2021
+Irons,Titleist,T200 (2021),2021
+Irons,Titleist,T300 (2021),2021
+Irons,Titleist,T100 (2023),2023
+Irons,Titleist,T150,2023
+Irons,Titleist,T150 (2023),2023
+Irons,Titleist,T200 (2023),2023
+Irons,Titleist,T350,2023
+Irons,Titleist,T350 (2023),2023
+Irons,Titleist,T100 (2025),2025
+Irons,Titleist,T150 (2025),2025
+Irons,Titleist,T250,2025
+Irons,Titleist,T250 Launch Spec,2025
+Irons,Titleist,T350 (2025),2025
+Wedge,Titleist,Vokey SM4,2011
 Wedge,Titleist,Vokey SM5,2014
 Wedge,Titleist,Vokey SM6,2016
 Wedge,Titleist,Vokey SM7,2018
 Wedge,Titleist,Vokey SM8,2020
 Wedge,Titleist,Vokey SM9,2022
 Wedge,Titleist,Vokey SM10,2024
-Wedge,Titleist,SM10,2024
-Driver,Tommy Armour,845 MAX Driver,2021
-Fairway Wood,Tommy Armour,845 MAX Fairway,2021
-Hybrid,Tommy Armour,845 MAX Hybrid,2021
-Irons,Tommy Armour,845 MAX Irons,2021
-Wedge,Tommy Armour,Atomic Wedge,2023
-Driver,Top Flite,XL Driver,2022
-Fairway Wood,Top Flite,XL Fairway,2022
-Hybrid,Top Flite,XL Hybrid,2022
-Irons,Top Flite,XL Irons,2022
-Wedge,Top Flite,XL Wedge,2022
+Wedge,Titleist,Vokey SM11,2026
+Driver,Tommy Armour,845 MAX,2021
+Fairway Wood,Tommy Armour,845 MAX,2021
+Hybrid,Tommy Armour,845 MAX,2021
+Irons,Tommy Armour,845 MAX,2021
+Wedge,Tommy Armour,Atomic,2023
+Driver,Top Flite,XL,2022
+Fairway Wood,Top Flite,XL,2022
+Hybrid,Top Flite,XL,2022
+Irons,Top Flite,XL,2022
+Wedge,Top Flite,XL,2022
+Putter,Toulon Design,Madison (2016),2016
+Putter,Toulon Design,Memphis (2016),2016
+Putter,Toulon Design,Rochester,2016
+Putter,Toulon Design,San Diego (2016),2016
+Putter,Toulon Design,San Francisco,2016
+Putter,Toulon Design,Atlanta (2018),2018
+Putter,Toulon Design,Austin (2018),2018
+Putter,Toulon Design,Columbus,2018
+Putter,Toulon Design,Indianapolis,2018
+Putter,Toulon Design,Long Island,2018
+Putter,Toulon Design,Madison (2018),2018
+Putter,Toulon Design,Memphis (2018),2018
+Putter,Toulon Design,Portland,2018
+Putter,Toulon Design,San Diego (2018),2018
+Putter,Toulon Design,Las Vegas,2019
+Putter,Toulon Design,Atlanta,2020
+Putter,Toulon Design,Atlanta (2020),2020
+Putter,Toulon Design,Austin (2020),2020
+Putter,Toulon Design,Chicago (2020),2020
+Putter,Toulon Design,Las Vegas (2020),2020
+Putter,Toulon Design,Memphis (2020),2020
+Putter,Toulon Design,San Diego (2020),2020
+Putter,Toulon Design,Madison,2021
+Putter,Toulon Design,Atlanta (2022),2022
+Putter,Toulon Design,Chicago,2022
+Putter,Toulon Design,Chicago (2022),2022
+Putter,Toulon Design,Daytona Beach,2022
+Putter,Toulon Design,Las Vegas (2022),2022
+Putter,Toulon Design,Le Mans,2022
+Putter,Toulon Design,Madison (2022),2022
+Putter,Toulon Design,Memphis (2022),2022
+Putter,Toulon Design,San Diego (2022),2022
+Driver,Tour Edge,Exotics XCG5,2012
+Driver,Tour Edge,Exotics XCG6,2013
+Driver,Tour Edge,Exotics XCG7,2014
+Driver,Tour Edge,Exotics XCG7 Beta,2014
+Driver,Tour Edge,Exotics E8,2015
+Driver,Tour Edge,Exotics E8 Beta,2015
+Driver,Tour Edge,Exotics EX9,2016
+Driver,Tour Edge,Exotics EX9 Tour,2016
 Driver,Tour Edge,Exotics EXS,2018
+Driver,Tour Edge,Exotics EXS 220,2019
 Driver,Tour Edge,Exotics C721,2021
+Driver,Tour Edge,Exotics E721,2021
+Driver,Tour Edge,Exotics C722,2022
+Driver,Tour Edge,Exotics E722,2022
+Driver,Tour Edge,Exotics C723,2023
 Driver,Tour Edge,Exotics E723,2023
+Driver,Tour Edge,Exotics C724,2024
+Driver,Tour Edge,Exotics E724,2024
 Driver,Tour Edge,Exotics E725,2025
-Fairway Wood,Tour Edge,Exotics C721 Fairway,2021
-Fairway Wood,Tour Edge,Exotics E723 Fairway,2023
-Hybrid,Tour Edge,Exotics C723 Hybrid,2023
-Hybrid,Tour Edge,Hot Launch C523 Hybrid,2023
-Irons,Tour Edge,Hot Launch E522 Irons,2022
-Irons,Tour Edge,Exotics C723 Irons,2023
-Wedge,Tour Edge,Template Wedge,2024
+Fairway Wood,Tour Edge,Exotics XCG5,2012
+Fairway Wood,Tour Edge,Exotics XCG6,2013
+Fairway Wood,Tour Edge,Exotics XCG7,2014
+Fairway Wood,Tour Edge,Exotics XCG7 Beta,2014
+Fairway Wood,Tour Edge,Exotics E8,2015
+Fairway Wood,Tour Edge,Exotics E8 Beta,2015
+Fairway Wood,Tour Edge,Exotics EX9,2016
+Fairway Wood,Tour Edge,Exotics EX9 Tour,2016
+Fairway Wood,Tour Edge,Exotics EXS,2018
+Fairway Wood,Tour Edge,Exotics EXS 220,2019
+Fairway Wood,Tour Edge,Exotics C721,2021
+Fairway Wood,Tour Edge,Exotics E721,2021
+Fairway Wood,Tour Edge,Exotics C722,2022
+Fairway Wood,Tour Edge,Exotics E722,2022
+Fairway Wood,Tour Edge,Exotics C723,2023
+Fairway Wood,Tour Edge,Exotics E723,2023
+Fairway Wood,Tour Edge,Exotics C724,2024
+Fairway Wood,Tour Edge,Exotics E724,2024
+Fairway Wood,Tour Edge,Exotics E725,2025
+Hybrid,Tour Edge,Exotics XCG5,2012
+Hybrid,Tour Edge,Exotics XCG6,2013
+Hybrid,Tour Edge,Exotics XCG7,2014
+Hybrid,Tour Edge,Exotics E8,2015
+Hybrid,Tour Edge,Exotics EX9,2016
+Hybrid,Tour Edge,Exotics EXS,2018
+Hybrid,Tour Edge,Exotics EXS 220,2019
+Hybrid,Tour Edge,Exotics C721,2021
+Hybrid,Tour Edge,Exotics E721,2021
+Hybrid,Tour Edge,Exotics C722,2022
+Hybrid,Tour Edge,Exotics E722,2022
+Hybrid,Tour Edge,Exotics C723,2023
+Hybrid,Tour Edge,Exotics E723,2023
+Hybrid,Tour Edge,Hot Launch C523,2023
+Hybrid,Tour Edge,Hot Launch E523,2023
+Hybrid,Tour Edge,Exotics C724,2024
+Hybrid,Tour Edge,Exotics E724,2024
+Hybrid,Tour Edge,Exotics E725,2025
+Irons,Tour Edge,Exotics CBX Forged,2018
+Irons,Tour Edge,Hot Launch 3,2018
+Irons,Tour Edge,Exotics EXS 220,2020
+Irons,Tour Edge,Hot Launch C521,2020
+Irons,Tour Edge,Hot Launch E521,2020
+Irons,Tour Edge,Exotics C722,2022
+Irons,Tour Edge,Hot Launch C522,2022
+Irons,Tour Edge,Hot Launch E522,2022
+Irons,Tour Edge,Exotics C723,2023
+Irons,Tour Edge,Hot Launch C523,2023
+Irons,Tour Edge,Hot Launch E523,2023
+Irons,Tour Edge,Exotics C724,2024
+Irons,Tour Edge,Hot Launch C524,2024
+Irons,Tour Edge,Hot Launch E524,2024
+Wedge,Tour Edge,Template,2024
 Irons,Vega,VDC-01,2022
 Irons,Vega,Mizar Pro,2023
 Irons,Vega,VM-02,2024
 Wedge,Vega,VW-18,2022
-Wedge,Vega,VM Wedge,2024
+Wedge,Vega,VM,2024
 Driver,Vice Golf,VGD01,2025
 Fairway Wood,Vice Golf,VGF01,2025
 Hybrid,Vice Golf,VGH01,2025
 Irons,Vice Golf,VGI01,2025
 Wedge,Vice Golf,VGW01,2025
+Driver,Wilson,DXi,2011
+Driver,Wilson,DXi Superlight,2011
+Driver,Wilson,Smooth,2012
+Driver,Wilson,D-100,2013
+Driver,Wilson,FG Tour M3,2014
+Driver,Wilson,D200,2015
+Driver,Wilson,C200,2016
+Driver,Wilson,FG Tour F5,2016
+Driver,Wilson,D300,2017
+Driver,Wilson,C300,2018
+Driver,Wilson,D7,2019
+Driver,Wilson,D9,2021
+Driver,Wilson,DYNAPWR Carbon,2023
+Driver,Wilson,DYNAPWR Titanium,2023
 Driver,Wilson,Dynapower Carbon,2024
 Driver,Wilson,Dynapower Max,2024
-Fairway Wood,Wilson,Dynapower Fairway,2024
-Hybrid,Wilson,Dynapower Hybrid,2024
+Driver,Wilson,DYNAPWR Carbon (2025),2025
+Driver,Wilson,DYNAPWR LS,2025
+Driver,Wilson,DYNAPWR Max,2025
+Driver,Wilson,DYNAPWR Max+,2026
+Driving Irons,Wilson,Staff Model Utility,2020
+Driving Irons,Wilson,Staff Model RB Utility,2024
+Fairway Wood,Wilson,DXi,2011
+Fairway Wood,Wilson,D-100,2013
+Fairway Wood,Wilson,FG Tour M3,2014
+Fairway Wood,Wilson,D200,2015
+Fairway Wood,Wilson,FG Tour F5,2016
+Fairway Wood,Wilson,D300,2017
+Fairway Wood,Wilson,C300,2018
+Fairway Wood,Wilson,D7,2019
+Fairway Wood,Wilson,D9,2021
+Fairway Wood,Wilson,DYNAPWR,2023
+Fairway Wood,Wilson,DYNAPWR Carbon,2023
+Fairway Wood,Wilson,Dynapower,2024
+Hybrid,Wilson,DXi,2011
+Hybrid,Wilson,D-100,2013
+Hybrid,Wilson,FG Tour M3,2014
+Hybrid,Wilson,D200,2015
+Hybrid,Wilson,FG Tour F5,2016
+Hybrid,Wilson,D300,2017
+Hybrid,Wilson,C300,2018
+Hybrid,Wilson,D7,2019
+Hybrid,Wilson,D9,2021
+Hybrid,Wilson,DYNAPWR (2023),2023
+Hybrid,Wilson,Dynapower,2024
+Hybrid,Wilson,DYNAPWR (2025),2025
+Irons,Wilson,Di11,2011
+Irons,Wilson,FG Tour V2,2011
+Irons,Wilson,D-100,2013
+Irons,Wilson,FG Tour M3,2013
+Irons,Wilson,FG Tour V4,2014
+Irons,Wilson,C100,2015
+Irons,Wilson,D200,2015
+Irons,Wilson,C200,2016
+Irons,Wilson,FG Tour F5,2016
+Irons,Wilson,D300,2017
+Irons,Wilson,FG Tour V6,2017
+Irons,Wilson,V6 Staff,2017
+Irons,Wilson,C300,2018
+Irons,Wilson,C300 Forged,2018
+Irons,Wilson,D7,2019
+Irons,Wilson,Launch Pad,2020
+Irons,Wilson,Staff Model Blade,2020
+Irons,Wilson,Staff Model CB,2020
+Irons,Wilson,D9,2021
+Irons,Wilson,D9 Forged,2022
+Irons,Wilson,Launch Pad 2,2022
+Irons,Wilson,DYNAPWR,2023
 Irons,Wilson,Dynapower Forged,2024
 Irons,Wilson,Dynapower Max,2024
-Wedge,Wilson,Staff Model Wedge,2020
+Irons,Wilson,DYNAPWR Forged,2024
+Irons,Wilson,Staff Model Blade (2024),2024
+Irons,Wilson,Staff Model CB (2024),2024
+Irons,Wilson,DYNAPWR Max,2025
+Irons,Wilson,Staff Model XB,2026
+Wedge,Wilson,FG Tour TC,2011
+Wedge,Wilson,FG Tour PMP,2015
+Wedge,Wilson,Staff Model Hi-Toe,2018
+Wedge,Wilson,Staff Model,2020
 Wedge,Wilson,Staff Model ZM,2024
-Driver,XXIO,XXIO Prime 11,2020
-Driver,XXIO,XXIO Prime 12,2022
-Driver,XXIO,XXIO 13 Driver,2024
-Driver,XXIO,XXIO X Driver,2024
-Fairway Wood,XXIO,XXIO 13 Fairway,2024
-Hybrid,XXIO,XXIO 13 Hybrid,2024
-Irons,XXIO,XXIO Prime 12 Irons,2022
-Irons,XXIO,XXIO 13 Irons,2024
-Wedge,XXIO,XXIO Prime Wedge,2022
-Driver,Yamaha,RMX 216,2016
-Driver,Yamaha,RMX 218,2018
-Driver,Yamaha,RMX 120,2020
-Driver,Yamaha,RMX VD/M,2024
-Fairway Wood,Yamaha,RMX Fairway,2024
-Hybrid,Yamaha,RMX Utility,2024
-Irons,Yamaha,RMX 118,2018
-Irons,Yamaha,RMX VD,2024
-Wedge,Vice Golf,VGW01,2025
-Driver,Wilson,Dynapower Carbon,2024
-Driver,Wilson,Dynapower Max,2024
-Fairway Wood,Wilson,Dynapower Fairway,2024
-Hybrid,Wilson,Dynapower Hybrid,2024
-Irons,Wilson,Dynapower Forged,2024
-Irons,Wilson,Dynapower Max,2024
-Driving Irons,Wilson,Staff Model Utility,2022
-Wedge,Wilson,Staff Model Wedge,2020
-Wedge,Wilson,Staff Model ZM,2024
-Driver,XXIO,XXIO Prime 11,2020
-Driver,XXIO,XXIO Prime 12,2022
-Driver,XXIO,XXIO 13 Driver,2024
-Driver,XXIO,XXIO X Driver,2024
-Fairway Wood,XXIO,XXIO 13 Fairway,2024
-Hybrid,XXIO,XXIO 13 Hybrid,2024
-Irons,XXIO,XXIO Prime 12 Irons,2022
-Irons,XXIO,XXIO 13 Irons,2024
-Wedge,XXIO,XXIO Prime Wedge,2022
-Driver,Yamaha,RMX 216,2016
-Driver,Yamaha,RMX 218,2018
-Driver,Yamaha,RMX 120,2020
-Driver,Yamaha,RMX VD/M,2024
-Fairway Wood,Yamaha,RMX Fairway,2024
-Hybrid,Yamaha,RMX Utility,2024
-Irons,Yamaha,RMX 118,2018
-Irons,Yamaha,RMX VD,2024
-Putter,Scotty Cameron,Select Newport 2,2012
-Putter,Scotty Cameron,Select Newport 2.5,2012
-Putter,Scotty Cameron,Futura X5,2015
-Putter,Scotty Cameron,Futura X7,2015
-Putter,Scotty Cameron,Select 2016 Newport 2,2016
-Putter,Scotty Cameron,Select 2018 Newport 2,2018
-Putter,Scotty Cameron,Phantom X 5,2019
-Putter,Scotty Cameron,Phantom X 7,2019
-Putter,Scotty Cameron,Special Select Newport 2,2020
-Putter,Scotty Cameron,Special Select Del Mar,2020
-Putter,Scotty Cameron,Phantom X 5.5,2021
-Putter,Scotty Cameron,Phantom X 11,2022
-Putter,Scotty Cameron,Super Select Newport 2,2023
-Putter,Scotty Cameron,Super Select Fastback,2023
-Putter,Scotty Cameron,Phantom 7,2024
-Putter,Scotty Cameron,Phantom 9,2024
-Putter,Odyssey,White Hot Pro 1,2013
-Putter,Odyssey,White Hot RX 7,2016
-Putter,Odyssey,O-Works 1,2017
-Putter,Odyssey,Stroke Lab Seven,2019
-Putter,Odyssey,Stroke Lab Marxman,2019
-Putter,Odyssey,2-Ball Ten,2020
-Putter,Odyssey,2-Ball Ten Lined,2020
-Putter,Odyssey,White Hot OG 1,2021
-Putter,Odyssey,White Hot OG 7,2021
-Putter,Odyssey,White Hot OG Rossie,2021
-Putter,Odyssey,Tri-Hot 5K Two,2022
-Putter,Odyssey,Tri-Hot 5K Seven,2022
-Putter,Odyssey,Ai-One 7,2024
-Putter,Odyssey,Ai-One Jailbird Mini,2024
-Putter,Odyssey,Ai-One Square 2 Square Jailbird,2024
-Putter,TaylorMade,Ghost Spider,2012
-Putter,TaylorMade,Spider Tour,2017
-Putter,TaylorMade,Spider X,2019
-Putter,TaylorMade,Spider X Hydro Blast,2020
-Putter,TaylorMade,Spider GT,2022
-Putter,TaylorMade,Spider GTX,2023
-Putter,TaylorMade,Spider Tour X,2024
-Putter,TaylorMade,Spider Tour Z,2024
-Putter,Ping,Anser 2,2011
-Putter,Ping,Vault 2.0 Dale Anser,2017
-Putter,Ping,Sigma 2 Anser,2019
-Putter,Ping,Sigma 2 Tyne,2019
-Putter,Ping,Heppler Anser 2,2020
-Putter,Ping,Heppler Fetch,2020
-Putter,Ping,PLD Milled Anser,2021
-Putter,Ping,PLD Milled Prime Tyne 4,2022
-Putter,Ping,PLD Milled DS72,2023
-Putter,Ping,Kushin 4,2024
-Putter,Bettinardi,Studio Stock 28,2018
-Putter,Bettinardi,Hive,2019
-Putter,Bettinardi,BB1,2020
-Putter,Bettinardi,BB8,2021
-Putter,Bettinardi,Inovai 6.0,2022
-Putter,Bettinardi,Queen B 6,2023
-Putter,Evnroll,ER2,2017
-Putter,Evnroll,ER5,2017
-Putter,Evnroll,ER7,2018
-Putter,Evnroll,ER11,2020
-Putter,Evnroll,ER2v,2023
-Putter,L.A.B. Golf,DF 2.1,2020
-Putter,L.A.B. Golf,MEZZ.1,2021
-Putter,L.A.B. Golf,MEZZ.1 MAX,2022
-Putter,L.A.B. Golf,LINK.1,2023
-Putter,L.A.B. Golf,DF3,2024
-Putter,Cleveland,Huntington Beach 1,2016
-Putter,Cleveland,Huntington Beach Soft 11,2019
-Putter,Cleveland,Frontline Elevado,2020
-Putter,Cleveland,Frontline Elite 8.0,2023
-Putter,Cleveland,HB Soft 2,2024
+Putter,Wilson,Staff Infinite Bean,2014
+Putter,Wilson,Staff Infinite Bucktown,2014
+Putter,Wilson,Staff Infinite Grant Park,2014
+Putter,Wilson,Staff Infinite Windy City,2014
+Putter,Wilson,Staff Vizor Level 2,2014
+Putter,Wilson,Infinite Bean,2018
+Putter,Wilson,Infinite Bucktown,2018
+Putter,Wilson,Infinite Grant Park,2018
+Putter,Wilson,Infinite Michigan Avenue,2018
+Putter,Wilson,Infinite Windy City,2018
 Putter,Wilson,Infinite Michigan Ave,2019
 Putter,Wilson,Staff Model,2020
 Putter,Wilson,8802,2021
 Putter,Wilson,Infinite Buckingham,2022
-Putter,Cobra,King Vintage Stingray,2020
-Putter,Cobra,3D Printed Agera,2021
-Putter,Cobra,Sport-60,2023
-Putter,Cobra,Vintage Nova,2024
-Putter,Mizuno,M-Craft I,2019
-Putter,Mizuno,M-Craft II,2020
-Putter,Mizuno,OMOI Type 1,2021
-Putter,Mizuno,M-Craft X,2023
-Putter,Nike,Method Core,2014
-Putter,Nike,Method Converge,2015
-Putter,Nike,Method Matter,2016
-Putter,PXG,Bat Attack,2019
-Putter,PXG,Closer,2020
-Putter,PXG,Mustang,2021
-Putter,PXG,Battle Ready II,2022
-Putter,Toulon,Las Vegas,2019
-Putter,Toulon,Atlanta,2020
-Putter,Toulon,Madison,2021
-Putter,Toulon,Chicago,2022
-Putter,SeeMore,FGP,2015
-Putter,SeeMore,Si4,2018
-Putter,SeeMore,mFGP,2020
-Putter,Srixon,Z-Forged,2020
+Putter,Wilson,Infinite Bean (2024),2024
+Putter,Wilson,Infinite Bucktown (2024),2024
+Putter,Wilson,Infinite Grant Park (2024),2024
+Putter,Wilson,Infinite South Side,2024
+Putter,Wilson,Infinite Windy City (2024),2024
+Driver,XXIO,XXIO Prime 11,2020
+Driver,XXIO,XXIO Prime 12,2022
+Driver,XXIO,XXIO 13,2024
+Driver,XXIO,XXIO X,2024
+Fairway Wood,XXIO,XXIO 13,2024
+Hybrid,XXIO,XXIO 13,2024
+Irons,XXIO,XXIO Prime 12,2022
+Irons,XXIO,XXIO 13,2024
+Wedge,XXIO,XXIO Prime,2022
+Driver,Yamaha,RMX 216,2016
+Driver,Yamaha,RMX 218,2018
+Driver,Yamaha,RMX 120,2020
+Driver,Yamaha,RMX VD/M,2024
+Fairway Wood,Yamaha,RMX,2024
+Hybrid,Yamaha,RMX Utility,2024
+Irons,Yamaha,RMX 118,2018
+Irons,Yamaha,RMX VD,2024
+Driver,Yonex,EZONE 380,2011
+Driver,Yonex,EZONE 420,2011
+Driver,Yonex,EZONE 450,2011
+Driver,Yonex,EZONE XP,2013
+Driver,Yonex,EZONE Tri-G,2015
+Driver,Yonex,EZONE XPG,2017
+Driver,Yonex,EZONE GT,2019
+Driver,Yonex,EZONE GT 425,2020
+Driver,Yonex,EZONE GT 455,2020
+Driver,Yonex,EZONE GT 425 (2022),2022
+Driver,Yonex,EZONE GT 450 (2022),2022
+Driver,Yonex,EZONE GT Type D,2024
+Driver,Yonex,EZONE GT Type S,2024
+Fairway Wood,Yonex,EZONE,2011
+Fairway Wood,Yonex,EZONE XP,2013
+Fairway Wood,Yonex,EZONE Tri-G,2015
+Fairway Wood,Yonex,EZONE XPG,2017
+Fairway Wood,Yonex,EZONE GT,2019
+Fairway Wood,Yonex,EZONE GT (2022),2022
+Fairway Wood,Yonex,EZONE GT (2024),2024
+Hybrid,Yonex,EZONE,2011
+Hybrid,Yonex,EZONE XP,2013
+Hybrid,Yonex,EZONE Tri-G,2015
+Hybrid,Yonex,EZONE XPG,2017
+Hybrid,Yonex,EZONE GT,2019
+Hybrid,Yonex,EZONE GT (2022),2022
+Hybrid,Yonex,EZONE GT (2024),2024
+Irons,Yonex,EZONE Forged CB,2011
+Irons,Yonex,EZONE SD,2011
+Irons,Yonex,EZONE XP,2013
+Irons,Yonex,EZONE MB,2015
+Irons,Yonex,EZONE Tri-G,2015
+Irons,Yonex,EZONE XPG,2017
+Irons,Yonex,N1-CB,2017
+Irons,Yonex,N1-MB,2017
+Irons,Yonex,EZONE CB 301,2019
+Irons,Yonex,EZONE MB 501,2019
+Irons,Yonex,EZONE CB 301 Forged,2021
+Irons,Yonex,EZONE MB 501 Forged,2021
+Irons,Yonex,EZONE CB 302,2023
+Irons,Yonex,EZONE MB 502,2023
+Wedge,Yonex,EZONE Tour,2015
+Wedge,Yonex,EZONE W 501,2020
+Wedge,Yonex,EZONE W 502,2023
