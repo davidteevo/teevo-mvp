@@ -121,6 +121,27 @@ export async function POST(request: Request) {
   const buildRecoveryLink = () =>
     `${appOrigin}/api/auth/set-password?token_hash=${encodeURIComponent(token_hash)}`;
 
+  /** Signup confirmation lands on the app so we can show a confirmed page, then ask for password. */
+  const buildSignupConfirmUrl = () => {
+    const params = new URLSearchParams({ token_hash });
+    try {
+      const next = new URL(redirect_to).searchParams.get("next");
+      if (
+        next &&
+        next.startsWith("/") &&
+        !next.startsWith("//") &&
+        next !== "/dashboard" &&
+        !next.startsWith("/auth/") &&
+        !next.startsWith("/login")
+      ) {
+        params.set("next", next);
+      }
+    } catch {
+      // no usable next — confirm page defaults to onboarding
+    }
+    return `${appOrigin}/auth/confirm-email?${params.toString()}`;
+  };
+
   const sendViaResend = async (
     to: string,
     subject: string,
@@ -137,8 +158,8 @@ export async function POST(request: Request) {
         {
           title: "Confirm your email",
           subtitle: "Verify your Teevo account",
-          body: `Hi ${firstName}, click the button below to confirm your email address and start using Teevo.`,
-          cta_link: buildVerifyUrl(token_hash, email_action_type),
+          body: `Hi ${firstName}, click the button below to confirm your email address, then log in to start using Teevo.`,
+          cta_link: buildSignupConfirmUrl(),
           cta_text: "Confirm email",
         }
       );

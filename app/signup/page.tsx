@@ -99,7 +99,7 @@ function SignupForm() {
             Check your inbox
           </h1>
           <p className="mt-2 text-mowing-green/90 text-sm leading-relaxed">
-            We’ve sent a link to <strong>{email}</strong>. Click it to verify your email and you’re in — then you can list clubs, browse, and get back to the fairway.
+            We’ve sent a link to <strong>{email}</strong>. Click it to confirm your email, then log in with the password you just chose.
           </p>
           <p className="mt-4 text-mowing-green/70 text-xs">
             No email? Check spam, or wait a minute and try again.

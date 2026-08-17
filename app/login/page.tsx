@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { CheckCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { parseWatchListingId } from "@/lib/watchlist";
 
@@ -35,7 +36,8 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") ?? "/dashboard";
   const message = searchParams.get("message");
-  const [email, setEmail] = useState("");
+  const emailConfirmed = message === "email-confirmed";
+  const [email, setEmail] = useState(searchParams.get("email") ?? "");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -134,12 +136,24 @@ function LoginForm() {
           </div>
         </div>
       )}
-      <h1 className="text-2xl font-bold text-mowing-green">Log in</h1>
-      <p className="mt-2 text-mowing-green/80 text-sm">
-        {parseWatchListingId(redirect)
-          ? "Sign in to save this club to your Watchlist."
-          : "Welcome back. Log in to sell or buy."}
-      </p>
+      {emailConfirmed ? (
+        <div className="text-center sm:text-left">
+          <CheckCircle className="mx-auto sm:mx-0 h-12 w-12 text-par-3-punch" aria-hidden />
+          <h1 className="mt-3 text-2xl font-bold text-mowing-green">Your email has been confirmed</h1>
+          <p className="mt-2 text-mowing-green/80 text-sm">
+            Enter the password you chose when you signed up to log in.
+          </p>
+        </div>
+      ) : (
+        <>
+          <h1 className="text-2xl font-bold text-mowing-green">Log in</h1>
+          <p className="mt-2 text-mowing-green/80 text-sm">
+            {parseWatchListingId(redirect)
+              ? "Sign in to save this club to your Watchlist."
+              : "Welcome back. Log in to sell or buy."}
+          </p>
+        </>
+      )}
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         {message === "password-updated" && (
           <p className="text-sm text-mowing-green bg-mowing-green/10 rounded-lg px-3 py-2" role="status">
@@ -161,6 +175,8 @@ function LoginForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
+            autoComplete="email"
+            autoFocus={!email}
             className="w-full min-h-[48px] rounded-xl border border-mowing-green/30 bg-white px-4 py-3 text-base text-mowing-green placeholder:text-mowing-green/50 disabled:opacity-60 disabled:cursor-not-allowed touch-manipulation"
           />
         </div>
@@ -182,6 +198,8 @@ function LoginForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
+            autoComplete="current-password"
+            autoFocus={Boolean(email)}
             className="w-full min-h-[48px] rounded-xl border border-mowing-green/30 bg-white px-4 py-3 text-base text-mowing-green placeholder:text-mowing-green/50 disabled:opacity-60 disabled:cursor-not-allowed touch-manipulation"
           />
         </div>
