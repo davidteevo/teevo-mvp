@@ -1,12 +1,19 @@
+import type { ReactNode } from "react";
 import { ShoppingCart } from "lucide-react";
+
+function GolfClubIcon() {
+  return (
+    <svg viewBox="0 0 64 64" className="h-8 w-8" aria-hidden>
+      <path d="M43 7.5c1.4.6 2.2 2.4 1.6 4L26 52.5c-.4 1.1-1.6 1.6-2.7 1.2-1.1-.4-1.6-1.6-1.2-2.7L40.7 10c.6-1.5 1-3.1 2.3-2.5Z" fill="#265C4B" />
+      <path d="M16 49c7 2.2 16 4 21.2.6 1.3-.9.9-2.4-.6-3-3.4-1.4-10.2.2-16.8-1.6-1.6-.4-3.2 1.2-3.8 4Z" fill="#265C4B" />
+    </svg>
+  );
+}
 
 function GolfBagIcon() {
   return (
-    <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-14 sm:w-14" aria-hidden>
-      <path
-        d="M28 10c0-2 1.5-4 4-4s4 2 4 4v4h-8v-4Z"
-        fill="#265C4B"
-      />
+    <svg viewBox="0 0 64 64" className="h-8 w-8" aria-hidden>
+      <path d="M28 10c0-2 1.5-4 4-4s4 2 4 4v4h-8v-4Z" fill="#265C4B" />
       <path d="M30 8.5c2-3 8-3 10 1" stroke="#265C4B" strokeWidth="2" fill="none" strokeLinecap="round" />
       <path d="M22 18h20l2 28c0 4-4 7-12 7s-12-3-12-7l2-28Z" fill="#265C4B" />
       <path d="M26 22h12" stroke="#FDFCF5" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
@@ -19,7 +26,7 @@ function GolfBagIcon() {
 
 function FlagGreenIcon() {
   return (
-    <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-14 sm:w-14" aria-hidden>
+    <svg viewBox="0 0 64 64" className="h-8 w-8" aria-hidden>
       <ellipse cx="32" cy="50" rx="18" ry="6" fill="#49C184" opacity="0.45" />
       <path d="M24 50c2-8 6-18 8-28" stroke="#265C4B" strokeWidth="2" fill="none" strokeLinecap="round" />
       <path d="M32 14l16 6-16 6V14Z" fill="#265C4B" />
@@ -30,7 +37,7 @@ function FlagGreenIcon() {
 
 function MoneyBadge({ top, bottom }: { top: string; bottom: string }) {
   return (
-    <span className="absolute -right-2 -bottom-1 flex h-11 w-11 flex-col items-center justify-center rounded-full bg-golden-tee text-center text-[9px] font-bold leading-[1.05] text-mowing-green shadow-sm sm:h-12 sm:w-12 sm:text-[10px]">
+    <span className="absolute -right-3 -bottom-3 z-10 flex h-8 w-8 flex-col items-center justify-center rounded-full bg-golden-tee text-center text-[8px] font-bold leading-[1.05] text-mowing-green ring-2 ring-off-white-pique sm:h-9 sm:w-9 sm:text-[9px]">
       <span>{top}</span>
       <span>{bottom}</span>
     </span>
@@ -46,67 +53,56 @@ export function ReferralProcessSteps({
   discountLabel: string;
   rewardLabel: string;
 }) {
-  const steps =
+  const steps: {
+    key: string;
+    icon: ReactNode;
+    label: string;
+    badge?: { top: string; bottom: string };
+  }[] =
     variant === "seller"
       ? [
           {
             key: "invite",
-            icon: (
-              <div className="relative">
-                <GolfBagIcon />
-              </div>
-            ),
+            icon: <GolfBagIcon />,
             label: "They join Teevo with your link.",
           },
           {
             key: "sell",
             icon: (
-              <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-mowing-green/20 bg-white sm:h-14 sm:w-14">
-                <ShoppingCart className="h-6 w-6 text-mowing-green" aria-hidden />
+              <div className="flex h-8 w-8 items-center justify-center">
+                <ShoppingCart className="h-5 w-5 text-mowing-green" aria-hidden />
               </div>
             ),
             label: "They list or sell a club.",
           },
           {
             key: "credit",
-            icon: (
-              <div className="relative">
-                <FlagGreenIcon />
-                <MoneyBadge top={rewardLabel} bottom="CREDIT" />
-              </div>
-            ),
+            icon: <FlagGreenIcon />,
             label: `You get ${rewardLabel} Teevo credit.`,
+            badge: { top: rewardLabel, bottom: "CREDIT" },
           },
         ]
       : [
           {
             key: "off",
-            icon: (
-              <div className="relative">
-                <GolfBagIcon />
-                <MoneyBadge top={discountLabel} bottom="OFF" />
-              </div>
-            ),
+            icon: <GolfClubIcon />,
             label: `They get ${discountLabel} off their first purchase.`,
+            badge: { top: discountLabel, bottom: "OFF" },
           },
           {
             key: "buy",
             icon: (
-              <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-mowing-green/20 bg-white sm:h-14 sm:w-14">
-                <ShoppingCart className="h-6 w-6 text-mowing-green" aria-hidden />
+              <div className="flex h-8 w-8 items-center justify-center">
+                <ShoppingCart className="h-5 w-5 text-mowing-green" aria-hidden />
               </div>
             ),
             label: "They make a purchase.",
           },
           {
             key: "credit",
-            icon: (
-              <div className="relative">
-                <FlagGreenIcon />
-                <MoneyBadge top={rewardLabel} bottom="CREDIT" />
-              </div>
-            ),
+            icon: <FlagGreenIcon />,
             label: `You get ${rewardLabel} Teevo credit.`,
+            badge: { top: rewardLabel, bottom: "CREDIT" },
           },
         ];
 
@@ -121,8 +117,9 @@ export function ReferralProcessSteps({
           <li key={step.key} className="flex flex-col items-center text-center">
             <div className="relative flex h-16 w-16 items-center justify-center overflow-visible rounded-full bg-off-white-pique sm:h-[4.5rem] sm:w-[4.5rem]">
               {step.icon}
+              {step.badge ? <MoneyBadge top={step.badge.top} bottom={step.badge.bottom} /> : null}
             </div>
-            <p className="mt-3 text-[11px] font-medium leading-snug text-mowing-green sm:text-sm">
+            <p className="mt-4 text-[11px] font-medium leading-snug text-mowing-green sm:text-sm">
               <span className="sr-only">Step {i + 1}. </span>
               {step.label}
             </p>
