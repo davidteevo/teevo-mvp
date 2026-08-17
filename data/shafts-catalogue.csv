@@ -1,143 +1,364 @@
 Brand,Model,Release Year
-Fujikura,Ventus Blue,
-Fujikura,Ventus Black,
-Fujikura,Ventus Red,
-Fujikura,Ventus TR Blue,
-Fujikura,Ventus TR Black,
-Fujikura,Ventus TR Red,
-Fujikura,Speeder NX Blue,
-Fujikura,Speeder NX Black,
-Fujikura,Speeder NX Green,
-Fujikura,Speeder Evolution,
-Fujikura,Speeder Evolution II,
-Fujikura,Speeder Evolution III,
-Fujikura,Speeder Evolution IV,
-Fujikura,Speeder Evolution V,
-Fujikura,Motore X F1,
-Fujikura,Motore X F3,
-Fujikura,Motore X HB,
-Fujikura,Atmos Blue,
-Fujikura,Atmos Black,
-Fujikura,Atmos Red,
-Fujikura,Pro 2.0,
-Fujikura,Vista Pro,
-Mitsubishi Chemical,Tensei 1K Pro White,
-Mitsubishi Chemical,Tensei 1K Pro Blue,
-Mitsubishi Chemical,Tensei AV Raw White,
-Mitsubishi Chemical,Tensei AV Raw Blue,
-Mitsubishi Chemical,Tensei AV Raw Orange,
-Mitsubishi Chemical,Tensei AV Blue,
-Mitsubishi Chemical,Tensei AV White,
-Mitsubishi Chemical,Tensei CK Pro Orange,
-Mitsubishi Chemical,Tensei CK Pro Blue,
-Mitsubishi Chemical,Tensei CK Pro White,
-Mitsubishi Chemical,Diamana BF,
-Mitsubishi Chemical,Diamana DF,
-Mitsubishi Chemical,Diamana TB,
-Mitsubishi Chemical,Diamana GT,
-Mitsubishi Chemical,Diamana PD,
-Mitsubishi Chemical,Diamana WB,
-Mitsubishi Chemical,Diamana S+ Limited,
-Mitsubishi Chemical,Diamana D+ Limited,
-Mitsubishi Chemical,Kai'li White,
-Mitsubishi Chemical,Kai'li Blue,
-Mitsubishi Chemical,Kai'li Red,
-Mitsubishi Chemical,Kuro Kage Black,
-Mitsubishi Chemical,Kuro Kage Silver,
-Mitsubishi Chemical,MMT,
-Mitsubishi Chemical,Bassara,
-Project X,HZRDUS Smoke Black,
-Project X,HZRDUS Smoke Blue,
-Project X,HZRDUS Smoke Red,
-Project X,HZRDUS Smoke Black RDX,
-Project X,HZRDUS Smoke Red RDX,
-Project X,HZRDUS Yellow,
-Project X,HZRDUS Green,
-Project X,EvenFlow Blue,
-Project X,EvenFlow Black,
-Project X,EvenFlow Riptide,
-Project X,Project X,
-Project X,Project X LZ,
-True Temper,Dynamic Gold,
-True Temper,Dynamic Gold 120,
-True Temper,Dynamic Gold MID,
-True Temper,Dynamic Gold Tour Issue,
-True Temper,AMT Black,
-True Temper,AMT White,
-True Temper,AMT Tour White,
-True Temper,Elevate,
-True Temper,Elevate MPH,
-True Temper,Elevate Tour,
-KBS,Tour,
-KBS,Tour V,
-KBS,C-Taper,
-KBS,C-Taper Lite,
-KBS,$-Taper,
-KBS,$-Taper Lite,
-KBS,PGI,
-KBS,TGI,
-KBS,TD,
-KBS,Proto Hybrid,
-KBS,Hi-Rev 2.0,
-Nippon Shaft,N.S. Pro 850GH,
-Nippon Shaft,N.S. Pro 950GH,
-Nippon Shaft,N.S. Pro 1050GH,
-Nippon Shaft,N.S. Pro 1150GH,
-Nippon Shaft,Modus3 Tour 105,
-Nippon Shaft,Modus3 Tour 115,
-Nippon Shaft,Modus3 Tour 120,
-Nippon Shaft,Modus3 Tour 125,
-Nippon Shaft,Modus3 Tour 130,
-Nippon Shaft,Zelos 6,
-Nippon Shaft,Zelos 7,
-Nippon Shaft,Zelos 8,
-Nippon Shaft,Zelos 9,
-Graphite Design,Tour AD DI,
-Graphite Design,Tour AD IZ,
-Graphite Design,Tour AD XC,
-Graphite Design,Tour AD UB,
-Graphite Design,Tour AD GP,
-Graphite Design,Tour AD HD,
-Graphite Design,Tour AD CQ,
-Graphite Design,Tour AD VF,
-Graphite Design,Tour AD HY,
-UST Mamiya,ProForce V2,
-UST Mamiya,ProForce V2 HL,
-UST Mamiya,Helium,
-UST Mamiya,LIN-Q Blue,
-UST Mamiya,LIN-Q Red,
-UST Mamiya,LIN-Q White,
-UST Mamiya,Recoil,
-UST Mamiya,Recoil Dart,
-UST Mamiya,Elements Chrome,
-UST Mamiya,ATTAS,
-Aldila,Rogue Black,
-Aldila,Rogue Silver,
-Aldila,Rogue White,
-Aldila,NV,
-Aldila,NVS,
-Aldila,VS Proto,
-Aldila,Synergy Blue,
-Aldila,Ascent Red,
-Aldila,Ascent Blue,
-Aerotech,SteelFiber i70,
-Aerotech,SteelFiber i80,
-Aerotech,SteelFiber i95,
-Aerotech,SteelFiber i110,
-Aerotech,SteelFiber fc90,
-Aerotech,SteelFiber Private Reserve,
-ACCRA,TZ5,
-ACCRA,TZ6,
-ACCRA,FX 2.0,
-ACCRA,iSeries,
-LA Golf,A-Series,
-LA Golf,DJ Signature,
-LA Golf,TPZ,
-Oban,Kiyoshi White,
-Oban,Kiyoshi Black,
-Oban,Kiyoshi Purple,
-Oban,Devotion,
-Ping,Alta CB Black,
-Ping,Alta Quick,
-Ping,Tour 2.0 Chrome,
-Ping,Tour 2.0 Black,
+ACCRA,iSeries,2015
+ACCRA,TZ5,2018
+ACCRA,TZ6,2018
+ACCRA,FX 2.0,2019
+ACCRA,iCWT,2019
+ACCRA,Tour Z RPG,2020
+ACCRA,TZ RPG,2020
+ACCRA,TZ Five Gen 2,2022
+ACCRA,TZ Six Gen 2,2022
+ACCRA,SPT Putter,2023
+ACCRA,GX Blue,2024
+ACCRA,GX Green,2024
+ACCRA,GX Red,2024
+Aerotech,SteelFiber i70,2011
+Aerotech,SteelFiber i80,2011
+Aerotech,SteelFiber i95,2011
+Aerotech,SteelFiber i110,2011
+Aerotech,SteelFiber i125,2011
+Aerotech,SteelFiber fc70,2017
+Aerotech,SteelFiber fc80,2017
+Aerotech,SteelFiber fc90,2017
+Aerotech,SteelFiber fc115,2017
+Aerotech,SteelFiber iCW,2020
+Aerotech,SteelFiber Private Reserve,2021
+Aerotech,SteelFiber HLS,2022
+Aldila,NV,2004
+Aldila,NVS,2004
+Aldila,VS Proto,2006
+Aldila,Tour Blue,2013
+Aldila,Tour Green,2013
+Aldila,Rogue Silver,2014
+Aldila,Rogue Black,2015
+Aldila,NV 2KXV Blue,2016
+Aldila,NV 2KXV Green,2016
+Aldila,Synergy Blue,2018
+Aldila,Rogue Silver 130 MSI,2019
+Aldila,Rogue White 130 MSI,2019
+Aldila,Ascent Red,2021
+Aldila,Ascent Blue,2022
+Aldila,Rogue Infinity,2023
+Aretera,Alpha One Blue,2024
+Aretera,Alpha One Gray,2024
+Aretera,EC1 Blue,2024
+Aretera,EC1 Gray,2024
+AutoFlex,SF Pink,2020
+AutoFlex,SF Series,2020
+AutoFlex,SF Black,2021
+AutoFlex,Joy 365,2023
+AutoFlex,Dream 7,2024
+BGT,Stability,2018
+BGT,Stability Tour,2020
+BGT,Stability Carbon,2022
+BGT,Brava,2023
+BGT,Stability One,2023
+FreeFlex,FF30,2023
+FreeFlex,FF38,2023
+FreeFlex,FF45,2023
+Fujikura,Vista Pro,2011
+Fujikura,Vista Pro HB,2011
+Fujikura,Vista Pro Iron,2011
+Fujikura,MCI Iron,2012
+Fujikura,Air Speeder,2014
+Fujikura,Speeder Evolution I,2014
+Fujikura,MCI Wedge,2015
+Fujikura,Speeder Evolution II,2015
+Fujikura,Speeder Evolution III,2016
+Fujikura,Atmos Black,2017
+Fujikura,Atmos Blue,2017
+Fujikura,Atmos Red,2017
+Fujikura,Atmos Tour Spec Black,2017
+Fujikura,Atmos Tour Spec Blue,2017
+Fujikura,Atmos Tour Spec Red,2017
+Fujikura,Pro 2.0,2017
+Fujikura,Pro 2.0 Tour Spec,2017
+Fujikura,Speeder Evolution IV,2017
+Fujikura,Speeder Evolution V,2018
+Fujikura,Pro HB,2019
+Fujikura,Pro Iron,2019
+Fujikura,Speeder Evolution VI,2019
+Fujikura,Ventus Black,2019
+Fujikura,Ventus Blue,2019
+Fujikura,Motore X F1,2020
+Fujikura,Motore X F3,2020
+Fujikura,Motore X HB,2020
+Fujikura,Speeder Evolution VII,2020
+Fujikura,Ventus Red,2020
+Fujikura,Speeder NX Blue,2022
+Fujikura,Ventus HB,2022
+Fujikura,Ventus TR Blue,2022
+Fujikura,Axiom,2023
+Fujikura,Speeder NX Green,2023
+Fujikura,Ventus TR Black,2023
+Fujikura,Ventus TR Red,2023
+Fujikura,MC Putter,2024
+Fujikura,Speeder NX Black,2024
+Fujikura,Ventus Blue VeloCore+,2024
+Fujikura,Speeder NX Violet,2025
+Fujikura,Ventus Black VeloCore+,2025
+Fujikura,Ventus HB VeloCore+,2025
+Fujikura,Ventus Red VeloCore+,2025
+Fujikura,Speeder NX Gold,2026
+Fujikura,Ventus TR Black VeloCore+,2026
+Fujikura,Ventus TR Blue VeloCore+,2026
+Fujikura,Ventus TR Red VeloCore+,2026
+Graphite Design,Tour AD DI,2010
+Graphite Design,G-Tech,2012
+Graphite Design,Tour AD BB,2012
+Graphite Design,Tour AD GT,2013
+Graphite Design,Tour AD Iron,2014
+Graphite Design,Tour AD MT,2014
+Graphite Design,Tour AD F-Series,2015
+Graphite Design,Tour AD MJ,2015
+Graphite Design,Tour AD GP,2016
+Graphite Design,Tour AD TP,2017
+Graphite Design,Tour AD HY,2018
+Graphite Design,Tour AD IZ,2018
+Graphite Design,Tour AD VR,2019
+Graphite Design,Tour AD XC,2020
+Graphite Design,Tour AD DI Hybrid,2021
+Graphite Design,Tour AD HD,2021
+Graphite Design,Tour AD UB,2022
+Graphite Design,Tour AD Utility Driving Iron,2022
+Graphite Design,Tour AD CQ,2023
+Graphite Design,Tour AD VF,2024
+Graphite Design,Tour AD GC,2025
+Graphite Design,Tour AD FI,2026
+KBS,Tour,2008
+KBS,C-Taper,2011
+KBS,Wedge,2011
+KBS,C-Taper Lite,2013
+KBS,Tour V,2014
+KBS,560,2015
+KBS,580,2015
+KBS,MAX 90,2015
+KBS,610 Wedge,2016
+KBS,$-Taper,2017
+KBS,CT Tour Putter,2017
+KBS,MAX 80,2017
+KBS,Hi-Rev 2.0,2018
+KBS,TGI,2018
+KBS,$-Taper Lite,2019
+KBS,Tour Graphite Hybrid Prototype,2020
+KBS,Tour One Step Putter,2020
+KBS,PGI,2021
+KBS,TD,2022
+KBS,Tour Driven,2022
+KBS,Tour Lite,2022
+KBS,Generation,2023
+KBS,PGW,2023
+KBS,MAX Graphite Iron,2024
+KBS,MAX HL,2024
+KBS,GPS Graphite Putter,2025
+LA Golf,P-Series,2019
+LA Golf,DJ Signature,2020
+LA Golf,A-Series,2021
+LA Golf,Bryson Signature,2021
+LA Golf,L-Series,2022
+LA Golf,TPZ,2022
+LA Golf,Malibu,2024
+Mitsubishi Chemical,Bassara,2008
+Mitsubishi Chemical,Kuro Kage Black,2012
+Mitsubishi Chemical,Kuro Kage Silver,2013
+Mitsubishi Chemical,Diamana Thump Hybrid,2014
+Mitsubishi Chemical,Diamana Thump Iron,2014
+Mitsubishi Chemical,Diamana D+ Limited,2015
+Mitsubishi Chemical,Diamana S+ Limited,2015
+Mitsubishi Chemical,Kuro Kage XT,2015
+Mitsubishi Chemical,Diamana BF,2016
+Mitsubishi Chemical,Tensei CK Blue,2016
+Mitsubishi Chemical,Tensei CK Orange,2016
+Mitsubishi Chemical,Tensei CK Pro Blue,2016
+Mitsubishi Chemical,Tensei CK Pro White,2016
+Mitsubishi Chemical,Tensei CK White,2016
+Mitsubishi Chemical,Diamana RF,2017
+Mitsubishi Chemical,Kuro Kage XD,2017
+Mitsubishi Chemical,Tensei CK Pro Orange,2017
+Mitsubishi Chemical,Diamana DF,2018
+Mitsubishi Chemical,Diamana ZF,2019
+Mitsubishi Chemical,Tensei AV Blue,2019
+Mitsubishi Chemical,Tensei AV White,2019
+Mitsubishi Chemical,C6 Blue,2020
+Mitsubishi Chemical,C6 Red,2020
+Mitsubishi Chemical,Diamana TB,2020
+Mitsubishi Chemical,MMT,2020
+Mitsubishi Chemical,Tensei AV Raw Blue,2020
+Mitsubishi Chemical,Tensei AV Raw Orange,2020
+Mitsubishi Chemical,Tensei AV Raw White,2020
+Mitsubishi Chemical,Diamana PD,2021
+Mitsubishi Chemical,Tensei 1K Pro White,2021
+Mitsubishi Chemical,Diamana GT,2022
+Mitsubishi Chemical,Kai'li Blue,2022
+Mitsubishi Chemical,Kai'li Red,2022
+Mitsubishi Chemical,Kai'li White,2022
+Mitsubishi Chemical,Vanquish,2022
+Mitsubishi Chemical,Diamana WS,2023
+Mitsubishi Chemical,Tensei 1K Pro Blue,2023
+Mitsubishi Chemical,Tensei 1K Pro Orange,2023
+Mitsubishi Chemical,Diamana Putter,2024
+Mitsubishi Chemical,Diamana WB,2024
+Mitsubishi Chemical,MMT Putter Concept,2024
+Mitsubishi Chemical,MMT Scoring Wedge,2024
+Mitsubishi Chemical,Tensei 1K Black,2024
+Mitsubishi Chemical,Tensei 1K Pro Red,2024
+Mitsubishi Chemical,Vanquish Fairway,2024
+Mitsubishi Chemical,Vanquish Hybrid,2024
+Mitsubishi Chemical,Vanquish Iron,2024
+Mitsubishi Chemical,Vanquish VV,2024
+Mitsubishi Chemical,Diamana BB,2025
+Mitsubishi Chemical,Kai'li Dark Waves Blue,2025
+Mitsubishi Chemical,Kai'li Dark Waves Blue CB,2025
+Mitsubishi Chemical,Kai'li Dark Waves Red,2025
+Mitsubishi Chemical,Kai'li Dark Waves Red CB,2025
+Mitsubishi Chemical,Kai'li Dark Waves White,2025
+Mitsubishi Chemical,Kai'li Dark Waves White CB,2025
+Mitsubishi Chemical,Tensei 1K Pro Core Black,2025
+Mitsubishi Chemical,Diamana RB,2026
+Mitsubishi Chemical,Tensei 1K Blue,2026
+Mitsubishi Chemical,Tensei 1K Red,2026
+Mitsubishi Chemical,Tensei 1K White,2026
+Nippon Shaft,N.S. Pro 950GH,1999
+Nippon Shaft,N.S. Pro 850GH,2003
+Nippon Shaft,N.S. Pro 1150GH Tour,2005
+Nippon Shaft,N.S. Pro 1050GH,2006
+Nippon Shaft,N.S. Pro Modus3 Tour 120,2011
+Nippon Shaft,N.S. Pro Modus3 Tour 130,2013
+Nippon Shaft,Zelos 7,2013
+Nippon Shaft,N.S. Pro Modus3 Wedge,2014
+Nippon Shaft,N.S. Pro 750GH Wrap Tech,2015
+Nippon Shaft,N.S. Pro Modus3 Tour 105,2015
+Nippon Shaft,N.S. Pro Modus3 Tour 125,2015
+Nippon Shaft,Regio Formula M,2015
+Nippon Shaft,Regio Formula B,2016
+Nippon Shaft,Zelos 8,2018
+Nippon Shaft,N.S. Pro 950GH neo,2019
+Nippon Shaft,Regio Formula MB+,2019
+Nippon Shaft,N.S. Pro Modus3 Hybrid GOST,2020
+Nippon Shaft,Zelos 6,2020
+Nippon Shaft,Zelos 9,2021
+Nippon Shaft,N.S. Pro Modus3 Tour 115,2022
+Oban,Devotion,2008
+Oban,Kiyoshi Purple,2011
+Oban,Kiyoshi Black,2012
+Oban,Kiyoshi White,2013
+Oban,Kiyoshi Gold,2014
+Oban,Isawa Red,2015
+Oban,Revenge,2016
+Oban,AirBurst,2020
+Oban,CT-125,2022
+Paderson,Kinetixx Ballistic,2016
+Paderson,Kinetixx Launch,2016
+Paderson,Kinetixx Velocity,2016
+Paderson,Kinetixx Iron,2017
+PING,Alta CB Black,2023
+PING,Alta Quick,2023
+PING,Tour 2.0 Black,2023
+PING,Tour 2.0 Chrome,2023
+Project X,Project X,2005
+Project X,HZRDUS Black,2015
+Project X,Project X LZ,2015
+Project X,HZRDUS Red,2016
+Project X,HZRDUS Yellow,2016
+Project X,EvenFlow Black,2017
+Project X,EvenFlow Blue,2017
+Project X,HZRDUS T1100,2017
+Project X,EvenFlow White,2018
+Project X,HZRDUS Smoke Black,2018
+Project X,HZRDUS Smoke Green,2019
+Project X,HZRDUS Smoke Yellow,2019
+Project X,Cypher,2020
+Project X,EvenFlow Riptide,2020
+Project X,EvenFlow Riptide CB,2020
+Project X,HZRDUS Smoke Black RDX,2020
+Project X,HZRDUS Smoke Blue RDX,2020
+Project X,Project X IO,2020
+Project X,Project X LS,2020
+Project X,HZRDUS Smoke Green RDX,2022
+Project X,HZRDUS Smoke Red RDX,2022
+Project X,Project X U,2022
+Project X,HZRDUS Smoke Black Gen 4,2023
+Project X,HZRDUS Smoke Green PVD,2023
+Project X,Cypher 2.0,2024
+Project X,Denali Black,2024
+Project X,Denali Blue,2024
+Project X,Project X Wedge,2024
+Project X,Denali Red,2025
+Project X,HZRDUS Gen 5 Black,2025
+Project X,HZRDUS Gen 5 Yellow,2026
+Project X,VRTX Blue,2026
+Project X,VRTX Red,2026
+TPT Golf,Red Range,2019
+TPT Golf,Nitro Range,2022
+TPT Golf,Power Range,2024
+True Temper,Dynamic Gold,1980
+True Temper,Dynamic Gold Tour Issue,2009
+True Temper,GS 75,2011
+True Temper,GS 85,2011
+True Temper,GS 95,2011
+True Temper,XP 95,2014
+True Temper,XP 105,2014
+True Temper,XP 115,2014
+True Temper,AMT Black,2016
+True Temper,AMT Red,2016
+True Temper,AMT White,2016
+True Temper,Dynamic Gold 120,2017
+True Temper,AMT Tour White,2018
+True Temper,Dynamic Gold 95,2018
+True Temper,Dynamic Gold 105,2018
+True Temper,Elevate,2018
+True Temper,Elevate Tour,2018
+True Temper,Elevate MPH 85,2020
+True Temper,Elevate MPH 95,2020
+True Temper,Dynamic Gold Spinner,2021
+True Temper,Dynamic Gold MID,2022
+True Temper,Dynamic Gold MID 115,2024
+UST Mamiya,ProForce V2,2005
+UST Mamiya,ATTAS,2009
+UST Mamiya,ATTAS 3,2011
+UST Mamiya,ATTAS 4U,2012
+UST Mamiya,Recoil,2012
+UST Mamiya,ATTAS 5GoGo,2013
+UST Mamiya,Recoil 95 Prototype,2013
+UST Mamiya,ATTAS 6Star,2014
+UST Mamiya,Elements Chrome,2014
+UST Mamiya,ATTAS G7,2015
+UST Mamiya,Elements Platinum,2015
+UST Mamiya,ATTAS Punch,2016
+UST Mamiya,Helium,2016
+UST Mamiya,ATTAS CoooL,2017
+UST Mamiya,Recoil ES,2017
+UST Mamiya,ProForce V2 Black,2018
+UST Mamiya,ProForce V2 HL,2018
+UST Mamiya,The ATTAS,2018
+UST Mamiya,ATTAS Jack,2019
+UST Mamiya,LIN-Q Gunmetal,2019
+UST Mamiya,LIN-Q Purple,2019
+UST Mamiya,Recoil ZT9,2019
+UST Mamiya,ATTAS DAAAS,2020
+UST Mamiya,Helium Black,2020
+UST Mamiya,ATTAS King,2021
+UST Mamiya,LIN-Q Blue,2021
+UST Mamiya,LIN-Q Red,2021
+UST Mamiya,LIN-Q White,2021
+UST Mamiya,Recoil Dart,2021
+UST Mamiya,ATTAS V2,2022
+UST Mamiya,Helium Nanocore,2022
+UST Mamiya,LIN-Q M40X Blue,2022
+UST Mamiya,LIN-Q M40X Red,2022
+UST Mamiya,LIN-Q M40X White,2022
+UST Mamiya,ATTAS RX SunRise Blue,2023
+UST Mamiya,ATTAS RX SunRise Red,2023
+UST Mamiya,Recoil DART V,2023
+UST Mamiya,LIN-Q Proto V1,2024
+UST Mamiya,Recoil DART HDC,2024
+UST Mamiya,Recoil DART Wedge,2024
+VA Composites,Raijin,2017
+VA Composites,Slay,2017
+VA Composites,Nemesys,2018
+VA Composites,Drago,2019
+VA Composites,Vylyn,2020
+VA Composites,Badazz,2021
+VA Composites,Raijin 2.0,2022
+VA Composites,Slay II,2023
+VA Composites,Synystr,2024
