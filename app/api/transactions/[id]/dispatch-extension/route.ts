@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * POST /api/transactions/[id]/dispatch-extension
- * Seller requests one 3-business-day extension (buyer must approve).
+ * Seller requests one 3-calendar-day extension (buyer must approve).
  */
 export async function POST(
   _request: Request,

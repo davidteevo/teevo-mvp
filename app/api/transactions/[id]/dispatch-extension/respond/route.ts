@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
-import { addBusinessDays } from "@/lib/business-days";
+import { addCalendarDays } from "@/lib/business-days";
 import { DispatchExtensionStatus } from "@/lib/dispatch-deadline";
 import { notifyDispatchExtensionDecision } from "@/lib/dispatch-notifications";
 import { clearSentEmail } from "@/lib/fulfilment-emails";
@@ -56,7 +56,7 @@ export async function POST(
   const extraDays = tx.dispatch_extension_business_days ?? 3;
   const approved = action === "approve";
   const currentDeadline = tx.dispatch_deadline_at ? new Date(tx.dispatch_deadline_at) : now;
-  const newDeadline = approved ? addBusinessDays(currentDeadline, extraDays) : currentDeadline;
+  const newDeadline = approved ? addCalendarDays(currentDeadline, extraDays) : currentDeadline;
   const newDeadlineIso = newDeadline.toISOString();
 
   const updates: Record<string, unknown> = {

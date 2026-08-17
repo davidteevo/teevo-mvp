@@ -10,10 +10,83 @@ import {
   type ShippingServiceType,
 } from "@/lib/shippo";
 import { FulfilmentStatus } from "@/lib/fulfilment";
+import { FulfilmentMode, manualLabelStoragePath } from "@/lib/fulfilment-providers";
 import { notifyShippoLabelCreated, notifyShippoLabelFailed } from "@/lib/notification-events";
 import { isCancellationBlockingDispatch, syncDispatchClockById } from "@/lib/dispatch-deadline";
 
 export const dynamic = "force-dynamic";
+
+const MANUAL_LABEL_BUCKET = "shipping-labels";
+
+/**
+ * GET /api/transactions/[id]/shipping-label
+ * Streams the Teevo-prepared (manual) shipping label PDF. Seller or admin only.
+ */
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id: transactionId } = await params;
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const admin = createAdminClient();
+    const { data: tx, error: txErr } = await admin
+      .from("transactions")
+      .select("id, seller_id, fulfilment_mode, shipping_label_url")
+      .eq("id", transactionId)
+      .single();
+
+    if (txErr || !tx) {
+      return NextResponse.json({ error: "Transaction not found" }, { status: 404 });
+    }
+
+    const { data: profile } = await admin.from("users").select("role").eq("id", user.id).single();
+    const isAdmin = profile?.role === "admin";
+    if (tx.seller_id !== user.id && !isAdmin) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    if (tx.fulfilment_mode !== FulfilmentMode.MANUAL) {
+      return NextResponse.json({ error: "No Teevo-prepared label for this order" }, { status: 404 });
+    }
+
+    const storagePath = manualLabelStoragePath(tx.shipping_label_url);
+    if (!storagePath) {
+      return NextResponse.json({ error: "Shipping label is not ready yet" }, { status: 404 });
+    }
+
+    const { data: file, error: downloadErr } = await admin.storage
+      .from(MANUAL_LABEL_BUCKET)
+      .download(storagePath);
+    if (downloadErr || !file) {
+      console.error("shipping-label download error:", downloadErr);
+      return NextResponse.json({ error: "Could not open shipping label" }, { status: 500 });
+    }
+
+    const filename = `teevo-shipping-label-${transactionId.slice(0, 8)}.pdf`;
+    return new NextResponse(Buffer.from(await file.arrayBuffer()), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `inline; filename="${filename}"`,
+        "Cache-Control": "private, no-store, no-cache, max-age=0",
+      },
+    });
+  } catch (e) {
+    console.error("shipping-label GET error:", e);
+    return NextResponse.json(
+      { error: e instanceof Error ? e.message : "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}
 
 /**
  * POST /api/transactions/[id]/shipping-label

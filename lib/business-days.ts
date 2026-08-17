@@ -1,7 +1,7 @@
 /**
  * London date helpers (Europe/London).
- * Dispatch deadlines use calendar days (weekends count; cancellation can fall on a weekend night).
- * addBusinessDays remains for buyer-approved extensions and admin overrides.
+ * Dispatch deadlines and buyer-approved extensions use calendar days (weekends count;
+ * cancellation can fall on a weekend night). addBusinessDays remains for admin overrides.
  */
 
 export const LONDON_TZ = "Europe/London";
