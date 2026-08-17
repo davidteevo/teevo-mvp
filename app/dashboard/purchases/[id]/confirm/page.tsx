@@ -7,6 +7,7 @@ import { CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { track } from "@/lib/analytics";
 import { ReferralPromptCard } from "@/components/referral/ReferralPromptCard";
+import { purchaseItemNoun } from "@/lib/listing-categories";
 
 type Tx = {
   id: string;
@@ -15,7 +16,7 @@ type Tx = {
   buyer_confirmed_at?: string | null;
   completed_at?: string | null;
   delivery_issue_reported_at?: string | null;
-  listing?: { brand?: string; model?: string; title?: string | null } | null;
+  listing?: { brand?: string; model?: string; title?: string | null; category?: string } | null;
 };
 
 function listingTitle(tx: Tx | null): string {
@@ -121,6 +122,7 @@ export default function ConfirmDeliveryPage() {
   }
 
   const title = listingTitle(tx);
+  const itemNoun = purchaseItemNoun(tx?.listing?.category);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
@@ -143,7 +145,7 @@ export default function ConfirmDeliveryPage() {
                 Your {title} has arrived
               </h1>
               <p className="mt-1 text-sm text-mowing-green/80 sm:text-base">
-                Nice choice. We hope you love your new club.
+                Nice choice. We hope you love your new {itemNoun}.
               </p>
               <Link href="/dashboard/purchases" className="mt-2 inline-block text-sm text-par-3-punch hover:underline">
                 Back to purchases

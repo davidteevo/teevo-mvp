@@ -159,3 +159,20 @@ export function isStructuredCategory(category: string): boolean {
 export function isClubCategory(category: string): boolean {
   return CLUB_CATEGORIES.includes(category as ClubCategory);
 }
+
+/** Buyer-facing noun for a purchase: most clubs are singular; iron/wedge sets are plural. */
+export function purchaseItemNoun(
+  category: string | null | undefined
+): "club" | "clubs" | "item" {
+  if (category === "Irons" || category === "Wedges") return "clubs";
+  if (
+    category === "Driver" ||
+    category === "Woods" ||
+    category === "Driving Irons" ||
+    category === "Hybrids" ||
+    category === "Putter"
+  ) {
+    return "club";
+  }
+  return "item";
+}
