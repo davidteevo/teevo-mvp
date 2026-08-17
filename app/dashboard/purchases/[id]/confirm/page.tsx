@@ -3,8 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { track } from "@/lib/analytics";
+import { ReferralPromptCard } from "@/components/referral/ReferralPromptCard";
+import { purchaseItemNoun } from "@/lib/listing-categories";
 
 type Tx = {
   id: string;
@@ -13,7 +16,7 @@ type Tx = {
   buyer_confirmed_at?: string | null;
   completed_at?: string | null;
   delivery_issue_reported_at?: string | null;
-  listing?: { brand?: string; model?: string; title?: string | null } | null;
+  listing?: { brand?: string; model?: string; title?: string | null; category?: string } | null;
 };
 
 function listingTitle(tx: Tx | null): string {
@@ -35,6 +38,9 @@ export default function ConfirmDeliveryPage() {
   const [submitting, setSubmitting] = useState<"ok" | "problem" | null>(null);
   const [done, setDone] = useState<"confirmed" | "problem" | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [referralUrl, setReferralUrl] = useState<string | null>(null);
+  const [discountPence, setDiscountPence] = useState(500);
+  const [referrerRewardPence, setReferrerRewardPence] = useState(500);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -60,6 +66,20 @@ export default function ConfirmDeliveryPage() {
       })
       .catch(() => setLoadError("Could not load this purchase"));
   }, [user, id]);
+
+  useEffect(() => {
+    if (done !== "confirmed") return;
+    fetch("/api/referral/me")
+      .then((r) => r.json())
+      .then((data) => {
+        if (typeof data.url === "string") setReferralUrl(data.url);
+        if (typeof data.discountPence === "number") setDiscountPence(data.discountPence);
+        if (typeof data.referrerRewardPence === "number") setReferrerRewardPence(data.referrerRewardPence);
+      })
+      .catch(() => {
+        /* optional */
+      });
+  }, [done]);
 
   const confirmOk = async () => {
     if (!id) return;
@@ -102,6 +122,7 @@ export default function ConfirmDeliveryPage() {
   }
 
   const title = listingTitle(tx);
+  const itemNoun = purchaseItemNoun(tx?.listing?.category);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
@@ -116,17 +137,27 @@ export default function ConfirmDeliveryPage() {
       ) : !tx ? (
         <div className="mt-6 rounded-xl border border-par-3-punch/20 bg-white p-6 animate-pulse h-40" />
       ) : done === "confirmed" ? (
-        <div className="mt-6 rounded-xl border border-par-3-punch/20 bg-white p-6">
-          <h1 className="text-2xl font-bold text-mowing-green">Delivery confirmed</h1>
-          <p className="mt-2 text-mowing-green/80">
-            Thanks for confirming. We&apos;ll now complete the transaction with the seller.
-          </p>
-          <Link
-            href="/dashboard/purchases"
-            className="mt-4 inline-flex rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium hover:opacity-90"
-          >
-            Back to purchases
-          </Link>
+        <div className="mt-6">
+          <div className="flex gap-3">
+            <CheckCircle2 className="mt-0.5 h-6 w-6 shrink-0 text-par-3-punch" aria-hidden />
+            <div>
+              <h1 className="text-xl font-bold text-mowing-green sm:text-2xl">
+                Your {title} has arrived
+              </h1>
+              <p className="mt-1 text-sm text-mowing-green/80 sm:text-base">
+                Nice choice. We hope you love your new {itemNoun}.
+              </p>
+              <Link href="/dashboard/purchases" className="mt-2 inline-block text-sm text-par-3-punch hover:underline">
+                Back to purchases
+              </Link>
+            </div>
+          </div>
+          <ReferralPromptCard
+            url={referralUrl}
+            variant="buyer"
+            discountPence={discountPence}
+            referrerRewardPence={referrerRewardPence}
+          />
         </div>
       ) : done === "problem" ? (
         <div className="mt-6 rounded-xl border border-golden-tee/40 bg-white p-6">

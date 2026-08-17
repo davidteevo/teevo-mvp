@@ -73,6 +73,12 @@ export default async function AdminLayout({
           <Link href="/admin/feedback" className="text-mowing-green font-medium hover:underline">
             Feedback
           </Link>
+          <Link href="/admin/referrals" className="text-mowing-green font-medium hover:underline">
+            Referrals
+          </Link>
+          <Link href="/admin/referrals/creators" className="text-mowing-green font-medium hover:underline">
+            Creators
+          </Link>
         </nav>
         {children}
       </div>

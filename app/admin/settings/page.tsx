@@ -345,6 +345,204 @@ export default function AdminSettingsPage() {
           </p>
         )}
       </section>
+
+      <ReferralGrowthSettings />
     </div>
+  );
+}
+
+function poundsFromPence(pence: number): string {
+  return (pence / 100).toFixed(2);
+}
+
+function ReferralGrowthSettings() {
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+  const [programmeEnabled, setProgrammeEnabled] = useState(true);
+  const [sellerEnabled, setSellerEnabled] = useState(true);
+  const [creatorEnabled, setCreatorEnabled] = useState(true);
+  const [creditEnabled, setCreditEnabled] = useState(true);
+  const [discount, setDiscount] = useState("5.00");
+  const [referrerReward, setReferrerReward] = useState("5.00");
+  const [minPurchase, setMinPurchase] = useState("50.00");
+  const [listingReward, setListingReward] = useState("5.00");
+  const [saleReward, setSaleReward] = useState("5.00");
+  const [creatorCommission, setCreatorCommission] = useState("7.50");
+  const [expiryDays, setExpiryDays] = useState("");
+
+  useEffect(() => {
+    fetch("/api/admin/referrals/settings")
+      .then(async (r) => {
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error ?? "Failed to load referral settings");
+        setProgrammeEnabled(data.programmeEnabled === true);
+        setSellerEnabled(data.sellerEnabled === true);
+        setCreatorEnabled(data.creatorEnabled === true);
+        setCreditEnabled(data.creditEnabled === true);
+        setDiscount(poundsFromPence(data.discountPence ?? 500));
+        setReferrerReward(poundsFromPence(data.referrerRewardPence ?? 500));
+        setMinPurchase(poundsFromPence(data.minItemPence ?? 5000));
+        setListingReward(poundsFromPence(data.sellerListingRewardPence ?? 500));
+        setSaleReward(poundsFromPence(data.sellerSaleRewardPence ?? 500));
+        setCreatorCommission(poundsFromPence(data.creatorDefaultCommissionPence ?? 750));
+        setExpiryDays(data.creditExpiryDays ? String(data.creditExpiryDays) : "");
+      })
+      .catch((e) => setError(e instanceof Error ? e.message : "Failed to load"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const save = async () => {
+    setSaving(true);
+    setError(null);
+    setSaved(false);
+    try {
+      const toPence = (raw: string, label: string) => {
+        const n = Number(raw);
+        if (!Number.isFinite(n) || n < 0) throw new Error(`${label} must be a non-negative amount`);
+        return Math.round(n * 100);
+      };
+      const expiry = expiryDays.trim() === "" ? null : parseInt(expiryDays, 10);
+      const res = await fetch("/api/admin/referrals/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          programmeEnabled,
+          sellerEnabled,
+          creatorEnabled,
+          creditEnabled,
+          discountPence: toPence(discount, "Referred customer discount"),
+          referrerRewardPence: toPence(referrerReward, "Referrer reward"),
+          minItemPence: toPence(minPurchase, "Minimum purchase"),
+          sellerListingRewardPence: toPence(listingReward, "First listing reward"),
+          sellerSaleRewardPence: toPence(saleReward, "First sale reward"),
+          creatorDefaultCommissionPence: toPence(creatorCommission, "Default creator commission"),
+          creditExpiryDays: expiry,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Failed to save");
+      setSaved(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to save");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <section className="mt-8 rounded-xl border border-par-3-punch/20 bg-white p-6 max-w-lg">
+      <h2 className="text-lg font-semibold text-mowing-green">Referral / Growth</h2>
+      <p className="mt-1 text-sm text-mowing-green/70">
+        Changes apply to future rewards only. Historical credit and commissions are unchanged.
+      </p>
+      {loading ? (
+        <p className="mt-4 text-sm text-mowing-green/70">Loading…</p>
+      ) : (
+        <div className="mt-4 space-y-3">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={programmeEnabled}
+              onChange={(e) => setProgrammeEnabled(e.target.checked)}
+            />
+            <span>
+              <span className="font-medium text-mowing-green">Standard referral programme</span>
+              <span className="block text-sm text-mowing-green/70">
+                Lets members invite friends. Referred buyers get a first-purchase discount; the referrer gets Teevo credit when that purchase completes.
+              </span>
+            </span>
+          </label>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={sellerEnabled}
+              onChange={(e) => setSellerEnabled(e.target.checked)}
+            />
+            <span>
+              <span className="font-medium text-mowing-green">Seller referral</span>
+              <span className="block text-sm text-mowing-green/70">
+                Rewards a referrer when someone they invited lists their first club, and again when that seller completes their first sale.
+              </span>
+            </span>
+          </label>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={creatorEnabled}
+              onChange={(e) => setCreatorEnabled(e.target.checked)}
+            />
+            <span>
+              <span className="font-medium text-mowing-green">Creator programme</span>
+              <span className="block text-sm text-mowing-green/70">
+                Lets creators share unique codes. A qualifying first purchase pays their commission instead of a member referrer reward.
+              </span>
+            </span>
+          </label>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={creditEnabled}
+              onChange={(e) => setCreditEnabled(e.target.checked)}
+            />
+            <span>
+              <span className="font-medium text-mowing-green">Teevo credit</span>
+              <span className="block text-sm text-mowing-green/70">
+                Lets buyers spend earned Teevo credit at checkout. Turning this off stops new redemptions; existing balances stay in place.
+              </span>
+            </span>
+          </label>
+          <label className="block text-sm text-mowing-green">
+            Referred customer discount (£)
+            <input value={discount} onChange={(e) => setDiscount(e.target.value)} className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2" />
+          </label>
+          <label className="block text-sm text-mowing-green">
+            Referrer reward (£)
+            <input value={referrerReward} onChange={(e) => setReferrerReward(e.target.value)} className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2" />
+          </label>
+          <label className="block text-sm text-mowing-green">
+            Minimum qualifying purchase (£)
+            <input value={minPurchase} onChange={(e) => setMinPurchase(e.target.value)} className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2" />
+          </label>
+          <label className="block text-sm text-mowing-green">
+            First listing reward (£)
+            <input value={listingReward} onChange={(e) => setListingReward(e.target.value)} className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2" />
+          </label>
+          <label className="block text-sm text-mowing-green">
+            First completed sale reward (£)
+            <input value={saleReward} onChange={(e) => setSaleReward(e.target.value)} className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2" />
+          </label>
+          <label className="block text-sm text-mowing-green">
+            Default creator commission (£)
+            <input value={creatorCommission} onChange={(e) => setCreatorCommission(e.target.value)} className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2" />
+          </label>
+          <label className="block text-sm text-mowing-green">
+            Credit expiry days (blank = none)
+            <input value={expiryDays} onChange={(e) => setExpiryDays(e.target.value)} className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2" />
+          </label>
+          <button
+            type="button"
+            onClick={() => void save()}
+            disabled={saving}
+            className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium disabled:opacity-70"
+          >
+            {saving ? "Saving…" : "Save referral settings"}
+          </button>
+        </div>
+      )}
+      {error && (
+        <p className="mt-3 text-sm text-red-600" role="alert">
+          {error}
+        </p>
+      )}
+      {saved && !error && (
+        <p className="mt-3 text-sm text-mowing-green/80">Saved. Future rewards will use these values.</p>
+      )}
+    </section>
   );
 }

@@ -159,3 +159,51 @@ export function isStructuredCategory(category: string): boolean {
 export function isClubCategory(category: string): boolean {
   return CLUB_CATEGORIES.includes(category as ClubCategory);
 }
+
+/** Buyer-facing noun for a purchase: most clubs are singular; iron/wedge sets are plural. */
+export function purchaseItemNoun(
+  category: string | null | undefined
+): "club" | "clubs" | "item" {
+  if (category === "Irons" || category === "Wedges") return "clubs";
+  if (
+    category === "Driver" ||
+    category === "Woods" ||
+    category === "Driving Irons" ||
+    category === "Hybrids" ||
+    category === "Putter"
+  ) {
+    return "club";
+  }
+  return "item";
+}
+
+/** Noun used in listing titles. Iron sets stay plural; other club types are one club. */
+export function clubCategoryTitleNoun(category: string): string {
+  switch (category) {
+    case "Woods":
+      return "Wood";
+    case "Driving Irons":
+      return "Driving Iron";
+    case "Hybrids":
+      return "Hybrid";
+    case "Wedges":
+      return "Wedge";
+    default:
+      return category;
+  }
+}
+
+/** Keep the category noun in a listing title consistent (e.g. Irons stay plural). */
+export function normalizeListingTitleForCategory(title: string, category: string): string {
+  if (category === "Irons") {
+    return title
+      .replace(/\bDriving Iron\b/g, "Driving\u0000Iron")
+      .replace(/\bIron\b(?!\s+[Ss]et\b)/g, "Irons")
+      .replace(/Driving\u0000Iron/g, "Driving Iron");
+  }
+  if (category === "Woods") return title.replace(/\bWoods\b/g, "Wood");
+  if (category === "Driving Irons") return title.replace(/\bDriving Irons\b/g, "Driving Iron");
+  if (category === "Hybrids") return title.replace(/\bHybrids\b/g, "Hybrid");
+  if (category === "Wedges") return title.replace(/\bWedges\b/g, "Wedge");
+  return title;
+}

@@ -43,11 +43,43 @@ export function BuyButton({
   const [notifyLoading, setNotifyLoading] = useState(false);
   const [notifySuccess, setNotifySuccess] = useState(false);
   const [notifyError, setNotifyError] = useState<string | null>(null);
+  const [applyCredit, setApplyCredit] = useState(true);
+  const [preview, setPreview] = useState<{
+    buyerTotalPence: number;
+    referralDiscountAppliedPence: number;
+    creditRedeemedPence: number;
+    availableCreditPence: number;
+    discountEligible: boolean;
+  } | null>(null);
 
   useEffect(() => {
     if (!buyingEnabled || !sellerCanAcceptPayment) return;
     track("purchase_cta_displayed", { listingId, listing_status: "available" });
   }, [listingId, sellerCanAcceptPayment, buyingEnabled]);
+
+  useEffect(() => {
+    if (!user || !buyingEnabled) return;
+    const params = new URLSearchParams({
+      itemPence: String(price),
+      applyCredit: applyCredit ? "true" : "false",
+    });
+    fetch(`/api/referral/checkout-preview?${params}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (typeof data.buyerTotalPence === "number") {
+          setPreview({
+            buyerTotalPence: data.buyerTotalPence,
+            referralDiscountAppliedPence: data.referralDiscountAppliedPence ?? 0,
+            creditRedeemedPence: data.creditRedeemedPence ?? 0,
+            availableCreditPence: data.availableCreditPence ?? 0,
+            discountEligible: data.discountEligible === true,
+          });
+        }
+      })
+      .catch(() => {
+        /* preview is optional */
+      });
+  }, [user, buyingEnabled, price, applyCredit]);
 
   const handleBuy = async () => {
     if (!user) {
@@ -63,6 +95,7 @@ export function BuyButton({
           listingId,
           // Manual mode has no buyer service choice; checkout defaults shipping_service server-side.
           ...(isManualFulfilment ? {} : { shippingService: deliveryService }),
+          applyCredit,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -257,14 +290,57 @@ export function BuyButton({
         </Link>
         .
       </p>
+      {preview && (preview.referralDiscountAppliedPence > 0 || preview.availableCreditPence > 0) && (
+        <div className="rounded-xl border border-par-3-punch/20 bg-white p-3 text-sm text-mowing-green space-y-1">
+          {preview.referralDiscountAppliedPence > 0 && (
+            <p>
+              Referral credit: −£{(preview.referralDiscountAppliedPence / 100).toFixed(2)}
+            </p>
+          )}
+          {preview.availableCreditPence > 0 && (
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={applyCredit}
+                onChange={(e) => setApplyCredit(e.target.checked)}
+                className="rounded border-mowing-green/40"
+              />
+              {teevoCreditCheckboxLabel(
+                preview.creditRedeemedPence,
+                preview.availableCreditPence,
+              )}
+            </label>
+          )}
+        </div>
+      )}
       <button
         type="button"
         onClick={handleBuy}
         disabled={loading}
         className="w-full sm:w-auto rounded-xl bg-mowing-green text-off-white-pique px-8 py-4 text-lg font-semibold hover:opacity-90 disabled:opacity-70"
       >
-        {loading ? "Opening…" : `Buy now · £${((totalPence ?? price) / 100).toFixed(2)}`}
+        {loading
+          ? "Opening…"
+          : `Buy now · £${((preview?.buyerTotalPence ?? totalPence ?? price) / 100).toFixed(2)}`}
       </button>
     </div>
   );
+}
+
+function formatPenceGbp(pence: number): string {
+  return `£${(Math.max(0, pence) / 100).toFixed(2)}`;
+}
+
+/** Checkbox copy: one amount when the full balance applies, otherwise "£X of £Y". */
+function teevoCreditCheckboxLabel(
+  creditRedeemedPence: number,
+  availableCreditPence: number,
+): string {
+  const redeemablePence =
+    creditRedeemedPence > 0 ? creditRedeemedPence : availableCreditPence;
+  const available = formatPenceGbp(availableCreditPence);
+  if (redeemablePence > 0 && redeemablePence < availableCreditPence) {
+    return `Use ${formatPenceGbp(redeemablePence)} of ${available} Teevo credit`;
+  }
+  return `Use ${available} Teevo credit`;
 }

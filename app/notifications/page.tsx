@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { track } from "@/lib/analytics";
+import { navigateNotificationAction } from "@/lib/notification-action";
 
 type NotificationItem = {
   id: string;
@@ -97,7 +98,7 @@ export default function NotificationsPage() {
     if (n.type === "leave_seller_feedback") {
       track("feedback_notification_opened", { transaction_id: n.entity_id });
     }
-    if (n.action_url) router.push(n.action_url);
+    if (n.action_url) navigateNotificationAction(n.action_url, (href) => router.push(href));
   };
 
   if (loading || !user) {

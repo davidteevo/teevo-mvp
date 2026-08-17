@@ -25,9 +25,32 @@ import { DispatchDeadlineBanner } from "@/components/dashboard/DispatchDeadlineB
 import { RequestMoreTimeModal } from "@/components/dashboard/RequestMoreTimeModal";
 import { ListingAvailabilityCard } from "@/components/dashboard/ListingAvailabilityCard";
 import { canRequestDispatchExtension } from "@/lib/dispatch-display";
+import { ReferralPromptCard } from "@/components/referral/ReferralPromptCard";
 
 const PACKAGING_BUCKET = "packaging-photos";
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+const PACKAGING_PHOTO_MAX_BYTES = 5 * 1024 * 1024;
+
+function packagingPhotoTooLargeMessage(labels: string[]): string {
+  if (labels.length === 1) {
+    return `We couldn't upload your ${labels[0]} photo. Please choose a smaller image and try again.`;
+  }
+  const last = labels[labels.length - 1];
+  const rest = labels.slice(0, -1).join(", ");
+  return `We couldn't upload your ${rest} and ${last} photos. Please choose smaller images and try again.`;
+}
+
+function oversizedPackagingPhotoLabels(files: (File | null)[]): string[] {
+  return files.flatMap((file, i) =>
+    file && file.size > PACKAGING_PHOTO_MAX_BYTES ? [PACKAGING_PHOTO_LABELS[i] ?? file.name] : []
+  );
+}
+
+function isPackagingPhotoTooLargeError(status: number, errText: string): boolean {
+  if (status === 413) return true;
+  const t = errText.toLowerCase();
+  return t.includes("payload too large") || t.includes("exceeded the maximum allowed");
+}
 
 type PackagingUploadPhase = "upload_urls" | "uploading" | "submitting";
 type PackagingUploadStatus = { id: string; phase: PackagingUploadPhase; current?: number; total?: number } | null;
@@ -138,11 +161,13 @@ function DashboardSalesContent() {
   const [packagingPhotoSubmittingId, setPackagingPhotoSubmittingId] = useState<string | null>(null);
   const [packagingUploadStatus, setPackagingUploadStatus] = useState<PackagingUploadStatus>(null);
   const [packagingPhotoFiles, setPackagingPhotoFiles] = useState<Record<string, (File | null)[]>>({});
+  const [packagingPhotoErrorById, setPackagingPhotoErrorById] = useState<Record<string, string>>({});
   const [teevoBoxType, setTeevoBoxType] = useState<string>(BOX_TYPES[0]);
   const [labelErrorById, setLabelErrorById] = useState<Record<string, string>>({});
   const [starterPackEnabled, setStarterPackEnabled] = useState(false);
   const [moreTimeTxId, setMoreTimeTxId] = useState<string | null>(null);
   const [moreTimeSubmitting, setMoreTimeSubmitting] = useState(false);
+  const [referralUrl, setReferralUrl] = useState<string | null>(null);
   const highlightId = useHighlightId("sale", transactions.length > 0);
 
   useEffect(() => {
@@ -162,6 +187,14 @@ function DashboardSalesContent() {
     };
     fetchTransactions();
     window.addEventListener("focus", fetchTransactions);
+    fetch("/api/referral/me")
+      .then((r) => r.json())
+      .then((data) => {
+        if (typeof data.url === "string") setReferralUrl(data.url);
+      })
+      .catch(() => {
+        /* optional */
+      });
     return () => window.removeEventListener("focus", fetchTransactions);
   }, [user]);
 
@@ -260,6 +293,18 @@ function DashboardSalesContent() {
       alert("Please upload at least 3 photos (club condition, wrapped, inside box, sealed box).");
       return;
     }
+    const oversizedLabels = oversizedPackagingPhotoLabels(files);
+    if (oversizedLabels.length > 0) {
+      const tooLargeMessage = packagingPhotoTooLargeMessage(oversizedLabels);
+      setPackagingPhotoErrorById((prev) => ({ ...prev, [id]: tooLargeMessage }));
+      alert(tooLargeMessage);
+      return;
+    }
+    setPackagingPhotoErrorById((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
     setPackagingPhotoSubmittingId(id);
     setPackagingUploadStatus({ id, phase: "upload_urls" });
     try {
@@ -297,8 +342,14 @@ function DashboardSalesContent() {
         });
         if (!uploadRes.ok) {
           const errText = await uploadRes.text();
+          const slotIndex = files.indexOf(file);
+          const label = PACKAGING_PHOTO_LABELS[slotIndex] ?? file.name;
           throw new Error(
-            errText ? errText.slice(0, 100) : `Photo ${i + 1} upload failed (${uploadRes.status}). Try again.`
+            isPackagingPhotoTooLargeError(uploadRes.status, errText)
+              ? packagingPhotoTooLargeMessage([label])
+              : errText
+                ? errText.slice(0, 100)
+                : `Photo ${i + 1} upload failed (${uploadRes.status}). Try again.`
           );
         }
         paths.push(path);
@@ -335,11 +386,18 @@ function DashboardSalesContent() {
           delete next[id];
           return next;
         });
+        setPackagingPhotoErrorById((prev) => {
+          const next = { ...prev };
+          delete next[id];
+          return next;
+        });
       } else {
         alert(submitData.error ?? "Failed to submit for review");
       }
     } catch (e) {
-      alert(e instanceof Error ? e.message : "Something went wrong");
+      const message = e instanceof Error ? e.message : "Something went wrong";
+      setPackagingPhotoErrorById((prev) => ({ ...prev, [id]: message }));
+      alert(message);
     } finally {
       setPackagingPhotoSubmittingId(null);
       setPackagingUploadStatus(null);
@@ -399,6 +457,13 @@ function DashboardSalesContent() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold text-mowing-green">Sales</h1>
       <p className="mt-1 text-mowing-green/80">Mark items as shipped when you send them.</p>
+      {transactions.length > 0 && (
+        <ReferralPromptCard
+          title="You've sold your club on Teevo."
+          url={referralUrl}
+          variant="seller"
+        />
+      )}
       <div className="mt-6 rounded-xl border border-par-3-punch/20 bg-white overflow-hidden">
         {transactions.length === 0 ? (
           <div className="p-8 text-center text-mowing-green/80">
@@ -623,6 +688,11 @@ function DashboardSalesContent() {
                       !hasShippingLabel(t) && (
                         <div className="w-full sm:w-auto rounded-lg border border-mowing-green/30 bg-mowing-green/5 p-3 space-y-2">
                           <p className="text-sm font-medium text-mowing-green">Upload packaging photos</p>
+                          {packagingPhotoErrorById[t.id] && (
+                            <p className="text-xs text-red-600 bg-red-50 rounded px-2 py-1" role="alert">
+                              {packagingPhotoErrorById[t.id]}
+                            </p>
+                          )}
                           {t.packaging_status === PackagingStatus.REJECTED && (t.review_notes ?? t.packaging_review_notes) && (
                             <p className="text-xs text-red-600 bg-red-50 rounded px-2 py-1">
                               Review notes: {t.review_notes ?? t.packaging_review_notes}
@@ -676,6 +746,18 @@ function DashboardSalesContent() {
                                       next[i] = file;
                                       return { ...prev, [t.id]: next };
                                     });
+                                    if (file && file.size > PACKAGING_PHOTO_MAX_BYTES) {
+                                      setPackagingPhotoErrorById((prev) => ({
+                                        ...prev,
+                                        [t.id]: packagingPhotoTooLargeMessage([label]),
+                                      }));
+                                    } else {
+                                      setPackagingPhotoErrorById((prev) => {
+                                        const next = { ...prev };
+                                        delete next[t.id];
+                                        return next;
+                                      });
+                                    }
                                   }}
                                 />
                               </label>

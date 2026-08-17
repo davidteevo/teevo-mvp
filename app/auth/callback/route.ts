@@ -6,6 +6,7 @@ import { generateDisplayNameFromFirstName } from "@/lib/public-seller-name";
 import { getAppUrl } from "@/lib/app-env";
 import { addWatchlistItem, parseWatchListingId, stripWatchParam } from "@/lib/watchlist";
 import { trackServerEvent } from "@/lib/starter-pack";
+import { provisionNewUserReferral, REF_COOKIE } from "@/lib/referral/attribution";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
@@ -69,6 +70,21 @@ export async function GET(request: Request) {
           first_name,
           display_name: generateDisplayNameFromFirstName(first_name),
           updated_at,
+        });
+        const cookieHeader = request.headers.get("cookie") ?? "";
+        const cookieMatch = cookieHeader.match(new RegExp(`(?:^|;\\s*)${REF_COOKIE}=([^;]*)`));
+        const refFromCookie = cookieMatch ? decodeURIComponent(cookieMatch[1]) : "";
+        const refFromQuery = searchParams.get("ref") ?? "";
+        const refFromMeta =
+          typeof user.user_metadata?.referral_code === "string" ? user.user_metadata.referral_code : "";
+        const rawCode = refFromCookie || refFromQuery || refFromMeta;
+        const via = refFromCookie || refFromQuery ? "url" : "code";
+        await provisionNewUserReferral(admin, {
+          userId: user.id,
+          firstName: first_name,
+          email: user.email,
+          rawCode: rawCode || null,
+          via,
         });
       }
     }

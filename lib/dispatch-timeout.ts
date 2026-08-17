@@ -18,6 +18,7 @@ import {
 import { refundShippoLabel } from "@/lib/shippo";
 import { trackServerEvent } from "@/lib/starter-pack";
 import { recordTransactionEvent, TransactionEventType } from "@/lib/transaction-events";
+import { onOrderInvalidated } from "@/lib/referral/rewards";
 
 const CANCEL_SELECT =
   "id, listing_id, buyer_id, seller_id, status, shipped_at, stripe_payment_id, stripe_refund_id, shippo_transaction_id, dispatch_deadline_at, dispatch_clock_paused_at, dispatch_clock_pause_reason, cancellation_status, cancellation_reason, cancelled_at, packaging_source, starter_pack_dispatched_at, packaging_status, fulfilment_mode, fulfilment_status, shippo_label_url, shipping_label_url, dispatch_extension_status";
@@ -309,6 +310,10 @@ export async function cancelUndispatchedOrder(
     sellerId: tx.seller_id,
     buyerId: tx.buyer_id,
   });
+
+  await onOrderInvalidated(admin, tx.id).catch((e) =>
+    console.error("onOrderInvalidated referral failed", e)
+  );
 
   return { ok: true, alreadyCompleted: false, refundId };
 }

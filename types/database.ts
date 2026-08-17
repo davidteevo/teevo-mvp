@@ -147,6 +147,9 @@ export interface Transaction {
   stripe_payment_id: string | null;
   stripe_transfer_id: string | null;
   amount: number;
+  referral_discount_pence?: number;
+  credit_redeemed_pence?: number;
+  referral_id?: string | null;
   status: TransactionStatus;
   shipped_at: string | null;
   completed_at: string | null;
@@ -222,5 +225,91 @@ export interface SellerReview {
   moderated_by: string | null;
   moderation_reason: string | null;
   created_at: string;
+  updated_at: string;
+}
+
+export type ReferralCodeKind = "user" | "creator";
+export type ReferralCodeStatus = "active" | "disabled";
+export type CreatorStatus = "active" | "paused" | "disabled";
+export type ReferralSource = "url" | "code" | "creator_url" | "creator_code";
+export type ReferralRewardTypeName =
+  | "buyer_referrer_credit"
+  | "seller_listing_credit"
+  | "seller_sale_credit"
+  | "creator_commission";
+export type ReferralRewardStatusName = "pending" | "approved" | "paid" | "cancelled" | "reversed";
+export type CreditTransactionType =
+  | "referral_buyer_reward"
+  | "seller_listing_referral"
+  | "seller_sale_referral"
+  | "admin_adjustment"
+  | "redemption"
+  | "reversal";
+export type CreditTransactionStatus = "pending" | "available" | "redeemed" | "reversed" | "cancelled";
+
+export interface ReferralCode {
+  id: string;
+  code: string;
+  owner_user_id: string | null;
+  kind: ReferralCodeKind;
+  status: ReferralCodeStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Creator {
+  id: string;
+  user_id: string | null;
+  name: string;
+  social_handle: string | null;
+  social_url: string | null;
+  referral_code_id: string;
+  commission_pence: number;
+  status: CreatorStatus;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Referral {
+  id: string;
+  referrer_user_id: string;
+  referred_user_id: string;
+  referral_code_id: string | null;
+  creator_id: string | null;
+  source: ReferralSource;
+  attributed_at: string;
+  created_at: string;
+}
+
+export interface ReferralReward {
+  id: string;
+  referral_id: string;
+  reward_type: ReferralRewardTypeName;
+  amount_pence: number;
+  status: ReferralRewardStatusName;
+  related_transaction_id: string | null;
+  related_listing_id: string | null;
+  credit_transaction_id: string | null;
+  admin_notes: string | null;
+  created_at: string;
+  approved_at: string | null;
+  paid_at: string | null;
+  cancelled_at: string | null;
+  updated_at: string;
+}
+
+export interface CreditTransaction {
+  id: string;
+  user_id: string;
+  amount_pence: number;
+  type: CreditTransactionType;
+  status: CreditTransactionStatus;
+  referral_reward_id: string | null;
+  related_transaction_id: string | null;
+  expires_at: string | null;
+  admin_notes: string | null;
+  created_at: string;
+  approved_at: string | null;
   updated_at: string;
 }
