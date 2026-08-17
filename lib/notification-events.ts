@@ -3,7 +3,7 @@
  * Never throws.
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { FulfilmentMode } from "@/lib/fulfilment-providers";
+import { FulfilmentMode, getTrackingUrl } from "@/lib/fulfilment-providers";
 import {
   NotificationType,
   NotificationEntityType,
@@ -350,13 +350,19 @@ export async function notifyItemDispatched(
       ],
       entityId: opts.transactionId,
     });
+    const { data: trackingTx } = await admin
+      .from("transactions")
+      .select("tracking_url, tracking_number, shippo_tracking_number, courier")
+      .eq("id", opts.transactionId)
+      .maybeSingle();
+    const trackingUrl = trackingTx ? getTrackingUrl(trackingTx) : null;
     await createNotification(admin, {
       userId: opts.sellerId,
       type: NotificationType.ITEM_DISPATCHED,
       title: "Club dispatched",
       message: `${title} is on its way to the buyer.`,
       entityId: opts.transactionId,
-      actionUrl: salesUrl(opts.transactionId),
+      actionUrl: trackingUrl ?? salesUrl(opts.transactionId),
       actionLabel: "Track shipment",
       requiresAction: false,
     });
@@ -366,7 +372,7 @@ export async function notifyItemDispatched(
       title: "Your club is on its way",
       message: `The seller has dispatched ${title}.`,
       entityId: opts.transactionId,
-      actionUrl: purchasesUrl(opts.transactionId),
+      actionUrl: trackingUrl ?? purchasesUrl(opts.transactionId),
       actionLabel: "Track delivery",
       requiresAction: false,
     });

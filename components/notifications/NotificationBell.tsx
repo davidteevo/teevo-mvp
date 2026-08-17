@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { track } from "@/lib/analytics";
+import { navigateNotificationAction } from "@/lib/notification-action";
 
 const MOBILE_MQ = "(max-width: 639px)";
 
@@ -195,7 +196,7 @@ export function NotificationBell() {
       track("feedback_notification_opened", { transaction_id: n.entity_id });
     }
     setOpen(false);
-    router.push(n.action_url || "/notifications");
+    navigateNotificationAction(n.action_url || "/notifications", (href) => router.push(href));
   };
 
   const label = count > 0 ? `${count > 9 ? "9+" : count} unread notifications` : "Notifications";
