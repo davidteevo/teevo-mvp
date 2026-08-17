@@ -31,15 +31,13 @@ export function DispatchDeadlineBanner({
   return (
     <div className={`w-full rounded-lg border px-3 py-2 ${tone}`}>
       <p className="text-sm font-semibold text-mowing-green">{display.label}</p>
-      {(display.urgency === "approaching" || display.urgency === "today") && (
-        <p className="mt-0.5 text-sm text-mowing-green/80">
-          {display.urgency === "today"
-            ? "Ship this order today to avoid cancellation."
-            : `Ship by ${display.dateLabel}.`}
-        </p>
-      )}
-      {display.urgency === "normal" && (
+      {display.urgency === "approaching" && (
         <p className="mt-0.5 text-sm text-mowing-green/80">Ship by {display.dateLabel}.</p>
+      )}
+      {display.urgency === "today" && (
+        <p className="mt-0.5 text-sm text-mowing-green/80">
+          Ship this order today to avoid cancellation.
+        </p>
       )}
       {display.paused && display.pauseCopy && (
         <p className="mt-1 text-xs text-mowing-green/70">{display.pauseCopy}</p>
