@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { isModerationAction, moderateSellerReview } from "@/lib/seller-reviews";
+import { ALREADY_PROCESSED_CODE } from "@/lib/admin-action-centre";
+import { logAdminAction } from "@/lib/referral/admin-auth";
 import {
   resolveAdminFeedbackNotifications,
   trackFeedbackModerated,
@@ -43,8 +45,21 @@ export async function POST(
     reason,
   });
   if (!result.ok) {
+    if (result.status === 409) {
+      return NextResponse.json(
+        { error: result.error, code: ALREADY_PROCESSED_CODE },
+        { status: 409 }
+      );
+    }
     return NextResponse.json({ error: result.error }, { status: result.status });
   }
+
+  await logAdminAction(admin, {
+    adminId: user.id,
+    action: `feedback_${body.action}`,
+    targetType: "seller_review",
+    targetId: id,
+  });
 
   await resolveAdminFeedbackNotifications(admin, id);
   await trackFeedbackModerated(admin, {

@@ -1,7 +1,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
-import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { alreadyProcessedResponse } from "@/lib/admin-action-centre";
+import { requireAdmin, logAdminAction } from "@/lib/referral/admin-auth";
 import { resolveListingReviewRequired } from "@/lib/notification-events";
 import { notifyWatchersNowAvailable } from "@/lib/watchlist-emails";
 import { onListingVerified } from "@/lib/referral/rewards";
@@ -13,41 +13,39 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await requireAdmin();
+  if ("error" in auth) return auth.error;
+  const { admin, user } = auth;
 
-  const admin = createServiceClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-  const { data: profile } = await admin.from("users").select("role").eq("id", user.id).single();
-  if (profile?.role !== "admin") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const { data: existing } = await admin.from("listings").select("id, status").eq("id", id).maybeSingle();
+  if (!existing) return NextResponse.json({ error: "Listing not found" }, { status: 404 });
+  if (existing.status !== "pending") return alreadyProcessedResponse();
 
-  const { error } = await admin
+  const { data: updated, error } = await admin
     .from("listings")
     .update({ status: "verified", updated_at: new Date().toISOString() })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("status", "pending")
+    .select("user_id, created_on_behalf")
+    .maybeSingle();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-  const { data: listing } = await admin
-    .from("listings")
-    .select("user_id, created_on_behalf")
-    .eq("id", id)
-    .maybeSingle();
-  if (listing?.user_id) {
+  if (!updated) return alreadyProcessedResponse();
+
+  await logAdminAction(admin, {
+    adminId: user.id,
+    action: "listing_approved",
+    targetType: "listing",
+    targetId: id,
+  });
+
+  if (updated.user_id) {
     await onListingVerified(admin, {
       listingId: id,
-      sellerId: listing.user_id,
-      createdOnBehalf: listing.created_on_behalf === true,
+      sellerId: updated.user_id,
+      createdOnBehalf: updated.created_on_behalf === true,
     }).catch((e) => console.error("onListingVerified failed", e));
   }
   await resolveListingReviewRequired(admin, id);

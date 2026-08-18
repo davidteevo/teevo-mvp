@@ -1,6 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
-import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { requireAdmin, logAdminAction } from "@/lib/referral/admin-auth";
 import { ensureEmailSent, EmailTriggerType, getListingEmailContext } from "@/lib/email-triggers";
 
 export const dynamic = "force-dynamic";
@@ -10,22 +9,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const admin = createServiceClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-  const { data: profile } = await admin.from("users").select("role").eq("id", user.id).single();
-  if (profile?.role !== "admin") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const auth = await requireAdmin();
+  if ("error" in auth) return auth.error;
+  const { admin, user } = auth;
 
   let body: Record<string, unknown>;
   try {
@@ -46,6 +32,14 @@ export async function POST(
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  await logAdminAction(admin, {
+    adminId: user.id,
+    action: "listing_feedback",
+    targetType: "listing",
+    targetId: id,
+    payload: { comment: comment || null },
+  });
 
   if (comment) {
     const { data: listing } = await admin

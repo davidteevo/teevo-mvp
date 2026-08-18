@@ -5,6 +5,8 @@ import { formatPrice } from "@/lib/format";
 import { formatDispatchDeadline } from "@/lib/business-days";
 import { getAdminTransactionDetail, getTransactionEvents } from "@/lib/admin-data";
 import { AdminDispatchActions } from "./AdminDispatchActions";
+import { OrderWorkflowTimeline } from "@/app/admin/_components/OrderWorkflowTimeline";
+import { buildOrderWorkflowTimeline, type OrderTimelineInput } from "@/lib/admin-order-timeline";
 
 function fmt(iso: string | null | undefined): string {
   if (!iso) return "—";
@@ -43,6 +45,7 @@ export default async function AdminTransactionDetailPage({
   const buyer = tx.buyer as { email?: string | null } | null;
   const seller = tx.seller as { email?: string | null } | null;
   const deadline = tx.dispatch_deadline_at as string | null;
+  const timeline = buildOrderWorkflowTimeline(tx as OrderTimelineInput);
 
   return (
     <div>
@@ -55,6 +58,14 @@ export default async function AdminTransactionDetailPage({
         {listing?.title || listing?.model || "Order"} #{id.slice(0, 8)}
       </h1>
       <p className="mt-1 text-sm text-mowing-green/70">{formatPrice(Number(tx.amount ?? 0))} · {String(tx.status)}</p>
+
+      <div className="mt-6">
+        <OrderWorkflowTimeline
+          stages={timeline.stages}
+          currentStageLabel={timeline.currentStageLabel}
+          nextActionLabel={timeline.nextActionLabel}
+        />
+      </div>
 
       <dl className="mt-6 rounded-xl border border-par-3-punch/20 bg-white px-4">
         <Row label="Purchased" value={fmt(tx.created_at as string)} />

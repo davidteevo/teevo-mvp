@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
-import Link from "next/link";
 import { generateDisplayNameFromFirstName } from "@/lib/public-seller-name";
+import { AdminNav } from "./_components/AdminNav";
 
 export const dynamic = "force-dynamic";
 
@@ -41,45 +41,8 @@ export default async function AdminLayout({
 
   return (
     <div className="min-h-screen bg-off-white-pique">
-      <div className="max-w-5xl mx-auto px-4 py-6">
-        <nav className="flex flex-wrap gap-4 mb-6 border-b border-par-3-punch/20 pb-4">
-          <Link href="/admin" className="text-mowing-green font-medium hover:underline">
-            Overview
-          </Link>
-          <Link href="/admin/listings" className="text-mowing-green font-medium hover:underline">
-            Verify listings
-          </Link>
-          <Link href="/dashboard/admin/packaging" className="text-mowing-green font-medium hover:underline">
-            Verify packaging (shipping)
-          </Link>
-          <Link href="/admin/listings/all" className="text-mowing-green font-medium hover:underline">
-            All listings
-          </Link>
-          <Link href="/admin/transactions" className="text-mowing-green font-medium hover:underline">
-            Transactions
-          </Link>
-          <Link href="/admin/users" className="text-mowing-green font-medium hover:underline">
-            Users
-          </Link>
-          <Link href="/admin/starter-packs" className="text-mowing-green font-medium hover:underline">
-            Starter Packs
-          </Link>
-          <Link href="/admin/fulfilment" className="text-mowing-green font-medium hover:underline">
-            Awaiting labels
-          </Link>
-          <Link href="/admin/settings" className="text-mowing-green font-medium hover:underline">
-            Settings
-          </Link>
-          <Link href="/admin/feedback" className="text-mowing-green font-medium hover:underline">
-            Feedback
-          </Link>
-          <Link href="/admin/referrals" className="text-mowing-green font-medium hover:underline">
-            Referrals
-          </Link>
-          <Link href="/admin/referrals/creators" className="text-mowing-green font-medium hover:underline">
-            Creators
-          </Link>
-        </nav>
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <AdminNav />
         {children}
       </div>
     </div>

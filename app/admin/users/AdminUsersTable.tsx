@@ -64,9 +64,15 @@ function SortHeaderButton({
   );
 }
 
-export default function AdminUsersTable({ initialUsers }: { initialUsers: AdminUser[] }) {
+export default function AdminUsersTable({
+  initialUsers,
+  initialQuery = "",
+}: {
+  initialUsers: AdminUser[];
+  initialQuery?: string;
+}) {
   const [users, setUsers] = useState<AdminUser[]>(initialUsers);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [sortKey, setSortKey] = useState<SortKey>("joined");
   const [sortAsc, setSortAsc] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);

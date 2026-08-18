@@ -262,7 +262,7 @@ export function confirmDeliveryUrl(txId: string): string {
 }
 
 export function adminPackagingUrl(txId: string): string {
-  return `/dashboard/admin/packaging?id=${encodeURIComponent(txId)}`;
+  return `/admin/packaging?id=${encodeURIComponent(txId)}`;
 }
 
 export function adminStarterPackUrl(txId: string): string {

@@ -11,6 +11,8 @@ import { ensureEmailSent, EmailTriggerType, getListingEmailContext } from "@/lib
 import { getAppUrl } from "@/lib/app-env";
 import { notifyManualLabelReady } from "@/lib/notification-events";
 import { isCancellationBlockingDispatch, syncDispatchClockById } from "@/lib/dispatch-deadline";
+import { alreadyProcessedResponse } from "@/lib/admin-action-centre";
+import { logAdminAction } from "@/lib/referral/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -102,7 +104,7 @@ export async function POST(
       );
     }
     if (tx.shipping_label_url) {
-      return NextResponse.json({ error: "A label has already been provided" }, { status: 400 });
+      return alreadyProcessedResponse();
     }
 
     const pdfBytes = Buffer.from(await labelFile.arrayBuffer());
@@ -200,6 +202,14 @@ export async function POST(
     });
 
     await syncDispatchClockById(admin, transactionId);
+
+    await logAdminAction(admin, {
+      adminId: user.id,
+      action: "shipping_label_generated",
+      targetType: "transaction",
+      targetId: transactionId,
+      payload: { courier: courierRaw },
+    });
 
     return NextResponse.json({
       ok: true,

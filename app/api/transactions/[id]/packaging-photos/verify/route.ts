@@ -3,6 +3,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { FulfilmentStatus, PackagingStatus } from "@/lib/fulfilment";
 import { FulfilmentMode } from "@/lib/fulfilment-providers";
+import { alreadyProcessedResponse } from "@/lib/admin-action-centre";
+import { logAdminAction } from "@/lib/referral/admin-auth";
 import {
   notifyAdminManualLabelNeeded,
   notifySellerPackagingApproved,
@@ -46,11 +48,11 @@ export async function POST(
     if (txErr || !tx) {
       return NextResponse.json({ error: "Transaction not found" }, { status: 404 });
     }
-    if (tx.packaging_status === PackagingStatus.VERIFIED) {
-      return NextResponse.json({ error: "Already verified" }, { status: 400 });
+    if (tx.packaging_status === PackagingStatus.VERIFIED || tx.packaging_status === PackagingStatus.REJECTED) {
+      return alreadyProcessedResponse();
     }
     if (tx.packaging_status !== PackagingStatus.SUBMITTED && tx.packaging_status != null) {
-      return NextResponse.json({ error: "Not submitted for review" }, { status: 400 });
+      return alreadyProcessedResponse();
     }
 
     const now = new Date().toISOString();
@@ -90,6 +92,13 @@ export async function POST(
     }
 
     await syncDispatchClockById(admin, transactionId);
+
+    await logAdminAction(admin, {
+      adminId: user.id,
+      action: "packaging_approved",
+      targetType: "transaction",
+      targetId: transactionId,
+    });
 
     return NextResponse.json({ ok: true });
   } catch (e) {

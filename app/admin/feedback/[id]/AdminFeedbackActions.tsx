@@ -3,13 +3,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ModerationActionValue } from "@/lib/seller-reviews";
+import { isAlreadyProcessedPayload } from "@/lib/admin-action-centre";
 
 export function AdminFeedbackActions({
   reviewId,
   status,
+  onSuccess,
 }: {
   reviewId: string;
   status: string;
+  onSuccess?: (alreadyProcessed?: boolean) => void;
 }) {
   const router = useRouter();
   const [reason, setReason] = useState("");
@@ -27,10 +30,15 @@ export function AdminFeedbackActions({
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
+        if (res.status === 409 || isAlreadyProcessedPayload(data)) {
+          onSuccess?.(true);
+          return;
+        }
         setError(typeof data.error === "string" ? data.error : "Action failed");
         return;
       }
       setReason("");
+      onSuccess?.(false);
       router.refresh();
     } finally {
       setBusy(null);
