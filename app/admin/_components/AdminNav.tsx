@@ -2,32 +2,57 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { LucideIcon } from "lucide-react";
+import {
+  BadgeCheck,
+  Briefcase,
+  ClipboardCheck,
+  Gift,
+  LayoutDashboard,
+  List,
+  Megaphone,
+  Package,
+  Settings,
+  ShoppingCart,
+  Star,
+  Tag,
+  Users,
+  UsersRound,
+  Wrench,
+} from "lucide-react";
 
-const GROUPS: { label: string; links: { href: string; label: string }[] }[] = [
+const GROUPS: {
+  label: string;
+  icon: LucideIcon;
+  links: { href: string; label: string; icon: LucideIcon }[];
+}[] = [
   {
     label: "Operations",
+    icon: Briefcase,
     links: [
-      { href: "/admin", label: "Overview" },
-      { href: "/admin/listings/all", label: "Listings" },
-      { href: "/admin/listings", label: "Verify listings" },
-      { href: "/admin/packaging", label: "Verify packaging" },
-      { href: "/admin/transactions", label: "Transactions" },
-      { href: "/admin/starter-packs", label: "Starter Packs" },
-      { href: "/admin/fulfilment", label: "Awaiting labels" },
+      { href: "/admin", label: "Overview", icon: LayoutDashboard },
+      { href: "/admin/listings/all", label: "Listings", icon: List },
+      { href: "/admin/listings", label: "Verify listings", icon: BadgeCheck },
+      { href: "/admin/packaging", label: "Verify packaging", icon: ClipboardCheck },
+      { href: "/admin/transactions", label: "Transactions", icon: ShoppingCart },
+      { href: "/admin/starter-packs", label: "Starter Packs", icon: Package },
+      { href: "/admin/fulfilment", label: "Awaiting labels", icon: Tag },
     ],
   },
   {
     label: "Community",
+    icon: UsersRound,
     links: [
-      { href: "/admin/users", label: "Users" },
-      { href: "/admin/feedback", label: "Feedback" },
-      { href: "/admin/referrals", label: "Referrals" },
-      { href: "/admin/referrals/creators", label: "Creators" },
+      { href: "/admin/users", label: "Users", icon: Users },
+      { href: "/admin/feedback", label: "Feedback", icon: Star },
+      { href: "/admin/referrals", label: "Referrals", icon: Gift },
+      { href: "/admin/referrals/creators", label: "Creators", icon: Megaphone },
     ],
   },
   {
     label: "System",
-    links: [{ href: "/admin/settings", label: "Settings" }],
+    icon: Wrench,
+    links: [{ href: "/admin/settings", label: "Settings", icon: Settings }],
   },
 ];
 
@@ -46,29 +71,40 @@ export function AdminNav() {
 
   return (
     <nav className="mb-6 space-y-3 border-b border-par-3-punch/20 pb-4">
-      {GROUPS.map((group) => (
-        <div key={group.label}>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-mowing-green/50">{group.label}</p>
-          <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
-            {group.links.map((link) => {
-              const active = isActive(pathname, link.href);
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={
-                    active
-                      ? "text-mowing-green font-semibold underline underline-offset-4"
-                      : "text-mowing-green font-medium hover:underline"
-                  }
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
+      {GROUPS.map((group) => {
+        const GroupIcon = group.icon;
+        return (
+          <div key={group.label}>
+            <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-mowing-green/50">
+              <GroupIcon className="h-3 w-3" aria-hidden />
+              {group.label}
+            </p>
+            <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1.5">
+              {group.links.map((link) => {
+                const active = isActive(pathname, link.href);
+                const Icon = link.icon;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={
+                      active
+                        ? "inline-flex items-center gap-1.5 text-mowing-green font-semibold underline underline-offset-4"
+                        : "inline-flex items-center gap-1.5 text-mowing-green font-medium hover:underline"
+                    }
+                  >
+                    <Icon
+                      className={`h-3.5 w-3.5 shrink-0 ${active ? "text-mowing-green" : "text-mowing-green/60"}`}
+                      aria-hidden
+                    />
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </nav>
   );
 }
