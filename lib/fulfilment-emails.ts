@@ -64,7 +64,7 @@ export async function notifyAdminPackagingSubmitted(
         .join("\n"),
       order_number: orderShort,
       hero_image,
-      cta_link: `${appUrl}/dashboard/admin/packaging`,
+      cta_link: `${appUrl}/admin/packaging`,
       cta_text: "Review packaging",
     },
   }).catch((e) => console.error("Admin packaging-submitted email failed", e));

@@ -518,6 +518,9 @@ export async function moderateSellerReview(
     .maybeSingle();
   const review = existing as SellerReviewRow | null;
   if (!review) return { ok: false, status: 404, error: "Feedback not found" };
+  if (!review.requires_admin_action && opts.action === ModerationAction.KEEP) {
+    return { ok: false, status: 409, error: "This item has already been processed." };
+  }
 
   const reason = opts.reason?.trim() || null;
   if (

@@ -333,7 +333,7 @@ export default function DashboardPage() {
               </div>
             </Link>
             <Link
-              href="/dashboard/admin/packaging"
+              href="/admin/packaging"
               className="flex items-center gap-4 rounded-xl border border-par-3-punch/20 bg-white p-4 hover:shadow-md transition-shadow"
             >
               <div className="rounded-lg bg-golden-tee/20 p-3">

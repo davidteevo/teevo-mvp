@@ -3,14 +3,19 @@ import AdminUsersTable from "./AdminUsersTable";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminUsersPage() {
+export default async function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }> | { q?: string };
+}) {
   const users = await getAdminUsers();
+  const params = await searchParams;
   return (
     <div>
       <h1 className="text-2xl font-bold text-mowing-green">Manage users</h1>
       <p className="mt-1 text-mowing-green/80">View users and change roles (buyer, seller, admin).</p>
       <div className="mt-6 rounded-xl border border-par-3-punch/20 bg-white overflow-hidden">
-        <AdminUsersTable initialUsers={users} />
+        <AdminUsersTable initialUsers={users} initialQuery={params.q ?? ""} />
       </div>
     </div>
   );

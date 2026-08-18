@@ -10,6 +10,8 @@ import {
 import { notifySellerStarterPackDispatched } from "@/lib/fulfilment-emails";
 import { notifyStarterPackDispatched } from "@/lib/notification-events";
 import { syncDispatchClockById } from "@/lib/dispatch-deadline";
+import { alreadyProcessedResponse } from "@/lib/admin-action-centre";
+import { logAdminAction } from "@/lib/referral/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -62,6 +64,9 @@ export async function POST(
     }
 
     const alreadyDispatched = !!tx.starter_pack_dispatched_at;
+    if (alreadyDispatched && body?.expect_undispatched === true) {
+      return alreadyProcessedResponse();
+    }
     const dispatchedAt = tx.starter_pack_dispatched_at ?? new Date().toISOString();
     const now = new Date().toISOString();
 
@@ -109,6 +114,16 @@ export async function POST(
     });
 
     await syncDispatchClockById(admin, transactionId);
+
+    if (!alreadyDispatched) {
+      await logAdminAction(admin, {
+        adminId: user.id,
+        action: "starter_pack_dispatched",
+        targetType: "transaction",
+        targetId: transactionId,
+        payload: { courier: tracking.courier },
+      });
+    }
 
     return NextResponse.json({
       ok: true,

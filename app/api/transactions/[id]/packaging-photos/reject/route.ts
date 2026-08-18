@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { PackagingStatus } from "@/lib/fulfilment";
+import { alreadyProcessedResponse } from "@/lib/admin-action-centre";
+import { logAdminAction } from "@/lib/referral/admin-auth";
 import { notifySellerPackagingRejected } from "@/lib/fulfilment-emails";
 import { notifyPackagingRejected } from "@/lib/notification-events";
 import { syncDispatchClockById } from "@/lib/dispatch-deadline";
@@ -46,7 +48,7 @@ export async function POST(
       return NextResponse.json({ error: "Transaction not found" }, { status: 404 });
     }
     if (tx.packaging_status !== PackagingStatus.SUBMITTED && tx.packaging_status != null) {
-      return NextResponse.json({ error: "Not submitted for review" }, { status: 400 });
+      return alreadyProcessedResponse();
     }
 
     const now = new Date().toISOString();
@@ -77,6 +79,13 @@ export async function POST(
     });
 
     await syncDispatchClockById(admin, transactionId);
+
+    await logAdminAction(admin, {
+      adminId: user.id,
+      action: "packaging_rejected",
+      targetType: "transaction",
+      targetId: transactionId,
+    });
 
     return NextResponse.json({ ok: true });
   } catch (e) {
