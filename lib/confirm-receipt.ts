@@ -12,6 +12,7 @@ import { requestSellerFeedback } from "@/lib/seller-review-events";
 import { NotificationType, resolveNotifications } from "@/lib/notifications";
 import { onOrderCompleted } from "@/lib/referral/rewards";
 import { referralEmailModuleHtml } from "@/lib/referral/notify";
+import { assertStripeModeMatchesEnv } from "@/lib/stripe-env";
 
 const appUrl = getAppUrl();
 
@@ -89,6 +90,7 @@ async function sellerPayoutsEnabled(
   try {
     const key = process.env.STRIPE_SECRET_KEY;
     if (!key) return null;
+    assertStripeModeMatchesEnv();
     const stripe = new Stripe(key, { apiVersion: "2025-02-24.acacia" });
     const { data: seller } = await admin
       .from("users")

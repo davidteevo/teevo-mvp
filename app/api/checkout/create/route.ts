@@ -7,7 +7,9 @@ import { ShippingService, type ShippingServiceType } from "@/lib/shippo";
 import { getAppUrl } from "@/lib/app-env";
 import { LISTING_PURCHASE_SELECT, listingPurchaseApiError } from "@/lib/listing-availability";
 import { buyingDisabledResponse, BuyingDisabledError } from "@/lib/buying";
+import { assertStripeModeMatchesEnv } from "@/lib/stripe-env";
 
+assertStripeModeMatchesEnv();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
 export const dynamic = "force-dynamic";

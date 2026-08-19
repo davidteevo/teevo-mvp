@@ -2,7 +2,9 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
+import { assertStripeModeMatchesEnv } from "@/lib/stripe-env";
 
+assertStripeModeMatchesEnv();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
 export const dynamic = "force-dynamic";

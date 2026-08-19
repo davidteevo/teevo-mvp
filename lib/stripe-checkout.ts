@@ -4,7 +4,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { BuyingDisabledError, isBuyingEnabled } from "@/lib/buying";
 import { computeCheckoutIncentives } from "@/lib/referral/checkout-incentives";
 import { resolveCheckoutIncentivesForBuyer } from "@/lib/referral/rewards";
+import { assertStripeModeMatchesEnv } from "@/lib/stripe-env";
 
+assertStripeModeMatchesEnv();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
 export type CreateCheckoutParams = {

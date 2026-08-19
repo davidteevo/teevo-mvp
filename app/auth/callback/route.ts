@@ -7,7 +7,9 @@ import { getAppUrl } from "@/lib/app-env";
 import { addWatchlistItem, parseWatchListingId, stripWatchParam } from "@/lib/watchlist";
 import { trackServerEvent } from "@/lib/starter-pack";
 import { provisionNewUserReferral, REF_COOKIE } from "@/lib/referral/attribution";
+import { assertStripeModeMatchesEnv } from "@/lib/stripe-env";
 
+assertStripeModeMatchesEnv();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
 export const dynamic = "force-dynamic";

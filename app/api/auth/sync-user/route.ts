@@ -4,7 +4,9 @@ import Stripe from "stripe";
 import { generateDisplayNameFromFirstName } from "@/lib/public-seller-name";
 import { getAppUrl } from "@/lib/app-env";
 import { provisionNewUserReferral } from "@/lib/referral/attribution";
+import { assertStripeModeMatchesEnv } from "@/lib/stripe-env";
 
+assertStripeModeMatchesEnv();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
 
 export const dynamic = "force-dynamic";
