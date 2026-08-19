@@ -116,8 +116,9 @@ export async function POST() {
     }).catch(() => {});
     // #endregion
     console.error("Stripe login link error:", e);
+    const detail = e instanceof Error ? e.message : "Unknown error";
     return NextResponse.json(
-      { error: "Could not open Stripe. Try again in a moment." },
+      { error: `Could not open Stripe. ${detail}` },
       { status: 500 }
     );
   }

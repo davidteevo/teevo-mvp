@@ -22,9 +22,54 @@ export default function SettingsPaymentsPage() {
     setError("");
     setOpening(true);
     try {
+      // #region agent log
+      fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "da8230" },
+        body: JSON.stringify({
+          sessionId: "da8230",
+          runId: "pre-fix",
+          hypothesisId: "H6",
+          location: "app/dashboard/settings/payments/page.tsx:25",
+          message: "stripe_manage_button_invoked",
+          data: { hasUser: Boolean(user), hasProfileStripeId: Boolean(profile?.stripe_account_id) },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
       const res = await fetch("/api/user/stripe-login-link", { method: "POST" });
       const data = await res.json();
+      // #region agent log
+      fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "da8230" },
+        body: JSON.stringify({
+          sessionId: "da8230",
+          runId: "pre-fix",
+          hypothesisId: "H7",
+          location: "app/dashboard/settings/payments/page.tsx:42",
+          message: "stripe_manage_api_response",
+          data: { status: res.status, ok: res.ok, hasUrl: Boolean(data?.url), hasError: Boolean(data?.error) },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
       if (res.ok && data.url) {
+        // #region agent log
+        fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "da8230" },
+          body: JSON.stringify({
+            sessionId: "da8230",
+            runId: "pre-fix",
+            hypothesisId: "H8",
+            location: "app/dashboard/settings/payments/page.tsx:57",
+            message: "stripe_manage_window_opening",
+            data: { target: "_blank", hasUrl: true },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {});
+        // #endregion
         window.open(data.url, "_blank", "noopener,noreferrer");
         return;
       }
