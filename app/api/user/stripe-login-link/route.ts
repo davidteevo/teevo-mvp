@@ -107,6 +107,10 @@ export async function POST() {
     // #endregion
     return NextResponse.json({ url: loginLink.url });
   } catch (e) {
+    let rotateAttempted = false;
+    let rotateSucceeded = false;
+    let rotateFailureDetail: string | null = null;
+
     // #region agent log
     fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
       method: "POST",
@@ -128,6 +132,7 @@ export async function POST() {
     // #endregion
 
     if (shouldRotateStripeAccount(e)) {
+      rotateAttempted = true;
       try {
         // #region agent log
         fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
@@ -163,6 +168,7 @@ export async function POST() {
           .eq("id", user.id);
 
         const retryLoginLink = await stripe.accounts.createLoginLink(replacementAccount.id);
+        rotateSucceeded = true;
 
         // #region agent log
         fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
@@ -182,6 +188,7 @@ export async function POST() {
 
         return NextResponse.json({ url: retryLoginLink.url });
       } catch (rotateError) {
+        rotateFailureDetail = rotateError instanceof Error ? rotateError.message : "Unknown rotate error";
         // #region agent log
         fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
           method: "POST",
@@ -205,6 +212,17 @@ export async function POST() {
 
     console.error("Stripe login link error:", e);
     const detail = e instanceof Error ? e.message : "Unknown error";
-    return NextResponse.json({ error: `Could not open Stripe. ${detail}` }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: `Could not open Stripe. ${detail}`,
+        debug: {
+          rotateAttempted,
+          rotateSucceeded,
+          rotateFailureDetail,
+          staleAccountDetected: shouldRotateStripeAccount(e),
+        },
+      },
+      { status: 500 }
+    );
   }
 }
