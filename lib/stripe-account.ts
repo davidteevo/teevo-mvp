@@ -1,0 +1,137 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type Stripe from "stripe";
+import { getAppUrl } from "@/lib/app-env";
+
+export function shouldRotateStripeAccount(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const message = error.message.toLowerCase();
+  return (
+    message.includes("does not have access to account") ||
+    message.includes("not connected to your platform") ||
+    message.includes("account does not exist") ||
+    message.includes("application access may have been revoked")
+  );
+}
+
+type ProfileForStripe = {
+  role?: string | null;
+  first_name?: string | null;
+  surname?: string | null;
+  address_line1?: string | null;
+  address_line2?: string | null;
+  address_city?: string | null;
+  address_postcode?: string | null;
+  address_country?: string | null;
+  date_of_birth?: string | null;
+};
+
+export async function createExpressStripeAccount(
+  stripe: Stripe,
+  opts: { email?: string | null; profile?: ProfileForStripe | null }
+): Promise<Stripe.Account> {
+  const profile = opts.profile;
+  const hasAddress =
+    profile?.address_line1 &&
+    profile?.address_city &&
+    profile?.address_postcode &&
+    profile?.address_country;
+  const address = hasAddress
+    ? {
+        line1: profile.address_line1!,
+        line2: profile.address_line2 || undefined,
+        city: profile.address_city!,
+        postal_code: profile.address_postcode!,
+        country: profile.address_country!,
+      }
+    : undefined;
+
+  let dob: { day: number; month: number; year: number } | undefined;
+  if (profile?.date_of_birth) {
+    const d = new Date(profile.date_of_birth);
+    if (!Number.isNaN(d.getTime())) {
+      dob = { day: d.getDate(), month: d.getMonth() + 1, year: d.getFullYear() };
+    }
+  }
+
+  const hasName = profile?.first_name?.trim() || profile?.surname?.trim();
+  const individual: {
+    first_name?: string;
+    last_name?: string;
+    address?: typeof address;
+    dob?: typeof dob;
+  } = {};
+  if (profile?.first_name?.trim()) individual.first_name = profile.first_name.trim();
+  if (profile?.surname?.trim()) individual.last_name = profile.surname.trim();
+  if (address) individual.address = address;
+  if (dob) individual.dob = dob;
+
+  const appUrl = getAppUrl();
+  return stripe.accounts.create({
+    type: "express",
+    country: "GB",
+    business_type: "individual",
+    email: opts.email ?? undefined,
+    business_profile: {
+      product_description: "Selling pre-owned golf equipment as an individual on Teevo.",
+      ...(appUrl ? { url: appUrl } : {}),
+    },
+    ...(hasName || address || dob ? { individual } : {}),
+  });
+}
+
+export async function persistStripeAccountId(
+  admin: SupabaseClient,
+  userId: string,
+  accountId: string,
+  role?: string | null
+): Promise<void> {
+  await admin
+    .from("users")
+    .update({
+      stripe_account_id: accountId,
+      updated_at: new Date().toISOString(),
+      ...(role !== "admin" ? { role: "seller" } : {}),
+    })
+    .eq("id", userId);
+}
+
+export async function clearStripeAccountId(admin: SupabaseClient, userId: string): Promise<void> {
+  await admin
+    .from("users")
+    .update({ stripe_account_id: null, updated_at: new Date().toISOString() })
+    .eq("id", userId);
+}
+
+/** Returns a connected account id owned by this platform, creating one if needed. */
+export async function ensurePlatformStripeAccount(
+  stripe: Stripe,
+  admin: SupabaseClient,
+  opts: {
+    userId: string;
+    email?: string | null;
+    profile?: ProfileForStripe | null;
+    existingAccountId?: string | null;
+  }
+): Promise<string> {
+  let accountId = opts.existingAccountId ?? null;
+
+  if (accountId) {
+    try {
+      await stripe.accounts.retrieve(accountId);
+    } catch (error) {
+      if (!shouldRotateStripeAccount(error)) throw error;
+      accountId = null;
+    }
+  }
+
+  if (!accountId) {
+    const account = await createExpressStripeAccount(stripe, {
+      email: opts.email,
+      profile: opts.profile,
+    });
+    accountId = account.id;
+    await persistStripeAccountId(admin, opts.userId, accountId, opts.profile?.role);
+  }
+
+  return accountId;
+}
