@@ -103,6 +103,49 @@ export async function clearStripeAccountId(admin: SupabaseClient, userId: string
 }
 
 /** Returns a connected account id owned by this platform, creating one if needed. */
+export function isStripeOnboardingComplete(account: Stripe.Account): boolean {
+  return account.details_submitted === true && account.payouts_enabled === true;
+}
+
+/** Prefill seller email on the connected account when Stripe has none yet. */
+export async function syncStripeAccountEmail(
+  stripe: Stripe,
+  accountId: string,
+  email?: string | null
+): Promise<void> {
+  const trimmed = email?.trim();
+  if (!trimmed) return;
+  const account = await stripe.accounts.retrieve(accountId);
+  if (account.email?.trim()) return;
+  await stripe.accounts.update(accountId, { email: trimmed });
+}
+
+/**
+ * Login link for onboarded Express accounts; onboarding link otherwise.
+ * Matches test behaviour where incomplete sellers complete hosted onboarding first.
+ */
+export async function createStripeConnectAccessUrl(
+  stripe: Stripe,
+  accountId: string,
+  opts: { returnUrl: string; refreshUrl: string; email?: string | null }
+): Promise<{ url: string; linkType: "login" | "account_onboarding" }> {
+  await syncStripeAccountEmail(stripe, accountId, opts.email);
+  const account = await stripe.accounts.retrieve(accountId);
+
+  if (isStripeOnboardingComplete(account)) {
+    const loginLink = await stripe.accounts.createLoginLink(accountId);
+    return { url: loginLink.url, linkType: "login" };
+  }
+
+  const onboardingLink = await stripe.accountLinks.create({
+    account: accountId,
+    return_url: opts.returnUrl,
+    refresh_url: opts.refreshUrl,
+    type: "account_onboarding",
+  });
+  return { url: onboardingLink.url, linkType: "account_onboarding" };
+}
+
 export async function ensurePlatformStripeAccount(
   stripe: Stripe,
   admin: SupabaseClient,

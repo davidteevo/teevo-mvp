@@ -60,6 +60,18 @@ Use this after your site is live on Netlify. Replace `YOUR_NETLIFY_URL` with you
 2. Complete any onboarding so **Connect** is enabled.
 3. The app uses **Express** accounts (GB). No extra products or settings are required in the Dashboard.
 
+### Connect branding (Live must match Test separately)
+
+Test and Live each have their own Connect branding. If live onboarding looks unbranded or unlike staging:
+
+1. In Stripe, switch to **Live mode**.
+2. Go to **Connect** → **Settings** → **Branding** (or **Connect onboarding** branding).
+3. Set the same values as Test:
+   - Platform/business name (e.g. **Teevo**)
+   - Icon/logo
+   - Brand colour (if used)
+4. Save. New onboarding links will show Teevo branding; existing in-progress sessions may need a fresh link.
+
 ---
 
 ## 6. Quick test
