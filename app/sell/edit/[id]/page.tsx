@@ -68,6 +68,55 @@ export default function SellEditPage() {
 
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [enhanceLoading, setEnhanceLoading] = useState(false);
+
+  const handleImproveWithAI = async () => {
+    if (!category || !condition || !title.trim()) {
+      alert("Please fill in Title, Category and Condition first.");
+      return;
+    }
+    setEnhanceLoading(true);
+    try {
+      const res = await fetch("/api/ai/enhance-listing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          category,
+          brand: listing?.brand ?? "Other",
+          model: title.trim(),
+          condition,
+          description: description.trim() || undefined,
+          title: title.trim() || undefined,
+          ...(isGolfEquipment && {
+            shaft: shaft.trim() || undefined,
+            degree: degree.trim() || undefined,
+            shaft_flex: shaftFlex.trim() || undefined,
+            lie_angle: lieAngle.trim() || undefined,
+            club_length: clubLength.trim() || undefined,
+            shaft_weight: shaftWeight.trim() || undefined,
+            shaft_material: shaftMaterial.trim() || undefined,
+            grip_brand: gripBrand.trim() || undefined,
+            grip_model: gripModel.trim() || undefined,
+            grip_size: gripSize.trim() || undefined,
+            grip_condition: gripCondition.trim() || undefined,
+          }),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? "Could not get suggestions");
+      if (data.title) setTitle(data.title);
+      if (data.description) setDescription(data.description);
+      if (isGolfEquipment) {
+        if (data.shaft != null) setShaft(data.shaft ?? "");
+        if (data.degree != null) setDegree(data.degree ?? "");
+        if (data.shaft_flex != null) setShaftFlex(data.shaft_flex ?? "");
+      }
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Something went wrong. Try again.");
+    } finally {
+      setEnhanceLoading(false);
+    }
+  };
 
   const isGolfEquipment = GOLF_EQUIPMENT_CATEGORIES.includes(category);
 
@@ -289,14 +338,25 @@ export default function SellEditPage() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-mowing-green mb-1">
-            Description
-          </label>
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <label className="block text-sm font-medium text-mowing-green">
+              Description
+            </label>
+            <button
+              type="button"
+              onClick={handleImproveWithAI}
+              disabled={enhanceLoading || !category || !condition || !title.trim() || saving}
+              className="text-xs font-medium text-mowing-green underline hover:no-underline disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {enhanceLoading ? "Improving…" : "Improve with AI"}
+            </button>
+          </div>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={4}
-            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green resize-y"
+            placeholder="Any details that help buyers..."
+            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50 resize-y"
           />
         </div>
 
