@@ -81,10 +81,10 @@ export async function createExpressStripeAccount(
   });
 }
 
-/** Fresh onboarding account: omit email so live mode does not force Express login for known addresses. */
+/** Fresh onboarding account: prefill individual details; avoid top-level email to reduce Express-login redirects. */
 export async function createExpressStripeAccountForOnboarding(
   stripe: Stripe,
-  opts: { profile?: ProfileForStripe | null }
+  opts: { email?: string | null; profile?: ProfileForStripe | null }
 ): Promise<Stripe.Account> {
   const profile = opts.profile;
   const hasAddress =
@@ -114,11 +114,13 @@ export async function createExpressStripeAccountForOnboarding(
   const individual: {
     first_name?: string;
     last_name?: string;
+    email?: string;
     address?: typeof address;
     dob?: typeof dob;
   } = {};
   if (profile?.first_name?.trim()) individual.first_name = profile.first_name.trim();
   if (profile?.surname?.trim()) individual.last_name = profile.surname.trim();
+  if (opts.email?.trim()) individual.email = opts.email.trim();
   if (address) individual.address = address;
   if (dob) individual.dob = dob;
 
@@ -131,7 +133,7 @@ export async function createExpressStripeAccountForOnboarding(
       product_description: "Selling pre-owned golf equipment as an individual on Teevo.",
       ...(appUrl ? { url: appUrl } : {}),
     },
-    ...(hasName || address || dob ? { individual } : {}),
+    ...(hasName || address || dob || opts.email?.trim() ? { individual } : {}),
   });
 }
 
@@ -235,6 +237,7 @@ export async function replaceStripeAccountForOnboarding(
   }
 ): Promise<string> {
   const account = await createExpressStripeAccountForOnboarding(stripe, {
+    email: opts.email,
     profile: opts.profile,
   });
   await persistStripeAccountId(admin, opts.userId, account.id, opts.profile?.role);

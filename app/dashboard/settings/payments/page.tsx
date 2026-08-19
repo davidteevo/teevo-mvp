@@ -91,6 +91,7 @@ export default function SettingsPaymentsPage() {
             linkType: data?.linkType ?? null,
             strategy: data?.strategy ?? null,
             urlKind: data?.urlKind ?? null,
+            urlPathPrefix: data?.urlPathPrefix ?? null,
           },
           timestamp: Date.now(),
         }),
