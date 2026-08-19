@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
@@ -30,6 +30,9 @@ export default function DashboardListingsPage() {
   const [deletedListings, setDeletedListings] = useState<Listing[]>([]);
   const [unpublishingId, setUnpublishingId] = useState<string | null>(null);
   const [reactivatingId, setReactivatingId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortKey, setSortKey] = useState<"newest" | "oldest" | "price_asc" | "price_desc">("newest");
 
   const fetchActive = useCallback(() => {
     fetch("/api/listings/mine")
@@ -81,6 +84,66 @@ export default function DashboardListingsPage() {
       return "";
     }
   };
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("all");
+    setSortKey("newest");
+  };
+
+  const displayedListings = useMemo(() => {
+    let result = [...listings];
+
+    // Status filter
+    if (statusFilter !== "all") {
+      result = result.filter((l) => {
+        switch (statusFilter) {
+          case "available":
+            return l.status === "verified" && !l.buying_paused && l.availability_confirmation_status !== "required";
+          case "pending":
+            return l.status === "pending";
+          case "confirm":
+            return l.availability_confirmation_status === "required";
+          case "paused":
+            return l.buying_paused === true;
+          case "sold":
+            return l.status === "sold";
+          case "rejected":
+            return l.status === "rejected";
+          default:
+            return true;
+        }
+      });
+    }
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (l) =>
+          l.brand?.toLowerCase().includes(q) ||
+          l.model?.toLowerCase().includes(q) ||
+          l.category?.toLowerCase().includes(q)
+      );
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      switch (sortKey) {
+        case "oldest":
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case "price_asc":
+          return a.price - b.price;
+        case "price_desc":
+          return b.price - a.price;
+        case "newest":
+        default:
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+    });
+
+    return result;
+  }, [listings, statusFilter, searchQuery, sortKey]);
 
   const needsAdminReconfirm = listings.some(
     (l) =>
@@ -175,6 +238,42 @@ export default function DashboardListingsPage() {
           List another club
         </Link>
       </div>
+      {/* Search, filter & sort controls */}
+      <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center">
+        <input
+          type="search"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search your listings..."
+          className="w-full rounded-xl border border-par-3-punch/20 bg-white px-4 py-2 text-sm text-mowing-green placeholder:text-mowing-green/40 focus:outline-none focus:ring-2 focus:ring-par-3-punch/30 sm:flex-1"
+        />
+        <div className="flex gap-2">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="flex-1 rounded-xl border border-par-3-punch/20 bg-white px-3 py-2 text-sm text-mowing-green focus:outline-none focus:ring-2 focus:ring-par-3-punch/30 sm:flex-none"
+          >
+            <option value="all">All listings</option>
+            <option value="available">Available</option>
+            <option value="pending">Coming Soon / Under Review</option>
+            <option value="confirm">Confirm availability</option>
+            <option value="paused">Buying paused</option>
+            <option value="sold">Sold</option>
+            <option value="rejected">Rejected</option>
+          </select>
+          <select
+            value={sortKey}
+            onChange={(e) => setSortKey(e.target.value as typeof sortKey)}
+            className="flex-1 rounded-xl border border-par-3-punch/20 bg-white px-3 py-2 text-sm text-mowing-green focus:outline-none focus:ring-2 focus:ring-par-3-punch/30 sm:flex-none"
+          >
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+          </select>
+        </div>
+      </div>
+
       {needsAdminReconfirm && (
         <div className="mt-4 rounded-lg border border-golden-tee/40 bg-golden-tee/10 p-3">
           <p className="text-sm font-medium text-mowing-green">Some listings need a quick check.</p>
@@ -197,9 +296,20 @@ export default function DashboardListingsPage() {
               List your first item
             </Link>
           </div>
+        ) : displayedListings.length === 0 ? (
+          <div className="p-8 text-center text-mowing-green/80">
+            <p className="font-medium text-mowing-green">No listings found</p>
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="mt-2 inline-block text-par-3-punch hover:underline text-sm"
+            >
+              Clear filters
+            </button>
+          </div>
         ) : (
           <ul className="divide-y divide-par-3-punch/10">
-            {listings.map((l) => (
+            {displayedListings.map((l) => (
               <li key={l.id} className="p-4">
                 <div className="flex items-start justify-between gap-3">
                   <Link
