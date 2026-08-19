@@ -662,3 +662,75 @@ export async function resolveListingReviewRequired(
     console.error("resolveListingReviewRequired failed", e);
   }
 }
+
+export async function notifySellerListingApproved(
+  admin: SupabaseClient,
+  opts: { listingId: string; sellerId: string }
+): Promise<void> {
+  const { listingId, sellerId } = opts;
+
+  // In-app notification
+  try {
+    const title = await getListingTitle(admin, listingId);
+    await createNotification(admin, {
+      userId: sellerId,
+      type: NotificationType.LISTING_APPROVED,
+      title: `Your ${title} is now live \u{1F389}`,
+      message: `Your listing for ${title} has been approved and is now for sale on Teevo.`,
+      entityType: NotificationEntityType.LISTING,
+      entityId: listingId,
+      actionUrl: `/listing/${listingId}`,
+      actionLabel: "View listing",
+      requiresAction: false,
+    });
+  } catch (e) {
+    console.error("notifySellerListingApproved notification failed", e);
+  }
+
+  // Email
+  try {
+    const { ensureEmailSent, EmailTriggerType, getListingEmailContext } = await import(
+      "@/lib/email-triggers"
+    );
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
+
+    const { data: seller } = await admin
+      .from("users")
+      .select("email")
+      .eq("id", sellerId)
+      .maybeSingle();
+    const toEmail = seller?.email?.trim();
+    if (!toEmail) return;
+
+    const { itemName, hero_image } = await getListingEmailContext(admin, listingId);
+
+    await ensureEmailSent(admin, {
+      emailType: EmailTriggerType.LISTING_APPROVED,
+      referenceId: listingId,
+      referenceType: "listing",
+      recipientId: sellerId,
+      to: toEmail,
+      subject: `\u{1F389} Your ${itemName} is now live on Teevo`,
+      type: "transactional",
+      variables: {
+        title: `Your ${itemName} is live`,
+        subtitle: "Your listing has been approved and is now for sale.",
+        body: [
+          `Great news \u2014 your <strong>${itemName}</strong> has been approved and is now live on Teevo for buyers to find.`,
+          ``,
+          `<strong>What happens next:</strong>`,
+          `1. Buyers can view and purchase your listing.`,
+          `2. We\u2019ll notify you as soon as someone places an order.`,
+          `3. Once sold, you\u2019ll have a few days to get it shipped.`,
+          ``,
+          `In the meantime, you can view your listing or make any updates from your dashboard.`,
+        ].join("<br />"),
+        hero_image,
+        cta_link: `${appUrl}/listing/${listingId}`,
+        cta_text: "View your listing",
+      },
+    });
+  } catch (e) {
+    console.error("notifySellerListingApproved email failed", e);
+  }
+}

@@ -2,7 +2,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import { alreadyProcessedResponse } from "@/lib/admin-action-centre";
 import { requireAdmin, logAdminAction } from "@/lib/referral/admin-auth";
-import { resolveListingReviewRequired } from "@/lib/notification-events";
+import { resolveListingReviewRequired, notifySellerListingApproved } from "@/lib/notification-events";
 import { notifyWatchersNowAvailable } from "@/lib/watchlist-emails";
 import { onListingVerified } from "@/lib/referral/rewards";
 
@@ -49,6 +49,12 @@ export async function POST(
     }).catch((e) => console.error("onListingVerified failed", e));
   }
   await resolveListingReviewRequired(admin, id);
+  if (updated.user_id) {
+    await notifySellerListingApproved(admin, {
+      listingId: id,
+      sellerId: updated.user_id,
+    }).catch((e) => console.error("notifySellerListingApproved failed", e));
+  }
   await notifyWatchersNowAvailable(admin, id).catch((e) =>
     console.error("notifyWatchersNowAvailable failed", e)
   );

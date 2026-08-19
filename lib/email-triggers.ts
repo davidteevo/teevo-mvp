@@ -21,6 +21,7 @@ export const EmailTriggerType = {
   EMAIL_VERIFICATION: "email_verification",
   FORGOT_PASSWORD: "forgot_password",
   LISTING_EDITS_REQUESTED: "listing_edits_requested",
+  LISTING_APPROVED: "listing_approved",
   MESSAGE_RECEIVED: "message_received",
   OFFER_MADE: "offer_made",
   OFFER_ACCEPTED: "offer_accepted",

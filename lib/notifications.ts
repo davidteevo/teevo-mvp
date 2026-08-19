@@ -34,6 +34,7 @@ export const NotificationType = {
   TRANSACTION_STUCK: "transaction_stuck",
   LISTING_REVIEW_REQUIRED: "listing_review_required",
   LISTING_EDITS_REQUESTED: "listing_edits_requested",
+  LISTING_APPROVED: "listing_approved",
   WATCHLIST_NOW_AVAILABLE: "watchlist_now_available",
   WATCHLIST_PRICE_DROP: "watchlist_price_drop",
   WATCHLIST_SOLD: "watchlist_sold",
