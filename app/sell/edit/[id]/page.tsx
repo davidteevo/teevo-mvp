@@ -79,9 +79,6 @@ export default function SellEditPage() {
         const list = data.listings as Listing[] | undefined;
         const found = list?.find((l) => l.id === id) ?? null;
         if (found) {
-          // #region agent log
-          fetch('http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6fb555'},body:JSON.stringify({sessionId:'6fb555',location:'edit/[id]/page.tsx:found',message:'listing loaded from API',data:{id:found.id,hasDescription:'description' in found,descriptionValue:found.description ?? '__MISSING__'},timestamp:Date.now(),hypothesisId:'H-B'})}).catch(()=>{});
-          // #endregion
           setListing(found);
           setTitle(found.title?.trim() || `${found.brand} ${found.model}`.trim());
           setCategory(found.category);
