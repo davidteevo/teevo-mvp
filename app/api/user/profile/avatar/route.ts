@@ -26,6 +26,11 @@ export async function POST(request: Request) {
   }
 
   const admin = createAdminClient();
+  const { data: existingUser } = await admin
+    .from("users")
+    .select("avatar_path")
+    .eq("id", user.id)
+    .maybeSingle();
 
   const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
   if (!["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) {
@@ -61,6 +66,14 @@ export async function POST(request: Request) {
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  const previousAvatarPath = existingUser?.avatar_path;
+  if (previousAvatarPath && previousAvatarPath !== path) {
+    const { error: removeError } = await admin.storage.from(BUCKET).remove([previousAvatarPath]);
+    if (removeError) {
+      console.warn("Failed to remove previous avatar path:", removeError.message);
+    }
   }
 
   const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${path}`;

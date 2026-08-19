@@ -4,6 +4,9 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
+import type { Area } from "react-easy-crop";
+import { AvatarCropModal } from "@/components/profile/AvatarCropModal";
+import { renderCroppedAvatar } from "@/lib/avatar-crop";
 
 const AVATAR_BUCKET = "avatars";
 function avatarApiSrc(avatarPath: string | null | undefined, retryKey?: number, cacheBust?: number): string | null {
@@ -35,6 +38,9 @@ export default function ProfilePage() {
   const [publicAvatarError, setPublicAvatarError] = useState(false);
   const [avatarMessage, setAvatarMessage] = useState("");
   const [avatarVersion, setAvatarVersion] = useState(0);
+  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
+  const [cropFilename, setCropFilename] = useState<string | null>(null);
+  const [isCropOpen, setIsCropOpen] = useState(false);
   const [message, setMessage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const usePublicAvatar = avatarError && avatarRetry >= 1;
@@ -110,17 +116,26 @@ export default function ProfilePage() {
   };
 
   const MAX_AVATAR_BYTES = 4 * 1024 * 1024; // 4MB, match API
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) {
-      e.target.value = "";
-      return;
+  const ACCEPTED_AVATAR_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+
+  useEffect(() => {
+    return () => {
+      if (cropImageSrc) {
+        URL.revokeObjectURL(cropImageSrc);
+      }
+    };
+  }, [cropImageSrc]);
+
+  const closeCropModal = () => {
+    if (cropImageSrc) {
+      URL.revokeObjectURL(cropImageSrc);
     }
-    if (file.size > MAX_AVATAR_BYTES) {
-      setAvatarMessage("Image must be under 4MB");
-      e.target.value = "";
-      return;
-    }
+    setCropImageSrc(null);
+    setCropFilename(null);
+    setIsCropOpen(false);
+  };
+
+  const uploadAvatarFile = async (file: File) => {
     setAvatarUploading(true);
     setAvatarMessage("");
     setMessage("");
@@ -128,19 +143,78 @@ export default function ProfilePage() {
       const formData = new FormData();
       formData.set("avatar", file, file.name);
       const res = await fetch("/api/user/profile/avatar", { method: "POST", body: formData });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({ error: "Invalid response from server" }));
       if (res.ok) {
         if (data.avatar_path) {
           updateProfile({ avatar_path: data.avatar_path });
           setAvatarVersion((v) => v + 1);
         }
         setAvatarMessage("Photo updated.");
-      } else {
-        setAvatarMessage(data.error ?? "Failed to upload photo");
+        return true;
       }
+
+      setAvatarMessage(data.error ?? "Failed to upload photo");
+      return false;
+    } catch (error) {
+      setAvatarMessage(error instanceof Error ? error.message : "Failed to upload photo");
+      return false;
     } finally {
       setAvatarUploading(false);
-      e.target.value = "";
+    }
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) {
+      return;
+    }
+    if (!ACCEPTED_AVATAR_TYPES.includes(file.type)) {
+      setAvatarMessage("Image must be JPG, PNG, GIF or WebP");
+      return;
+    }
+    if (file.size > MAX_AVATAR_BYTES) {
+      setAvatarMessage("Image must be under 4MB");
+      return;
+    }
+
+    const nextSrc = URL.createObjectURL(file);
+    if (cropImageSrc) {
+      URL.revokeObjectURL(cropImageSrc);
+    }
+    setCropImageSrc(nextSrc);
+    setCropFilename(file.name);
+    setAvatarMessage("");
+    setMessage("");
+    setIsCropOpen(true);
+  };
+
+  const handleCropSave = async (croppedAreaPixels: Area) => {
+    if (!cropImageSrc) return;
+    try {
+      const croppedBlob = await renderCroppedAvatar({
+        imageSrc: cropImageSrc,
+        cropAreaPixels: {
+          x: croppedAreaPixels.x,
+          y: croppedAreaPixels.y,
+          width: croppedAreaPixels.width,
+          height: croppedAreaPixels.height,
+        },
+      });
+
+      if (croppedBlob.size > MAX_AVATAR_BYTES) {
+        setAvatarMessage("Cropped image is too large. Try zooming out or using a smaller source image.");
+        return;
+      }
+
+      const baseName = (cropFilename ?? "avatar").replace(/\.[^.]+$/, "");
+      const croppedFile = new File([croppedBlob], `${baseName}.jpg`, { type: "image/jpeg" });
+      const uploaded = await uploadAvatarFile(croppedFile);
+      if (uploaded) {
+        closeCropModal();
+      }
+    } catch (error) {
+      setAvatarMessage(error instanceof Error ? error.message : "Failed to process image");
     }
   };
 
@@ -357,6 +431,14 @@ export default function ProfilePage() {
           {saving ? "Saving…" : "Save profile"}
         </button>
       </form>
+
+      <AvatarCropModal
+        imageSrc={cropImageSrc ?? ""}
+        isOpen={isCropOpen && !!cropImageSrc}
+        isSaving={avatarUploading}
+        onCancel={closeCropModal}
+        onSave={handleCropSave}
+      />
     </div>
   );
 }
