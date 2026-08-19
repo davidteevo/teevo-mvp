@@ -118,6 +118,16 @@ function isOnboardingIncompleteError(error: unknown): boolean {
   );
 }
 
+function isStripeUnauthorizedFieldError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const message = error.message.toLowerCase();
+  return (
+    message.includes("not authorized to edit") ||
+    message.includes("cannot edit") ||
+    message.includes("you cannot change")
+  );
+}
+
 /** Prefill seller email on the connected account for hosted onboarding/login. */
 export async function syncStripeAccountEmail(
   stripe: Stripe,
@@ -134,8 +144,27 @@ export async function syncStripeAccountEmail(
   if (account.business_type === "individual") {
     updates.individual = { ...(updates.individual ?? {}), email: trimmed };
   }
-  if (Object.keys(updates).length > 0) {
+  if (Object.keys(updates).length === 0) return;
+
+  try {
     await stripe.accounts.update(accountId, updates);
+  } catch (error) {
+    if (!isStripeUnauthorizedFieldError(error)) throw error;
+    // #region agent log
+    fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "da8230" },
+      body: JSON.stringify({
+        sessionId: "da8230",
+        runId: "post-fix-v2",
+        hypothesisId: "H21",
+        location: "lib/stripe-account.ts:syncStripeAccountEmail",
+        message: "stripe_email_sync_skipped_not_authorized",
+        data: { accountIdPrefix: accountId.slice(0, 8) },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
   }
 }
 
