@@ -49,13 +49,13 @@ export async function notifyAdminPackagingSubmitted(
     referenceId: opts.transactionId,
     recipientId: null,
     to,
-    subject: `Teevo: packaging photos to review (#${orderShort})`,
+    subject: `\uD83D\uDCE6 Packaging ready for review \u2014 #${orderShort}`,
     type: "alert",
     variables: {
-      title: "Packaging photos to review",
+      title: `Packaging ready for review \u2014 #${orderShort}`,
       subtitle: itemName,
       body: [
-        `Order #${orderShort} · ${itemName}`,
+        `Order #${orderShort} \u00B7 ${itemName}`,
         seller?.email ? `Seller: ${seller.email}` : "",
         ``,
         `A seller has submitted packaging photos for review.`,
@@ -88,25 +88,25 @@ export async function notifySellerPackagingApproved(
   const isManual = opts.fulfilmentMode === FulfilmentMode.MANUAL;
 
   const nextStep = isManual
-    ? "We're preparing your tracked shipping label. You'll receive another email shortly with your label and tracking details. You can also check progress in your Sales dashboard."
-    : "You're ready for the next step: generate your shipping label in your Sales dashboard.";
+    ? "We\u2019re preparing your tracked shipping label. You\u2019ll receive another email shortly with your label and tracking details. You can also check progress in your Sales dashboard."
+    : "Your packaging looks good \u2014 you\u2019re ready to generate your shipping label. Head to your Sales dashboard to continue.";
 
   await ensureEmailSent(admin, {
     emailType: EmailTriggerType.PACKAGING_APPROVED,
     referenceId: opts.transactionId,
     recipientId: opts.sellerId,
     to: seller.email,
-    subject: `Packaging approved – next step for your Teevo sale`,
+    subject: `\u2705 Packaging approved \u2014 you\u2019re good to go!`,
     type: "transactional",
     variables: {
       title: "Packaging approved",
-      subtitle: "Your packaging photos look good.",
+      subtitle: "Your club is securely packed and ready for its journey.",
       body: nextStep,
       order_number: orderShort,
       item_name: itemName,
       hero_image,
       cta_link: `${appUrl}/dashboard/sales`,
-      cta_text: "View sales",
+      cta_text: "Continue to shipping",
     },
   }).catch((e) => console.error("Seller packaging-approved email failed", e));
 }
@@ -128,7 +128,7 @@ export async function notifySellerPackagingRejected(
   const orderShort = opts.transactionId.slice(0, 8);
   const appUrl = getAppUrl();
   const notesBlock = opts.notes
-    ? `Review notes: ${opts.notes}`
+    ? `Our team left the following feedback:<br /><br />${opts.notes}`
     : "Please check your Sales dashboard for details, then upload new packaging photos.";
 
   await ensureEmailSent(admin, {
@@ -137,11 +137,11 @@ export async function notifySellerPackagingRejected(
     referenceId: `${opts.transactionId}:${opts.reviewedAt}`,
     recipientId: opts.sellerId,
     to: seller.email,
-    subject: `Packaging photos need attention – Teevo sale #${orderShort}`,
+    subject: `\uD83D\uDCF8 Quick fix needed with your packaging`,
     type: "transactional",
     variables: {
-      title: "Packaging needs attention",
-      subtitle: "Please update your packaging photos and resubmit.",
+      title: "A quick fix is needed with your packaging",
+      subtitle: "Please update your photos and resubmit when ready.",
       body: notesBlock,
       order_number: orderShort,
       item_name: itemName,
@@ -169,13 +169,13 @@ export async function notifyAdminManualLabelNeeded(
     referenceId: opts.transactionId,
     recipientId: null,
     to,
-    subject: `Teevo: shipping label needed (#${orderShort})`,
+    subject: `\uD83C\uDFF7\uFE0F Shipping label needed \u2014 #${orderShort}`,
     type: "alert",
     variables: {
-      title: "Shipping label needed",
+      title: `Shipping label needed \u2014 #${orderShort}`,
       subtitle: itemName,
       body: [
-        `Order #${orderShort} · ${itemName}`,
+        `Order #${orderShort} \u00B7 ${itemName}`,
         seller?.email ? `Seller: ${seller.email}` : "",
         ``,
         `Packaging is approved. Provide the courier tracking details and label PDF so the seller can dispatch.`,
@@ -222,21 +222,21 @@ export async function notifySellerStarterPackRequested(
     referenceId: opts.transactionId,
     recipientId: opts.sellerId,
     to: seller.email,
-    subject: "Your free Teevo Starter Pack is being prepared 📦",
+    subject: "\uD83D\uDCE6 Your free Teevo Starter Pack is being prepped!",
     type: "transactional",
     variables: {
-      title: "Your shipping box is on us",
-      subtitle: "We're preparing the packaging you need to safely ship your club.",
+      title: "Your free Starter Pack is on its way",
+      subtitle: "We\u2019re preparing the packaging you need to safely ship your club.",
       body: [
-        "Your request has been received. Teevo will send you suitable packaging — you do not need to purchase anything.",
+        "We\u2019ve received your request. Teevo will send you suitable packaging \u2014 you don\u2019t need to buy anything.",
         "",
-        "Once your packaging arrives, follow the next steps shown in your Teevo Sales dashboard to package and ship your club.",
+        "Once your packaging arrives, follow the next steps in your Teevo Sales dashboard to pack your club, take photos, and get it dispatched.",
       ].join("<br />"),
       order_number: orderShort,
       item_name: itemName,
       hero_image,
       cta_link: `${appUrl}/dashboard/sales`,
-      cta_text: "View sales",
+      cta_text: "View your sale",
     },
   });
 }
@@ -289,10 +289,10 @@ export async function notifyAdminStarterPackRequested(
     referenceId: opts.transactionId,
     recipientId: null,
     to,
-    subject: "ACTION REQUIRED: New Teevo Starter Pack Request 📦",
+    subject: "\uD83D\uDEA8 Starter Pack request needs action",
     type: "alert",
     variables: {
-      title: "New Starter Pack request",
+      title: "Starter Pack request needs action",
       subtitle: itemName,
       body: [
         `Seller: ${sellerName}`,
@@ -311,7 +311,7 @@ export async function notifyAdminStarterPackRequested(
       order_number: orderShort,
       hero_image,
       cta_link: `${appUrl}/admin/starter-packs?id=${opts.transactionId}`,
-      cta_text: "View Starter Pack Request",
+      cta_text: "View Starter Pack request",
     },
   });
 
@@ -341,16 +341,16 @@ export async function notifySellerStarterPackDispatched(
     referenceId: opts.transactionId,
     recipientId: opts.sellerId,
     to: seller.email,
-    subject: "Your Teevo Starter Pack is on its way 📦",
+    subject: "\uD83D\uDE9A Your Teevo Starter Pack is on its way!",
     type: "transactional",
     variables: {
       title: "Your Starter Pack is on its way",
-      subtitle: "We've dispatched your free Teevo packaging.",
+      subtitle: "Your free Teevo packaging has been dispatched.",
       body: [
-        "Your shipping box has been dispatched.",
+        "Your shipping box is on its way to you.",
         `${opts.courier}: ${opts.trackingNumber}`,
         "",
-        "Once it arrives, follow the next steps in your Teevo Sales dashboard to package your club and upload photos.",
+        "Once it arrives, follow the next steps in your Teevo Sales dashboard to pack your club, take photos, and get it dispatched.",
       ].join("<br />"),
       order_number: orderShort,
       item_name: itemName,

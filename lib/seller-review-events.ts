@@ -84,10 +84,10 @@ export async function requestSellerFeedback(
         referenceId: opts.transactionId,
         recipientId: opts.buyerId,
         to: buyer.email,
-        subject: "How was your Teevo purchase? ⭐",
+        subject: "\u2B50 How did your Teevo purchase go?",
         type: "transactional",
         variables: {
-          title: "How was your Teevo purchase?",
+          title: "How did your purchase go?",
           subtitle: `Your ${escapeHtml(title)} has arrived.`,
           body: [
             `How was your experience buying from <strong>${escapeHtml(sellerName)}</strong>?`,
@@ -202,10 +202,10 @@ export async function notifyAdminFeedbackRequiresReview(
       referenceType: "review",
       recipientId: null,
       to,
-      subject: "Action required: Teevo feedback reported",
+      subject: "\uD83D\uDEA8 Feedback report needs a look",
       type: "alert",
       variables: {
-        title: "Action required: Teevo feedback reported",
+        title: "Feedback report needs a look",
         subtitle: "A review has been reported and requires your attention.",
         body: [
           `Seller: ${sellerName}`,
@@ -313,13 +313,13 @@ export async function sendSellerFeedbackReminders(
       referenceId: tx.id,
       recipientId: tx.buyer_id,
       to: buyer.email,
-      subject: "How was your Teevo purchase? ⭐",
+      subject: "\u2B50 Got 30 seconds? Rate your Teevo purchase",
       type: "transactional",
       variables: {
-        title: "How was your Teevo purchase?",
+        title: "Still time to leave your review",
         subtitle: `Your ${escapeHtml(title)} has arrived.`,
         body: [
-          `How was your experience buying from <strong>${escapeHtml(sellerName)}</strong>?`,
+          `How was your experience buying from <strong>${escapeHtml(sellerName)}</strong>? It only takes a moment.`,
           `<br /><br />`,
           `<span style="display:block;font-weight:700;margin-bottom:10px">Quick rating</span>`,
           starLinksHtml(appUrl, tx.id),

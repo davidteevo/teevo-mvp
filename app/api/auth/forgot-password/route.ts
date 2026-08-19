@@ -79,11 +79,11 @@ export async function POST(request: Request) {
     await sendEmail({
       type: "alert",
       to: email,
-      subject: "Reset your Teevo password",
+      subject: "\uD83D\uDD10 Let\u2019s get you back into Teevo",
       variables: {
         title: "Reset your password",
-        subtitle: "You requested a password reset",
-        body: `Hi ${firstName}, click the button below to set a new password. If you didn't request this, you can ignore this email.`,
+        subtitle: "We received a password reset request for your account.",
+        body: `Hi ${firstName}, no worries — it happens! Click the button below to set a new password.\n\nDidn't request this? You can safely ignore this email.`,
         cta_link,
         cta_text: "Reset password",
       },

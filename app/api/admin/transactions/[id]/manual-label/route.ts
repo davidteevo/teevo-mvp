@@ -168,22 +168,22 @@ export async function POST(
         referenceId: transactionId,
         recipientId: tx.seller_id,
         to: seller.email,
-        subject: `Your Teevo shipping label is ready`,
+        subject: `\uD83C\uDFF7\uFE0F Your shipping label is ready`,
         type: "transactional",
         variables: {
           title: "Your shipping label is ready",
-          subtitle: "Print the attached label and prepare your parcel for dispatch.",
+          subtitle: "Print and attach the label, then get your parcel on its way.",
           body: [
             `Courier: ${courierRaw}`,
             `Tracking number: ${trackingNumber}`,
             ``,
-            `Please print the attached shipping label, attach it securely to your parcel, then drop it off with the courier. When you've sent it, mark the order as shipped in your Sales dashboard.`,
+            `Print the attached label and attach it securely to your parcel. Drop it off with the courier, then mark the order as shipped in your Sales dashboard.`,
           ].join("\n"),
           order_number: orderShort,
           item_name: itemName,
           hero_image,
           cta_link: trackingUrl || salesUrl,
-          cta_text: "Track parcel",
+          cta_text: "Download shipping label",
         },
         attachments: [
           {

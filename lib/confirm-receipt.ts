@@ -185,17 +185,17 @@ export async function confirmBuyerReceipt(
       referenceId: opts.transactionId,
       recipientId: tx.seller_id,
       to: seller.email,
-      subject: `Funds released – £${amountGbp}`,
+      subject: `\uD83D\uDCB0 \u00A3${amountGbp} is on its way to you!`,
       type: "transactional",
       variables: {
-        title: "Funds released",
-        subtitle: "Delivery was confirmed. Funds have been released to your payout account.",
-        body: `Amount: £${amountGbp}${await referralEmailModuleHtml(admin, tx.seller_id)}`,
+        title: `\u00A3${amountGbp} is on its way to you`,
+        subtitle: "Delivery confirmed. Your funds have been released.",
+        body: `Amount: \u00A3${amountGbp}${await referralEmailModuleHtml(admin, tx.seller_id)}`,
         order_number: opts.transactionId.slice(0, 8),
         item_name: itemName,
         hero_image,
         cta_link: `${appUrl}/dashboard/sales`,
-        cta_text: "View sales",
+        cta_text: "View your sales",
       },
     }).catch((e) => console.error("Funds released email failed", e));
   }

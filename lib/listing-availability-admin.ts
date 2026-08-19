@@ -222,20 +222,20 @@ async function sendReconfirmEmail(
   const product = names[0];
   const subject = reminder
     ? single
-      ? `Reminder: is your ${product} still available?`
-      : `Reminder: are these ${listings.length} items still available?`
+      ? `\u23F0 Quick check \u2014 still selling your ${product}?`
+      : `\u23F0 Quick check \u2014 are your ${listings.length} listings still available?`
     : single
-      ? `Is your ${product} still available?`
-      : `Are these ${listings.length} items still available?`;
+      ? `\uD83D\uDC40 Still selling your ${product}?`
+      : `\uD83D\uDC40 Are your ${listings.length} listings still available?`;
 
   const hi = `Hi ${firstName},`;
   const intro = reminder
-    ? `Just a reminder — we still need to know whether you have ${single ? `your ${product}` : "these items"} on Teevo.`
-    : `It's been a little while since you listed ${single ? `your ${product}` : "these items"} on Teevo.`;
+    ? `Just a reminder \u2014 we still need to know whether you have ${single ? `your ${product}` : "these items"} available on Teevo.`
+    : `It\u2019s been a little while since you listed ${single ? `your ${product}` : "these items"} on Teevo.`;
   const yesNo = single
-    ? `<a href="${cta}&amp;listingId=${encodeURIComponent(listings[0].id)}&amp;available=true">Yes, it's still available</a><br /><a href="${cta}&amp;listingId=${encodeURIComponent(listings[0].id)}&amp;available=false">No, I've sold it / it's no longer available</a>`
-    : names.map((n) => `• ${n}`).join("<br />");
-  const body = `${hi}<br /><br />${intro}<br /><br />Before we make ${single ? "it" : "them"} available for buyers again, we'd just like to check that you still have ${single ? "it" : "them"}.<br /><br />${yesNo}<br /><br />It only takes a second to confirm.<br /><br />Thanks,<br />Team Teevo`;
+    ? `<a href="${cta}&amp;listingId=${encodeURIComponent(listings[0].id)}&amp;available=true">Yes, it\u2019s still available</a><br /><a href="${cta}&amp;listingId=${encodeURIComponent(listings[0].id)}&amp;available=false">No, I\u2019ve sold it / it\u2019s no longer available</a>`
+    : names.map((n) => `\u2022 ${n}`).join("<br />");
+  const body = `${hi}<br /><br />${intro}<br /><br />Before we make ${single ? "it" : "them"} available for buyers again, we\u2019d just like to check that you still have ${single ? "it" : "them"}.<br /><br />${yesNo}<br /><br />It only takes a second to confirm.<br /><br />Thanks,<br />Team Teevo`;
 
   const hero = listingHeroFromImages(listings[0]?.listing_images, product);
   const emailType = reminder
@@ -255,7 +255,7 @@ async function sendReconfirmEmail(
       subject,
       type: "standard",
       variables: {
-        title: single ? `Is your ${product} still available?` : `Are these ${listings.length} items still available?`,
+        title: single ? `Still selling your ${product}?` : `Are your ${listings.length} listings still available?`,
         subtitle: reminder ? "Please confirm when you can." : "We just need a quick check before buyers can purchase.",
         body,
         hero_image: hero,

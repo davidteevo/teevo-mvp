@@ -196,14 +196,14 @@ export async function POST(request: Request) {
           referenceType: "listing",
           recipientId: owner_user_id,
           to: owner.email,
-          subject: "Your Teevo listing is live",
+          subject: "\uD83C\uDF89 Your Teevo listing is live!",
           type: "alert",
           variables: {
-            title: "Your Teevo account and listing are ready",
+            title: "Your Teevo listing is live",
             subtitle: subtitle || "Your listing",
-            body: "We've created a listing for you on Teevo. Set your password using the link we sent you, then log in to manage your listing.",
+            body: "We\u2019ve created a listing for you on Teevo. Set your password using the link we sent you, then log in to manage your listing.",
             cta_link: appUrl ? `${appUrl}/login` : "#",
-            cta_text: "Log in",
+            cta_text: "Log in to Teevo",
           },
         });
       } catch (e) {

@@ -187,10 +187,10 @@ export async function POST(request: Request) {
           referenceId: listing.id,
           referenceType: "listing",
           to: adminTo,
-          subject: "Teevo: new listing to verify",
+          subject: "\uD83D\uDC40 New listing ready to verify",
           type: "alert",
           variables: {
-            title: "New listing to verify",
+            title: "New listing ready to verify",
             subtitle: subtitle || "New listing",
             body: "A new listing is pending verification.",
             cta_link: appUrl ? `${appUrl}${adminListingUrl(listing.id)}` : "#",
