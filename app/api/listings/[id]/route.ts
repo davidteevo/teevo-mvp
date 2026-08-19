@@ -5,6 +5,13 @@ import { categoryToParcelPreset } from "@/lib/shippo";
 import type { ListingCategory, ListingCondition } from "@/types/database";
 import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
 import { notifyWatchersUnavailable } from "@/lib/watchlist-emails";
+import { notifyListingReviewRequired } from "@/lib/notification-events";
+import { ensureEmailSent, EmailTriggerType } from "@/lib/email-triggers";
+import { getAdminAlertEmails, clearSentEmail } from "@/lib/fulfilment-emails";
+
+function adminListingUrl(id: string) {
+  return `/admin/listings/${id}`;
+}
 
 const ALLOWED_CATEGORIES_SET = new Set<string>(ALL_CATEGORIES);
 const ALLOWED_CONDITIONS_SET = new Set<string>(CONDITIONS);
@@ -32,7 +39,7 @@ export async function PATCH(
   const admin = createAdminClient();
   const { data: listing, error: fetchError } = await admin
     .from("listings")
-    .select("id, user_id, status, availability_confirmation_status")
+    .select("id, user_id, status, availability_confirmation_status, admin_feedback, title, brand, model, category")
     .eq("id", id)
     .single();
 
@@ -159,7 +166,8 @@ export async function PATCH(
   if (item_type !== undefined) updates.item_type = item_type;
   if (size !== undefined) updates.size = size;
   if (colour !== undefined) updates.colour = colour;
-  // Optionally clear admin feedback when seller resubmits
+  // Track whether this is a resubmission after admin feedback before clearing it
+  const isResubmission = Object.keys(updates).length > 1 && !!listing.admin_feedback;
   if (Object.keys(updates).length > 1) updates.admin_feedback = null;
 
   const { error } = await admin.from("listings").update(updates).eq("id", id).eq("user_id", user.id);
@@ -167,5 +175,50 @@ export async function PATCH(
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  // #region agent log
+  fetch('http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'289a0f'},body:JSON.stringify({sessionId:'289a0f',location:'app/api/listings/[id]/route.ts:PATCH',message:'listing edit saved',data:{isResubmission,hadFeedback:!!listing.admin_feedback,listingId:id},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
+
+  if (isResubmission) {
+    const displayTitle =
+      (listing.title && listing.title.trim()) ||
+      [listing.brand, listing.model].filter(Boolean).join(" ").trim() ||
+      "a listing";
+
+    await notifyListingReviewRequired(admin, { listingId: id, title: displayTitle });
+
+    const envEmails = getAdminAlertEmails();
+    const { data: adminUsers } = await admin.from("users").select("email").eq("role", "admin");
+    const dbEmails = (adminUsers ?? [])
+      .map((u) => (typeof u.email === "string" ? u.email.trim() : ""))
+      .filter(Boolean);
+    const adminTo = Array.from(new Set([...envEmails, ...dbEmails]));
+    if (adminTo.length > 0) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+      const subtitle = [listing.brand, listing.title || listing.model, listing.category].filter(Boolean).join(" · ");
+      try {
+        await clearSentEmail(admin, EmailTriggerType.NEW_LISTING_PENDING, id);
+        await ensureEmailSent(admin, {
+          emailType: EmailTriggerType.NEW_LISTING_PENDING,
+          referenceId: id,
+          referenceType: "listing",
+          to: adminTo,
+          subject: "Teevo: listing resubmitted for review",
+          type: "alert",
+          variables: {
+            title: "Listing resubmitted",
+            subtitle: subtitle || "Listing",
+            body: "A seller has resubmitted their listing after making requested changes.",
+            cta_link: appUrl ? `${appUrl}${adminListingUrl(id)}` : "#",
+            cta_text: "Review listing",
+          },
+        });
+      } catch (e) {
+        console.error("Failed to send resubmission admin email:", e);
+      }
+    }
+  }
+
   return NextResponse.json({ ok: true });
 }
