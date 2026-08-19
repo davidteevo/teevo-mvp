@@ -101,7 +101,7 @@ async function loadAdminActionItems(admin: AdminClient, nowMs: number): Promise<
   const [listingsRes, packagingRes, starterRes, labelsRes, feedbackRes] = await Promise.all([
     admin
       .from("listings")
-      .select("id, user_id, category, brand, model, title, item_type, size, colour, status, created_at, admin_feedback")
+      .select("id, user_id, category, brand, model, title, item_type, size, colour, status, created_at, updated_at, admin_feedback")
       .eq("status", "pending"),
     admin
       .from("transactions")
@@ -177,7 +177,7 @@ async function loadAdminActionItems(admin: AdminClient, nowMs: number): Promise<
           listingId: listing.id,
           title: getListingDisplayTitle(listing as unknown as Listing),
           userLabel: formatAdminUserLabel(users.get(listing.user_id)),
-          actionRequiredSince: listing.created_at,
+          actionRequiredSince: listing.updated_at || listing.created_at,
           badge: listing.admin_feedback?.trim() ? "Changes requested" : undefined,
         },
         nowMs

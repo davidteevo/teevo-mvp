@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { ALL_CATEGORIES, getConditionsForCategory, CONDITION_LABELS } from "@/lib/listing-categories";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { SearchableSelect } from "@/components/listing/SearchableSelect";
+import { ImageUpload, type StoredImage } from "@/components/listing/ImageUpload";
 
 const CATEGORIES = [...ALL_CATEGORIES];
 const GOLF_EQUIPMENT_CATEGORIES = ["Driver", "Woods", "Driving Irons", "Hybrids", "Irons", "Wedges", "Putter"];
@@ -33,6 +34,7 @@ type Listing = {
   grip_model?: string | null;
   grip_size?: string | null;
   grip_condition?: string | null;
+  listing_images?: StoredImage[];
 };
 
 export default function SellEditPage() {
@@ -119,6 +121,8 @@ export default function SellEditPage() {
   };
 
   const isGolfEquipment = GOLF_EQUIPMENT_CATEGORIES.includes(category);
+  const [storedImages, setStoredImages] = useState<StoredImage[]>([]);
+  const originalImageOrder = useRef<StoredImage[]>([]);
 
   useEffect(() => {
     if (!user || !id) return;
@@ -148,6 +152,9 @@ export default function SellEditPage() {
           // Auto-open specs if any spec is already set
           const hasSpecs = !!(found.shaft || found.degree || found.shaft_flex || found.lie_angle || found.club_length);
           setSpecsOpen(hasSpecs);
+          const imgs = [...(found.listing_images ?? [])].sort((a, b) => a.sort_order - b.sort_order);
+          setStoredImages(imgs);
+          originalImageOrder.current = imgs;
         } else {
           setFetchError("Listing not found or you don't have permission to edit it.");
         }
@@ -254,6 +261,24 @@ export default function SellEditPage() {
         setSaving(false);
         return;
       }
+
+      // Persist image order if it changed
+      const orderChanged = storedImages.some(
+        (img, i) => img.id !== originalImageOrder.current[i]?.id
+      );
+      if (orderChanged && storedImages.length > 0) {
+        const imgRes = await fetch(`/api/listings/${id}/images`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paths: storedImages.map((img) => img.storage_path) }),
+        });
+        if (!imgRes.ok) {
+          setMessage("Listing saved but image order could not be updated.");
+          setSaving(false);
+          return;
+        }
+      }
+
       router.push("/dashboard?edited=1");
     } catch {
       setMessage("Something went wrong. Please try again.");
@@ -274,6 +299,19 @@ export default function SellEditPage() {
           <p className="mt-1 text-sm text-mowing-green/90 whitespace-pre-wrap">
             {listing.admin_feedback}
           </p>
+        </div>
+      )}
+
+      {storedImages.length > 0 && (
+        <div className="mt-6">
+          <h2 className="text-sm font-medium text-mowing-green mb-3">Photos</h2>
+          <ImageUpload
+            mode="stored"
+            min={1}
+            max={storedImages.length}
+            storedImages={storedImages}
+            onStoredImagesChange={setStoredImages}
+          />
         </div>
       )}
 
