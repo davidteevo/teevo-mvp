@@ -21,21 +21,6 @@ export function assertStripeModeMatchesEnv(): void {
   const invalidPublishable = publishableMode != null && publishableMode !== expectedMode;
 
   if (!invalidSecret && !invalidPublishable) {
-    // #region agent log
-    fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "da8230" },
-      body: JSON.stringify({
-        sessionId: "da8230",
-        runId: "pre-fix",
-        hypothesisId: "H1",
-        location: "lib/stripe-env.ts:23",
-        message: "stripe_mode_guard_passed",
-        data: { appEnv, expectedMode, secretMode, publishableMode },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
     return;
   }
 
@@ -46,22 +31,6 @@ export function assertStripeModeMatchesEnv(): void {
       ? `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${publishableMode}`
       : "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=unknown",
   ].join(", ");
-
-  // #region agent log
-  fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "da8230" },
-    body: JSON.stringify({
-      sessionId: "da8230",
-      runId: "pre-fix",
-      hypothesisId: "H1",
-      location: "lib/stripe-env.ts:49",
-      message: "stripe_mode_guard_failed",
-      data: { appEnv, expectedMode, secretMode, publishableMode },
-      timestamp: Date.now(),
-    }),
-  }).catch(() => {});
-  // #endregion
 
   throw new Error(
     `Stripe mode mismatch: expected ${expectedMode} keys for ${appEnv}. ${details}. Update deployment environment variables and redeploy.`

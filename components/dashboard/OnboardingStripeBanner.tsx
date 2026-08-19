@@ -17,24 +17,6 @@ export function OnboardingStripeBanner({ className = "" }: { className?: string 
       .then((r) => r.json())
       .then((data) => {
         setPayoutsEnabled(data.payoutsEnabled === true);
-        // #region agent log
-        fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "da8230" },
-          body: JSON.stringify({
-            sessionId: "da8230",
-            runId: "post-fix",
-            hypothesisId: "H20",
-            location: "components/dashboard/OnboardingStripeBanner.tsx:24",
-            message: "stripe_banner_status_loaded",
-            data: {
-              payoutsEnabled: data.payoutsEnabled === true,
-              hasStripeAccountId: Boolean(data.stripeAccountId),
-            },
-            timestamp: Date.now(),
-          }),
-        }).catch(() => {});
-        // #endregion
       })
       .catch(() => setPayoutsEnabled(null))
       .finally(() => setLoading(false));

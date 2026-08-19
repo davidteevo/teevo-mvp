@@ -41,27 +41,6 @@ export default function SettingsPaymentsPage() {
     const useOnboarding = payoutsEnabled !== true;
     const endpoint = useOnboarding ? "/api/onboarding/stripe-connect" : "/api/user/stripe-login-link";
     try {
-      // #region agent log
-      fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "da8230" },
-        body: JSON.stringify({
-          sessionId: "da8230",
-          runId: "post-fix",
-          hypothesisId: "H16",
-          location: "app/dashboard/settings/payments/page.tsx:44",
-          message: "stripe_payments_open_requested",
-          data: {
-            useOnboarding,
-            endpoint,
-            hasProfileStripeId: Boolean(profile?.stripe_account_id),
-            payoutsEnabled,
-          },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-      // #endregion
-
       const res = await fetch(endpoint, {
         method: "POST",
         headers: useOnboarding ? { "Content-Type": "application/json" } : undefined,
@@ -74,39 +53,11 @@ export default function SettingsPaymentsPage() {
       });
       const data = await res.json();
 
-      // #region agent log
-      fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "da8230" },
-        body: JSON.stringify({
-          sessionId: "da8230",
-          runId: "post-fix",
-          hypothesisId: "H16",
-          location: "app/dashboard/settings/payments/page.tsx:72",
-          message: "stripe_payments_open_response",
-          data: {
-            status: res.status,
-            ok: res.ok,
-            hasUrl: Boolean(data?.url),
-            linkType: data?.linkType ?? null,
-            strategy: data?.strategy ?? null,
-            urlKind: data?.urlKind ?? null,
-            urlPathPrefix: data?.urlPathPrefix ?? null,
-          },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-      // #endregion
-
       if (res.ok && data.url) {
         window.location.href = data.url;
         return;
       }
-      const debugHint =
-        data.urlKind || data.urlPathPrefix
-          ? ` (${[data.urlKind, data.urlPathPrefix].filter(Boolean).join(", ")})`
-          : "";
-      setError((data.error ?? "Could not open Stripe") + debugHint);
+      setError(data.error ?? "Could not open Stripe");
     } catch {
       setError("Something went wrong");
     } finally {

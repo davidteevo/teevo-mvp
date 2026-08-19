@@ -25,6 +25,36 @@ type ProfileForStripe = {
   date_of_birth?: string | null;
 };
 
+/** Parse YYYY-MM-DD without timezone drift; omit if seller is under Stripe's minimum age (13). */
+function parseDobForStripe(
+  dateOfBirth: string | null | undefined
+): { day: number; month: number; year: number } | undefined {
+  if (!dateOfBirth?.trim()) return undefined;
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(dateOfBirth.trim());
+  if (!match) return undefined;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  if (month < 1 || month > 12 || day < 1 || day > 31) return undefined;
+
+  const today = new Date();
+  let age = today.getFullYear() - year;
+  const monthDiff = today.getMonth() + 1 - month;
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < day)) {
+    age -= 1;
+  }
+  if (age < 13) return undefined;
+
+  return { day, month, year };
+}
+
+export function isStripeAgeError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const message = error.message.toLowerCase();
+  return message.includes("at least 13 years") || message.includes("must be at least 13");
+}
+
 export async function createExpressStripeAccount(
   stripe: Stripe,
   opts: { email?: string | null; profile?: ProfileForStripe | null }
@@ -47,10 +77,7 @@ export async function createExpressStripeAccount(
 
   let dob: { day: number; month: number; year: number } | undefined;
   if (profile?.date_of_birth) {
-    const d = new Date(profile.date_of_birth);
-    if (!Number.isNaN(d.getTime())) {
-      dob = { day: d.getDate(), month: d.getMonth() + 1, year: d.getFullYear() };
-    }
+    dob = parseDobForStripe(profile.date_of_birth);
   }
 
   const hasName = profile?.first_name?.trim() || profile?.surname?.trim();
@@ -150,21 +177,6 @@ export async function syncStripeAccountEmail(
     await stripe.accounts.update(accountId, updates);
   } catch (error) {
     if (!isStripeUnauthorizedFieldError(error)) throw error;
-    // #region agent log
-    fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "da8230" },
-      body: JSON.stringify({
-        sessionId: "da8230",
-        runId: "post-fix-v2",
-        hypothesisId: "H21",
-        location: "lib/stripe-account.ts:syncStripeAccountEmail",
-        message: "stripe_email_sync_skipped_not_authorized",
-        data: { accountIdPrefix: accountId.slice(0, 8) },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
   }
 }
 

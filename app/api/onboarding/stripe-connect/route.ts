@@ -6,6 +6,7 @@ import { getAppUrl } from "@/lib/app-env";
 import { assertStripeModeMatchesEnv } from "@/lib/stripe-env";
 import {
   createExpressStripeAccount,
+  isStripeAgeError,
   persistStripeAccountId,
   resolveStripeAccountForOnboarding,
   shouldRotateStripeAccount,
@@ -66,22 +67,6 @@ export async function POST(request: Request) {
       // ignore parse errors
     }
 
-    // #region agent log
-    fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "da8230" },
-      body: JSON.stringify({
-        sessionId: "da8230",
-        runId: "post-fix",
-        hypothesisId: "H18",
-        location: "app/api/onboarding/stripe-connect/route.ts:72",
-        message: "stripe_connect_onboarding_link_created",
-        data: { strategy, linkType: "account_onboarding", urlKind, urlHost, urlPathPrefix },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
-
     if (urlKind === "express_login") {
       return NextResponse.json(
         {
@@ -105,24 +90,39 @@ export async function POST(request: Request) {
       urlPathPrefix,
     });
   } catch (e) {
-    // #region agent log
-    fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "da8230" },
-      body: JSON.stringify({
-        sessionId: "da8230",
-        runId: "post-fix-v2",
-        hypothesisId: "H21",
-        location: "app/api/onboarding/stripe-connect/route.ts:catch",
-        message: "stripe_connect_onboarding_error",
-        data: {
-          errorMessage: e instanceof Error ? e.message : "unknown",
-          willRotate: shouldRotateStripeAccount(e),
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
+    if (isStripeAgeError(e)) {
+      try {
+        const replacement = await createExpressStripeAccount(stripe, {
+          email: user.email,
+          profile: profile ? { ...profile, date_of_birth: null } : null,
+        });
+        await persistStripeAccountId(admin, user.id, replacement.id, profile?.role);
+        const link = await stripe.accountLinks.create({
+          account: replacement.id,
+          return_url: returnUrl,
+          refresh_url: refreshUrl,
+          type: "account_onboarding",
+          collection_options: { fields: "eventually_due" },
+        });
+        return NextResponse.json({
+          url: link.url,
+          linkType: "account_onboarding",
+          strategy: "fresh",
+          urlKind: stripeUrlKind(link.url),
+        });
+      } catch (retryError) {
+        console.error("Stripe connect age-error recovery failed:", retryError);
+        const detail = retryError instanceof Error ? retryError.message : "Unknown error";
+        return NextResponse.json(
+          {
+            error:
+              "Could not start Stripe onboarding. Check your date of birth in Settings → Postage, or leave it blank and enter it on Stripe.",
+            detail,
+          },
+          { status: 500 }
+        );
+      }
+    }
 
     if (!shouldRotateStripeAccount(e)) {
       console.error("Stripe connect account link error:", e);

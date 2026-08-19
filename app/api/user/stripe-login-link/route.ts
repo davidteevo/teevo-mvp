@@ -59,21 +59,6 @@ export async function POST() {
       refreshUrl,
       email: user.email,
     });
-    // #region agent log
-    fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "da8230" },
-      body: JSON.stringify({
-        sessionId: "da8230",
-        runId: "post-fix",
-        hypothesisId: "H15",
-        location: "app/api/user/stripe-login-link/route.ts:66",
-        message: "stripe_connect_access_url_created",
-        data: { linkType, hasUrl: Boolean(url) },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
     return NextResponse.json({ url, linkType });
   } catch (e) {
     if (!shouldRotateStripeAccount(e)) {
