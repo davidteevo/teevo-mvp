@@ -5,7 +5,7 @@ import { categoryToParcelPreset } from "@/lib/shippo";
 import type { ListingCategory, ListingCondition } from "@/types/database";
 import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
 import { notifyWatchersUnavailable } from "@/lib/watchlist-emails";
-import { notifyListingReviewRequired } from "@/lib/notification-events";
+import { notifyListingReviewRequired, resolveListingReviewRequired } from "@/lib/notification-events";
 import { ensureEmailSent, EmailTriggerType } from "@/lib/email-triggers";
 import { getAdminAlertEmails, clearSentEmail } from "@/lib/fulfilment-emails";
 

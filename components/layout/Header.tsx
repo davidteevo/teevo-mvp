@@ -36,6 +36,7 @@ export function Header() {
   const [avatarRetry, setAvatarRetry] = useState(0);
   const [avatarError, setAvatarError] = useState(false);
   const [publicAvatarError, setPublicAvatarError] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const accountRef = useRef<HTMLDivElement>(null);
   const scrollLockYRef = useRef(0);
   const usePublicAvatar = avatarError && avatarRetry >= 1;
@@ -52,6 +53,14 @@ export function Header() {
     document.addEventListener("click", close);
     return () => document.removeEventListener("click", close);
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    fetch("/api/notifications/unread-count")
+      .then((r) => (r.ok ? r.json() : { count: 0 }))
+      .then((data) => setUnreadCount(typeof data.count === "number" ? data.count : 0))
+      .catch(() => {});
+  }, [user, pathname]);
 
   // Lock background page scroll while mobile menu is open (iOS-safe).
   useEffect(() => {
@@ -226,7 +235,7 @@ export function Header() {
             </>
           )}
 
-          {user && (
+          {user && !menuOpen && (
             <div className="sm:hidden">
               <NotificationBell />
             </div>
@@ -348,8 +357,13 @@ export function Header() {
                   className="flex items-center gap-3 rounded-lg py-3 px-3 text-mowing-green font-medium hover:bg-mowing-green/5 active:bg-mowing-green/10 transition-colors"
                   onClick={() => setMenuOpen(false)}
                 >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-mowing-green/10">
+                  <span className="relative flex h-9 w-9 items-center justify-center rounded-lg bg-mowing-green/10">
                     <Bell className="h-4 w-4 text-mowing-green" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] rounded-full bg-divot-pink text-mowing-green text-[9px] font-semibold flex items-center justify-center px-1">
+                        {unreadCount > 9 ? "9+" : unreadCount}
+                      </span>
+                    )}
                   </span>
                   Notifications
                 </Link>

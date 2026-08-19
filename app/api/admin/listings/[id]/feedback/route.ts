@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { requireAdmin, logAdminAction } from "@/lib/referral/admin-auth";
 import { ensureEmailSent, EmailTriggerType, getListingEmailContext } from "@/lib/email-triggers";
+import { clearSentEmail } from "@/lib/fulfilment-emails";
+import { createNotification, NotificationType, NotificationEntityType } from "@/lib/notifications";
 
 export const dynamic = "force-dynamic";
 
@@ -61,12 +63,24 @@ export async function POST(
         .eq("id", listing.user_id)
         .single();
       const toEmail = seller?.email?.trim();
+
+      // #region agent log
+      fetch('http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'5fc121'},body:JSON.stringify({sessionId:'5fc121',location:'feedback/route.ts:seller-lookup',message:'seller lookup result',data:{sellerId:listing.user_id,toEmail:toEmail||null,hasComment:!!comment},timestamp:Date.now(),hypothesisId:'A+B'})}).catch(()=>{});
+      // #endregion
+
       if (toEmail) {
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
         const editUrl = `${appUrl}/sell/edit/${id}`;
         const { hero_image } = await getListingEmailContext(admin, id);
         try {
-          await ensureEmailSent(admin, {
+          // Clear idempotency row so re-sends work when admin leaves new feedback
+          await clearSentEmail(admin, EmailTriggerType.LISTING_EDITS_REQUESTED, id);
+
+          // #region agent log
+          fetch('http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'5fc121'},body:JSON.stringify({sessionId:'5fc121',location:'feedback/route.ts:before-ensureEmailSent',message:'cleared sent_emails row, about to send email',data:{emailType:EmailTriggerType.LISTING_EDITS_REQUESTED,referenceId:id,to:toEmail},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
+          // #endregion
+
+          const emailSent = await ensureEmailSent(admin, {
             emailType: EmailTriggerType.LISTING_EDITS_REQUESTED,
             referenceId: id,
             referenceType: "listing",
@@ -83,9 +97,41 @@ export async function POST(
               cta_text: "Edit listing",
             },
           });
+
+          // #region agent log
+          fetch('http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'5fc121'},body:JSON.stringify({sessionId:'5fc121',location:'feedback/route.ts:after-ensureEmailSent',message:'ensureEmailSent result',data:{emailSent},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
+          // #endregion
         } catch (e) {
           console.error("Failed to send listing edits email:", e);
         }
+      }
+
+      // Send in-app notification to the seller
+      try {
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+        const editUrl = `${appUrl}/sell/edit/${id}`;
+
+        // #region agent log
+        fetch('http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'5fc121'},body:JSON.stringify({sessionId:'5fc121',location:'feedback/route.ts:before-createNotification',message:'creating in-app notification for seller',data:{sellerId:listing.user_id,listingId:id},timestamp:Date.now(),hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
+
+        await createNotification(admin, {
+          userId: listing.user_id,
+          type: NotificationType.LISTING_EDITS_REQUESTED,
+          title: "Edits needed for your listing",
+          message: comment,
+          entityType: NotificationEntityType.LISTING,
+          entityId: id,
+          actionUrl: editUrl,
+          actionLabel: "Edit listing",
+          requiresAction: true,
+        });
+
+        // #region agent log
+        fetch('http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'5fc121'},body:JSON.stringify({sessionId:'5fc121',location:'feedback/route.ts:after-createNotification',message:'in-app notification created',data:{sellerId:listing.user_id},timestamp:Date.now(),hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
+      } catch (e) {
+        console.error("Failed to create listing edits notification:", e);
       }
     }
   }
