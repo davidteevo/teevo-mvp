@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { ALL_CATEGORIES, getConditionsForCategory, CONDITION_LABELS } from "@/lib/listing-categories";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { SearchableSelect } from "@/components/listing/SearchableSelect";
 
 const CATEGORIES = [...ALL_CATEGORIES];
 const GOLF_EQUIPMENT_CATEGORIES = ["Driver", "Woods", "Driving Irons", "Hybrids", "Irons", "Wedges", "Putter"];
@@ -61,6 +62,10 @@ export default function SellEditPage() {
   const [gripSize, setGripSize] = useState("");
   const [gripCondition, setGripCondition] = useState("");
 
+  // Catalogues for SearchableSelect
+  const [shaftOptions, setShaftOptions] = useState<string[]>([]);
+  const [gripCatalogue, setGripCatalogue] = useState<{ brands: string[]; modelsByBrand: Record<string, string[]> } | null>(null);
+
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -103,6 +108,25 @@ export default function SellEditPage() {
       })
       .catch(() => setFetchError("Failed to load listing."));
   }, [user, id]);
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([
+      fetch("/api/club-specs/shafts").then((r) => r.json()).catch(() => []),
+      fetch("/api/club-specs/grips").then((r) => r.json()).catch(() => null),
+    ]).then(([shaftData, gripData]) => {
+      if (cancelled) return;
+      setShaftOptions(Array.isArray(shaftData) ? shaftData.filter((s: unknown) => typeof s === "string") : []);
+      if (gripData && typeof gripData === "object") {
+        const g = gripData as { brands?: unknown; modelsByBrand?: unknown };
+        setGripCatalogue({
+          brands: Array.isArray(g.brands) ? g.brands.filter((b: unknown) => typeof b === "string") : [],
+          modelsByBrand: (g.modelsByBrand && typeof g.modelsByBrand === "object" ? g.modelsByBrand : {}) as Record<string, string[]>,
+        });
+      }
+    });
+    return () => { cancelled = true; };
+  }, []);
 
   if (loading) {
     return (
@@ -343,13 +367,13 @@ export default function SellEditPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-mowing-green mb-1">Shaft model</label>
-                  <input
-                    type="text"
+                  <SearchableSelect
+                    options={shaftOptions}
                     value={shaft}
-                    onChange={(e) => setShaft(e.target.value)}
+                    onChange={setShaft}
                     placeholder="e.g. Fujikura Ventus Blue"
-                    className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
+                    label="Shaft model"
+                    allowCustom
                   />
                 </div>
                 <div>
@@ -390,23 +414,23 @@ export default function SellEditPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-mowing-green mb-1">Grip brand</label>
-                  <input
-                    type="text"
+                  <SearchableSelect
+                    options={gripCatalogue?.brands ?? []}
                     value={gripBrand}
-                    onChange={(e) => setGripBrand(e.target.value)}
+                    onChange={(v) => { setGripBrand(v); setGripModel(""); }}
                     placeholder="e.g. Golf Pride"
-                    className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
+                    label="Grip brand"
+                    allowCustom
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-mowing-green mb-1">Grip model</label>
-                  <input
-                    type="text"
+                  <SearchableSelect
+                    options={gripCatalogue?.modelsByBrand?.[gripBrand] ?? []}
                     value={gripModel}
-                    onChange={(e) => setGripModel(e.target.value)}
+                    onChange={setGripModel}
                     placeholder="e.g. Tour Velvet 360"
-                    className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
+                    label="Grip model"
+                    allowCustom
                   />
                 </div>
                 <div>
