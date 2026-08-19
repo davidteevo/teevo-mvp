@@ -311,6 +311,7 @@ export default function AllListingsClient({ listings }: { listings: AllListing[]
                   <th className="p-3">Buying</th>
                   <th className="p-3">Availability</th>
                   <th className="p-3">Watchers</th>
+                  <th className="p-3">Revisions</th>
                   <th className="p-3">Seller</th>
                   <th className="p-3">Listed</th>
                   <th className="p-3 text-right">Actions</th>
@@ -363,6 +364,15 @@ export default function AllListingsClient({ listings }: { listings: AllListing[]
                       </span>
                     </td>
                     <td className="p-3 text-mowing-green/80">{l.watch_count}</td>
+                    <td className="p-3 text-mowing-green/80">
+                      {l.review_count > 0 ? (
+                        <span className="rounded-full px-2 py-0.5 text-xs font-medium bg-golden-tee/30 text-mowing-green">
+                          {l.review_count}
+                        </span>
+                      ) : (
+                        <span className="text-mowing-green/40">—</span>
+                      )}
+                    </td>
                     <td className="p-3 text-mowing-green/80">
                       {l.seller_email ? (
                         <a href={`mailto:${l.seller_email}`} className="hover:underline">{l.seller_email}</a>

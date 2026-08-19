@@ -21,11 +21,18 @@ export async function POST(
   }
   const comment = typeof body.comment === "string" ? body.comment.trim() : null;
 
+  const { data: existingListing } = await admin
+    .from("listings")
+    .select("review_count")
+    .eq("id", id)
+    .single();
+
   const { error } = await admin
     .from("listings")
     .update({
       admin_feedback: comment || null,
       updated_at: new Date().toISOString(),
+      ...(comment ? { review_count: ((existingListing?.review_count as number) ?? 0) + 1 } : {}),
     })
     .eq("id", id);
 

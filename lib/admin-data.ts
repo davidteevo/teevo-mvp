@@ -121,6 +121,7 @@ export type AllListing = {
   availability_confirmed_at?: string | null;
   availability_confirmation_batch_id?: string | null;
   archived_at?: string | null;
+  review_count: number;
 };
 
 export async function getAllListings(opts: {
@@ -133,7 +134,7 @@ export async function getAllListings(opts: {
   const admin = adminClient();
   let query = admin
     .from("listings")
-    .select("id, user_id, category, brand, model, title, condition, price, status, created_at, item_type, size, colour, created_on_behalf, created_by_admin_id, buying_paused, availability_confirmation_status, availability_confirmation_source, availability_confirmation_requested_at, availability_confirmed_at, availability_confirmation_batch_id, archived_at")
+    .select("id, user_id, category, brand, model, title, condition, price, status, created_at, item_type, size, colour, created_on_behalf, created_by_admin_id, buying_paused, availability_confirmation_status, availability_confirmation_source, availability_confirmation_requested_at, availability_confirmed_at, availability_confirmation_batch_id, archived_at, review_count")
     .order("created_at", { ascending: false });
   if (opts.status && ["pending", "verified", "rejected", "sold"].includes(opts.status)) {
     query = query.eq("status", opts.status);
