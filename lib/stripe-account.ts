@@ -145,17 +145,19 @@ function isOnboardingIncompleteError(error: unknown): boolean {
   );
 }
 
-function isStripeUnauthorizedFieldError(error: unknown): boolean {
+function isStripeAccountFieldLockedError(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
   const message = error.message.toLowerCase();
   return (
     message.includes("not authorized to edit") ||
     message.includes("cannot edit") ||
-    message.includes("you cannot change")
+    message.includes("you cannot change") ||
+    message.includes("does not have the required permissions") ||
+    message.includes("required permissions for the parameter")
   );
 }
 
-/** Prefill seller email on the connected account for hosted onboarding/login. */
+/** Best-effort email sync on existing accounts; Stripe often locks fields after onboarding starts. */
 export async function syncStripeAccountEmail(
   stripe: Stripe,
   accountId: string,
@@ -164,19 +166,28 @@ export async function syncStripeAccountEmail(
   const trimmed = email?.trim();
   if (!trimmed) return;
   const account = await stripe.accounts.retrieve(accountId);
-  const updates: Stripe.AccountUpdateParams = {};
-  if (account.email?.trim() !== trimmed) {
-    updates.email = trimmed;
-  }
-  if (account.business_type === "individual") {
-    updates.individual = { ...(updates.individual ?? {}), email: trimmed };
-  }
-  if (Object.keys(updates).length === 0) return;
+  if (account.email?.trim() === trimmed) return;
 
   try {
-    await stripe.accounts.update(accountId, updates);
+    // Top-level email only — updating individual.* is blocked on live Express after onboarding begins.
+    await stripe.accounts.update(accountId, { email: trimmed });
   } catch (error) {
-    if (!isStripeUnauthorizedFieldError(error)) throw error;
+    if (!isStripeAccountFieldLockedError(error)) throw error;
+    // #region agent log
+    fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "da8230" },
+      body: JSON.stringify({
+        sessionId: "da8230",
+        runId: "permissions-fix",
+        hypothesisId: "H22",
+        location: "lib/stripe-account.ts:syncStripeAccountEmail",
+        message: "stripe_email_sync_skipped_locked_fields",
+        data: { accountIdPrefix: accountId.slice(0, 12) },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
   }
 }
 
