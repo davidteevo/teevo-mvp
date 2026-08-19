@@ -626,14 +626,18 @@ export async function resolvePaymentAndRefundNotifications(
 
 export async function notifyListingReviewRequired(
   admin: SupabaseClient,
-  opts: { listingId: string; title: string }
+  opts: { listingId: string; title: string; isResubmission?: boolean }
 ): Promise<void> {
   try {
-    const title = opts.title.trim() || "a new listing";
+    const title = opts.title.trim() || "a listing";
+    const heading = opts.isResubmission ? "Listing resubmitted for review" : "Listing review required";
+    const message = opts.isResubmission
+      ? `A seller has resubmitted ${title} after making the requested changes.`
+      : `A seller has submitted ${title} for verification.`;
     await notifyAdmins(admin, {
       type: NotificationType.LISTING_REVIEW_REQUIRED,
-      title: "Listing review required",
-      message: `A seller has submitted ${title} for verification.`,
+      title: heading,
+      message,
       entityType: NotificationEntityType.LISTING,
       entityId: opts.listingId,
       actionUrl: adminListingUrl(opts.listingId),
