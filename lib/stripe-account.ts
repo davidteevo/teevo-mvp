@@ -57,6 +57,7 @@ export async function createExpressStripeAccount(
   const individual: {
     first_name?: string;
     last_name?: string;
+    email?: string;
     address?: typeof address;
     dob?: typeof dob;
   } = {};
@@ -64,6 +65,7 @@ export async function createExpressStripeAccount(
   if (profile?.surname?.trim()) individual.last_name = profile.surname.trim();
   if (address) individual.address = address;
   if (dob) individual.dob = dob;
+  if (opts.email?.trim()) individual.email = opts.email.trim();
 
   const appUrl = getAppUrl();
   return stripe.accounts.create({
@@ -75,7 +77,7 @@ export async function createExpressStripeAccount(
       product_description: "Selling pre-owned golf equipment as an individual on Teevo.",
       ...(appUrl ? { url: appUrl } : {}),
     },
-    ...(hasName || address || dob ? { individual } : {}),
+    ...(hasName || address || dob || opts.email?.trim() ? { individual } : {}),
   });
 }
 
@@ -102,12 +104,21 @@ export async function clearStripeAccountId(admin: SupabaseClient, userId: string
     .eq("id", userId);
 }
 
-/** Returns a connected account id owned by this platform, creating one if needed. */
+/** Express dashboard login is only valid once payouts are enabled. */
 export function isStripeOnboardingComplete(account: Stripe.Account): boolean {
-  return account.details_submitted === true && account.payouts_enabled === true;
+  return account.payouts_enabled === true;
 }
 
-/** Prefill seller email on the connected account when Stripe has none yet. */
+function isOnboardingIncompleteError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const message = error.message.toLowerCase();
+  return (
+    message.includes("has not completed onboarding") ||
+    message.includes("not completed onboarding")
+  );
+}
+
+/** Prefill seller email on the connected account for hosted onboarding/login. */
 export async function syncStripeAccountEmail(
   stripe: Stripe,
   accountId: string,
@@ -116,8 +127,30 @@ export async function syncStripeAccountEmail(
   const trimmed = email?.trim();
   if (!trimmed) return;
   const account = await stripe.accounts.retrieve(accountId);
-  if (account.email?.trim()) return;
-  await stripe.accounts.update(accountId, { email: trimmed });
+  const updates: Stripe.AccountUpdateParams = {};
+  if (account.email?.trim() !== trimmed) {
+    updates.email = trimmed;
+  }
+  if (account.business_type === "individual") {
+    updates.individual = { ...(updates.individual ?? {}), email: trimmed };
+  }
+  if (Object.keys(updates).length > 0) {
+    await stripe.accounts.update(accountId, updates);
+  }
+}
+
+async function createOnboardingLink(
+  stripe: Stripe,
+  accountId: string,
+  opts: { returnUrl: string; refreshUrl: string }
+): Promise<{ url: string; linkType: "account_onboarding" }> {
+  const onboardingLink = await stripe.accountLinks.create({
+    account: accountId,
+    return_url: opts.returnUrl,
+    refresh_url: opts.refreshUrl,
+    type: "account_onboarding",
+  });
+  return { url: onboardingLink.url, linkType: "account_onboarding" };
 }
 
 /**
@@ -132,18 +165,17 @@ export async function createStripeConnectAccessUrl(
   await syncStripeAccountEmail(stripe, accountId, opts.email);
   const account = await stripe.accounts.retrieve(accountId);
 
-  if (isStripeOnboardingComplete(account)) {
-    const loginLink = await stripe.accounts.createLoginLink(accountId);
-    return { url: loginLink.url, linkType: "login" };
+  if (!isStripeOnboardingComplete(account)) {
+    return createOnboardingLink(stripe, accountId, opts);
   }
 
-  const onboardingLink = await stripe.accountLinks.create({
-    account: accountId,
-    return_url: opts.returnUrl,
-    refresh_url: opts.refreshUrl,
-    type: "account_onboarding",
-  });
-  return { url: onboardingLink.url, linkType: "account_onboarding" };
+  try {
+    const loginLink = await stripe.accounts.createLoginLink(accountId);
+    return { url: loginLink.url, linkType: "login" };
+  } catch (error) {
+    if (!isOnboardingIncompleteError(error)) throw error;
+    return createOnboardingLink(stripe, accountId, opts);
+  }
 }
 
 export async function ensurePlatformStripeAccount(

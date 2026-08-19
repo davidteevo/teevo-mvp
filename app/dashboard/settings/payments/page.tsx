@@ -11,6 +11,7 @@ export default function SettingsPaymentsPage() {
   const router = useRouter();
   const [opening, setOpening] = useState(false);
   const [error, setError] = useState("");
+  const [payoutsEnabled, setPayoutsEnabled] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -18,9 +19,27 @@ export default function SettingsPaymentsPage() {
     }
   }, [user, authLoading, router]);
 
-  const openStripeDashboard = async () => {
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    fetch("/api/onboarding/status")
+      .then((r) => r.json())
+      .then((data) => {
+        if (!cancelled) setPayoutsEnabled(data.payoutsEnabled === true);
+      })
+      .catch(() => {
+        if (!cancelled) setPayoutsEnabled(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  const openStripe = async () => {
     setError("");
     setOpening(true);
+    const useOnboarding = payoutsEnabled !== true;
+    const endpoint = useOnboarding ? "/api/onboarding/stripe-connect" : "/api/user/stripe-login-link";
     try {
       // #region agent log
       fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
@@ -28,49 +47,56 @@ export default function SettingsPaymentsPage() {
         headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "da8230" },
         body: JSON.stringify({
           sessionId: "da8230",
-          runId: "pre-fix",
-          hypothesisId: "H6",
-          location: "app/dashboard/settings/payments/page.tsx:25",
-          message: "stripe_manage_button_invoked",
-          data: { hasUser: Boolean(user), hasProfileStripeId: Boolean(profile?.stripe_account_id) },
+          runId: "post-fix",
+          hypothesisId: "H16",
+          location: "app/dashboard/settings/payments/page.tsx:44",
+          message: "stripe_payments_open_requested",
+          data: {
+            useOnboarding,
+            endpoint,
+            hasProfileStripeId: Boolean(profile?.stripe_account_id),
+            payoutsEnabled,
+          },
           timestamp: Date.now(),
         }),
       }).catch(() => {});
       // #endregion
-      const res = await fetch("/api/user/stripe-login-link", { method: "POST" });
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: useOnboarding ? { "Content-Type": "application/json" } : undefined,
+        body: useOnboarding
+          ? JSON.stringify({
+              returnUrl: `${window.location.origin}/dashboard/settings/payments?stripe=return`,
+              refreshUrl: `${window.location.origin}/dashboard/settings/payments?stripe=refresh`,
+            })
+          : undefined,
+      });
       const data = await res.json();
+
       // #region agent log
       fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "da8230" },
         body: JSON.stringify({
           sessionId: "da8230",
-          runId: "pre-fix",
-          hypothesisId: "H7",
-          location: "app/dashboard/settings/payments/page.tsx:42",
-          message: "stripe_manage_api_response",
-          data: { status: res.status, ok: res.ok, hasUrl: Boolean(data?.url), hasError: Boolean(data?.error) },
+          runId: "post-fix",
+          hypothesisId: "H16",
+          location: "app/dashboard/settings/payments/page.tsx:72",
+          message: "stripe_payments_open_response",
+          data: {
+            status: res.status,
+            ok: res.ok,
+            hasUrl: Boolean(data?.url),
+            linkType: data?.linkType ?? null,
+          },
           timestamp: Date.now(),
         }),
       }).catch(() => {});
       // #endregion
+
       if (res.ok && data.url) {
-        // #region agent log
-        fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "da8230" },
-          body: JSON.stringify({
-            sessionId: "da8230",
-            runId: "pre-fix",
-            hypothesisId: "H8",
-            location: "app/dashboard/settings/payments/page.tsx:57",
-            message: "stripe_manage_window_opening",
-            data: { target: "_blank", hasUrl: true },
-            timestamp: Date.now(),
-          }),
-        }).catch(() => {});
-        // #endregion
-        window.open(data.url, "_blank", "noopener,noreferrer");
+        window.location.href = data.url;
         return;
       }
       setError(data.error ?? "Could not open Stripe");
@@ -90,6 +116,7 @@ export default function SettingsPaymentsPage() {
   }
 
   const hasStripeAccount = !!profile?.stripe_account_id;
+  const needsSetup = hasStripeAccount && payoutsEnabled !== true;
 
   return (
     <div className="rounded-2xl border border-par-3-punch/20 bg-white p-6 shadow-sm">
@@ -108,15 +135,17 @@ export default function SettingsPaymentsPage() {
       {hasStripeAccount ? (
         <div className="mt-6">
           <p className="text-sm text-mowing-green/80 mb-4">
-            Update your bank account, view payouts, and manage tax details in your Stripe Express dashboard.
+            {needsSetup
+              ? "Complete your Stripe payouts setup to receive payments when you sell."
+              : "Update your bank account, view payouts, and manage tax details in your Stripe Express dashboard."}
           </p>
           <button
             type="button"
-            onClick={openStripeDashboard}
-            disabled={opening}
+            onClick={openStripe}
+            disabled={opening || payoutsEnabled === null}
             className="inline-flex items-center gap-2 rounded-xl bg-mowing-green text-off-white-pique px-5 py-2.5 text-sm font-semibold hover:opacity-90 disabled:opacity-70"
           >
-            {opening ? "Opening…" : "Manage in Stripe"}
+            {opening ? "Opening…" : needsSetup ? "Complete Stripe setup" : "Manage in Stripe"}
             <ExternalLink className="h-4 w-4" />
           </button>
           {error && (
