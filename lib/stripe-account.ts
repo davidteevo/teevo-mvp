@@ -81,62 +81,6 @@ export async function createExpressStripeAccount(
   });
 }
 
-/** Fresh onboarding account: prefill individual details; avoid top-level email to reduce Express-login redirects. */
-export async function createExpressStripeAccountForOnboarding(
-  stripe: Stripe,
-  opts: { email?: string | null; profile?: ProfileForStripe | null }
-): Promise<Stripe.Account> {
-  const profile = opts.profile;
-  const hasAddress =
-    profile?.address_line1 &&
-    profile?.address_city &&
-    profile?.address_postcode &&
-    profile?.address_country;
-  const address = hasAddress
-    ? {
-        line1: profile.address_line1!,
-        line2: profile.address_line2 || undefined,
-        city: profile.address_city!,
-        postal_code: profile.address_postcode!,
-        country: profile.address_country!,
-      }
-    : undefined;
-
-  let dob: { day: number; month: number; year: number } | undefined;
-  if (profile?.date_of_birth) {
-    const d = new Date(profile.date_of_birth);
-    if (!Number.isNaN(d.getTime())) {
-      dob = { day: d.getDate(), month: d.getMonth() + 1, year: d.getFullYear() };
-    }
-  }
-
-  const hasName = profile?.first_name?.trim() || profile?.surname?.trim();
-  const individual: {
-    first_name?: string;
-    last_name?: string;
-    email?: string;
-    address?: typeof address;
-    dob?: typeof dob;
-  } = {};
-  if (profile?.first_name?.trim()) individual.first_name = profile.first_name.trim();
-  if (profile?.surname?.trim()) individual.last_name = profile.surname.trim();
-  if (opts.email?.trim()) individual.email = opts.email.trim();
-  if (address) individual.address = address;
-  if (dob) individual.dob = dob;
-
-  const appUrl = getAppUrl();
-  return stripe.accounts.create({
-    type: "express",
-    country: "GB",
-    business_type: "individual",
-    business_profile: {
-      product_description: "Selling pre-owned golf equipment as an individual on Teevo.",
-      ...(appUrl ? { url: appUrl } : {}),
-    },
-    ...(hasName || address || dob || opts.email?.trim() ? { individual } : {}),
-  });
-}
-
 export async function persistStripeAccountId(
   admin: SupabaseClient,
   userId: string,
@@ -223,27 +167,6 @@ function stripeUrlKind(url: string): string {
   }
 }
 
-/**
- * Incomplete onboarding on a reused/partial Express account can land on "Sign in to Express".
- * Create a fresh connected account so live onboarding matches the seamless sandbox first-time flow.
- */
-export async function replaceStripeAccountForOnboarding(
-  stripe: Stripe,
-  admin: SupabaseClient,
-  opts: {
-    userId: string;
-    email?: string | null;
-    profile?: ProfileForStripe | null;
-  }
-): Promise<string> {
-  const account = await createExpressStripeAccountForOnboarding(stripe, {
-    email: opts.email,
-    profile: opts.profile,
-  });
-  await persistStripeAccountId(admin, opts.userId, account.id, opts.profile?.role);
-  return account.id;
-}
-
 export async function resolveStripeAccountForOnboarding(
   stripe: Stripe,
   admin: SupabaseClient,
@@ -254,21 +177,25 @@ export async function resolveStripeAccountForOnboarding(
     existingAccountId?: string | null;
   }
 ): Promise<{ accountId: string; strategy: "fresh" | "existing" }> {
-  let account: Stripe.Account | null = null;
   if (opts.existingAccountId) {
     try {
-      account = await stripe.accounts.retrieve(opts.existingAccountId);
+      const account = await stripe.accounts.retrieve(opts.existingAccountId);
+      if (account.payouts_enabled) {
+        return { accountId: account.id, strategy: "existing" };
+      }
+      await syncStripeAccountEmail(stripe, account.id, opts.email);
+      return { accountId: account.id, strategy: "existing" };
     } catch (error) {
       if (!shouldRotateStripeAccount(error)) throw error;
     }
   }
 
-  if (account?.payouts_enabled) {
-    return { accountId: account.id, strategy: "existing" };
-  }
-
-  const accountId = await replaceStripeAccountForOnboarding(stripe, admin, opts);
-  return { accountId, strategy: "fresh" };
+  const account = await createExpressStripeAccount(stripe, {
+    email: opts.email,
+    profile: opts.profile,
+  });
+  await persistStripeAccountId(admin, opts.userId, account.id, opts.profile?.role);
+  return { accountId: account.id, strategy: "fresh" };
 }
 
 export { stripeUrlKind };

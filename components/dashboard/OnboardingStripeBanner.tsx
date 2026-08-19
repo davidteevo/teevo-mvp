@@ -1,21 +1,50 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { CreditCard } from "lucide-react";
 
 export function OnboardingStripeBanner({ className = "" }: { className?: string }) {
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [payoutsEnabled, setPayoutsEnabled] = useState<boolean | null>(null);
   const [buttonLoading, setButtonLoading] = useState(false);
 
-  useEffect(() => {
-    fetch("/api/onboarding/status")
+  const refreshStatus = useCallback(() => {
+    setLoading(true);
+    return fetch("/api/onboarding/status")
       .then((r) => r.json())
-      .then((data) => setPayoutsEnabled(data.payoutsEnabled === true))
+      .then((data) => {
+        setPayoutsEnabled(data.payoutsEnabled === true);
+        // #region agent log
+        fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "da8230" },
+          body: JSON.stringify({
+            sessionId: "da8230",
+            runId: "post-fix",
+            hypothesisId: "H20",
+            location: "components/dashboard/OnboardingStripeBanner.tsx:24",
+            message: "stripe_banner_status_loaded",
+            data: {
+              payoutsEnabled: data.payoutsEnabled === true,
+              hasStripeAccountId: Boolean(data.stripeAccountId),
+            },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {});
+        // #endregion
+      })
       .catch(() => setPayoutsEnabled(null))
       .finally(() => setLoading(false));
   }, []);
+
+  const stripeParam = searchParams.get("stripe");
+
+  useEffect(() => {
+    refreshStatus();
+  }, [refreshStatus, stripeParam]);
 
   if (loading || payoutsEnabled === true) return null;
 
@@ -31,8 +60,11 @@ export function OnboardingStripeBanner({ className = "" }: { className?: string 
         }),
       });
       const data = await res.json();
-      if (data.url) window.location.href = data.url;
-      else alert(data.error ?? "Could not start onboarding");
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+      alert(data.error ?? "Could not start onboarding");
     } catch {
       alert("Something went wrong");
     } finally {

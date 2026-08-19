@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { getAppUrl } from "@/lib/app-env";
 import { assertStripeModeMatchesEnv } from "@/lib/stripe-env";
 import {
-  createExpressStripeAccountForOnboarding,
+  createExpressStripeAccount,
   persistStripeAccountId,
   resolveStripeAccountForOnboarding,
   shouldRotateStripeAccount,
@@ -111,10 +111,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `Could not start Stripe onboarding. ${detail}` }, { status: 500 });
     }
 
-    const replacement = await createExpressStripeAccountForOnboarding(stripe, {
-      email: user.email,
-      profile,
-    });
+    const replacement = await createExpressStripeAccount(stripe, { email: user.email, profile });
     await persistStripeAccountId(admin, user.id, replacement.id, profile?.role);
 
     const link = await stripe.accountLinks.create({

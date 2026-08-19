@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
@@ -158,7 +158,9 @@ export default function DashboardPage() {
       </div>
       <p className="mt-1 text-mowing-green/80">Buy and sell from one account. Manage your listings and activity.</p>
 
-      <OnboardingStripeBanner className="mt-6" />
+      <Suspense fallback={null}>
+        <OnboardingStripeBanner className="mt-6" />
+      </Suspense>
 
       {edited && (
         <div className="mt-6 rounded-xl border border-par-3-punch/30 bg-par-3-punch/5 p-4 text-sm text-mowing-green">
