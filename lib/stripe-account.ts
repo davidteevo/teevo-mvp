@@ -173,21 +173,6 @@ export async function syncStripeAccountEmail(
     await stripe.accounts.update(accountId, { email: trimmed });
   } catch (error) {
     if (!isStripeAccountFieldLockedError(error)) throw error;
-    // #region agent log
-    fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "da8230" },
-      body: JSON.stringify({
-        sessionId: "da8230",
-        runId: "permissions-fix",
-        hypothesisId: "H22",
-        location: "lib/stripe-account.ts:syncStripeAccountEmail",
-        message: "stripe_email_sync_skipped_locked_fields",
-        data: { accountIdPrefix: accountId.slice(0, 12) },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
   }
 }
 
