@@ -176,10 +176,6 @@ export async function PATCH(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // #region agent log
-  fetch('http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'289a0f'},body:JSON.stringify({sessionId:'289a0f',location:'app/api/listings/[id]/route.ts:PATCH',message:'listing edit saved',data:{isResubmission,hadFeedback:!!listing.admin_feedback,listingId:id},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
-
   if (isResubmission) {
     const displayTitle =
       (listing.title && listing.title.trim()) ||

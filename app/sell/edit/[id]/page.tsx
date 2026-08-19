@@ -375,29 +375,6 @@ export default function SellEditPage() {
             })()}
           </select>
         </div>
-        <div>
-          <div className="flex items-center justify-between gap-2 mb-1">
-            <label className="block text-sm font-medium text-mowing-green">
-              Description
-            </label>
-            <button
-              type="button"
-              onClick={handleImproveWithAI}
-              disabled={enhanceLoading || !category || !condition || !title.trim() || saving}
-              className="text-xs font-medium text-mowing-green underline hover:no-underline disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {enhanceLoading ? "Improving…" : "Improve with AI"}
-            </button>
-          </div>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={4}
-            placeholder="Any details that help buyers..."
-            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50 resize-y"
-          />
-        </div>
-
         {isGolfEquipment && (
           <section className="rounded-xl border border-mowing-green/20 bg-mowing-green/5 overflow-hidden">
             <button
@@ -558,6 +535,29 @@ export default function SellEditPage() {
             )}
           </section>
         )}
+
+        <div>
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <label className="block text-sm font-medium text-mowing-green">
+              Description
+            </label>
+            <button
+              type="button"
+              onClick={handleImproveWithAI}
+              disabled={enhanceLoading || !category || !condition || !title.trim() || saving}
+              className="text-xs font-medium text-mowing-green underline hover:no-underline disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {enhanceLoading ? "Improving…" : "Improve with AI"}
+            </button>
+          </div>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={4}
+            placeholder="Any details that help buyers..."
+            className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50 resize-y"
+          />
+        </div>
 
         <div>
           <label className="block text-sm font-medium text-mowing-green mb-1">
