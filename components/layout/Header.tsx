@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   Menu, X, ChevronDown, Settings, LogOut, ShoppingCart,
   Shield, User, Bell, Heart, Gift, Plus, ListFilter, ShoppingBag,
-  HelpCircle, BarChart2,
+  HelpCircle, BarChart2, LayoutDashboard,
 } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { useState, useRef, useEffect } from "react";
@@ -273,6 +273,34 @@ export function Header() {
 
               {user ? (
                 <>
+                  {/* Profile card — avatar → profile, row → dashboard */}
+                  <div className="rounded-xl bg-mowing-green/5 border border-mowing-green/10 p-3 mb-2">
+                    <div className="flex items-center gap-3">
+                      <Link
+                        href="/dashboard/profile"
+                        className="shrink-0 rounded-full overflow-hidden ring-2 ring-white shadow-sm hover:ring-mowing-green/30 transition-shadow"
+                        onClick={close}
+                        aria-label="Open profile"
+                      >
+                        <AvatarImg className="h-12 w-12 object-cover rounded-full" />
+                      </Link>
+                      <Link
+                        href="/dashboard"
+                        className="flex min-w-0 flex-1 items-center gap-2 py-1"
+                        onClick={close}
+                        aria-label="Open dashboard"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-mowing-green truncate">
+                            {profile?.display_name?.trim() || user.email || "Dashboard"}
+                          </p>
+                          <p className="text-xs text-mowing-green/60 truncate">Tap to open dashboard</p>
+                        </div>
+                        <LayoutDashboard className="h-5 w-5 text-mowing-green/50 shrink-0" />
+                      </Link>
+                    </div>
+                  </div>
+
                   {/* ── Marketplace ── */}
                   <Link
                     href="/"
