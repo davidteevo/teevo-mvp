@@ -154,11 +154,11 @@ export async function POST(request: Request) {
     try {
       await sendViaResend(
         email,
-        "Confirm your Teevo email",
+        "👋 Welcome to Teevo — just one more step",
         {
-          title: "Confirm your email",
-          subtitle: "Verify your Teevo account",
-          body: `Hi ${firstName}, click the button below to confirm your email address, then log in to start using Teevo.`,
+          title: "Just one more step",
+          subtitle: "Confirm your email to get started.",
+          body: `Hi ${firstName}, thanks for joining Teevo! Click the button below to confirm your email address and activate your account.\n\nOnce confirmed, you'll be ready to buy and sell golf clubs on Teevo.`,
           cta_link: buildSignupConfirmUrl(),
           cta_text: "Confirm email",
         }
@@ -175,11 +175,11 @@ export async function POST(request: Request) {
     try {
       await sendViaResend(
         email,
-        "Reset your Teevo password",
+        "🔐 Let's get you back into Teevo",
         {
           title: "Reset your password",
-          subtitle: "You requested a password reset",
-          body: `Hi ${firstName}, click the button below to set a new password. If you didn't request this, you can ignore this email.`,
+          subtitle: "We received a password reset request for your account.",
+          body: `Hi ${firstName}, no worries — it happens! Click the button below to set a new password.\n\nDidn't request this? You can safely ignore this email.`,
           cta_link: recoveryLink,
           cta_text: "Reset password",
         }
@@ -197,11 +197,11 @@ export async function POST(request: Request) {
     try {
       await sendViaResend(
         newEmail,
-        "Confirm your new Teevo email",
+        "\u2709\uFE0F One quick check for your new email",
         {
-          title: "Confirm your new email",
-          subtitle: "You requested to change your email address",
-          body: `Hi ${firstName}, click the button below to confirm this email address for your Teevo account.`,
+          title: "Confirm your new email address",
+          subtitle: "You requested to change your Teevo email.",
+          body: `Hi ${firstName}, click the button below to confirm this email address for your Teevo account.\n\nDidn't request this? You can safely ignore this email.`,
           cta_link: buildVerifyUrl(token_hash, email_action_type),
           cta_text: "Confirm new email",
         }
@@ -209,11 +209,11 @@ export async function POST(request: Request) {
       if (token_hash_new && user.email && user.email !== newEmail) {
         await sendViaResend(
           user.email,
-          "Teevo email change requested",
+          "\uD83D\uDC40 Your Teevo email is being changed",
           {
-            title: "Email change requested",
-            subtitle: "A request was made to change your Teevo account email",
-            body: `Hi ${firstName}, if you requested this change, confirm it from the email we sent to your new address. If you didn’t, you can ignore this email.`,
+            title: "Your email address is being changed",
+            subtitle: "A request was made to update your Teevo account email.",
+            body: `Hi ${firstName}, we received a request to change the email address on your Teevo account.\n\nIf you made this request, confirm it from the email we sent to your new address. If you didn't request this, you can safely ignore this email.`,
             cta_link: buildVerifyUrl(token_hash_new, email_action_type),
             cta_text: "View details",
           }
@@ -230,11 +230,11 @@ export async function POST(request: Request) {
     try {
       await sendViaResend(
         email,
-        "You're invited to Teevo",
+        "\uD83D\uDC4B You've been invited to Teevo",
         {
-          title: "Set your password",
-          subtitle: "You've been invited to Teevo",
-          body: `Hi ${firstName}, click the button below to set your password and access your Teevo account.`,
+          title: "You've been invited to Teevo",
+          subtitle: "Set your password to get started.",
+          body: `Hi ${firstName}, you've been invited to Teevo — the modern marketplace for second-hand golf clubs.\n\nClick the button below to set your password and access your account.`,
           cta_link: buildVerifyUrl(token_hash, email_action_type),
           cta_text: "Accept invite",
         }
@@ -253,6 +253,9 @@ export async function POST(request: Request) {
       { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
+
+  // Suppress unused variable warnings for token_new (present in payload but not used in current flows)
+  void token_new;
 
   console.info("Send email hook: sent", email_action_type, "to", email);
   return new Response(JSON.stringify({}), {

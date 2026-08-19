@@ -214,11 +214,11 @@ export async function POST(request: Request) {
       await sendEmail({
         type: "alert",
         to: email,
-        subject: "You're invited to Teevo",
+        subject: "\u26F3 You\u2019re invited to join Teevo",
         variables: {
-          title: "Set your password",
-          subtitle: "You've been invited to Teevo",
-          body: `Hi ${firstName}, click the button below to set your password and access your Teevo account.`,
+          title: "You're invited to join Teevo",
+          subtitle: "Set your password to get started.",
+          body: `Hi ${firstName}, you've been invited to sell on Teevo — the modern marketplace for second-hand golf clubs.\n\nClick the button below to set your password and access your account.`,
           cta_link: actionLink,
           cta_text: "Set your password",
         },

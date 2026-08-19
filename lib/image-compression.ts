@@ -10,10 +10,10 @@ const MAIN_MAX_WIDTH = 2800;
 const MAIN_QUALITY = 0.9;
 const MAIN_MAX_SIZE_MB = 2.5;
 
-/** Thumbnail: 400px width, WebP, ~78% quality. For grids only. */
-const THUMB_MAX_WIDTH = 400;
-const THUMB_QUALITY = 0.78;
-const THUMB_MAX_SIZE_MB = 0.2;
+/** Thumbnail: 600px, WebP, ~85% quality. For grids only. Size cap raised to avoid library downscaling below maxWidthOrHeight. */
+const THUMB_MAX_WIDTH = 600;
+const THUMB_QUALITY = 0.85;
+const THUMB_MAX_SIZE_MB = 1.0;
 
 /**
  * Compress a file to main listing image (up to 2800px, WebP, ~90% quality, up to ~2.5MB).

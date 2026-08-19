@@ -19,25 +19,25 @@ function copyForReward(rewardType: ReferralRewardTypeValue, amountGbp: string): 
 } {
   if (rewardType === ReferralRewardType.SELLER_LISTING_CREDIT) {
     return {
-      title: `You've earned £${amountGbp}`,
+      title: `\u00A3${amountGbp} Teevo credit earned`,
       message: "Someone you referred has listed their first club.",
-      emailSubject: `You've earned £${amountGbp} Teevo credit`,
-      emailBody: `Someone you referred has listed their first club.<br /><br />We've added £${amountGbp} Teevo credit to your account.<br /><br />Use it towards your next club on Teevo.`,
+      emailSubject: `\uD83D\uDCB8 \u00A3${amountGbp} Teevo credit earned!`,
+      emailBody: `Someone you referred has listed their first club on Teevo.\n\nWe\u2019ve added \u00A3${amountGbp} Teevo credit to your account. Use it towards your next club.`,
     };
   }
   if (rewardType === ReferralRewardType.SELLER_SALE_CREDIT) {
     return {
-      title: `Another £${amountGbp} earned`,
+      title: `Another \u00A3${amountGbp} Teevo credit earned`,
       message: "Your referral completed their first Teevo sale.",
-      emailSubject: `You've earned £${amountGbp} Teevo credit`,
-      emailBody: `Your referral completed their first Teevo sale.<br /><br />We've added £${amountGbp} Teevo credit to your account.<br /><br />Use it towards your next club on Teevo.`,
+      emailSubject: `\uD83C\uDF89 Another \u00A3${amountGbp} Teevo credit earned!`,
+      emailBody: `Your referral completed their first sale on Teevo.\n\nWe\u2019ve added another \u00A3${amountGbp} Teevo credit to your account. Use it towards your next club.`,
     };
   }
   return {
-    title: `You've earned £${amountGbp} 🎉`,
+    title: `You\u2019ve earned \u00A3${amountGbp} Teevo credit \uD83C\uDF89`,
     message: "Your referral completed their first purchase. Teevo credit has been added to your account.",
-    emailSubject: `You've earned £${amountGbp} Teevo credit`,
-    emailBody: `Someone you referred has completed their first Teevo purchase.<br /><br />We've added £${amountGbp} Teevo credit to your account.<br /><br />Use it towards your next club on Teevo.`,
+    emailSubject: `\uD83C\uDF89 You\u2019ve earned \u00A3${amountGbp} Teevo credit!`,
+    emailBody: `Someone you referred has completed their first Teevo purchase.\n\nWe\u2019ve added \u00A3${amountGbp} Teevo credit to your account. Use it towards your next club on Teevo.`,
   };
 }
 
