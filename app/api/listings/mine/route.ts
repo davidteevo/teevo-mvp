@@ -17,7 +17,7 @@ export async function GET(request: Request) {
 
   let query = supabase
     .from("listings")
-    .select("id, category, brand, model, title, condition, price, shaft, degree, shaft_flex, status, created_at, admin_feedback, archived_at, availability_confirmation_status, availability_confirmation_source, buying_paused, listing_images ( id, storage_path, sort_order )")
+    .select("id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, status, created_at, admin_feedback, archived_at, availability_confirmation_status, availability_confirmation_source, buying_paused, listing_images ( id, storage_path, sort_order )")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
