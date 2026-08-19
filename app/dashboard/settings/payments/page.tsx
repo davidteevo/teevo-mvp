@@ -89,6 +89,8 @@ export default function SettingsPaymentsPage() {
             ok: res.ok,
             hasUrl: Boolean(data?.url),
             linkType: data?.linkType ?? null,
+            strategy: data?.strategy ?? null,
+            urlKind: data?.urlKind ?? null,
           },
           timestamp: Date.now(),
         }),

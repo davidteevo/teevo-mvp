@@ -149,9 +149,76 @@ async function createOnboardingLink(
     return_url: opts.returnUrl,
     refresh_url: opts.refreshUrl,
     type: "account_onboarding",
+    collection_options: { fields: "currently_due" },
   });
   return { url: onboardingLink.url, linkType: "account_onboarding" };
 }
+
+function stripeUrlKind(url: string): string {
+  try {
+    const parsed = new URL(url);
+    if (parsed.pathname.includes("setup")) return "setup";
+    if (parsed.pathname.includes("login") || parsed.hostname.includes("express")) return "express_login";
+    return parsed.pathname.split("/").filter(Boolean)[0] ?? "unknown";
+  } catch {
+    return "invalid";
+  }
+}
+
+/**
+ * Incomplete onboarding on a reused/partial Express account can land on "Sign in to Express".
+ * Create a fresh connected account so live onboarding matches the seamless sandbox first-time flow.
+ */
+export async function replaceStripeAccountForOnboarding(
+  stripe: Stripe,
+  admin: SupabaseClient,
+  opts: {
+    userId: string;
+    email?: string | null;
+    profile?: ProfileForStripe | null;
+  }
+): Promise<string> {
+  const account = await createExpressStripeAccount(stripe, {
+    email: opts.email,
+    profile: opts.profile,
+  });
+  await persistStripeAccountId(admin, opts.userId, account.id, opts.profile?.role);
+  return account.id;
+}
+
+export async function resolveStripeAccountForOnboarding(
+  stripe: Stripe,
+  admin: SupabaseClient,
+  opts: {
+    userId: string;
+    email?: string | null;
+    profile?: ProfileForStripe | null;
+    existingAccountId?: string | null;
+  }
+): Promise<{ accountId: string; strategy: "fresh" | "existing" | "update" }> {
+  let account: Stripe.Account | null = null;
+  if (opts.existingAccountId) {
+    try {
+      account = await stripe.accounts.retrieve(opts.existingAccountId);
+    } catch (error) {
+      if (!shouldRotateStripeAccount(error)) throw error;
+    }
+  }
+
+  if (account?.payouts_enabled) {
+    return { accountId: account.id, strategy: "existing" };
+  }
+
+  if (account && account.details_submitted) {
+    await syncStripeAccountEmail(stripe, account.id, opts.email);
+    return { accountId: account.id, strategy: "update" };
+  }
+
+  const accountId = await replaceStripeAccountForOnboarding(stripe, admin, opts);
+  return { accountId, strategy: "fresh" };
+}
+
+export { stripeUrlKind };
 
 /**
  * Login link for onboarded Express accounts; onboarding link otherwise.
