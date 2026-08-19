@@ -81,6 +81,60 @@ export async function createExpressStripeAccount(
   });
 }
 
+/** Fresh onboarding account: omit email so live mode does not force Express login for known addresses. */
+export async function createExpressStripeAccountForOnboarding(
+  stripe: Stripe,
+  opts: { profile?: ProfileForStripe | null }
+): Promise<Stripe.Account> {
+  const profile = opts.profile;
+  const hasAddress =
+    profile?.address_line1 &&
+    profile?.address_city &&
+    profile?.address_postcode &&
+    profile?.address_country;
+  const address = hasAddress
+    ? {
+        line1: profile.address_line1!,
+        line2: profile.address_line2 || undefined,
+        city: profile.address_city!,
+        postal_code: profile.address_postcode!,
+        country: profile.address_country!,
+      }
+    : undefined;
+
+  let dob: { day: number; month: number; year: number } | undefined;
+  if (profile?.date_of_birth) {
+    const d = new Date(profile.date_of_birth);
+    if (!Number.isNaN(d.getTime())) {
+      dob = { day: d.getDate(), month: d.getMonth() + 1, year: d.getFullYear() };
+    }
+  }
+
+  const hasName = profile?.first_name?.trim() || profile?.surname?.trim();
+  const individual: {
+    first_name?: string;
+    last_name?: string;
+    address?: typeof address;
+    dob?: typeof dob;
+  } = {};
+  if (profile?.first_name?.trim()) individual.first_name = profile.first_name.trim();
+  if (profile?.surname?.trim()) individual.last_name = profile.surname.trim();
+  if (address) individual.address = address;
+  if (dob) individual.dob = dob;
+
+  const appUrl = getAppUrl();
+  return stripe.accounts.create({
+    type: "express",
+    country: "GB",
+    business_type: "individual",
+    business_profile: {
+      product_description: "Selling pre-owned golf equipment as an individual on Teevo.",
+      ...(appUrl ? { url: appUrl } : {}),
+    },
+    ...(hasName || address || dob ? { individual } : {}),
+  });
+}
+
 export async function persistStripeAccountId(
   admin: SupabaseClient,
   userId: string,
@@ -149,7 +203,7 @@ async function createOnboardingLink(
     return_url: opts.returnUrl,
     refresh_url: opts.refreshUrl,
     type: "account_onboarding",
-    collection_options: { fields: "currently_due" },
+    collection_options: { fields: "eventually_due" },
   });
   return { url: onboardingLink.url, linkType: "account_onboarding" };
 }
@@ -157,9 +211,11 @@ async function createOnboardingLink(
 function stripeUrlKind(url: string): string {
   try {
     const parsed = new URL(url);
-    if (parsed.pathname.includes("setup")) return "setup";
-    if (parsed.pathname.includes("login") || parsed.hostname.includes("express")) return "express_login";
-    return parsed.pathname.split("/").filter(Boolean)[0] ?? "unknown";
+    if (parsed.pathname.includes("/setup/")) return "setup";
+    if (parsed.pathname.includes("/express/") || parsed.pathname.includes("/login")) {
+      return "express_login";
+    }
+    return parsed.pathname.split("/").filter(Boolean).slice(0, 2).join("/") || "unknown";
   } catch {
     return "invalid";
   }
@@ -178,8 +234,7 @@ export async function replaceStripeAccountForOnboarding(
     profile?: ProfileForStripe | null;
   }
 ): Promise<string> {
-  const account = await createExpressStripeAccount(stripe, {
-    email: opts.email,
+  const account = await createExpressStripeAccountForOnboarding(stripe, {
     profile: opts.profile,
   });
   await persistStripeAccountId(admin, opts.userId, account.id, opts.profile?.role);
@@ -195,7 +250,7 @@ export async function resolveStripeAccountForOnboarding(
     profile?: ProfileForStripe | null;
     existingAccountId?: string | null;
   }
-): Promise<{ accountId: string; strategy: "fresh" | "existing" | "update" }> {
+): Promise<{ accountId: string; strategy: "fresh" | "existing" }> {
   let account: Stripe.Account | null = null;
   if (opts.existingAccountId) {
     try {
@@ -207,11 +262,6 @@ export async function resolveStripeAccountForOnboarding(
 
   if (account?.payouts_enabled) {
     return { accountId: account.id, strategy: "existing" };
-  }
-
-  if (account && account.details_submitted) {
-    await syncStripeAccountEmail(stripe, account.id, opts.email);
-    return { accountId: account.id, strategy: "update" };
   }
 
   const accountId = await replaceStripeAccountForOnboarding(stripe, admin, opts);

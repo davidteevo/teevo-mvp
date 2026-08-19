@@ -101,7 +101,11 @@ export default function SettingsPaymentsPage() {
         window.location.href = data.url;
         return;
       }
-      setError(data.error ?? "Could not open Stripe");
+      const debugHint =
+        data.urlKind || data.urlPathPrefix
+          ? ` (${[data.urlKind, data.urlPathPrefix].filter(Boolean).join(", ")})`
+          : "";
+      setError((data.error ?? "Could not open Stripe") + debugHint);
     } catch {
       setError("Something went wrong");
     } finally {

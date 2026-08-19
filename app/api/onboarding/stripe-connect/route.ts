@@ -5,12 +5,11 @@ import { NextResponse } from "next/server";
 import { getAppUrl } from "@/lib/app-env";
 import { assertStripeModeMatchesEnv } from "@/lib/stripe-env";
 import {
-  createExpressStripeAccount,
+  createExpressStripeAccountForOnboarding,
   persistStripeAccountId,
   resolveStripeAccountForOnboarding,
   shouldRotateStripeAccount,
   stripeUrlKind,
-  syncStripeAccountEmail,
 } from "@/lib/stripe-account";
 
 assertStripeModeMatchesEnv();
@@ -48,18 +47,25 @@ export async function POST(request: Request) {
       existingAccountId: profile?.stripe_account_id,
     });
 
-    await syncStripeAccountEmail(stripe, accountId, user.email);
-
-    const linkType = strategy === "update" ? "account_update" : "account_onboarding";
     const link = await stripe.accountLinks.create({
       account: accountId,
       return_url: returnUrl,
       refresh_url: refreshUrl,
-      type: linkType,
-      collection_options: { fields: "currently_due" },
+      type: "account_onboarding",
+      collection_options: { fields: "eventually_due" },
     });
 
     const urlKind = stripeUrlKind(link.url);
+    let urlHost = "";
+    let urlPathPrefix = "";
+    try {
+      const parsed = new URL(link.url);
+      urlHost = parsed.hostname;
+      urlPathPrefix = parsed.pathname.split("/").filter(Boolean).slice(0, 3).join("/");
+    } catch {
+      // ignore parse errors
+    }
+
     // #region agent log
     fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
       method: "POST",
@@ -67,16 +73,37 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         sessionId: "da8230",
         runId: "post-fix",
-        hypothesisId: "H17",
-        location: "app/api/onboarding/stripe-connect/route.ts:66",
+        hypothesisId: "H18",
+        location: "app/api/onboarding/stripe-connect/route.ts:72",
         message: "stripe_connect_onboarding_link_created",
-        data: { strategy, linkType, urlKind },
+        data: { strategy, linkType: "account_onboarding", urlKind, urlHost, urlPathPrefix },
         timestamp: Date.now(),
       }),
     }).catch(() => {});
     // #endregion
 
-    return NextResponse.json({ url: link.url, linkType, strategy, urlKind });
+    if (urlKind === "express_login") {
+      return NextResponse.json(
+        {
+          error:
+            "Stripe returned an Express login URL instead of onboarding. Try again or contact support.",
+          strategy,
+          urlKind,
+          urlHost,
+          urlPathPrefix,
+        },
+        { status: 502 }
+      );
+    }
+
+    return NextResponse.json({
+      url: link.url,
+      linkType: "account_onboarding",
+      strategy,
+      urlKind,
+      urlHost,
+      urlPathPrefix,
+    });
   } catch (e) {
     if (!shouldRotateStripeAccount(e)) {
       console.error("Stripe connect account link error:", e);
@@ -84,23 +111,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `Could not start Stripe onboarding. ${detail}` }, { status: 500 });
     }
 
-    const replacement = await createExpressStripeAccount(stripe, { email: user.email, profile });
+    const replacement = await createExpressStripeAccountForOnboarding(stripe, { profile });
     await persistStripeAccountId(admin, user.id, replacement.id, profile?.role);
-    await syncStripeAccountEmail(stripe, replacement.id, user.email);
 
     const link = await stripe.accountLinks.create({
       account: replacement.id,
       return_url: returnUrl,
       refresh_url: refreshUrl,
       type: "account_onboarding",
-      collection_options: { fields: "currently_due" },
+      collection_options: { fields: "eventually_due" },
     });
 
+    const urlKind = stripeUrlKind(link.url);
     return NextResponse.json({
       url: link.url,
       linkType: "account_onboarding",
       strategy: "fresh",
-      urlKind: stripeUrlKind(link.url),
+      urlKind,
     });
   }
 }
