@@ -96,9 +96,6 @@ export async function POST(
 
       // Send in-app notification to the seller
       try {
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
-        const editUrl = `${appUrl}/sell/edit/${id}`;
-
         await createNotification(admin, {
           userId: listing.user_id,
           type: NotificationType.LISTING_EDITS_REQUESTED,
@@ -106,7 +103,7 @@ export async function POST(
           message: comment,
           entityType: NotificationEntityType.LISTING,
           entityId: id,
-          actionUrl: editUrl,
+          actionUrl: `/sell/edit/${id}`,
           actionLabel: "Edit listing",
           requiresAction: true,
         });
