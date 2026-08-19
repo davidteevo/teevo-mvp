@@ -182,6 +182,11 @@ export async function PATCH(
       [listing.brand, listing.model].filter(Boolean).join(" ").trim() ||
       "a listing";
 
+    // #region agent log
+    fetch('http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'5fc121'},body:JSON.stringify({sessionId:'5fc121',location:'listings/[id]/route.ts:resubmit',message:'resubmission detected, resolving old notification then notifying admins',data:{listingId:id,displayTitle},timestamp:Date.now(),hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
+    // Resolve any existing unactioned admin notification so a fresh one can be created
+    await resolveListingReviewRequired(admin, id);
     await notifyListingReviewRequired(admin, { listingId: id, title: displayTitle });
 
     const envEmails = getAdminAlertEmails();
@@ -195,6 +200,9 @@ export async function PATCH(
       const subtitle = [listing.brand, listing.title || listing.model, listing.category].filter(Boolean).join(" · ");
       try {
         await clearSentEmail(admin, EmailTriggerType.NEW_LISTING_PENDING, id);
+        // #region agent log
+        fetch('http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'5fc121'},body:JSON.stringify({sessionId:'5fc121',location:'listings/[id]/route.ts:admin-email',message:'sending resubmission admin email',data:{adminTo,listingId:id},timestamp:Date.now(),hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
         await ensureEmailSent(admin, {
           emailType: EmailTriggerType.NEW_LISTING_PENDING,
           referenceId: id,
