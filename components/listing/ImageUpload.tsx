@@ -74,17 +74,27 @@ export function ImageUpload(props: ImageUploadProps) {
     }
   };
 
+  const tileRefs = useRef<(HTMLDivElement | null)[]>([]);
+
   const handlePointerDown = (index: number) => (e: React.PointerEvent<HTMLDivElement>) => {
     dragIndex.current = index;
     setDraggingIndex(index);
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   };
 
-  const handlePointerEnter = (index: number) => () => {
-    if (dragIndex.current === null || dragIndex.current === index) return;
-    reorder(dragIndex.current, index);
-    dragIndex.current = index;
-    setDraggingIndex(index);
+  const handlePointerMove = (index: number) => (e: React.PointerEvent<HTMLDivElement>) => {
+    if (dragIndex.current === null) return;
+    // pointer capture routes all move events to the dragging element, so use
+    // elementFromPoint to find which tile is physically under the cursor
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    if (!el) return;
+    const targetIndex = tileRefs.current.findIndex(
+      (ref) => ref && (ref === el || ref.contains(el))
+    );
+    if (targetIndex === -1 || targetIndex === dragIndex.current) return;
+    reorder(dragIndex.current, targetIndex);
+    dragIndex.current = targetIndex;
+    setDraggingIndex(targetIndex);
   };
 
   const handlePointerUp = () => {
@@ -146,11 +156,12 @@ export function ImageUpload(props: ImageUploadProps) {
         {Array.from({ length: thumbnailCount }).map((_, i) => (
           <div
             key={isStoredMode ? props.storedImages[i].id : i}
+            ref={(el) => { tileRefs.current[i] = el; }}
             className={`flex flex-col items-center gap-0.5 touch-none select-none cursor-grab active:cursor-grabbing transition-opacity duration-150 ${
               draggingIndex === i ? "opacity-50 scale-95" : "opacity-100"
             }`}
             onPointerDown={handlePointerDown(i)}
-            onPointerEnter={handlePointerEnter(i)}
+            onPointerMove={handlePointerMove(i)}
             onPointerUp={handlePointerUp}
           >
             <div className="relative w-20 h-20 rounded-lg border border-par-3-punch/30 bg-mowing-green/5 overflow-hidden">
