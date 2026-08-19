@@ -201,7 +201,7 @@ export default function DashboardListingsPage() {
           <ul className="divide-y divide-par-3-punch/10">
             {listings.map((l) => (
               <li key={l.id} className="p-4">
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex items-start justify-between gap-3">
                   <Link
                     href={`/listing/${l.id}`}
                     className="min-w-0 flex-1 rounded-lg hover:bg-mowing-green/5 -m-2 p-2 transition-colors"
@@ -214,10 +214,12 @@ export default function DashboardListingsPage() {
                       </p>
                     )}
                   </Link>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <span className="font-semibold text-mowing-green">{formatPrice(l.price)}</span>
-                    {statusBadge(l)}
+                  <div className="flex flex-col items-end gap-1.5 shrink-0">
                     <div className="flex items-center gap-2">
+                      <span className="font-semibold text-mowing-green">{formatPrice(l.price)}</span>
+                      {statusBadge(l)}
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap justify-end">
                       <Link href={`/listing/${l.id}`} className="text-sm text-par-3-punch hover:underline">
                         View
                       </Link>
