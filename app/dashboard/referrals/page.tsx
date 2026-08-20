@@ -11,8 +11,10 @@ type Reward = { id: string; amountPence: number; status: string; createdAt: stri
 
 type Me = {
   programmeEnabled: boolean;
+  referralPriority: "supply" | "demand";
   discountPence: number;
   referrerRewardPence: number;
+  sellerListingRewardPence: number;
   code: string | null;
   url: string | null;
   creditPence: number;
@@ -76,8 +78,10 @@ export default function ReferralsPage() {
           <div className="mt-6">
             <ReferralOfferPanel
               url={me.url}
+              priority={me.referralPriority === "demand" ? "demand" : "supply"}
               discountPence={me.discountPence}
               referrerRewardPence={me.referrerRewardPence}
+              sellerListingRewardPence={me.sellerListingRewardPence}
               code={me.code}
               headingAs="h1"
             />

@@ -4,6 +4,7 @@
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { ReferralPriority, type ReferralPriorityValue } from "@/lib/referral/types";
 
 export const ReferralSettingKey = {
   PROGRAMME_ENABLED: "referral_programme_enabled",
@@ -17,6 +18,7 @@ export const ReferralSettingKey = {
   CREATOR_DEFAULT_COMMISSION_PENCE: "creator_default_commission_pence",
   CREDIT_ENABLED: "credit_enabled",
   CREDIT_EXPIRY_DAYS: "credit_expiry_days",
+  REFERRAL_PRIORITY: "referral_priority",
 } as const;
 
 export type ReferralSettings = {
@@ -31,6 +33,7 @@ export type ReferralSettings = {
   creatorDefaultCommissionPence: number;
   creditEnabled: boolean;
   creditExpiryDays: number | null;
+  referralPriority: ReferralPriorityValue;
 };
 
 export const DEFAULT_REFERRAL_SETTINGS: ReferralSettings = {
@@ -45,6 +48,7 @@ export const DEFAULT_REFERRAL_SETTINGS: ReferralSettings = {
   creatorDefaultCommissionPence: 750,
   creditEnabled: true,
   creditExpiryDays: null,
+  referralPriority: ReferralPriority.SUPPLY,
 };
 
 function parseBool(value: unknown, fallback: boolean): boolean {
@@ -69,6 +73,12 @@ function parseExpiryDays(value: unknown): number | null {
   const n = parseNonNegInt(value, -1);
   if (n <= 0) return null;
   return n;
+}
+
+function parseReferralPriority(value: unknown): ReferralPriorityValue {
+  if (value === ReferralPriority.DEMAND || value === "DEMAND") return ReferralPriority.DEMAND;
+  if (value === ReferralPriority.SUPPLY || value === "SUPPLY") return ReferralPriority.SUPPLY;
+  return DEFAULT_REFERRAL_SETTINGS.referralPriority;
 }
 
 export async function getReferralSettings(admin: SupabaseClient): Promise<ReferralSettings> {
@@ -103,6 +113,7 @@ export async function getReferralSettings(admin: SupabaseClient): Promise<Referr
     ),
     creditEnabled: parseBool(map.get(ReferralSettingKey.CREDIT_ENABLED), DEFAULT_REFERRAL_SETTINGS.creditEnabled),
     creditExpiryDays: parseExpiryDays(map.get(ReferralSettingKey.CREDIT_EXPIRY_DAYS)),
+    referralPriority: parseReferralPriority(map.get(ReferralSettingKey.REFERRAL_PRIORITY)),
   };
 }
 
@@ -118,6 +129,7 @@ export type ReferralSettingsPatch = Partial<{
   creatorDefaultCommissionPence: number;
   creditEnabled: boolean;
   creditExpiryDays: number | null;
+  referralPriority: ReferralPriorityValue;
 }>;
 
 function penceOrThrow(value: unknown, label: string): number {
@@ -144,7 +156,7 @@ export async function setReferralSettings(
   addPence(ReferralSettingKey.REFERRER_REWARD_PENCE, patch.referrerRewardPence, "Referrer reward");
   addPence(ReferralSettingKey.MIN_ITEM_PENCE, patch.minItemPence, "Minimum qualifying purchase");
   addBool(ReferralSettingKey.SELLER_ENABLED, patch.sellerEnabled);
-  addPence(ReferralSettingKey.SELLER_LISTING_REWARD_PENCE, patch.sellerListingRewardPence, "First listing reward");
+  addPence(ReferralSettingKey.SELLER_LISTING_REWARD_PENCE, patch.sellerListingRewardPence, "Supply listing reward");
   addPence(ReferralSettingKey.SELLER_SALE_REWARD_PENCE, patch.sellerSaleRewardPence, "First sale reward");
   addBool(ReferralSettingKey.CREATOR_ENABLED, patch.creatorEnabled);
   addPence(
@@ -153,6 +165,19 @@ export async function setReferralSettings(
     "Default creator commission"
   );
   addBool(ReferralSettingKey.CREDIT_ENABLED, patch.creditEnabled);
+  if (patch.referralPriority !== undefined) {
+    if (
+      patch.referralPriority !== ReferralPriority.SUPPLY &&
+      patch.referralPriority !== ReferralPriority.DEMAND
+    ) {
+      throw new Error("Referral priority must be supply or demand");
+    }
+    rows.push({
+      key: ReferralSettingKey.REFERRAL_PRIORITY,
+      value: patch.referralPriority,
+      updated_at: now,
+    });
+  }
   if (patch.creditExpiryDays !== undefined) {
     const days = patch.creditExpiryDays;
     if (days != null && (typeof days !== "number" || !Number.isInteger(days) || days < 0)) {

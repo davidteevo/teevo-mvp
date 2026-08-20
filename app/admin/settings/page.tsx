@@ -360,6 +360,7 @@ function ReferralGrowthSettings() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [referralPriority, setReferralPriority] = useState<"supply" | "demand">("supply");
   const [programmeEnabled, setProgrammeEnabled] = useState(true);
   const [sellerEnabled, setSellerEnabled] = useState(true);
   const [creatorEnabled, setCreatorEnabled] = useState(true);
@@ -377,6 +378,7 @@ function ReferralGrowthSettings() {
       .then(async (r) => {
         const data = await r.json();
         if (!r.ok) throw new Error(data.error ?? "Failed to load referral settings");
+        setReferralPriority(data.referralPriority === "demand" ? "demand" : "supply");
         setProgrammeEnabled(data.programmeEnabled === true);
         setSellerEnabled(data.sellerEnabled === true);
         setCreatorEnabled(data.creatorEnabled === true);
@@ -408,6 +410,7 @@ function ReferralGrowthSettings() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          referralPriority,
           programmeEnabled,
           sellerEnabled,
           creatorEnabled,
@@ -415,7 +418,7 @@ function ReferralGrowthSettings() {
           discountPence: toPence(discount, "Referred customer discount"),
           referrerRewardPence: toPence(referrerReward, "Referrer reward"),
           minItemPence: toPence(minPurchase, "Minimum purchase"),
-          sellerListingRewardPence: toPence(listingReward, "First listing reward"),
+          sellerListingRewardPence: toPence(listingReward, "Supply listing reward"),
           sellerSaleRewardPence: toPence(saleReward, "First sale reward"),
           creatorDefaultCommissionPence: toPence(creatorCommission, "Default creator commission"),
           creditExpiryDays: expiry,
@@ -436,11 +439,47 @@ function ReferralGrowthSettings() {
       <h2 className="text-lg font-semibold text-mowing-green">Referral / Growth</h2>
       <p className="mt-1 text-sm text-mowing-green/70">
         Changes apply to future rewards only. Historical credit and commissions are unchanged.
+        Priority is locked onto each referral at signup so existing invites keep their offer.
       </p>
       {loading ? (
         <p className="mt-4 text-sm text-mowing-green/70">Loading…</p>
       ) : (
         <div className="mt-4 space-y-3">
+          <fieldset className="space-y-2">
+            <legend className="font-medium text-mowing-green">What do we want to grow?</legend>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="radio"
+                className="mt-1"
+                name="referralPriority"
+                checked={referralPriority === "supply"}
+                onChange={() => setReferralPriority("supply")}
+              />
+              <span>
+                <span className="font-medium text-mowing-green">Grow Supply</span>
+                <span className="block text-sm text-mowing-green/70">
+                  Encourage people to invite friends to list clubs. Both earn the Supply listing reward when the
+                  friend&apos;s first listing is verified.
+                </span>
+              </span>
+            </label>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="radio"
+                className="mt-1"
+                name="referralPriority"
+                checked={referralPriority === "demand"}
+                onChange={() => setReferralPriority("demand")}
+              />
+              <span>
+                <span className="font-medium text-mowing-green">Grow Demand</span>
+                <span className="block text-sm text-mowing-green/70">
+                  Encourage people to invite friends to buy. Referred buyers get a first-purchase discount; the
+                  referrer earns credit when that purchase completes.
+                </span>
+              </span>
+            </label>
+          </fieldset>
           <label className="flex items-start gap-3 cursor-pointer">
             <input
               type="checkbox"
@@ -449,9 +488,10 @@ function ReferralGrowthSettings() {
               onChange={(e) => setProgrammeEnabled(e.target.checked)}
             />
             <span>
-              <span className="font-medium text-mowing-green">Standard referral programme</span>
+              <span className="font-medium text-mowing-green">Member referral attribution (Demand)</span>
               <span className="block text-sm text-mowing-green/70">
-                Lets members invite friends. Referred buyers get a first-purchase discount; the referrer gets Teevo credit when that purchase completes.
+                Allows member invite codes to attribute new users when Demand is active (or with Seller referral
+                on for Supply). Turn off with Seller referral to stop new member attributions.
               </span>
             </span>
           </label>
@@ -463,9 +503,10 @@ function ReferralGrowthSettings() {
               onChange={(e) => setSellerEnabled(e.target.checked)}
             />
             <span>
-              <span className="font-medium text-mowing-green">Seller referral</span>
+              <span className="font-medium text-mowing-green">Seller referral (sale bonus + legacy)</span>
               <span className="block text-sm text-mowing-green/70">
-                Rewards a referrer when someone they invited lists their first club, and again when that seller completes their first sale.
+                Pays the first completed sale bonus. Also used for legacy listing rewards and to keep attribution
+                available when the Demand programme toggle is off.
               </span>
             </span>
           </label>
@@ -479,7 +520,8 @@ function ReferralGrowthSettings() {
             <span>
               <span className="font-medium text-mowing-green">Creator programme</span>
               <span className="block text-sm text-mowing-green/70">
-                Lets creators share unique codes. A qualifying first purchase pays their commission instead of a member referrer reward.
+                Lets creators share unique codes. A qualifying first purchase pays their commission instead of a
+                member referrer reward.
               </span>
             </span>
           </label>
@@ -493,37 +535,66 @@ function ReferralGrowthSettings() {
             <span>
               <span className="font-medium text-mowing-green">Teevo credit</span>
               <span className="block text-sm text-mowing-green/70">
-                Lets buyers spend earned Teevo credit at checkout. Turning this off stops new redemptions; existing balances stay in place.
+                Lets buyers spend earned Teevo credit at checkout. Turning this off stops new redemptions; existing
+                balances stay in place.
               </span>
             </span>
           </label>
           <label className="block text-sm text-mowing-green">
-            Referred customer discount (£)
-            <input value={discount} onChange={(e) => setDiscount(e.target.value)} className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2" />
+            Supply listing reward (£) — both parties when first listing is verified
+            <input
+              value={listingReward}
+              onChange={(e) => setListingReward(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2"
+            />
           </label>
           <label className="block text-sm text-mowing-green">
-            Referrer reward (£)
-            <input value={referrerReward} onChange={(e) => setReferrerReward(e.target.value)} className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2" />
+            Referred customer discount (£) — Demand
+            <input
+              value={discount}
+              onChange={(e) => setDiscount(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2"
+            />
           </label>
           <label className="block text-sm text-mowing-green">
-            Minimum qualifying purchase (£)
-            <input value={minPurchase} onChange={(e) => setMinPurchase(e.target.value)} className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2" />
+            Referrer reward (£) — Demand
+            <input
+              value={referrerReward}
+              onChange={(e) => setReferrerReward(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2"
+            />
           </label>
           <label className="block text-sm text-mowing-green">
-            First listing reward (£)
-            <input value={listingReward} onChange={(e) => setListingReward(e.target.value)} className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2" />
+            Minimum qualifying purchase (£) — Demand
+            <input
+              value={minPurchase}
+              onChange={(e) => setMinPurchase(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2"
+            />
           </label>
           <label className="block text-sm text-mowing-green">
             First completed sale reward (£)
-            <input value={saleReward} onChange={(e) => setSaleReward(e.target.value)} className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2" />
+            <input
+              value={saleReward}
+              onChange={(e) => setSaleReward(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2"
+            />
           </label>
           <label className="block text-sm text-mowing-green">
             Default creator commission (£)
-            <input value={creatorCommission} onChange={(e) => setCreatorCommission(e.target.value)} className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2" />
+            <input
+              value={creatorCommission}
+              onChange={(e) => setCreatorCommission(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2"
+            />
           </label>
           <label className="block text-sm text-mowing-green">
             Credit expiry days (blank = none)
-            <input value={expiryDays} onChange={(e) => setExpiryDays(e.target.value)} className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2" />
+            <input
+              value={expiryDays}
+              onChange={(e) => setExpiryDays(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2"
+            />
           </label>
           <button
             type="button"

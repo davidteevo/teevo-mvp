@@ -56,6 +56,7 @@ export const NotificationType = {
   REFERRAL_BUYER_REWARD: "referral_buyer_reward",
   REFERRAL_SELLER_LISTING_REWARD: "referral_seller_listing_reward",
   REFERRAL_SELLER_SALE_REWARD: "referral_seller_sale_reward",
+  REFERRAL_REFERRED_LISTING_REWARD: "referral_referred_listing_reward",
 } as const;
 
 export type NotificationTypeValue = (typeof NotificationType)[keyof typeof NotificationType];

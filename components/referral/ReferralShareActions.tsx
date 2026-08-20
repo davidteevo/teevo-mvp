@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Check, Link2, MessageCircle, Share2 } from "lucide-react";
 import { buyerShareMessage, sellerShareMessage } from "@/lib/referral/share-copy";
 import { track } from "@/lib/analytics";
+import { ReferralPriority, type ReferralPriorityValue } from "@/lib/referral/types";
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -15,20 +16,31 @@ function WhatsAppIcon({ className }: { className?: string }) {
 
 export function ReferralShareActions({
   url,
-  variant = "buyer",
+  priority = ReferralPriority.DEMAND,
+  variant,
   shareLabel = "Share with a friend",
   compact = false,
+  discountPence = 500,
+  sellerListingRewardPence = 500,
 }: {
   url: string;
+  priority?: ReferralPriorityValue;
+  /** @deprecated Prefer priority. */
   variant?: "buyer" | "seller";
   shareLabel?: string;
   compact?: boolean;
+  discountPence?: number;
+  sellerListingRewardPence?: number;
 }) {
+  const isSupply =
+    priority === ReferralPriority.SUPPLY || (!priority && variant === "seller");
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedShare, setCopiedShare] = useState(false);
   const [editing, setEditing] = useState(false);
   const [message, setMessage] = useState(() =>
-    variant === "seller" ? sellerShareMessage(url) : buyerShareMessage(url)
+    isSupply
+      ? sellerShareMessage(url, sellerListingRewardPence)
+      : buyerShareMessage(url, discountPence)
   );
   const canNativeShare = useMemo(
     () => typeof navigator !== "undefined" && typeof navigator.share === "function",

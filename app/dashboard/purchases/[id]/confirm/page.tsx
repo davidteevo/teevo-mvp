@@ -39,8 +39,10 @@ export default function ConfirmDeliveryPage() {
   const [done, setDone] = useState<"confirmed" | "problem" | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [referralUrl, setReferralUrl] = useState<string | null>(null);
+  const [referralPriority, setReferralPriority] = useState<"supply" | "demand">("supply");
   const [discountPence, setDiscountPence] = useState(500);
   const [referrerRewardPence, setReferrerRewardPence] = useState(500);
+  const [sellerListingRewardPence, setSellerListingRewardPence] = useState(500);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -73,8 +75,12 @@ export default function ConfirmDeliveryPage() {
       .then((r) => r.json())
       .then((data) => {
         if (typeof data.url === "string") setReferralUrl(data.url);
+        setReferralPriority(data.referralPriority === "demand" ? "demand" : "supply");
         if (typeof data.discountPence === "number") setDiscountPence(data.discountPence);
         if (typeof data.referrerRewardPence === "number") setReferrerRewardPence(data.referrerRewardPence);
+        if (typeof data.sellerListingRewardPence === "number") {
+          setSellerListingRewardPence(data.sellerListingRewardPence);
+        }
       })
       .catch(() => {
         /* optional */
@@ -154,9 +160,10 @@ export default function ConfirmDeliveryPage() {
           </div>
           <ReferralPromptCard
             url={referralUrl}
-            variant="buyer"
+            priority={referralPriority}
             discountPence={discountPence}
             referrerRewardPence={referrerRewardPence}
+            sellerListingRewardPence={sellerListingRewardPence}
           />
         </div>
       ) : done === "problem" ? (

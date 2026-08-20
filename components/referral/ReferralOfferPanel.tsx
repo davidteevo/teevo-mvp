@@ -2,6 +2,8 @@ import Link from "next/link";
 import { formatPoundsCompact } from "@/lib/pricing";
 import { ReferralProcessSteps } from "@/components/referral/ReferralProcessSteps";
 import { ReferralShareActions } from "@/components/referral/ReferralShareActions";
+import type { ReferralPriorityValue } from "@/lib/referral/types";
+import { ReferralPriority } from "@/lib/referral/types";
 
 function ScribbleUnderline() {
   return (
@@ -22,30 +24,43 @@ function ScribbleUnderline() {
 }
 
 export function ReferralOfferPanel({
-  variant = "buyer",
+  priority,
+  variant,
   url,
   discountPence = 500,
   referrerRewardPence = 500,
+  sellerListingRewardPence = 500,
   introTitle,
   introBody,
   code,
   headingAs = "h2",
   compact = false,
 }: {
+  /** Prefer this over variant for primary Refer a Friend surfaces. */
+  priority?: ReferralPriorityValue;
+  /** @deprecated Prefer priority. Kept for callers that still pass buyer/seller. */
   variant?: "buyer" | "seller";
   url: string | null;
   discountPence?: number;
   referrerRewardPence?: number;
+  sellerListingRewardPence?: number;
   introTitle?: string;
   introBody?: string;
   code?: string | null;
   headingAs?: "h1" | "h2";
   compact?: boolean;
 }) {
+  const resolvedPriority: ReferralPriorityValue =
+    priority ??
+    (variant === "seller" ? ReferralPriority.SUPPLY : ReferralPriority.DEMAND);
+  const isSupply = resolvedPriority === ReferralPriority.SUPPLY;
+
   const discount = formatPoundsCompact(discountPence);
   const reward = formatPoundsCompact(referrerRewardPence);
-  const isSeller = variant === "seller";
-  const shareLabel = isSeller ? "Invite a seller" : `Share ${discount} with a friend`;
+  const listingReward = formatPoundsCompact(sellerListingRewardPence);
+  const shareLabel = isSupply
+    ? "Invite a friend"
+    : `Share ${discount} with a friend`;
   const Heading = headingAs;
 
   return (
@@ -65,24 +80,28 @@ export function ReferralOfferPanel({
       )}
       {!compact && introBody && <p className="mb-4 text-sm text-mowing-green/80">{introBody}</p>}
 
-      {isSeller ? (
+      {isSupply ? (
         <Heading
           className={`font-bold tracking-tight text-mowing-green ${
             compact ? "text-xl sm:text-2xl" : "text-3xl sm:text-4xl"
           }`}
         >
           {compact ? (
-            "Invite a seller. Earn credit."
+            <>Invite a friend. You both get {listingReward}.</>
           ) : (
             <>
-              Invite a seller.
+              Invite a friend.
               <br />
-              Earn credit.
+              You both get {listingReward}.
             </>
           )}
         </Heading>
       ) : (
-        <Heading className="text-3xl font-bold tracking-tight text-mowing-green sm:text-4xl">
+        <Heading
+          className={`font-bold tracking-tight text-mowing-green ${
+            compact ? "text-xl sm:text-2xl" : "text-3xl sm:text-4xl"
+          }`}
+        >
           Give{" "}
           <span className="relative inline-block">
             {discount}
@@ -97,16 +116,16 @@ export function ReferralOfferPanel({
           compact ? "mt-1.5 text-sm" : "mt-3 text-sm sm:text-base"
         }`}
       >
-        {isSeller
-          ? "Know someone with clubs gathering dust? Invite them to Teevo and earn credit when they start selling."
+        {isSupply
+          ? `Share your Teevo link with a friend. When their first listing is approved, you'll both get ${listingReward} Teevo credit.`
           : `Give a friend ${discount} off their first Teevo purchase. When they buy, you'll get ${reward} Teevo credit.`}
       </p>
 
       {!compact && (
         <ReferralProcessSteps
-          variant={variant}
+          priority={resolvedPriority}
           discountLabel={discount}
-          rewardLabel={reward}
+          rewardLabel={isSupply ? listingReward : reward}
         />
       )}
 
@@ -114,9 +133,11 @@ export function ReferralOfferPanel({
         {url ? (
           <ReferralShareActions
             url={url}
-            variant={variant}
+            priority={resolvedPriority}
             shareLabel={shareLabel}
             compact={compact}
+            discountPence={discountPence}
+            sellerListingRewardPence={sellerListingRewardPence}
           />
         ) : (
           <Link
@@ -138,8 +159,8 @@ export function ReferralOfferPanel({
 
       {!compact && (
         <p className="mt-3 text-center text-xs text-mowing-green/55">
-          {isSeller
-            ? "Credit is added after they list or complete a sale."
+          {isSupply
+            ? `New Teevo users only. ${listingReward} credit for each of you after their first listing is verified.`
             : `New Teevo users only. ${reward} credit added after their first completed purchase.`}
         </p>
       )}

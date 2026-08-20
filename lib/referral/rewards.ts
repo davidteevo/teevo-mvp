@@ -8,7 +8,7 @@ import {
 } from "@/lib/referral/credit";
 import { creditExpiresAt, getReferralSettings } from "@/lib/referral/settings";
 import { getReferralForUser, type ReferralRow } from "@/lib/referral/attribution";
-import { decideNewCustomerDiscount } from "@/lib/referral/eligibility";
+import { decideNewCustomerDiscount, isDemandReferral, isSupplyReferral } from "@/lib/referral/eligibility";
 import { trackServerEvent } from "@/lib/starter-pack";
 import { notifyReferralRewardApproved } from "@/lib/referral/notify";
 import {
@@ -23,6 +23,9 @@ function creditTypeForReward(rewardType: ReferralRewardTypeValue): CreditType | 
   if (rewardType === ReferralRewardType.BUYER_REFERRER_CREDIT) return "referral_buyer_reward";
   if (rewardType === ReferralRewardType.SELLER_LISTING_CREDIT) return "seller_listing_referral";
   if (rewardType === ReferralRewardType.SELLER_SALE_CREDIT) return "seller_sale_referral";
+  if (rewardType === ReferralRewardType.REFERRED_SELLER_LISTING_CREDIT) {
+    return "referred_seller_listing_credit";
+  }
   return null;
 }
 
@@ -140,28 +143,37 @@ export async function approveReward(
 
   const { data: referral } = await admin
     .from("referrals")
-    .select("referrer_user_id, creator_id")
+    .select("referrer_user_id, referred_user_id, creator_id")
     .eq("id", reward.referral_id)
     .maybeSingle();
 
-  if (reward.reward_type !== ReferralRewardType.CREATOR_COMMISSION && referral?.referrer_user_id) {
-    await issueAvailableCredit(admin, {
-      rewardId,
-      rewardType: reward.reward_type as ReferralRewardTypeValue,
-      userId: referral.referrer_user_id,
-      amountPence: reward.amount_pence,
-      relatedTransactionId: reward.related_transaction_id,
-    });
-    await notifyReferralRewardApproved(admin, {
-      referrerUserId: referral.referrer_user_id,
-      rewardId,
-      rewardType: reward.reward_type as ReferralRewardTypeValue,
-      amountPence: reward.amount_pence,
-    }).catch((e) => console.error("notifyReferralRewardApproved failed", e));
+  if (reward.reward_type !== ReferralRewardType.CREATOR_COMMISSION) {
+    const creditUserId =
+      reward.reward_type === ReferralRewardType.REFERRED_SELLER_LISTING_CREDIT
+        ? referral?.referred_user_id
+        : referral?.referrer_user_id;
+    if (creditUserId) {
+      await issueAvailableCredit(admin, {
+        rewardId,
+        rewardType: reward.reward_type as ReferralRewardTypeValue,
+        userId: creditUserId,
+        amountPence: reward.amount_pence,
+        relatedTransactionId: reward.related_transaction_id,
+      });
+      await notifyReferralRewardApproved(admin, {
+        referrerUserId: creditUserId,
+        rewardId,
+        rewardType: reward.reward_type as ReferralRewardTypeValue,
+        amountPence: reward.amount_pence,
+      }).catch((e) => console.error("notifyReferralRewardApproved failed", e));
+    }
   }
 
   await trackServerEvent(admin, "referral_reward_approved", {
-    userId: referral?.referrer_user_id,
+    userId:
+      reward.reward_type === ReferralRewardType.REFERRED_SELLER_LISTING_CREDIT
+        ? referral?.referred_user_id
+        : referral?.referrer_user_id,
     properties: {
       reward_id: rewardId,
       reward_type: reward.reward_type,
@@ -372,9 +384,11 @@ async function maybeCreateBuyerConversionRewards(
     settings: Awaited<ReturnType<typeof getReferralSettings>>;
   }
 ): Promise<void> {
+  if (!isDemandReferral(opts.referral, opts.settings)) return;
+
   const prior = await countPriorBuyerPurchases(admin, opts.buyerId, opts.transactionId);
   const decision = decideNewCustomerDiscount({
-    programmeEnabled: opts.settings.programmeEnabled,
+    programmeEnabled: true,
     hasReferral: true,
     isSelfReferral: opts.referral.referrer_user_id === opts.buyerId,
     priorNonRefundedBuyerPurchases: prior,
@@ -450,25 +464,50 @@ export async function onListingVerified(
 ): Promise<void> {
   if (opts.createdOnBehalf) return;
   const settings = await getReferralSettings(admin);
-  if (!settings.sellerEnabled) return;
   const referral = await getReferralForUser(admin, opts.sellerId);
   if (!referral) return;
+  if (!isSupplyReferral(referral, settings)) return;
 
-  const exists = await hasExistingReward(admin, referral.id, ReferralRewardType.SELLER_LISTING_CREDIT);
-  if (exists) return;
+  const amountPence = settings.sellerListingRewardPence;
+  const referrerExists = await hasExistingReward(
+    admin,
+    referral.id,
+    ReferralRewardType.SELLER_LISTING_CREDIT
+  );
+  if (!referrerExists) {
+    const created = await createPendingReward(admin, {
+      referralId: referral.id,
+      rewardType: ReferralRewardType.SELLER_LISTING_CREDIT,
+      amountPence,
+      relatedListingId: opts.listingId,
+    });
+    if (created?.created) {
+      await approveReward(admin, created.id);
+      await trackServerEvent(admin, "referral_first_listing", {
+        userId: opts.sellerId,
+        properties: { referral_id: referral.id, listing_id: opts.listingId },
+      });
+    } else if (created && !created.created) {
+      await approveReward(admin, created.id);
+    }
+  }
 
-  const created = await createPendingReward(admin, {
-    referralId: referral.id,
-    rewardType: ReferralRewardType.SELLER_LISTING_CREDIT,
-    amountPence: settings.sellerListingRewardPence,
-    relatedListingId: opts.listingId,
-  });
-  if (!created) return;
-  await approveReward(admin, created.id);
-  await trackServerEvent(admin, "referral_first_listing", {
-    userId: opts.sellerId,
-    properties: { referral_id: referral.id, listing_id: opts.listingId },
-  });
+  const referredExists = await hasExistingReward(
+    admin,
+    referral.id,
+    ReferralRewardType.REFERRED_SELLER_LISTING_CREDIT
+  );
+  if (!referredExists) {
+    const created = await createPendingReward(admin, {
+      referralId: referral.id,
+      rewardType: ReferralRewardType.REFERRED_SELLER_LISTING_CREDIT,
+      amountPence,
+      relatedListingId: opts.listingId,
+    });
+    if (created) {
+      await approveReward(admin, created.id);
+    }
+  }
 }
 
 export async function resolveCheckoutIncentivesForBuyer(
@@ -490,9 +529,10 @@ export async function resolveCheckoutIncentivesForBuyer(
 }> {
   const settings = await getReferralSettings(admin);
   const referral = await getReferralForUser(admin, opts.buyerId);
+  const demandOk = !!referral && isDemandReferral(referral, settings);
   const prior = await countPriorBuyerPurchases(admin, opts.buyerId);
   const decision = decideNewCustomerDiscount({
-    programmeEnabled: settings.programmeEnabled,
+    programmeEnabled: demandOk,
     hasReferral: !!referral,
     isSelfReferral: referral?.referrer_user_id === opts.buyerId,
     priorNonRefundedBuyerPurchases: prior,

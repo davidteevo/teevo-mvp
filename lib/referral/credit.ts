@@ -4,6 +4,7 @@ export type CreditType =
   | "referral_buyer_reward"
   | "seller_listing_referral"
   | "seller_sale_referral"
+  | "referred_seller_listing_credit"
   | "admin_adjustment"
   | "redemption"
   | "reversal"
@@ -112,7 +113,12 @@ export async function reverseAvailableCreditForReward(
     .from("credit_transactions")
     .select("id, user_id, amount_pence, status")
     .eq("referral_reward_id", rewardId)
-    .in("type", ["referral_buyer_reward", "seller_listing_referral", "seller_sale_referral"])
+    .in("type", [
+      "referral_buyer_reward",
+      "seller_listing_referral",
+      "seller_sale_referral",
+      "referred_seller_listing_credit",
+    ])
     .maybeSingle();
   if (!issued) return;
   if (issued.status === "available") {

@@ -7,7 +7,8 @@ import {
   NotificationType,
 } from "@/lib/notifications";
 import { ensureUserReferralCode, referralShareUrl } from "@/lib/referral/codes";
-import { ReferralRewardType, type ReferralRewardTypeValue } from "@/lib/referral/types";
+import { ReferralPriority, ReferralRewardType, type ReferralRewardTypeValue } from "@/lib/referral/types";
+import { getReferralSettings } from "@/lib/referral/settings";
 
 const appUrl = getAppUrl();
 
@@ -23,6 +24,14 @@ function copyForReward(rewardType: ReferralRewardTypeValue, amountGbp: string): 
       message: "Someone you referred has listed their first club.",
       emailSubject: `\uD83D\uDCB8 \u00A3${amountGbp} Teevo credit earned!`,
       emailBody: `Someone you referred has listed their first club on Teevo.\n\nWe\u2019ve added \u00A3${amountGbp} Teevo credit to your account. Use it towards your next club.`,
+    };
+  }
+  if (rewardType === ReferralRewardType.REFERRED_SELLER_LISTING_CREDIT) {
+    return {
+      title: `\u00A3${amountGbp} Teevo credit earned`,
+      message: "Your first listing was approved. Teevo credit has been added to your account.",
+      emailSubject: `\uD83D\uDCB8 \u00A3${amountGbp} Teevo credit earned!`,
+      emailBody: `Your first Teevo listing was approved.\n\nWe\u2019ve added \u00A3${amountGbp} Teevo credit to your account. Use it towards your next club.`,
     };
   }
   if (rewardType === ReferralRewardType.SELLER_SALE_CREDIT) {
@@ -55,9 +64,11 @@ export async function notifyReferralRewardApproved(
   const type =
     opts.rewardType === ReferralRewardType.SELLER_LISTING_CREDIT
       ? NotificationType.REFERRAL_SELLER_LISTING_REWARD
-      : opts.rewardType === ReferralRewardType.SELLER_SALE_CREDIT
-        ? NotificationType.REFERRAL_SELLER_SALE_REWARD
-        : NotificationType.REFERRAL_BUYER_REWARD;
+      : opts.rewardType === ReferralRewardType.REFERRED_SELLER_LISTING_CREDIT
+        ? NotificationType.REFERRAL_REFERRED_LISTING_REWARD
+        : opts.rewardType === ReferralRewardType.SELLER_SALE_CREDIT
+          ? NotificationType.REFERRAL_SELLER_SALE_REWARD
+          : NotificationType.REFERRAL_BUYER_REWARD;
 
   await createNotification(admin, {
     userId: opts.referrerUserId,
@@ -99,12 +110,23 @@ export async function notifyReferralRewardApproved(
 }
 
 export async function referralEmailModuleHtml(admin: SupabaseClient, userId: string): Promise<string> {
+  const settings = await getReferralSettings(admin);
   const { data: user } = await admin.from("users").select("first_name").eq("id", userId).maybeSingle();
   const code = await ensureUserReferralCode(admin, { userId, firstName: user?.first_name });
   const url = code ? referralShareUrl(code.code) : `${appUrl}/dashboard/referrals`;
+  const listingReward = formatGbp(settings.sellerListingRewardPence);
+  const discount = formatGbp(settings.discountPence);
+  const referrerReward = formatGbp(settings.referrerRewardPence);
+  if (settings.referralPriority === ReferralPriority.SUPPLY) {
+    return [
+      `<p style="margin:24px 0 8px;font-weight:700;">Know another golfer who'd love Teevo?</p>`,
+      `<p style="margin:0 0 12px;">Invite a friend — you'll both get £${listingReward} Teevo credit when their first listing is approved.</p>`,
+      `<p style="margin:0;"><a href="${url}">Share your link</a></p>`,
+    ].join("");
+  }
   return [
     `<p style="margin:24px 0 8px;font-weight:700;">Know another golfer who'd love Teevo?</p>`,
-    `<p style="margin:0 0 12px;">Give them £5 towards their first purchase. You'll get £5 Teevo credit when they buy.</p>`,
+    `<p style="margin:0 0 12px;">Give them £${discount} towards their first purchase. You'll get £${referrerReward} Teevo credit when they buy.</p>`,
     `<p style="margin:0;"><a href="${url}">Share your link</a></p>`,
   ].join("");
 }

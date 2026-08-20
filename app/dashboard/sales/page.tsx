@@ -168,6 +168,10 @@ function DashboardSalesContent() {
   const [moreTimeTxId, setMoreTimeTxId] = useState<string | null>(null);
   const [moreTimeSubmitting, setMoreTimeSubmitting] = useState(false);
   const [referralUrl, setReferralUrl] = useState<string | null>(null);
+  const [referralPriority, setReferralPriority] = useState<"supply" | "demand">("supply");
+  const [sellerListingRewardPence, setSellerListingRewardPence] = useState(500);
+  const [discountPence, setDiscountPence] = useState(500);
+  const [referrerRewardPence, setReferrerRewardPence] = useState(500);
   const highlightId = useHighlightId("sale", transactions.length > 0);
 
   useEffect(() => {
@@ -191,6 +195,12 @@ function DashboardSalesContent() {
       .then((r) => r.json())
       .then((data) => {
         if (typeof data.url === "string") setReferralUrl(data.url);
+        setReferralPriority(data.referralPriority === "demand" ? "demand" : "supply");
+        if (typeof data.sellerListingRewardPence === "number") {
+          setSellerListingRewardPence(data.sellerListingRewardPence);
+        }
+        if (typeof data.discountPence === "number") setDiscountPence(data.discountPence);
+        if (typeof data.referrerRewardPence === "number") setReferrerRewardPence(data.referrerRewardPence);
       })
       .catch(() => {
         /* optional */
@@ -458,9 +468,16 @@ function DashboardSalesContent() {
       <h1 className="text-2xl font-bold text-mowing-green">Sales</h1>
       <p className="mt-1 text-mowing-green/80">Mark items as shipped when you send them.</p>
       <ReferralPromptCard
-        title={transactions.length > 0 ? "Since you've sold your club" : undefined}
+        title={
+          referralPriority === "supply" && transactions.length > 0
+            ? "Since you've sold your club"
+            : undefined
+        }
         url={referralUrl}
-        variant="seller"
+        priority={referralPriority}
+        discountPence={discountPence}
+        referrerRewardPence={referrerRewardPence}
+        sellerListingRewardPence={sellerListingRewardPence}
         compact
       />
       <div className="mt-6 rounded-xl border border-par-3-punch/20 bg-white overflow-hidden">

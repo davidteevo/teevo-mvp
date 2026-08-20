@@ -68,8 +68,10 @@ export async function GET() {
 
   return NextResponse.json({
     programmeEnabled: settings.programmeEnabled,
+    referralPriority: settings.referralPriority,
     discountPence: settings.discountPence,
     referrerRewardPence: settings.referrerRewardPence,
+    sellerListingRewardPence: settings.sellerListingRewardPence,
     code: codeRow?.code ?? null,
     url: codeRow ? referralShareUrl(codeRow.code) : null,
     codeDisabled: codeRow?.status === "disabled",

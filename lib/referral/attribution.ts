@@ -33,6 +33,7 @@ export type ReferralRow = {
   referral_code_id: string | null;
   creator_id: string | null;
   source: string;
+  reward_priority: "supply" | "demand" | null;
 };
 
 export async function getReferralForUser(
@@ -41,7 +42,7 @@ export async function getReferralForUser(
 ): Promise<ReferralRow | null> {
   const { data } = await admin
     .from("referrals")
-    .select("id, referrer_user_id, referred_user_id, referral_code_id, creator_id, source")
+    .select("id, referrer_user_id, referred_user_id, referral_code_id, creator_id, source, reward_priority")
     .eq("referred_user_id", userId)
     .maybeSingle();
   return (data as ReferralRow | null) ?? null;
@@ -96,6 +97,7 @@ export async function persistReferralAttribution(
       codeKind: code.kind,
       creatorStatus: creator?.status ?? null,
       programmeEnabled: settings.programmeEnabled,
+      sellerEnabled: settings.sellerEnabled,
       creatorProgrammeEnabled: settings.creatorEnabled,
     });
     if (!decision.accept || !ownerId) return existing;
@@ -116,9 +118,12 @@ export async function persistReferralAttribution(
         referral_code_id: code.id,
         creator_id: code.kind === "creator" ? creator?.id ?? null : null,
         source,
+        reward_priority: settings.referralPriority,
         attributed_at: new Date().toISOString(),
       })
-      .select("id, referrer_user_id, referred_user_id, referral_code_id, creator_id, source")
+      .select(
+        "id, referrer_user_id, referred_user_id, referral_code_id, creator_id, source, reward_priority"
+      )
       .maybeSingle();
 
     if (error) {

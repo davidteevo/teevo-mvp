@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { ShoppingCart } from "lucide-react";
+import { ReferralPriority, type ReferralPriorityValue } from "@/lib/referral/types";
 
 function GolfClubIcon() {
   return (
@@ -45,66 +46,68 @@ function MoneyBadge({ top, bottom }: { top: string; bottom: string }) {
 }
 
 export function ReferralProcessSteps({
-  variant = "buyer",
+  priority = ReferralPriority.DEMAND,
+  variant,
   discountLabel,
   rewardLabel,
 }: {
+  priority?: ReferralPriorityValue;
+  /** @deprecated Prefer priority. */
   variant?: "buyer" | "seller";
   discountLabel: string;
   rewardLabel: string;
 }) {
+  const isSupply =
+    priority === ReferralPriority.SUPPLY || (!priority && variant === "seller");
+
   const steps: {
     key: string;
     icon: ReactNode;
     label: string;
     badge?: { top: string; bottom: string };
-  }[] =
-    variant === "seller"
-      ? [
-          {
-            key: "invite",
-            icon: <GolfBagIcon />,
-            label: "They join Teevo with your link.",
-          },
-          {
-            key: "sell",
-            icon: (
-              <div className="flex h-8 w-8 items-center justify-center">
-                <ShoppingCart className="h-5 w-5 text-mowing-green" aria-hidden />
-              </div>
-            ),
-            label: "They list or sell a club.",
-          },
-          {
-            key: "credit",
-            icon: <FlagGreenIcon />,
-            label: `You get ${rewardLabel} Teevo credit.`,
-            badge: { top: rewardLabel, bottom: "CREDIT" },
-          },
-        ]
-      : [
-          {
-            key: "off",
-            icon: <GolfClubIcon />,
-            label: `They get ${discountLabel} off their first purchase.`,
-            badge: { top: discountLabel, bottom: "OFF" },
-          },
-          {
-            key: "buy",
-            icon: (
-              <div className="flex h-8 w-8 items-center justify-center">
-                <ShoppingCart className="h-5 w-5 text-mowing-green" aria-hidden />
-              </div>
-            ),
-            label: "They make a purchase.",
-          },
-          {
-            key: "credit",
-            icon: <FlagGreenIcon />,
-            label: `You get ${rewardLabel} Teevo credit.`,
-            badge: { top: rewardLabel, bottom: "CREDIT" },
-          },
-        ];
+  }[] = isSupply
+    ? [
+        {
+          key: "invite",
+          icon: <GolfBagIcon />,
+          label: "They join Teevo with your link.",
+        },
+        {
+          key: "list",
+          icon: <GolfClubIcon />,
+          label: "They list a club — and get it approved.",
+          badge: { top: rewardLabel, bottom: "EACH" },
+        },
+        {
+          key: "credit",
+          icon: <FlagGreenIcon />,
+          label: `You both get ${rewardLabel} Teevo credit.`,
+          badge: { top: rewardLabel, bottom: "CREDIT" },
+        },
+      ]
+    : [
+        {
+          key: "off",
+          icon: <GolfClubIcon />,
+          label: `They get ${discountLabel} off their first purchase.`,
+          badge: { top: discountLabel, bottom: "OFF" },
+        },
+        {
+          key: "buy",
+          icon: (
+            <div className="flex h-8 w-8 items-center justify-center">
+              <ShoppingCart className="h-5 w-5 text-mowing-green" aria-hidden />
+            </div>
+          ),
+          label: "They make a purchase.",
+        },
+        {
+          key: "credit",
+          icon: <FlagGreenIcon />,
+          label: `You get ${rewardLabel} Teevo credit.`,
+          badge: { top: rewardLabel, bottom: "CREDIT" },
+        },
+      ];
 
   return (
     <div className="relative mt-6">

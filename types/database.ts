@@ -248,19 +248,23 @@ export type ReferralCodeKind = "user" | "creator";
 export type ReferralCodeStatus = "active" | "disabled";
 export type CreatorStatus = "active" | "paused" | "disabled";
 export type ReferralSource = "url" | "code" | "creator_url" | "creator_code";
+export type ReferralPriorityName = "supply" | "demand";
 export type ReferralRewardTypeName =
   | "buyer_referrer_credit"
   | "seller_listing_credit"
   | "seller_sale_credit"
-  | "creator_commission";
+  | "creator_commission"
+  | "referred_seller_listing_credit";
 export type ReferralRewardStatusName = "pending" | "approved" | "paid" | "cancelled" | "reversed";
 export type CreditTransactionType =
   | "referral_buyer_reward"
   | "seller_listing_referral"
   | "seller_sale_referral"
+  | "referred_seller_listing_credit"
   | "admin_adjustment"
   | "redemption"
-  | "reversal";
+  | "reversal"
+  | "founder_listing_reward";
 export type CreditTransactionStatus = "pending" | "available" | "redeemed" | "reversed" | "cancelled";
 
 export interface ReferralCode {
@@ -294,6 +298,7 @@ export interface Referral {
   referral_code_id: string | null;
   creator_id: string | null;
   source: ReferralSource;
+  reward_priority: ReferralPriorityName | null;
   attributed_at: string;
   created_at: string;
 }

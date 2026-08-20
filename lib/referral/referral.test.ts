@@ -10,8 +10,9 @@ import {
   computeCheckoutIncentives,
   sellerProceedsPence,
 } from "@/lib/referral/checkout-incentives";
-import { attributionSource, decideAttribution, decideNewCustomerDiscount } from "@/lib/referral/eligibility";
+import { attributionSource, decideAttribution, decideNewCustomerDiscount, isDemandReferral, isSupplyReferral } from "@/lib/referral/eligibility";
 import { creditBalanceFromRows } from "@/lib/referral/credit";
+import { buyerShareMessage, sellerShareMessage } from "@/lib/referral/share-copy";
 import { calcOrderBreakdown } from "@/lib/pricing";
 
 describe("referral codes", () => {
@@ -109,6 +110,60 @@ describe("attribution rules", () => {
   it("maps creator vs user sources", () => {
     expect(attributionSource({ kind: "user", via: "url" })).toBe("url");
     expect(attributionSource({ kind: "creator", via: "code" })).toBe("creator_code");
+  });
+
+  it("allows user attribution when seller referral is on even if demand programme is off", () => {
+    const decision = decideAttribution({
+      alreadyAttributed: false,
+      actorUserId: "new-user",
+      codeOwnerUserId: "referrer",
+      codeStatus: "active",
+      codeKind: "user",
+      creatorStatus: null,
+      programmeEnabled: false,
+      sellerEnabled: true,
+      creatorProgrammeEnabled: true,
+    });
+    expect(decision).toEqual({ accept: true, reason: "ok" });
+  });
+
+  it("rejects user attribution when both programme and seller referral are off", () => {
+    const decision = decideAttribution({
+      alreadyAttributed: false,
+      actorUserId: "new-user",
+      codeOwnerUserId: "referrer",
+      codeStatus: "active",
+      codeKind: "user",
+      creatorStatus: null,
+      programmeEnabled: false,
+      sellerEnabled: false,
+      creatorProgrammeEnabled: true,
+    });
+    expect(decision.reason).toBe("programme_disabled");
+  });
+});
+
+describe("reward priority helpers", () => {
+  it("honours snapshotted supply/demand priority over current settings", () => {
+    expect(isSupplyReferral({ reward_priority: "supply" }, { sellerEnabled: false })).toBe(true);
+    expect(isDemandReferral({ reward_priority: "supply" }, { programmeEnabled: true })).toBe(false);
+    expect(isDemandReferral({ reward_priority: "demand" }, { programmeEnabled: false })).toBe(true);
+    expect(isSupplyReferral({ reward_priority: "demand" }, { sellerEnabled: true })).toBe(false);
+  });
+
+  it("falls back to legacy toggles when priority is null", () => {
+    expect(isSupplyReferral({ reward_priority: null }, { sellerEnabled: true })).toBe(true);
+    expect(isSupplyReferral({ reward_priority: null }, { sellerEnabled: false })).toBe(false);
+    expect(isDemandReferral({ reward_priority: null }, { programmeEnabled: true })).toBe(true);
+    expect(isDemandReferral({ reward_priority: null }, { programmeEnabled: false })).toBe(false);
+  });
+});
+
+describe("share copy amounts", () => {
+  it("interpolates admin amounts instead of hardcoding £5", () => {
+    expect(buyerShareMessage("https://example.com/r/DAVID", 700)).toContain("£7");
+    expect(buyerShareMessage("https://example.com/r/DAVID", 700)).not.toContain("£5");
+    expect(sellerShareMessage("https://example.com/r/DAVID", 1000)).toContain("£10");
   });
 });
 
