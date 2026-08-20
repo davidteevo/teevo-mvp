@@ -6,7 +6,8 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { track } from "@/lib/analytics";
 import { parseWatchListingId } from "@/lib/watchlist";
-import { Mail } from "lucide-react";
+import { Mail, Star } from "lucide-react";
+import { FOUNDER_EVENTS } from "@/lib/founder/types";
 
 function SignupForm() {
   const searchParams = useSearchParams();
@@ -19,6 +20,11 @@ function SignupForm() {
   const [error, setError] = useState("");
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [acceptedLegal, setAcceptedLegal] = useState(false);
+  const [founderCampaign, setFounderCampaign] = useState<{
+    active: boolean;
+    claimed: number;
+    progressLabel: string;
+  } | null>(null);
 
   // If user already has a session (e.g. stale after sign out, or they clicked Sign up while logged in), clear it so signup creates a fresh account
   useEffect(() => {
@@ -33,6 +39,25 @@ function SignupForm() {
     const prefill = fromQuery || (fromCookie ? decodeURIComponent(fromCookie) : "");
     if (prefill) setReferralCode(prefill);
   }, [searchParams]);
+
+  useEffect(() => {
+    fetch("/api/founder/campaign")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d?.active) {
+          setFounderCampaign({
+            active: true,
+            claimed: d.claimed,
+            progressLabel: d.progressLabel,
+          });
+          track(FOUNDER_EVENTS.SIGNUP_STARTED, {
+            claimed: d.claimed,
+            remaining: d.remaining,
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,6 +106,9 @@ function SignupForm() {
       return;
     }
     track("seller_signup_complete", { redirect });
+    if (founderCampaign?.active) {
+      track(FOUNDER_EVENTS.SIGNUP_COMPLETED, { claimed: founderCampaign.claimed });
+    }
     const watchListingId = parseWatchListingId(redirect);
     if (watchListingId) {
       track("watchlist_account_created", { listing_id: watchListingId, source: "signup" });
@@ -101,6 +129,11 @@ function SignupForm() {
           <p className="mt-2 text-mowing-green/90 text-sm leading-relaxed">
             We’ve sent a link to <strong>{email}</strong>. Click it to confirm your email, then log in with the password you just chose.
           </p>
+          {founderCampaign?.active && (
+            <p className="mt-3 text-sm font-medium text-mowing-green">
+              Confirm your email to secure your Founder spot.
+            </p>
+          )}
           <p className="mt-4 text-mowing-green/70 text-xs">
             No email? Check spam, or wait a minute and try again.
           </p>
@@ -130,12 +163,30 @@ function SignupForm() {
           <p className="mt-1 text-sm text-mowing-green/70">Please wait a moment…</p>
         </div>
       )}
+      {founderCampaign?.active && (
+        <div className="mb-6 rounded-xl border border-golden-tee/50 bg-golden-tee/25 px-4 py-3">
+          <p className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wide text-mowing-green">
+            <Star className="h-3.5 w-3.5" aria-hidden />
+            Founder spot available
+          </p>
+          <p className="mt-1 text-sm text-mowing-green/90">
+            Join Teevo now and become one of our first 100 members.
+          </p>
+          <p className="mt-1 text-sm font-semibold tabular-nums text-mowing-green">
+            {founderCampaign.progressLabel}
+          </p>
+        </div>
+      )}
+
       <h1 className="text-2xl font-bold text-mowing-green">Sign up</h1>
       <p className="mt-2 text-mowing-green/80 text-sm">
         {parseWatchListingId(redirect)
           ? "Create a free Teevo account to save this club to your Watchlist."
-          : "Create an account to list items or buy."}
+          : founderCampaign?.active
+            ? "Create your account to claim your Founder spot."
+            : "Create an account to list items or buy."}
       </p>
+      <p className="mt-2 text-xs text-mowing-green/65">Takes around 30 seconds. No card required.</p>
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         {error && (
           <p className="text-sm text-divot-pink" role="alert">
@@ -224,7 +275,7 @@ function SignupForm() {
           disabled={loading}
           className="w-full rounded-xl bg-mowing-green text-off-white-pique py-3 font-semibold hover:opacity-90 disabled:opacity-70 transition-opacity"
         >
-          Sign up
+          {founderCampaign?.active ? "Claim my Founder spot" : "Sign up"}
         </button>
       </form>
       <p className="mt-6 text-center text-sm text-mowing-green/80">

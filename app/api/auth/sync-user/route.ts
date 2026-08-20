@@ -4,6 +4,7 @@ import Stripe from "stripe";
 import { generateDisplayNameFromFirstName } from "@/lib/public-seller-name";
 import { getAppUrl } from "@/lib/app-env";
 import { provisionNewUserReferral } from "@/lib/referral/attribution";
+import { allocateFoundingMemberIfEligible } from "@/lib/founder/allocate";
 import { assertStripeModeMatchesEnv } from "@/lib/stripe-env";
 
 assertStripeModeMatchesEnv();
@@ -75,7 +76,8 @@ export async function POST() {
     rawCode: refFromMeta || null,
     via: "code",
   });
-  return NextResponse.json({ ok: true, isNewUser: true });
+  const founderRank = await allocateFoundingMemberIfEligible(supabaseAdmin, user.id);
+  return NextResponse.json({ ok: true, isNewUser: true, founderRank });
 }
 
 async function createServiceClient() {

@@ -12,8 +12,6 @@ import {
   isClothingCategory,
   isAccessoriesCategory,
 } from "@/lib/listing-categories";
-import { assignFoundingSellerRankIfEligible } from "@/lib/founding-seller-rank";
-
 export const dynamic = "force-dynamic";
 
 const ALLOWED_CATEGORIES_SET = new Set<string>(ALL_CATEGORIES);
@@ -172,8 +170,6 @@ export async function POST(request: Request) {
     if (listError || !listing) {
       return NextResponse.json({ error: listError?.message ?? "Failed to create listing" }, { status: 500 });
     }
-
-    await assignFoundingSellerRankIfEligible(admin, owner_user_id);
 
     await admin.from("admin_actions").insert({
       admin_id: adminUser.id,

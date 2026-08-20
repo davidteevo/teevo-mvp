@@ -7,6 +7,7 @@ export function ReferralPromptCard({
   variant = "buyer",
   discountPence,
   referrerRewardPence,
+  compact = false,
 }: {
   title?: string;
   body?: string;
@@ -14,9 +15,10 @@ export function ReferralPromptCard({
   variant?: "buyer" | "seller";
   discountPence?: number;
   referrerRewardPence?: number;
+  compact?: boolean;
 }) {
   return (
-    <div className="mt-6">
+    <div className={compact ? "mt-4" : "mt-6"}>
       <ReferralOfferPanel
         variant={variant}
         url={url}
@@ -24,6 +26,7 @@ export function ReferralPromptCard({
         referrerRewardPence={referrerRewardPence}
         introTitle={title}
         introBody={body}
+        compact={compact}
       />
     </div>
   );

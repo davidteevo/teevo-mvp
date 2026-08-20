@@ -5,6 +5,7 @@ import { requireAdmin, logAdminAction } from "@/lib/referral/admin-auth";
 import { resolveListingReviewRequired, notifySellerListingApproved } from "@/lib/notification-events";
 import { notifyWatchersNowAvailable } from "@/lib/watchlist-emails";
 import { onListingVerified } from "@/lib/referral/rewards";
+import { onFounderListingVerified } from "@/lib/founder/reward";
 
 export const dynamic = "force-dynamic";
 
@@ -47,6 +48,11 @@ export async function POST(
       sellerId: updated.user_id,
       createdOnBehalf: updated.created_on_behalf === true,
     }).catch((e) => console.error("onListingVerified failed", e));
+    await onFounderListingVerified(admin, {
+      listingId: id,
+      sellerId: updated.user_id,
+      createdOnBehalf: updated.created_on_behalf === true,
+    }).catch((e) => console.error("onFounderListingVerified failed", e));
   }
   await resolveListingReviewRequired(admin, id);
   if (updated.user_id) {

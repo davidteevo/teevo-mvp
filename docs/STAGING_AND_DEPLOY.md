@@ -111,6 +111,7 @@ Staging site → **Site configuration** → **Visitor access** (or **Password pr
 - `20260318090000_add_club_specs_columns.sql`
 - `20260318120000_listings_degree_numeric.sql`
 - `20260817220000_listing_pause_availability.sql`
+- `20260820120000_founding_members_campaign.sql`
 
 **Additional `docs/MIGRATION_*.sql`** (apply any not already included above; skip if a statement errors as “already exists”)
 
@@ -131,6 +132,7 @@ Staging site → **Site configuration** → **Visitor access** (or **Password pr
 - `docs/MIGRATION_starter_pack.sql`
 - `docs/MIGRATION_starter_pack_tracking.sql`
 - `docs/MIGRATION_buying_enabled.sql`
+- `docs/MIGRATION_founding_members_campaign.sql`
 - `docs/MIGRATION_listing_pause_availability.sql`
 
 3. **Authentication → URL Configuration**

@@ -16,8 +16,6 @@ import {
   isClothingCategory,
   isAccessoriesCategory,
 } from "@/lib/listing-categories";
-import { assignFoundingSellerRankIfEligible } from "@/lib/founding-seller-rank";
-
 export const dynamic = "force-dynamic";
 
 const ALLOWED_CATEGORIES_SET = new Set<string>(ALL_CATEGORIES);
@@ -158,12 +156,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: listError?.message ?? "Failed to create listing" }, { status: 500 });
     }
 
-    const { data: profile } = await admin.from("users").select("role, founding_seller_rank").eq("id", user.id).single();
+    const { data: profile } = await admin.from("users").select("role").eq("id", user.id).single();
     if (profile?.role !== "admin") {
       await admin.from("users").update({ role: "seller", updated_at: new Date().toISOString() }).eq("id", user.id);
     }
-
-    await assignFoundingSellerRankIfEligible(admin, user.id, profile?.founding_seller_rank);
 
     const displayTitle =
       (title && title.trim()) || [brand, model].filter(Boolean).join(" ").trim() || "a new listing";

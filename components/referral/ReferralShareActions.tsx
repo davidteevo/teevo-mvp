@@ -17,10 +17,12 @@ export function ReferralShareActions({
   url,
   variant = "buyer",
   shareLabel = "Share with a friend",
+  compact = false,
 }: {
   url: string;
   variant?: "buyer" | "seller";
   shareLabel?: string;
+  compact?: boolean;
 }) {
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedShare, setCopiedShare] = useState(false);
@@ -66,12 +68,15 @@ export function ReferralShareActions({
 
   const whatsappHref = `https://wa.me/?text=${encodeURIComponent(message)}`;
 
+  const buttonPad = compact ? "px-3 py-2.5" : "px-4 py-3.5";
+  const secondaryPad = compact ? "px-3 py-2.5" : "px-3 py-3";
+
   return (
-    <div className="space-y-4">
+    <div className={compact ? "space-y-2" : "space-y-4"}>
       <button
         type="button"
         onClick={() => void sharePrimary()}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-mowing-green px-4 py-3.5 text-sm font-semibold text-off-white-pique hover:opacity-90"
+        className={`inline-flex w-full items-center justify-center gap-2 rounded-xl bg-mowing-green ${buttonPad} text-sm font-semibold text-off-white-pique hover:opacity-90`}
       >
         <Share2 className="h-4 w-4" />
         {copiedShare ? "Copied" : shareLabel}
@@ -82,7 +87,7 @@ export function ReferralShareActions({
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => track("referral_link_shared", { channel: "whatsapp" })}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-mowing-green/30 bg-white px-3 py-3 text-sm font-semibold text-mowing-green hover:bg-mowing-green/5"
+          className={`inline-flex items-center justify-center gap-2 rounded-xl border border-mowing-green/30 bg-white ${secondaryPad} text-sm font-semibold text-mowing-green hover:bg-mowing-green/5`}
         >
           <WhatsAppIcon className="h-4 w-4" />
           WhatsApp
@@ -90,37 +95,39 @@ export function ReferralShareActions({
         <button
           type="button"
           onClick={() => void copyLink()}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-mowing-green/30 bg-white px-3 py-3 text-sm font-semibold text-mowing-green hover:bg-mowing-green/5"
+          className={`inline-flex items-center justify-center gap-2 rounded-xl border border-mowing-green/30 bg-white ${secondaryPad} text-sm font-semibold text-mowing-green hover:bg-mowing-green/5`}
         >
           {copiedLink ? <Check className="h-4 w-4" /> : <Link2 className="h-4 w-4" />}
           {copiedLink ? "Copied" : "Copy link"}
         </button>
       </div>
-      <div className="rounded-2xl border border-par-3-punch/20 bg-white p-4">
-        <div className="flex items-center justify-between gap-3">
-          <p className="inline-flex items-center gap-2 text-sm font-semibold text-mowing-green">
-            <MessageCircle className="h-4 w-4" aria-hidden />
-            Your message
-          </p>
-          <button
-            type="button"
-            onClick={() => setEditing((v) => !v)}
-            className="text-sm font-medium text-par-3-punch hover:underline"
-          >
-            {editing ? "Done" : "Edit"}
-          </button>
+      {!compact && (
+        <div className="rounded-2xl border border-par-3-punch/20 bg-white p-4">
+          <div className="flex items-center justify-between gap-3">
+            <p className="inline-flex items-center gap-2 text-sm font-semibold text-mowing-green">
+              <MessageCircle className="h-4 w-4" aria-hidden />
+              Your message
+            </p>
+            <button
+              type="button"
+              onClick={() => setEditing((v) => !v)}
+              className="text-sm font-medium text-par-3-punch hover:underline"
+            >
+              {editing ? "Done" : "Edit"}
+            </button>
+          </div>
+          {editing ? (
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              rows={3}
+              className="mt-3 w-full resize-y rounded-xl border border-mowing-green/30 bg-off-white-pique px-3 py-2 text-sm text-mowing-green"
+            />
+          ) : (
+            <p className="mt-3 text-sm leading-relaxed text-mowing-green/80">{message}</p>
+          )}
         </div>
-        {editing ? (
-          <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            rows={3}
-            className="mt-3 w-full resize-y rounded-xl border border-mowing-green/30 bg-off-white-pique px-3 py-2 text-sm text-mowing-green"
-          />
-        ) : (
-          <p className="mt-3 text-sm leading-relaxed text-mowing-green/80">{message}</p>
-        )}
-      </div>
+      )}
     </div>
   );
 }

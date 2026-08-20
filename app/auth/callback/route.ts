@@ -7,6 +7,8 @@ import { getAppUrl } from "@/lib/app-env";
 import { addWatchlistItem, parseWatchListingId, stripWatchParam } from "@/lib/watchlist";
 import { trackServerEvent } from "@/lib/starter-pack";
 import { provisionNewUserReferral, REF_COOKIE } from "@/lib/referral/attribution";
+import { allocateFoundingMemberIfEligible } from "@/lib/founder/allocate";
+import { getFounderCampaignSnapshot } from "@/lib/founder/campaign";
 import { assertStripeModeMatchesEnv } from "@/lib/stripe-env";
 
 assertStripeModeMatchesEnv();
@@ -19,6 +21,8 @@ export async function GET(request: Request) {
   const next = searchParams.get("next") ?? "/dashboard";
   const code = searchParams.get("code");
   let isNewUser = false;
+  let founderRank: number | null = null;
+  let founderMissed = false;
   let sessionUser: { id: string; email?: string | null; user_metadata?: Record<string, unknown> } | null = null;
   if (code) {
     const supabase = await createClient();
@@ -88,6 +92,18 @@ export async function GET(request: Request) {
           rawCode: rawCode || null,
           via,
         });
+        const campaignBefore = await getFounderCampaignSnapshot(admin);
+        founderRank = await allocateFoundingMemberIfEligible(admin, user.id);
+        if (
+          founderRank == null &&
+          campaignBefore.status === "active" &&
+          campaignBefore.remaining > 0
+        ) {
+          const campaignAfter = await getFounderCampaignSnapshot(admin);
+          if (campaignAfter.claimed >= campaignAfter.limit) {
+            founderMissed = true;
+          }
+        }
       }
     }
   }
@@ -114,8 +130,12 @@ export async function GET(request: Request) {
     ? stripWatchParam(next) || `/listing/${watchListingId}`
     : isNewUser && next === "/sell/start"
       ? "/sell/start"
-      : isNewUser
-        ? "/onboarding/welcome?new=1"
-        : next;
+      : isNewUser && founderRank != null
+        ? `/onboarding/founder?rank=${founderRank}`
+        : isNewUser && founderMissed
+          ? "/onboarding/welcome?new=1&founder_missed=1"
+          : isNewUser
+            ? "/onboarding/welcome?new=1"
+            : next;
   return NextResponse.redirect(new URL(redirectPath, request.url));
 }

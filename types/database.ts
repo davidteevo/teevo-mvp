@@ -86,6 +86,10 @@ export interface User {
   address_country: string | null;
   date_of_birth: string | null;
   founding_seller_rank: number | null;
+  founder_joined_at?: string | null;
+  founder_reward_status?: "none" | "eligible" | "earned";
+  founder_reward_earned_at?: string | null;
+  founder_reward_listing_id?: string | null;
   rating_average?: number | null;
   rating_count?: number;
   created_by_admin?: boolean;

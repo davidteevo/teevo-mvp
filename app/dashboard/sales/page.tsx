@@ -457,13 +457,12 @@ function DashboardSalesContent() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold text-mowing-green">Sales</h1>
       <p className="mt-1 text-mowing-green/80">Mark items as shipped when you send them.</p>
-      {transactions.length > 0 && (
-        <ReferralPromptCard
-          title="You've sold your club on Teevo."
-          url={referralUrl}
-          variant="seller"
-        />
-      )}
+      <ReferralPromptCard
+        title={transactions.length > 0 ? "Since you've sold your club" : undefined}
+        url={referralUrl}
+        variant="seller"
+        compact
+      />
       <div className="mt-6 rounded-xl border border-par-3-punch/20 bg-white overflow-hidden">
         {transactions.length === 0 ? (
           <div className="p-8 text-center text-mowing-green/80">

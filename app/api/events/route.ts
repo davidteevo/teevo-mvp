@@ -83,6 +83,15 @@ const ALLOWED_EVENTS = [
   "referral_reward_reversed",
   "referral_credit_redeemed",
   "creator_referral_conversion",
+  "founder_campaign_viewed",
+  "founder_claim_clicked",
+  "founder_signup_started",
+  "founder_signup_completed",
+  "founder_number_allocated",
+  "founder_listing_started",
+  "founder_listing_completed",
+  "founder_reward_earned",
+  "founder_referral_shared",
 ] as const;
 
 export type AllowedEventName = (typeof ALLOWED_EVENTS)[number];

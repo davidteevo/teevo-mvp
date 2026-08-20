@@ -6,7 +6,8 @@ export type CreditType =
   | "seller_sale_referral"
   | "admin_adjustment"
   | "redemption"
-  | "reversal";
+  | "reversal"
+  | "founder_listing_reward";
 
 export type CreditStatus = "pending" | "available" | "redeemed" | "reversed" | "cancelled";
 
@@ -79,6 +80,15 @@ export async function insertCreditTransaction(
     .maybeSingle();
   if (error) {
     if (/duplicate|unique/i.test(error.message)) {
+      if (row.type === "founder_listing_reward") {
+        const { data: existing } = await admin
+          .from("credit_transactions")
+          .select("id")
+          .eq("user_id", row.userId)
+          .eq("type", "founder_listing_reward")
+          .maybeSingle();
+        return existing?.id ? { id: existing.id } : null;
+      }
       const { data: existing } = await admin
         .from("credit_transactions")
         .select("id")

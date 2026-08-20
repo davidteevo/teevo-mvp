@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 import {
+  Award,
   BadgeCheck,
   Briefcase,
   ClipboardCheck,
@@ -49,6 +50,7 @@ const GROUPS: {
       { href: "/admin/users", label: "Users", icon: Users },
       { href: "/admin/feedback", label: "Feedback", icon: Star },
       { href: "/admin/referrals", label: "Referrals", icon: Gift },
+      { href: "/admin/founders", label: "Founders", icon: Award },
       { href: "/admin/referrals/creators", label: "Creators", icon: Megaphone },
     ],
   },

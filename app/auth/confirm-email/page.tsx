@@ -162,8 +162,25 @@ function ConfirmEmailContent() {
         "Session sync timed out. Try clearing site data for this site, then log in again."
       );
       await new Promise((r) => setTimeout(r, 300));
+      let destination = next;
+      try {
+        const syncRes = await fetch("/api/auth/sync-user", { method: "POST", credentials: "include" });
+        const syncData = await syncRes.json().catch(() => ({}));
+        if (typeof syncData.founderRank === "number") {
+          destination = `/onboarding/founder?rank=${syncData.founderRank}`;
+        } else if (syncData.isNewUser) {
+          const profileRes = await fetch("/api/user/profile", { credentials: "include" });
+          const profileData = await profileRes.json().catch(() => ({}));
+          const rank = profileData?.profile?.founding_seller_rank;
+          if (typeof rank === "number") {
+            destination = `/onboarding/founder?rank=${rank}`;
+          }
+        }
+      } catch {
+        // fall through to default next
+      }
       const origin = window.location.origin;
-      window.location.href = next.startsWith("http") ? next : `${origin}${next}`;
+      window.location.href = destination.startsWith("http") ? destination : `${origin}${destination}`;
     } catch (caught) {
       const msg = caught instanceof Error ? caught.message : "Could not finish signing in";
       setError(msg);

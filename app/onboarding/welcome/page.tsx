@@ -10,6 +10,7 @@ function WelcomeContent() {
   const searchParams = useSearchParams();
   const { user, loading: authLoading, refreshProfile } = useAuth();
   const nextPath = searchParams.get("next") ?? "/onboarding/payouts";
+  const founderMissed = searchParams.get("founder_missed") === "1";
   const [firstName, setFirstName] = useState("");
   const [surname, setSurname] = useState("");
   const [saving, setSaving] = useState(false);
@@ -67,6 +68,15 @@ function WelcomeContent() {
 
   return (
     <div className="max-w-md mx-auto px-4 py-12">
+      {founderMissed && (
+        <div className="mb-4 rounded-xl border border-mowing-green/20 bg-mowing-green/5 px-4 py-3 text-center">
+          <p className="font-semibold text-mowing-green">The first 100 are officially in 🎉</p>
+          <p className="mt-1 text-sm text-mowing-green/80">
+            The final Founding Member place was just claimed. Your Teevo account is ready and you can still
+            start buying and selling.
+          </p>
+        </div>
+      )}
       <div className="rounded-2xl border border-par-3-punch/30 bg-white p-6 shadow-sm">
         <div className="flex justify-center">
           <div className="rounded-full bg-golden-tee/20 p-4">

@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { OnboardingStripeBanner } from "@/components/dashboard/OnboardingStripeBanner";
 import { FoundingSellerBadge } from "@/components/trust/FoundingSellerBadge";
+import { FounderJourneyCard } from "@/components/founder/FounderJourneyCard";
+import { FounderMembershipCard } from "@/components/founder/FounderMembershipCard";
 import { Calendar, ClipboardCheck, Gift, Heart, MessageCircle, Package, PlusCircle, Send, ShoppingBag, ShoppingCart, Star, TrendingUp, User } from "lucide-react";
 
 function FoundingSellerFeedback() {
@@ -161,6 +163,26 @@ export default function DashboardPage() {
       <Suspense fallback={null}>
         <OnboardingStripeBanner className="mt-6" />
       </Suspense>
+
+      {profile?.founding_seller_rank != null && (
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          <FounderMembershipCard
+            rank={profile.founding_seller_rank}
+            joinedAt={profile.founder_joined_at ?? profile.created_at}
+          />
+          <FounderJourneyCard
+            founderNumber={profile.founding_seller_rank}
+            rewardStatus={
+              profile.founder_reward_status === "earned" ||
+              profile.founder_reward_status === "eligible"
+                ? profile.founder_reward_status
+                : profile.founding_seller_rank != null
+                  ? "eligible"
+                  : "none"
+            }
+          />
+        </div>
+      )}
 
       {edited && (
         <div className="mt-6 rounded-xl border border-par-3-punch/30 bg-par-3-punch/5 p-4 text-sm text-mowing-green">

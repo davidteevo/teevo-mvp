@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import type { Area } from "react-easy-crop";
 import { AvatarCropModal } from "@/components/profile/AvatarCropModal";
+import { FounderMembershipCard } from "@/components/founder/FounderMembershipCard";
 import { renderCroppedAvatar } from "@/lib/avatar-crop";
 
 const AVATAR_BUCKET = "avatars";
@@ -312,6 +313,15 @@ export default function ProfilePage() {
           <p className="text-mowing-green/80 text-sm">{user.email}</p>
           <p className="text-xs text-mowing-green/60 mt-0.5">Email cannot be changed here.</p>
         </div>
+
+        {profile?.founding_seller_rank != null && (
+          <div className="mb-6">
+            <FounderMembershipCard
+              rank={profile.founding_seller_rank}
+              joinedAt={profile.founder_joined_at ?? profile.created_at}
+            />
+          </div>
+        )}
 
         {profile?.display_name && (
           <div>
