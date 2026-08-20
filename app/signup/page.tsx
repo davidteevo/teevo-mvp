@@ -191,17 +191,6 @@ function SignupForm() {
         {/* Hero */}
         <section className="grid items-center gap-6 lg:grid-cols-[1fr_minmax(220px,320px)] lg:gap-10">
           <div>
-            <div className="mb-5 sm:hidden">
-              <Image
-                src="/logo-text.png"
-                alt="Teevo"
-                width={120}
-                height={38}
-                className="h-9 w-auto"
-                priority
-              />
-            </div>
-
             {founderActive ? (
               <>
                 <p className="inline-flex items-center gap-1.5 rounded-full bg-golden-tee px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-mowing-green">
@@ -231,15 +220,14 @@ function SignupForm() {
 
           <div className="relative mx-auto w-full max-w-sm lg:max-w-none">
             <div className="absolute -inset-2 rounded-[2rem] bg-gradient-to-br from-par-3-punch/20 via-mowing-green/5 to-golden-tee/30 blur-sm" aria-hidden />
-            <div className="relative overflow-hidden rounded-3xl border border-mowing-green/10 bg-gradient-to-br from-off-white-pique to-par-3-punch/10 p-3 sm:p-4">
+            <div className="relative overflow-hidden rounded-3xl border border-mowing-green/10 bg-off-white-pique p-2 sm:p-3">
               <Image
-                src="/founder-signup-art.svg"
-                alt=""
-                width={360}
-                height={280}
+                src="/founder-signup-art.png"
+                alt="Golfers shaping Teevo together"
+                width={480}
+                height={430}
                 className="h-auto w-full"
                 priority
-                unoptimized
               />
             </div>
           </div>
