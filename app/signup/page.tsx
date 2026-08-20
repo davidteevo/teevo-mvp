@@ -44,6 +44,7 @@ function SignupForm() {
     limit: number;
     progressLabel: string;
   } | null>(null);
+  const [campaignLoadState, setCampaignLoadState] = useState<"pending" | "done" | "error">("pending");
 
   useEffect(() => {
     const supabase = createClient();
@@ -73,9 +74,19 @@ function SignupForm() {
             claimed: d.claimed,
             remaining: d.remaining,
           });
+        } else {
+          setFounderCampaign({
+            active: false,
+            claimed: d?.claimed ?? 0,
+            limit: d?.limit ?? 100,
+            progressLabel: d?.progressLabel ?? "",
+          });
         }
+        setCampaignLoadState("done");
       })
-      .catch(() => {});
+      .catch(() => {
+        setCampaignLoadState("error");
+      });
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -167,6 +178,7 @@ function SignupForm() {
   }
 
   const founderActive = Boolean(founderCampaign?.active);
+  const campaignPending = campaignLoadState === "pending";
   const claimed = founderCampaign?.claimed ?? 0;
   const limit = founderCampaign?.limit ?? 100;
   const progressPct = Math.max(0, Math.min(100, (claimed / Math.max(limit, 1)) * 100));
@@ -191,7 +203,14 @@ function SignupForm() {
         {/* Hero */}
         <section className="grid items-center gap-6 lg:grid-cols-[1fr_minmax(220px,320px)] lg:gap-10">
           <div>
-            {founderActive ? (
+            {campaignPending ? (
+              <div className="animate-pulse space-y-3" aria-busy="true" aria-label="Loading Founder details">
+                <div className="h-6 w-40 rounded-full bg-golden-tee/50" />
+                <div className="h-9 w-4/5 max-w-md rounded-lg bg-mowing-green/10" />
+                <div className="h-4 w-full max-w-lg rounded bg-mowing-green/10" />
+                <div className="h-4 w-3/4 max-w-md rounded bg-mowing-green/10" />
+              </div>
+            ) : founderActive ? (
               <>
                 <p className="inline-flex items-center gap-1.5 rounded-full bg-golden-tee px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-mowing-green">
                   <Star className="h-3.5 w-3.5 fill-mowing-green text-mowing-green" aria-hidden />
@@ -416,8 +435,10 @@ function SignupForm() {
                 disabled={loading}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-mowing-green py-3.5 text-base font-semibold text-off-white-pique transition-opacity hover:opacity-95 disabled:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mowing-green"
               >
-                {founderActive ? "Claim my Founder spot" : "Create account"}
-                {founderActive && <Sparkles className="h-4 w-4 text-golden-tee" aria-hidden />}
+                {campaignPending || founderActive ? "Claim my Founder spot" : "Create account"}
+                {(campaignPending || founderActive) && (
+                  <Sparkles className="h-4 w-4 text-golden-tee" aria-hidden />
+                )}
               </button>
             </form>
 
