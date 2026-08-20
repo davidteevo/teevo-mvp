@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { track } from "@/lib/analytics";
 import { parseWatchListingId } from "@/lib/watchlist";
-import { Mail, MessageCircle, PoundSterling, Star } from "lucide-react";
+import { Mail, Star } from "lucide-react";
 import { FOUNDER_EVENTS } from "@/lib/founder/types";
 
 function SignupForm() {
@@ -23,7 +23,6 @@ function SignupForm() {
   const [founderCampaign, setFounderCampaign] = useState<{
     active: boolean;
     claimed: number;
-    limit: number;
     progressLabel: string;
   } | null>(null);
 
@@ -48,8 +47,7 @@ function SignupForm() {
         if (d?.active) {
           setFounderCampaign({
             active: true,
-            claimed: typeof d.claimed === "number" ? d.claimed : 0,
-            limit: typeof d.limit === "number" ? d.limit : 100,
+            claimed: d.claimed,
             progressLabel: d.progressLabel,
           });
           track(FOUNDER_EVENTS.SIGNUP_STARTED, {
@@ -166,59 +164,17 @@ function SignupForm() {
         </div>
       )}
       {founderCampaign?.active && (
-        <div className="mb-6 overflow-hidden rounded-2xl border border-golden-tee/50 bg-gradient-to-br from-golden-tee/35 via-golden-tee/20 to-off-white-pique px-4 py-4 shadow-sm">
-          <p className="inline-flex items-center gap-1.5 rounded-full bg-golden-tee px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-mowing-green">
-            <Star className="h-3.5 w-3.5 fill-mowing-green text-mowing-green" aria-hidden />
-            Founder spots available
+        <div className="mb-6 rounded-xl border border-golden-tee/50 bg-golden-tee/25 px-4 py-3">
+          <p className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wide text-mowing-green">
+            <Star className="h-3.5 w-3.5" aria-hidden />
+            Founder spot available
           </p>
-          <p className="mt-3 text-sm font-semibold tabular-nums text-mowing-green">
-            {founderCampaign.claimed} / {founderCampaign.limit} claimed
+          <p className="mt-1 text-sm text-mowing-green/90">
+            Join Teevo now and become one of our first 100 members.
           </p>
-          <div
-            className="mt-2 h-2 overflow-hidden rounded-full bg-mowing-green/15"
-            role="progressbar"
-            aria-valuenow={founderCampaign.claimed}
-            aria-valuemin={0}
-            aria-valuemax={founderCampaign.limit}
-            aria-label={`${founderCampaign.claimed} of ${founderCampaign.limit} Founder spots claimed`}
-          >
-            <div
-              className="h-full rounded-full bg-mowing-green motion-safe:transition-[width] motion-safe:duration-700"
-              style={{
-                width: `${Math.max(
-                  0,
-                  Math.min(
-                    100,
-                    (founderCampaign.claimed / Math.max(founderCampaign.limit, 1)) * 100
-                  )
-                )}%`,
-              }}
-            />
-          </div>
-          <ul className="mt-4 space-y-3">
-            <li className="flex items-start gap-3">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-mowing-green text-off-white-pique">
-                <PoundSterling className="h-3.5 w-3.5" aria-hidden />
-              </span>
-              <p className="text-sm leading-snug text-mowing-green/90">
-                <span className="font-semibold text-mowing-green">Earn £5 credit</span>
-                <span className="block text-mowing-green/75">
-                  List your first club and get £5 Teevo credit.
-                </span>
-              </p>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-mowing-green text-off-white-pique">
-                <MessageCircle className="h-3.5 w-3.5" aria-hidden />
-              </span>
-              <p className="text-sm leading-snug text-mowing-green/90">
-                <span className="font-semibold text-mowing-green">Shape Teevo</span>
-                <span className="block text-mowing-green/75">
-                  Founders get a voice in what we build next.
-                </span>
-              </p>
-            </li>
-          </ul>
+          <p className="mt-1 text-sm font-semibold tabular-nums text-mowing-green">
+            {founderCampaign.progressLabel}
+          </p>
         </div>
       )}
 
