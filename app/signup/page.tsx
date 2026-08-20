@@ -218,7 +218,7 @@ function SignupForm() {
             )}
           </div>
 
-          <div className="relative mx-auto hidden w-full max-w-sm lg:block lg:max-w-none">
+          <div className="relative mx-auto w-full max-w-sm lg:max-w-none">
             <div className="absolute -inset-2 rounded-[2rem] bg-gradient-to-br from-par-3-punch/20 via-mowing-green/5 to-golden-tee/30 blur-sm" aria-hidden />
             <div className="relative overflow-hidden rounded-3xl border border-mowing-green/10 bg-gradient-to-br from-off-white-pique to-par-3-punch/10 p-3 sm:p-4">
               <Image
