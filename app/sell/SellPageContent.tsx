@@ -3,7 +3,7 @@
 import { useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { ListingForm, type ListingSubmitProgress } from "@/components/listing/ListingForm";
+import { ListingForm, type ListingFormSubmitPayload, type ListingSubmitProgress } from "@/components/listing/ListingForm";
 import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
 import { compressListingMain, compressListingThumb } from "@/lib/image-compression";
 import type { ClubCatalogue } from "@/lib/club-catalogue";
@@ -47,31 +47,7 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
     return null;
   }
 
-  const handleSubmit = async (payload: {
-    category: string;
-    brand: string;
-    model?: string | null;
-    condition: string;
-    description: string;
-    price: string;
-    title?: string;
-    shaft?: string;
-    degree?: string;
-    shaftFlex?: string;
-    lieAngle?: string;
-    clubLength?: string;
-    shaftWeight?: string;
-    shaftMaterial?: string;
-    gripBrand?: string;
-    gripModel?: string;
-    gripSize?: string;
-    gripCondition?: string;
-    handed?: "left" | "right";
-    item_type?: string | null;
-    size?: string | null;
-    colour?: string | null;
-    images: File[];
-  }) => {
+  const handleSubmit = async (payload: ListingFormSubmitPayload) => {
     abortRef.current = new AbortController();
     const signal = abortRef.current.signal;
     const timeoutId = window.setTimeout(() => abortRef.current?.abort(), SUBMIT_TIMEOUT_MS);
@@ -103,21 +79,32 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
           description: payload.description || null,
           price: pricePence,
           imageCount: images.length,
-          shaft: payload.shaft || null,
-          degree: payload.degree || null,
-          shaft_flex: payload.shaftFlex || null,
-            lie_angle: payload.lieAngle || null,
-            club_length: payload.clubLength || null,
-            shaft_weight: payload.shaftWeight || null,
-            shaft_material: payload.shaftMaterial || null,
-            grip_brand: payload.gripBrand || null,
-            grip_model: payload.gripModel || null,
-            grip_size: payload.gripSize || null,
-            grip_condition: payload.gripCondition || null,
+          shaft: payload.shaft ?? payload.shaft ?? null,
+          degree: payload.degree ?? null,
+          shaft_flex: payload.shaftFlex ?? payload.shaft_flex ?? null,
+          lie_angle: payload.lieAngle ?? payload.lie_angle ?? null,
+          club_length: payload.clubLength ?? payload.club_length ?? null,
+          shaft_weight: payload.shaftWeight ?? payload.shaft_weight ?? null,
+          shaft_material: payload.shaftMaterial ?? payload.shaft_material ?? null,
+          grip_brand: payload.gripBrand ?? payload.grip_brand ?? null,
+          grip_model: payload.gripModel ?? payload.grip_model ?? null,
+          grip_size: payload.gripSize ?? payload.grip_size ?? null,
+          grip_condition: payload.gripCondition ?? payload.grip_condition ?? null,
           handed: payload.handed || null,
           item_type: payload.item_type ?? null,
           size: payload.size ?? null,
           colour: payload.colour ?? null,
+          listing_format: payload.listing_format ?? null,
+          standard_spec_status: payload.standard_spec_status ?? null,
+          customised_aspects: payload.customised_aspects ?? null,
+          customised_other_note: payload.customised_other_note ?? null,
+          iron_number: payload.iron_number ?? null,
+          set_composition: payload.set_composition ?? null,
+          bounce: payload.bounce ?? null,
+          grind: payload.grind ?? null,
+          head_number: payload.head_number ?? null,
+          spec_provenance: payload.spec_provenance ?? {},
+          clubs: payload.clubs ?? null,
         }),
         signal,
       });

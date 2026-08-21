@@ -98,6 +98,20 @@ const ALLOWED_EVENTS = [
   "browse_all_clubs_clicked",
   "browse_referral_card_viewed",
   "browse_referral_cta_clicked",
+  "listing_started",
+  "category_selected",
+  "club_details_started",
+  "required_specs_completed",
+  "standard_spec_selected",
+  "customised_spec_selected",
+  "unknown_spec_selected",
+  "advanced_details_opened",
+  "wedge_single_selected",
+  "wedge_set_selected",
+  "wedge_added_to_set",
+  "club_details_completed",
+  "listing_submitted",
+  "listing_abandoned",
 ] as const;
 
 export type AllowedEventName = (typeof ALLOWED_EVENTS)[number];
