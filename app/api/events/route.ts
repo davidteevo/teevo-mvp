@@ -92,6 +92,12 @@ const ALLOWED_EVENTS = [
   "founder_listing_completed",
   "founder_reward_earned",
   "founder_referral_shared",
+  "browse_founder_cta_viewed",
+  "browse_founder_cta_clicked",
+  "browse_marketplace_preview_viewed",
+  "browse_all_clubs_clicked",
+  "browse_referral_card_viewed",
+  "browse_referral_cta_clicked",
 ] as const;
 
 export type AllowedEventName = (typeof ALLOWED_EVENTS)[number];
