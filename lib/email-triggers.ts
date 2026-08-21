@@ -54,6 +54,7 @@ export const EmailTriggerType = {
   LISTING_AVAILABILITY_RECONFIRM_REMINDER: "listing_availability_reconfirm_reminder",
   DISPATCH_CANCELLATION_FAILED_ADMIN: "dispatch_cancellation_failed_admin",
   REFERRAL_CREDIT_EARNED: "referral_credit_earned",
+  ADMIN_NEW_USERS_DIGEST: "admin_new_users_digest",
 } as const;
 
 export type EmailTriggerTypeValue = (typeof EmailTriggerType)[keyof typeof EmailTriggerType];

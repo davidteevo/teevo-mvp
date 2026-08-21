@@ -95,6 +95,8 @@ export interface User {
   created_by_admin?: boolean;
   invited_at?: string | null;
   phone?: string | null;
+  /** When included in an admin signup digest; NULL = not yet reported. */
+  admin_signup_digest_sent_at?: string | null;
   created_at: string;
   updated_at: string;
 }
