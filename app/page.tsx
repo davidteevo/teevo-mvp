@@ -12,8 +12,14 @@ import {
   FounderHowItWorks,
   FounderStickyCta,
 } from "@/components/founder/FounderHome";
+import { BrowseReferralCard } from "@/components/referral/BrowseReferralCard";
+import {
+  BrowseAllClubsLink,
+  BrowseMarketplacePreviewTracker,
+} from "@/components/browse/BrowseTrackers";
 import { getFilterBrands } from "@/lib/filter-brands";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { isBuyingEnabled } from "@/lib/buying";
 import { getFounderCampaignSnapshot, isFounderCampaignActive } from "@/lib/founder/campaign";
 import {
@@ -23,6 +29,7 @@ import {
   founderSocialProof,
 } from "@/lib/founder/copy";
 import { getPublicListings } from "@/lib/listings";
+import { getReferralSettings } from "@/lib/referral/settings";
 import { cookies } from "next/headers";
 import { REF_COOKIE } from "@/lib/referral/attribution";
 import { lookupReferralCode, normalizeReferralCode } from "@/lib/referral/codes";
@@ -81,11 +88,64 @@ export default async function HomePage({
 }) {
   const brandSuggestions = getFilterBrands();
   const admin = createAdminClient();
-  const [buyingEnabled, campaign, referrerFirstName, previewListings] = await Promise.all([
-    isBuyingEnabled(admin),
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isLoggedIn = Boolean(user);
+
+  const buyingEnabled = await isBuyingEnabled(admin);
+
+  if (isLoggedIn) {
+    const [referralSettings, profile] = await Promise.all([
+      getReferralSettings(admin),
+      admin
+        .from("users")
+        .select("founding_seller_rank")
+        .eq("id", user!.id)
+        .maybeSingle()
+        .then(({ data }) => data),
+    ]);
+    const isFoundingMember =
+      typeof profile?.founding_seller_rank === "number" && profile.founding_seller_rank > 0;
+
+    return (
+      <div className="max-w-6xl mx-auto min-w-0 w-full px-4 py-8 overflow-x-clip">
+        {!buyingEnabled && (
+          <div className="mb-4 rounded-xl bg-mowing-green/10 border border-mowing-green/20 px-4 py-3 text-center text-sm text-mowing-green/90">
+            Teevo is launching soon. Sellers can list gear today. Buying opens shortly.
+          </div>
+        )}
+
+        <BrowseReferralCard
+          priority={referralSettings.referralPriority}
+          discountPence={referralSettings.discountPence}
+          referrerRewardPence={referralSettings.referrerRewardPence}
+          sellerListingRewardPence={referralSettings.sellerListingRewardPence}
+          isFoundingMember={isFoundingMember}
+        />
+
+        <SmartSearchHero />
+
+        <Suspense fallback={<FilterBarFallback />}>
+          <HomeFilterBar brandSuggestions={brandSuggestions} />
+        </Suspense>
+
+        <Suspense fallback={null}>
+          <ActiveFilterChips />
+        </Suspense>
+
+        <ListingGrid searchParams={searchParams} />
+      </div>
+    );
+  }
+
+  const [campaign, referrerFirstName, previewListings] = await Promise.all([
     getFounderCampaignSnapshot(admin),
     resolveReferrerFirstName(),
-    getPublicListings({}).then((rows) => (rows as Listing[]).slice(0, 4)).catch(() => [] as Listing[]),
+    getPublicListings({})
+      .then((rows) => (rows as Listing[]).slice(0, 4))
+      .catch(() => [] as Listing[]),
   ]);
 
   const founderActive = isFounderCampaignActive(campaign);
@@ -116,13 +176,12 @@ export default async function HomePage({
           <FounderHowItWorks />
           {previewListings.length > 0 && (
             <section className="mb-10" aria-labelledby="clubs-now-heading">
+              <BrowseMarketplacePreviewTracker />
               <div className="flex flex-wrap items-end justify-between gap-2">
                 <h2 id="clubs-now-heading" className="text-xl font-bold text-mowing-green">
                   Clubs on Teevo right now
                 </h2>
-                <Link href="/#browse" className="text-sm font-medium text-mowing-green underline-offset-2 hover:underline">
-                  Browse all clubs →
-                </Link>
+                <BrowseAllClubsLink className="text-sm font-medium text-mowing-green underline-offset-2 hover:underline" />
               </div>
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {previewListings.map((listing, i) => (
@@ -142,30 +201,23 @@ export default async function HomePage({
             <p className="mt-2 text-mowing-green/80">
               Browse verified listings from UK sellers. Secure payment, no fuss.
             </p>
-            <SmartSearchHero />
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Link
+                href="/signup?redirect=/"
+                className="inline-flex items-center justify-center rounded-xl bg-mowing-green px-5 py-3 text-sm font-semibold text-off-white-pique hover:opacity-95"
+              >
+                Create an account
+              </Link>
+              <Link
+                href="/login?redirect=/"
+                className="text-sm font-medium text-mowing-green underline-offset-2 hover:underline"
+              >
+                Log in to browse clubs
+              </Link>
+            </div>
           </header>
         </>
       )}
-
-      {founderActive && (
-        <div id="browse" className="mb-6 scroll-mt-24">
-          <h2 className="text-xl font-bold text-mowing-green">Browse the marketplace</h2>
-          <p className="mt-1 text-sm text-mowing-green/75">Search and filter clubs — no account needed.</p>
-          <div className="mt-4">
-            <SmartSearchHero />
-          </div>
-        </div>
-      )}
-
-      <Suspense fallback={<FilterBarFallback />}>
-        <HomeFilterBar brandSuggestions={brandSuggestions} />
-      </Suspense>
-
-      <Suspense fallback={null}>
-        <ActiveFilterChips />
-      </Suspense>
-
-      <ListingGrid searchParams={searchParams} />
     </div>
   );
 }

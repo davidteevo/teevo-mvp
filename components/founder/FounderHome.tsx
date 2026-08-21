@@ -53,10 +53,17 @@ export function FounderHero({
       limit,
       has_referrer: Boolean(referrerFirstName),
     });
+    track("browse_founder_cta_viewed", {
+      claimed,
+      remaining,
+      limit,
+      has_referrer: Boolean(referrerFirstName),
+    });
   }, [claimed, remaining, limit, referrerFirstName]);
 
   const handleClaim = () => {
     track(FOUNDER_EVENTS.CLAIM_CLICKED, { claimed, remaining });
+    track("browse_founder_cta_clicked", { claimed, remaining });
   };
 
   return (
@@ -226,7 +233,10 @@ export function FounderStickyCta({ claimed, remaining }: { claimed: number; rema
       >
         <Link
           href="/signup"
-          onClick={() => track(FOUNDER_EVENTS.CLAIM_CLICKED, { claimed, remaining, sticky: true })}
+          onClick={() => {
+            track(FOUNDER_EVENTS.CLAIM_CLICKED, { claimed, remaining, sticky: true });
+            track("browse_founder_cta_clicked", { claimed, remaining, sticky: true });
+          }}
           className="flex w-full items-center justify-center gap-2 rounded-xl bg-mowing-green px-4 py-3 text-sm font-semibold text-off-white-pique"
         >
           <Star className="h-4 w-4" aria-hidden />
