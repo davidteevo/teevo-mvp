@@ -118,14 +118,18 @@ function escapeLike(term: string): string {
   return term.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
 }
 
+const LISTING_DETAIL_SELECT =
+  "id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, listing_format, standard_spec_status, customised_aspects, customised_other_note, iron_number, set_composition, bounce, grind, head_number, spec_provenance, item_type, size, colour, status, flagged, buying_paused, availability_confirmation_status, created_at, updated_at, listing_images ( id, storage_path, sort_order ), listing_clubs ( id, listing_id, sort_order, club_type, iron_number, degree, bounce, grind, shaft, shaft_flex, created_at )";
+
+const LISTING_CARD_SELECT =
+  "id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, listing_format, standard_spec_status, iron_number, set_composition, bounce, grind, head_number, item_type, size, colour, status, flagged, buying_paused, availability_confirmation_status, created_at, updated_at, listing_images ( id, storage_path, sort_order ), listing_clubs ( id, listing_id, sort_order, club_type, iron_number, degree, bounce, grind, shaft, shaft_flex, created_at ), users!user_id ( display_name, rating_average, rating_count )";
+
 /** Uses admin client so this can run inside unstable_cache without request/cookies (e.g. on Netlify). Returns public marketplace listings (pending + verified). */
 async function getPublicListingsUncached(filters?: Filters) {
   const supabase = createAdminClient();
   let query = supabase
     .from("listings")
-    .select(
-      "id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, item_type, size, colour, status, flagged, buying_paused, availability_confirmation_status, created_at, updated_at, listing_images ( id, storage_path, sort_order ), users!user_id ( display_name, rating_average, rating_count )"
-    )
+    .select(LISTING_CARD_SELECT)
     .in("status", [...PUBLIC_MARKETPLACE_STATUSES])
     .is("archived_at", null);
 
@@ -181,7 +185,7 @@ async function getListingByIdUncached(id: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
-    .select("id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, item_type, size, colour, status, flagged, buying_paused, availability_confirmation_status, created_at, updated_at, listing_images ( id, storage_path, sort_order )")
+    .select(LISTING_DETAIL_SELECT)
     .eq("id", id)
     .single();
   if (error) throw error;
@@ -198,7 +202,7 @@ async function getListingByIdAdminUncached(id: string) {
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("listings")
-    .select("id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, item_type, size, colour, status, flagged, buying_paused, availability_confirmation_status, created_at, updated_at, listing_images ( id, storage_path, sort_order )")
+    .select(LISTING_DETAIL_SELECT)
     .eq("id", id)
     .single();
   if (error) throw error;

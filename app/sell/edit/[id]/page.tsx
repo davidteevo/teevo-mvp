@@ -4,12 +4,18 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { ALL_CATEGORIES, getConditionsForCategory, CONDITION_LABELS } from "@/lib/listing-categories";
-import { ChevronDown, ChevronRight } from "lucide-react";
 import { SearchableSelect } from "@/components/listing/SearchableSelect";
 import { ImageUpload, type StoredImage } from "@/components/listing/ImageUpload";
+import { ClubDetailsStep } from "@/components/listing/club-specs/ClubDetailsStep";
+import {
+  emptyClubSpecsFormState,
+  isGolfEquipmentCategory,
+  type ClubSpecsFormState,
+  validateClubDetails,
+} from "@/lib/club-specs/schemas";
+import { buildClubSpecsSubmitPayload, hydrateClubSpecsFromListing } from "@/lib/club-specs/payload";
 
 const CATEGORIES = [...ALL_CATEGORIES];
-const GOLF_EQUIPMENT_CATEGORIES = ["Driver", "Woods", "Driving Irons", "Hybrids", "Irons", "Wedges", "Putter"];
 
 type Listing = {
   id: string;
@@ -34,6 +40,22 @@ type Listing = {
   grip_model?: string | null;
   grip_size?: string | null;
   grip_condition?: string | null;
+  handed?: "left" | "right" | null;
+  listing_format?: "single" | "set" | null;
+  standard_spec_status?: "standard" | "customised" | "unknown" | null;
+  customised_aspects?: ("shaft" | "length" | "loft_lie" | "grip" | "other")[] | null;
+  customised_other_note?: string | null;
+  iron_number?: string | null;
+  set_composition?: string[] | null;
+  bounce?: string | null;
+  grind?: string | null;
+  head_number?: string | null;
+  listing_clubs?: {
+    id: string;
+    degree: string | null;
+    bounce: string | null;
+    grind: string | null;
+  }[];
   listing_images?: StoredImage[];
 };
 
@@ -50,27 +72,20 @@ export default function SellEditPage() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
 
-  // Club specs
-  const [specsOpen, setSpecsOpen] = useState(false);
-  const [degree, setDegree] = useState("");
-  const [lieAngle, setLieAngle] = useState("");
-  const [clubLength, setClubLength] = useState("");
-  const [shaft, setShaft] = useState("");
-  const [shaftFlex, setShaftFlex] = useState("");
-  const [shaftWeight, setShaftWeight] = useState("");
-  const [shaftMaterial, setShaftMaterial] = useState("");
-  const [gripBrand, setGripBrand] = useState("");
-  const [gripModel, setGripModel] = useState("");
-  const [gripSize, setGripSize] = useState("");
-  const [gripCondition, setGripCondition] = useState("");
+  const [clubSpecs, setClubSpecs] = useState<ClubSpecsFormState>(emptyClubSpecsFormState);
+  const [clubError, setClubError] = useState<{ field: string; message: string } | null>(null);
 
   // Catalogues for SearchableSelect
   const [shaftOptions, setShaftOptions] = useState<string[]>([]);
+  const [shaftCatalogueLoading, setShaftCatalogueLoading] = useState(false);
   const [gripCatalogue, setGripCatalogue] = useState<{ brands: string[]; modelsByBrand: Record<string, string[]> } | null>(null);
+  const [gripCatalogueLoading, setGripCatalogueLoading] = useState(false);
 
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [enhanceLoading, setEnhanceLoading] = useState(false);
+
+  const isGolfEquipment = isGolfEquipmentCategory(category);
 
   const handleImproveWithAI = async () => {
     if (!category || !condition || !title.trim()) {
@@ -79,6 +94,7 @@ export default function SellEditPage() {
     }
     setEnhanceLoading(true);
     try {
+      const clubPayload = isGolfEquipment ? buildClubSpecsSubmitPayload(category, clubSpecs) : {};
       const res = await fetch("/api/ai/enhance-listing", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -90,17 +106,17 @@ export default function SellEditPage() {
           description: description.trim() || undefined,
           title: title.trim() || undefined,
           ...(isGolfEquipment && {
-            shaft: shaft.trim() || undefined,
-            degree: degree.trim() || undefined,
-            shaft_flex: shaftFlex.trim() || undefined,
-            lie_angle: lieAngle.trim() || undefined,
-            club_length: clubLength.trim() || undefined,
-            shaft_weight: shaftWeight.trim() || undefined,
-            shaft_material: shaftMaterial.trim() || undefined,
-            grip_brand: gripBrand.trim() || undefined,
-            grip_model: gripModel.trim() || undefined,
-            grip_size: gripSize.trim() || undefined,
-            grip_condition: gripCondition.trim() || undefined,
+            shaft: clubPayload.shaft ?? undefined,
+            degree: clubPayload.degree ?? undefined,
+            shaft_flex: clubPayload.shaft_flex ?? undefined,
+            lie_angle: clubPayload.lie_angle ?? undefined,
+            club_length: clubPayload.club_length ?? undefined,
+            shaft_weight: clubPayload.shaft_weight ?? undefined,
+            shaft_material: clubPayload.shaft_material ?? undefined,
+            grip_brand: clubPayload.grip_brand ?? undefined,
+            grip_model: clubPayload.grip_model ?? undefined,
+            grip_size: clubPayload.grip_size ?? undefined,
+            grip_condition: clubPayload.grip_condition ?? undefined,
           }),
         }),
       });
@@ -108,11 +124,6 @@ export default function SellEditPage() {
       if (!res.ok) throw new Error(data.error ?? "Could not get suggestions");
       if (data.title) setTitle(data.title);
       if (data.description) setDescription(data.description);
-      if (isGolfEquipment) {
-        if (data.shaft != null) setShaft(data.shaft ?? "");
-        if (data.degree != null) setDegree(data.degree ?? "");
-        if (data.shaft_flex != null) setShaftFlex(data.shaft_flex ?? "");
-      }
     } catch (e) {
       alert(e instanceof Error ? e.message : "Something went wrong. Try again.");
     } finally {
@@ -120,7 +131,6 @@ export default function SellEditPage() {
     }
   };
 
-  const isGolfEquipment = GOLF_EQUIPMENT_CATEGORIES.includes(category);
   const [storedImages, setStoredImages] = useState<StoredImage[]>([]);
   const originalImageOrder = useRef<StoredImage[]>([]);
 
@@ -138,20 +148,7 @@ export default function SellEditPage() {
           setCondition(found.condition);
           setDescription(found.description || "");
           setPrice((found.price / 100).toFixed(2));
-          setDegree(found.degree || "");
-          setLieAngle(found.lie_angle || "");
-          setClubLength(found.club_length || "");
-          setShaft(found.shaft || "");
-          setShaftFlex(found.shaft_flex || "");
-          setShaftWeight(found.shaft_weight || "");
-          setShaftMaterial(found.shaft_material || "");
-          setGripBrand(found.grip_brand || "");
-          setGripModel(found.grip_model || "");
-          setGripSize(found.grip_size || "");
-          setGripCondition(found.grip_condition || "");
-          // Auto-open specs if any spec is already set
-          const hasSpecs = !!(found.shaft || found.degree || found.shaft_flex || found.lie_angle || found.club_length);
-          setSpecsOpen(hasSpecs);
+          setClubSpecs(hydrateClubSpecsFromListing(found as Parameters<typeof hydrateClubSpecsFromListing>[0]));
           const imgs = [...(found.listing_images ?? [])].sort((a, b) => a.sort_order - b.sort_order);
           setStoredImages(imgs);
           originalImageOrder.current = imgs;
@@ -164,6 +161,8 @@ export default function SellEditPage() {
 
   useEffect(() => {
     let cancelled = false;
+    setShaftCatalogueLoading(true);
+    setGripCatalogueLoading(true);
     Promise.all([
       fetch("/api/club-specs/shafts").then((r) => r.json()).catch(() => []),
       fetch("/api/club-specs/grips").then((r) => r.json()).catch(() => null),
@@ -176,6 +175,11 @@ export default function SellEditPage() {
           brands: Array.isArray(g.brands) ? g.brands.filter((b: unknown) => typeof b === "string") : [],
           modelsByBrand: (g.modelsByBrand && typeof g.modelsByBrand === "object" ? g.modelsByBrand : {}) as Record<string, string[]>,
         });
+      }
+    }).finally(() => {
+      if (!cancelled) {
+        setShaftCatalogueLoading(false);
+        setGripCatalogueLoading(false);
       }
     });
     return () => { cancelled = true; };
@@ -229,29 +233,34 @@ export default function SellEditPage() {
     }
     setSaving(true);
     try {
+      if (isGolfEquipment) {
+        const validation = validateClubDetails(category, clubSpecs);
+        // Only enforce when seller has started filling club details (handed or standard status set)
+        if (
+          validation &&
+          (clubSpecs.handed || clubSpecs.standardSpecStatus || clubSpecs.degree || clubSpecs.shaftFlex)
+        ) {
+          setClubError(validation);
+          setMessage(validation.message);
+          setSaving(false);
+          return;
+        }
+      }
+      const clubPayload = isGolfEquipment ? buildClubSpecsSubmitPayload(category, clubSpecs) : {};
       const res = await fetch(`/api/listings/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: title.trim() || null,
           category,
-          brand: "Other",
-          model: title.trim().slice(0, 500),
+          brand: listing.brand || "Other",
+          model: listing.model || title.trim().slice(0, 500),
           condition,
           description: description.trim() || null,
           price: pricePence,
           ...(isGolfEquipment && {
-            shaft: shaft.trim() || null,
-            degree: degree.trim() || null,
-            shaft_flex: shaftFlex || null,
-            lie_angle: lieAngle || null,
-            club_length: clubLength || null,
-            shaft_weight: shaftWeight.trim() || null,
-            shaft_material: shaftMaterial || null,
-            grip_brand: gripBrand.trim() || null,
-            grip_model: gripModel.trim() || null,
-            grip_size: gripSize || null,
-            grip_condition: gripCondition || null,
+            ...clubPayload,
+            clubs: clubPayload.clubs ?? [],
           }),
         }),
       });
@@ -376,170 +385,24 @@ export default function SellEditPage() {
           </select>
         </div>
         {isGolfEquipment && (
-          <section className="rounded-xl border border-mowing-green/20 bg-mowing-green/5 overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setSpecsOpen((o) => !o)}
-              className="w-full flex items-center justify-between px-4 py-3 text-left text-sm font-medium text-mowing-green hover:bg-mowing-green/10"
-            >
-              <span>Add club specs (recommended)</span>
-              {specsOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-            </button>
-            {specsOpen && (
-              <div className="px-4 pb-4 pt-0 space-y-4 border-t border-mowing-green/10">
-                <div>
-                  <label className="block text-sm font-medium text-mowing-green mb-1">Loft (degree)</label>
-                  <input
-                    type="text"
-                    value={degree}
-                    onChange={(e) => setDegree(e.target.value)}
-                    placeholder="e.g. 9°, 10.5°, 56°"
-                    className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-mowing-green mb-1">Lie angle</label>
-                  <select
-                    value={lieAngle}
-                    onChange={(e) => setLieAngle(e.target.value)}
-                    className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green"
-                  >
-                    <option value="">Select</option>
-                    <option value="3° Flat">3° Flat</option>
-                    <option value="2° Flat">2° Flat</option>
-                    <option value="1° Flat">1° Flat</option>
-                    <option value="Standard">Standard</option>
-                    <option value="1° Upright">1° Upright</option>
-                    <option value="2° Upright">2° Upright</option>
-                    <option value="3° Upright">3° Upright</option>
-                  </select>
-                  {lieAngle && !["3° Flat","2° Flat","1° Flat","Standard","1° Upright","2° Upright","3° Upright",""].includes(lieAngle) && (
-                    <input
-                      type="text"
-                      value={lieAngle}
-                      onChange={(e) => setLieAngle(e.target.value)}
-                      placeholder="e.g. 2.5° Upright"
-                      className="mt-2 w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
-                    />
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-mowing-green mb-1">Club length</label>
-                  <select
-                    value={clubLength}
-                    onChange={(e) => setClubLength(e.target.value)}
-                    className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green"
-                  >
-                    <option value="">Select</option>
-                    <option value='-1"'>-1&quot;</option>
-                    <option value='-0.5"'>-0.5&quot;</option>
-                    <option value="Standard">Standard</option>
-                    <option value='+0.5"'>+0.5&quot;</option>
-                    <option value='+1"'>+1&quot;</option>
-                  </select>
-                </div>
-                <div>
-                  <SearchableSelect
-                    options={shaftOptions}
-                    value={shaft}
-                    onChange={setShaft}
-                    placeholder="e.g. Fujikura Ventus Blue"
-                    label="Shaft model"
-                    allowCustom
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-mowing-green mb-1">Shaft flex</label>
-                  <select
-                    value={shaftFlex}
-                    onChange={(e) => setShaftFlex(e.target.value)}
-                    className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green"
-                  >
-                    <option value="">Select</option>
-                    <option value="Senior">Senior</option>
-                    <option value="Regular">Regular</option>
-                    <option value="Stiff">Stiff</option>
-                    <option value="X-Stiff">X-Stiff</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-mowing-green mb-1">Shaft weight</label>
-                  <input
-                    type="text"
-                    value={shaftWeight}
-                    onChange={(e) => setShaftWeight(e.target.value)}
-                    placeholder="e.g. 65g, 85g"
-                    className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-mowing-green mb-1">Shaft material</label>
-                  <select
-                    value={shaftMaterial}
-                    onChange={(e) => setShaftMaterial(e.target.value)}
-                    className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green"
-                  >
-                    <option value="">Select</option>
-                    <option value="Graphite">Graphite</option>
-                    <option value="Steel">Steel</option>
-                  </select>
-                </div>
-                <div>
-                  <SearchableSelect
-                    options={gripCatalogue?.brands ?? []}
-                    value={gripBrand}
-                    onChange={(v) => { setGripBrand(v); setGripModel(""); }}
-                    placeholder="e.g. Golf Pride"
-                    label="Grip brand"
-                    allowCustom
-                  />
-                </div>
-                <div>
-                  <SearchableSelect
-                    options={gripCatalogue?.modelsByBrand?.[gripBrand] ?? []}
-                    value={gripModel}
-                    onChange={setGripModel}
-                    placeholder="e.g. Tour Velvet 360"
-                    label="Grip model"
-                    allowCustom
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-mowing-green mb-1">Grip size</label>
-                  <select
-                    value={gripSize}
-                    onChange={(e) => setGripSize(e.target.value)}
-                    className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green"
-                  >
-                    <option value="">Select</option>
-                    <option value="Standard">Standard</option>
-                    <option value="Midsize">Midsize</option>
-                    <option value="Oversize">Oversize</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-mowing-green mb-1">Grip condition</label>
-                  <select
-                    value={gripCondition}
-                    onChange={(e) => setGripCondition(e.target.value)}
-                    className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green"
-                  >
-                    <option value="">Select</option>
-                    {getConditionsForCategory(category).map((c) => (
-                      <option key={c} value={c}>{CONDITION_LABELS[c] ?? c}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            )}
-          </section>
+          <ClubDetailsStep
+            category={category}
+            state={clubSpecs}
+            onChange={setClubSpecs}
+            shaftOptions={shaftOptions}
+            shaftLoading={shaftCatalogueLoading}
+            gripCatalogue={gripCatalogue}
+            gripLoading={gripCatalogueLoading}
+            errorField={clubError?.field}
+            errorMessage={clubError?.message}
+          />
         )}
 
         <div>
           <div className="flex items-center justify-between gap-2 mb-1">
             <label className="block text-sm font-medium text-mowing-green">
-              Description
+              Anything else buyers should know?{" "}
+              <span className="font-normal text-mowing-green/55">(optional)</span>
             </label>
             <button
               type="button"
@@ -553,8 +416,8 @@ export default function SellEditPage() {
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            rows={4}
-            placeholder="Any details that help buyers..."
+            rows={3}
+            placeholder="Marks, damage, headcover included, reason for selling, etc."
             className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50 resize-y"
           />
         </div>

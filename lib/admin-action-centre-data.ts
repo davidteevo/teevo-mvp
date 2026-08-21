@@ -488,7 +488,35 @@ export type ListingVerificationDetail = {
     shaft: string | null;
     degree: string | null;
     shaft_flex: string | null;
+    lie_angle?: string | null;
+    club_length?: string | null;
+    shaft_weight?: string | null;
+    shaft_material?: string | null;
+    grip_brand?: string | null;
+    grip_model?: string | null;
+    grip_size?: string | null;
+    grip_condition?: string | null;
     handed: string | null;
+    listing_format?: string | null;
+    standard_spec_status?: string | null;
+    iron_number?: string | null;
+    set_composition?: string[] | null;
+    bounce?: string | null;
+    grind?: string | null;
+    head_number?: string | null;
+    listing_clubs?: {
+      id: string;
+      listing_id: string;
+      sort_order: number;
+      club_type: string;
+      iron_number: string | null;
+      degree: string | null;
+      bounce: string | null;
+      grind: string | null;
+      shaft: string | null;
+      shaft_flex: string | null;
+      created_at: string;
+    }[];
     item_type: string | null;
     size: string | null;
     colour: string | null;
@@ -598,7 +626,7 @@ export async function getAdminActionDetail(
     const { data: listing, error } = await admin
       .from("listings")
       .select(
-        "id, user_id, category, brand, model, title, condition, price, description, shaft, degree, shaft_flex, handed, item_type, size, colour, status, created_at, admin_feedback, listing_images(storage_path, sort_order)"
+        "id, user_id, category, brand, model, title, condition, price, description, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, listing_format, standard_spec_status, iron_number, set_composition, bounce, grind, head_number, item_type, size, colour, status, created_at, admin_feedback, listing_images(storage_path, sort_order), listing_clubs(id, listing_id, sort_order, club_type, iron_number, degree, bounce, grind, shaft, shaft_flex, created_at)"
       )
       .eq("id", entityId)
       .maybeSingle();
@@ -614,6 +642,7 @@ export async function getAdminActionDetail(
           .eq("id", listing.user_id)
           .maybeSingle()
       : { data: null };
+    const l = listing as Record<string, unknown>;
     return {
       actionType,
       listing: {
@@ -630,7 +659,24 @@ export async function getAdminActionDetail(
         shaft: listing.shaft,
         degree: listing.degree,
         shaft_flex: listing.shaft_flex,
+        lie_angle: (l.lie_angle as string | null) ?? null,
+        club_length: (l.club_length as string | null) ?? null,
+        shaft_weight: (l.shaft_weight as string | null) ?? null,
+        shaft_material: (l.shaft_material as string | null) ?? null,
+        grip_brand: (l.grip_brand as string | null) ?? null,
+        grip_model: (l.grip_model as string | null) ?? null,
+        grip_size: (l.grip_size as string | null) ?? null,
+        grip_condition: (l.grip_condition as string | null) ?? null,
         handed: listing.handed,
+        listing_format: (l.listing_format as string | null) ?? null,
+        standard_spec_status: (l.standard_spec_status as string | null) ?? null,
+        iron_number: (l.iron_number as string | null) ?? null,
+        set_composition: (l.set_composition as string[] | null) ?? null,
+        bounce: (l.bounce as string | null) ?? null,
+        grind: (l.grind as string | null) ?? null,
+        head_number: (l.head_number as string | null) ?? null,
+        listing_clubs:
+          (l.listing_clubs as ListingVerificationDetail["listing"]["listing_clubs"]) ?? [],
         item_type: listing.item_type,
         size: listing.size,
         colour: listing.colour,

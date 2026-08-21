@@ -23,6 +23,23 @@ export type ListingCondition =
 
 export type ListingStatus = "pending" | "verified" | "rejected" | "sold";
 
+export type StandardSpecStatus = "standard" | "customised" | "unknown";
+
+export type ListingFormat = "single" | "set";
+
+export type CustomisedAspect = "shaft" | "length" | "loft_lie" | "grip" | "other";
+
+export type SpecProvenanceSource = "seller" | "manufacturer_catalogue" | "image_ai";
+
+export type SpecProvenanceConfidence = "confirmed" | "reference" | "inferred";
+
+export type SpecProvenanceEntry = {
+  source: SpecProvenanceSource;
+  confidence: SpecProvenanceConfidence;
+};
+
+export type SpecProvenanceMap = Record<string, SpecProvenanceEntry>;
+
 export type AvailabilityConfirmationStatus =
   | "required"
   | "confirmed_available"
@@ -123,6 +140,16 @@ export interface Listing {
   grip_size: string | null;
   grip_condition: string | null;
   handed: "left" | "right" | null;
+  standard_spec_status?: StandardSpecStatus | null;
+  customised_aspects?: CustomisedAspect[] | null;
+  customised_other_note?: string | null;
+  listing_format?: ListingFormat | null;
+  iron_number?: string | null;
+  set_composition?: string[] | null;
+  bounce?: string | null;
+  grind?: string | null;
+  head_number?: string | null;
+  spec_provenance?: SpecProvenanceMap | null;
   item_type: string | null;
   size: string | null;
   colour: string | null;
@@ -141,6 +168,30 @@ export interface Listing {
   created_at: string;
   updated_at: string;
   listing_images?: { id: string; storage_path: string; sort_order: number }[];
+  listing_clubs?: ListingClub[];
+}
+
+export interface ListingClub {
+  id: string;
+  listing_id: string;
+  sort_order: number;
+  club_type: string;
+  iron_number?: string | null;
+  degree: string | null;
+  bounce: string | null;
+  grind: string | null;
+  shaft?: string | null;
+  shaft_flex?: string | null;
+  lie_angle?: string | null;
+  club_length?: string | null;
+  shaft_weight?: string | null;
+  shaft_material?: string | null;
+  grip_brand?: string | null;
+  grip_model?: string | null;
+  grip_size?: string | null;
+  grip_condition?: string | null;
+  spec_provenance?: SpecProvenanceMap | null;
+  created_at: string;
 }
 
 export interface WatchlistItem {

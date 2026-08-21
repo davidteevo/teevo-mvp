@@ -11,6 +11,7 @@ import { BuyButton } from "./BuyButton";
 import { MakeOfferButton } from "./MakeOfferButton";
 import { ListingImageGallery } from "./ListingImageGallery";
 import { ListingViewTracker } from "@/components/listing/ListingViewTracker";
+import { ClubDetailsTable } from "@/components/listing/ClubDetailsDisplay";
 import { WatchButton } from "@/components/watchlist/WatchButton";
 import { FoundingSellerBadge } from "@/components/trust/FoundingSellerBadge";
 import { ensureDisplayNameForUser } from "@/lib/public-seller-name";
@@ -145,38 +146,7 @@ export default async function ListingPage({
               {structuredMeta.join(" · ")}
             </p>
           )}
-          {(listing.shaft ||
-            listing.degree ||
-            listing.shaft_flex ||
-            listing.lie_angle ||
-            listing.club_length ||
-            listing.shaft_weight ||
-            listing.shaft_material ||
-            listing.grip_brand ||
-            listing.grip_model ||
-            listing.grip_size ||
-            listing.grip_condition) && (
-            <p className="mt-2 text-sm text-mowing-green/80">
-              {[
-                listing.shaft && `Shaft: ${listing.shaft}`,
-                listing.shaft_flex && `Flex: ${listing.shaft_flex}`,
-                listing.degree && `Loft: ${listing.degree}${String(listing.degree).trim().endsWith("°") ? "" : "°"}`,
-                listing.lie_angle &&
-                  (() => {
-                    const lie = String(listing.lie_angle).trim();
-                    const needsDegree = !lie.endsWith("°") && /[0-9]$/.test(lie);
-                    return `Lie: ${needsDegree ? `${lie}°` : lie}`;
-                  })(),
-                listing.club_length && `Length: ${listing.club_length}`,
-                listing.shaft_weight && `Shaft weight: ${listing.shaft_weight}`,
-                listing.shaft_material && `Shaft material: ${listing.shaft_material}`,
-                (listing.grip_brand || listing.grip_model) &&
-                  `Grip: ${[listing.grip_brand, listing.grip_model].filter(Boolean).join(" ")}`,
-                listing.grip_size && `Grip size: ${listing.grip_size}`,
-                listing.grip_condition && `Grip condition: ${listing.grip_condition}`,
-              ].filter(Boolean).join(" · ")}
-            </p>
-          )}
+          <ClubDetailsTable listing={listing} />
           {(sellerDisplayName || sellerFoundingRank != null) && (
             <p className="mt-3 text-sm text-mowing-green/80 flex flex-wrap items-center gap-2">
               {sellerDisplayName && (

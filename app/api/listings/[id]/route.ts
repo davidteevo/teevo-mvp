@@ -8,6 +8,7 @@ import { notifyWatchersUnavailable } from "@/lib/watchlist-emails";
 import { notifyListingReviewRequired, resolveListingReviewRequired } from "@/lib/notification-events";
 import { ensureEmailSent, EmailTriggerType } from "@/lib/email-triggers";
 import { getAdminAlertEmails, clearSentEmail } from "@/lib/fulfilment-emails";
+import { parseClubSpecsFromBody, replaceListingClubs } from "@/lib/club-specs/server";
 
 function adminListingUrl(id: string) {
   return `/admin/listings/${id}`;
@@ -137,9 +138,17 @@ export async function PATCH(
       : body.grip_condition === null
         ? null
         : undefined;
+  const handed =
+    body.handed === "left" || body.handed === "right"
+      ? body.handed
+      : body.handed === null
+        ? null
+        : undefined;
   const item_type = typeof body.item_type === "string" ? body.item_type.trim() || null : body.item_type === null ? null : undefined;
   const size = typeof body.size === "string" ? body.size.trim() || null : body.size === null ? null : undefined;
   const colour = typeof body.colour === "string" ? body.colour.trim() || null : body.colour === null ? null : undefined;
+
+  const clubExtras = parseClubSpecsFromBody(body);
 
   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (category !== undefined) {
@@ -163,9 +172,20 @@ export async function PATCH(
   if (grip_model !== undefined) updates.grip_model = grip_model;
   if (grip_size !== undefined) updates.grip_size = grip_size;
   if (grip_condition !== undefined) updates.grip_condition = grip_condition;
+  if (handed !== undefined) updates.handed = handed;
   if (item_type !== undefined) updates.item_type = item_type;
   if (size !== undefined) updates.size = size;
   if (colour !== undefined) updates.colour = colour;
+  if (body.listing_format !== undefined) updates.listing_format = clubExtras.listing_format;
+  if (body.standard_spec_status !== undefined) updates.standard_spec_status = clubExtras.standard_spec_status;
+  if (body.customised_aspects !== undefined) updates.customised_aspects = clubExtras.customised_aspects;
+  if (body.customised_other_note !== undefined) updates.customised_other_note = clubExtras.customised_other_note;
+  if (body.iron_number !== undefined) updates.iron_number = clubExtras.iron_number;
+  if (body.set_composition !== undefined) updates.set_composition = clubExtras.set_composition;
+  if (body.bounce !== undefined) updates.bounce = clubExtras.bounce;
+  if (body.grind !== undefined) updates.grind = clubExtras.grind;
+  if (body.head_number !== undefined) updates.head_number = clubExtras.head_number;
+  if (body.spec_provenance !== undefined) updates.spec_provenance = clubExtras.spec_provenance;
   // Track whether this is a resubmission after admin feedback before clearing it
   const isResubmission = Object.keys(updates).length > 1 && !!listing.admin_feedback;
   if (Object.keys(updates).length > 1) updates.admin_feedback = null;
@@ -174,6 +194,13 @@ export async function PATCH(
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  if (body.clubs !== undefined) {
+    const { error: clubsError } = await replaceListingClubs(admin, id, clubExtras.clubs ?? []);
+    if (clubsError) {
+      return NextResponse.json({ error: clubsError }, { status: 500 });
+    }
   }
 
   if (isResubmission) {

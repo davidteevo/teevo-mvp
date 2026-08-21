@@ -5,6 +5,8 @@ import { ListingImageGallery } from "@/app/listing/[id]/ListingImageGallery";
 import { formatPrice } from "@/lib/format";
 import type { ListingVerificationDetail } from "@/lib/admin-action-centre-data";
 import { readActionResponse } from "./actionResult";
+import { ClubDetailsTable } from "@/components/listing/ClubDetailsDisplay";
+import type { Listing } from "@/types/database";
 
 const QUICK_COMMENTS = [
   "Please add more detail to the description.",
@@ -82,18 +84,7 @@ export function ListingVerificationReview({
         {structuredMeta.length > 0 && (
           <p className="mt-1 text-sm text-mowing-green/80">{structuredMeta.join(" · ")}</p>
         )}
-        {(listing.shaft || listing.degree || listing.shaft_flex) && (
-          <p className="mt-2 text-sm text-mowing-green/80">
-            {[
-              listing.shaft && `Shaft: ${listing.shaft}`,
-              listing.shaft_flex && `Flex: ${listing.shaft_flex}`,
-              listing.degree &&
-                `Loft: ${listing.degree}${String(listing.degree).trim().endsWith("°") ? "" : "°"}`,
-            ]
-              .filter(Boolean)
-              .join(" · ")}
-          </p>
-        )}
+        <ClubDetailsTable listing={listing as unknown as Listing} />
         <p className="mt-3 text-xl font-bold text-mowing-green">{formatPrice(listing.price)}</p>
       </div>
 

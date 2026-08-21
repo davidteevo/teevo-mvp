@@ -16,6 +16,13 @@ import {
   isClothingCategory,
   isAccessoriesCategory,
 } from "@/lib/listing-categories";
+import {
+  deriveTitleIfMissing,
+  parseClubSpecsFromBody,
+  replaceListingClubs,
+  validateNewGolfListingSpecs,
+} from "@/lib/club-specs/server";
+import { isGolfEquipmentCategory } from "@/lib/club-specs/schemas";
 export const dynamic = "force-dynamic";
 
 const ALLOWED_CATEGORIES_SET = new Set<string>(ALL_CATEGORIES);
@@ -24,9 +31,7 @@ const CLOTHING_TYPES_SET = new Set<string>(CLOTHING_TYPES);
 const ACCESSORY_ITEM_TYPES_SET = new Set<string>(ACCESSORY_ITEM_TYPES);
 /**
  * POST /api/listings
- * Body: JSON { category, brand, model?, title?, condition, description?, price (pence), imageCount (5–6), shaft?, degree?, shaft_flex?, item_type?, size?, colour? }
- * For Clothing: item_type, size required; model optional. For Accessories: item_type required; model optional.
- * parcel_preset is derived from category. Creates the listing row only. Client uploads images, then calls POST /api/listings/[id]/images.
+ * Body: JSON listing fields + optional club specs / clubs[]
  */
 export async function POST(request: Request) {
   try {
@@ -46,7 +51,7 @@ export async function POST(request: Request) {
       typeof modelRaw === "string" && modelRaw.trim() !== ""
         ? modelRaw.trim()
         : null;
-    const title = typeof body.title === "string" ? body.title.trim() || null : null;
+    let title = typeof body.title === "string" ? body.title.trim() || null : null;
     const condition = body.condition as string;
     const description = (body.description as string) || null;
     const shaft = typeof body.shaft === "string" ? body.shaft.trim() || null : null;
@@ -75,6 +80,8 @@ export async function POST(request: Request) {
     const price = typeof body.price === "number" ? body.price : parseInt(String(body.price), 10);
     const imageCount =
       typeof body.imageCount === "number" ? body.imageCount : parseInt(String(body.imageCount), 10);
+
+    const clubExtras = parseClubSpecsFromBody(body as Record<string, unknown>);
 
     if (!category || !ALLOWED_CATEGORIES_SET.has(category)) {
       return NextResponse.json({ error: "Invalid category" }, { status: 400 });
@@ -116,6 +123,42 @@ export async function POST(request: Request) {
       }
     }
 
+    if (isGolfEquipmentCategory(category)) {
+      const specError = validateNewGolfListingSpecs(category, {
+        handed,
+        degree,
+        shaft_flex,
+        club_length,
+        listing_format: clubExtras.listing_format,
+        iron_number: clubExtras.iron_number,
+        set_composition: clubExtras.set_composition,
+        head_number: clubExtras.head_number,
+        standard_spec_status: clubExtras.standard_spec_status,
+        clubs: clubExtras.clubs,
+      });
+      if (specError) {
+        return NextResponse.json({ error: specError }, { status: 400 });
+      }
+    }
+
+    title = deriveTitleIfMissing({
+      title,
+      category,
+      brand,
+      model,
+      handed,
+      degree,
+      shaft_flex,
+      shaft,
+      listing_format: clubExtras.listing_format,
+      iron_number: clubExtras.iron_number,
+      set_composition: clubExtras.set_composition,
+      head_number: clubExtras.head_number,
+      club_length,
+      standard_spec_status: clubExtras.standard_spec_status,
+      clubs: clubExtras.clubs,
+    });
+
     const parcel_preset = categoryToParcelPreset(category);
 
     const admin = createAdminClient();
@@ -148,12 +191,29 @@ export async function POST(request: Request) {
         price,
         parcel_preset,
         status: "pending",
+        listing_format: clubExtras.listing_format,
+        standard_spec_status: clubExtras.standard_spec_status,
+        customised_aspects: clubExtras.customised_aspects,
+        customised_other_note: clubExtras.customised_other_note,
+        iron_number: clubExtras.iron_number,
+        set_composition: clubExtras.set_composition,
+        bounce: clubExtras.bounce,
+        grind: clubExtras.grind,
+        head_number: clubExtras.head_number,
+        spec_provenance: clubExtras.spec_provenance,
       })
       .select("id")
       .single();
 
     if (listError || !listing) {
       return NextResponse.json({ error: listError?.message ?? "Failed to create listing" }, { status: 500 });
+    }
+
+    if (clubExtras.clubs && clubExtras.clubs.length > 0) {
+      const { error: clubsError } = await replaceListingClubs(admin, listing.id, clubExtras.clubs);
+      if (clubsError) {
+        return NextResponse.json({ error: clubsError }, { status: 500 });
+      }
     }
 
     const { data: profile } = await admin.from("users").select("role").eq("id", user.id).single();

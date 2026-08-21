@@ -8,6 +8,7 @@ import { PriceWithBreakdown } from "@/components/listing/PriceWithBreakdown";
 import { WatchButton } from "@/components/watchlist/WatchButton";
 import { getListingDisplayTitle, getListingMetaParts } from "@/lib/listing-display";
 import { getListingImageUrl } from "@/lib/listing-images";
+import { buildClubSpecLine } from "@/components/listing/ClubDetailsDisplay";
 import { track } from "@/lib/analytics";
 import { marketplaceListingStatus } from "@/lib/listing-availability";
 import type { WatchSource } from "@/lib/watchlist-context";
@@ -82,28 +83,7 @@ export function ListingCard({
 
   const displayTitle = getListingDisplayTitle(listing);
   const metaParts = getListingMetaParts(listing);
-  const specParts = [
-    listing.shaft?.trim(),
-    listing.shaft_flex?.trim(),
-    listing.degree?.trim() ? `${listing.degree}${String(listing.degree).trim().endsWith("°") ? "" : "°"}` : null,
-      listing.lie_angle?.trim()
-        ? (() => {
-            const lie = String(listing.lie_angle).trim();
-            const needsDegree = !lie.endsWith("°") && /[0-9]$/.test(lie);
-            return needsDegree ? `${lie}°` : lie;
-          })()
-        : null,
-    listing.club_length?.trim() || null,
-    listing.shaft_material?.trim() || null,
-    listing.shaft_weight?.trim() || null,
-    listing.handed ? (listing.handed === "left" ? "Left" : "Right") + " handed" : null,
-    listing.grip_size?.trim()
-      ? listing.grip_condition?.trim()
-        ? `${listing.grip_size} (${listing.grip_condition})`
-        : listing.grip_size
-      : null,
-  ].filter(Boolean) as string[];
-  const specLine = specParts.length > 0 ? specParts.join(" · ") : null;
+  const specLine = buildClubSpecLine(listing) || null;
 
   return (
     <div className="min-w-0 max-w-full">

@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
-import { ListingForm } from "@/components/listing/ListingForm";
+import { ListingForm, type ListingFormSubmitPayload } from "@/components/listing/ListingForm";
 import { ListingSubmitLoading, type ListingSubmitProgress } from "@/components/listing/ListingSubmitLoading";
 import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
 import { compressListingMain, compressListingThumb } from "@/lib/image-compression";
@@ -25,31 +25,7 @@ type SellerInfo = {
   surname: string | null;
 };
 
-type ListingPayload = {
-  category: string;
-  brand: string;
-  model?: string | null;
-  condition: string;
-  description: string;
-  price: string;
-  title?: string;
-  shaft?: string;
-  degree?: string;
-  shaftFlex?: string;
-  lieAngle?: string;
-  clubLength?: string;
-  shaftWeight?: string;
-  shaftMaterial?: string;
-  gripBrand?: string;
-  gripModel?: string;
-  gripSize?: string;
-  gripCondition?: string;
-  handed?: "left" | "right";
-  item_type?: string | null;
-  size?: string | null;
-  colour?: string | null;
-  images: File[];
-};
+type ListingPayload = ListingFormSubmitPayload;
 
 interface CreateListingContentProps {
   clubCatalogue: ClubCatalogue;
@@ -200,19 +176,30 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
           imageCount: images.length,
           shaft: listingPayload.shaft || null,
           degree: listingPayload.degree || null,
-          shaft_flex: listingPayload.shaftFlex || null,
-          lie_angle: listingPayload.lieAngle || null,
-          club_length: listingPayload.clubLength || null,
-          shaft_weight: listingPayload.shaftWeight || null,
-          shaft_material: listingPayload.shaftMaterial || null,
-          grip_brand: listingPayload.gripBrand || null,
-          grip_model: listingPayload.gripModel || null,
-          grip_size: listingPayload.gripSize || null,
-          grip_condition: listingPayload.gripCondition || null,
+          shaft_flex: listingPayload.shaftFlex ?? listingPayload.shaft_flex ?? null,
+          lie_angle: listingPayload.lieAngle ?? listingPayload.lie_angle ?? null,
+          club_length: listingPayload.clubLength ?? listingPayload.club_length ?? null,
+          shaft_weight: listingPayload.shaftWeight ?? listingPayload.shaft_weight ?? null,
+          shaft_material: listingPayload.shaftMaterial ?? listingPayload.shaft_material ?? null,
+          grip_brand: listingPayload.gripBrand ?? listingPayload.grip_brand ?? null,
+          grip_model: listingPayload.gripModel ?? listingPayload.grip_model ?? null,
+          grip_size: listingPayload.gripSize ?? listingPayload.grip_size ?? null,
+          grip_condition: listingPayload.gripCondition ?? listingPayload.grip_condition ?? null,
           handed: listingPayload.handed || null,
           item_type: listingPayload.item_type ?? null,
           size: listingPayload.size ?? null,
           colour: listingPayload.colour ?? null,
+          listing_format: listingPayload.listing_format ?? null,
+          standard_spec_status: listingPayload.standard_spec_status ?? null,
+          customised_aspects: listingPayload.customised_aspects ?? null,
+          customised_other_note: listingPayload.customised_other_note ?? null,
+          iron_number: listingPayload.iron_number ?? null,
+          set_composition: listingPayload.set_composition ?? null,
+          bounce: listingPayload.bounce ?? null,
+          grind: listingPayload.grind ?? null,
+          head_number: listingPayload.head_number ?? null,
+          spec_provenance: listingPayload.spec_provenance ?? {},
+          clubs: listingPayload.clubs ?? null,
         }),
         signal,
       });

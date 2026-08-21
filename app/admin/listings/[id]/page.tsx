@@ -5,6 +5,7 @@ import { formatPrice } from "@/lib/format";
 import { getListingDisplayTitle } from "@/lib/listing-display";
 import { getListingImageUrl } from "@/lib/listing-images";
 import type { Listing } from "@/types/database";
+import { ClubDetailsTable } from "@/components/listing/ClubDetailsDisplay";
 import { AdminListingActions } from "./AdminListingActions";
 import { AdminListingFeedback } from "./AdminListingFeedback";
 import { ReducePriceControl } from "@/components/listing/ReducePriceControl";
@@ -33,8 +34,9 @@ export default async function AdminListingDetailPage({
     admin
       .from("listings")
       .select(`
-      id, user_id, category, brand, model, title, condition, price, description, shaft, degree, shaft_flex, handed, item_type, size, colour, status, created_at, admin_feedback, created_on_behalf, created_by_admin_id, buying_paused, availability_confirmation_status, availability_confirmation_source, availability_confirmation_requested_at, availability_confirmed_at, availability_confirmation_batch_id,
+      id, user_id, category, brand, model, title, condition, price, description, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, listing_format, standard_spec_status, iron_number, set_composition, bounce, grind, head_number, item_type, size, colour, status, created_at, admin_feedback, created_on_behalf, created_by_admin_id, buying_paused, availability_confirmation_status, availability_confirmation_source, availability_confirmation_requested_at, availability_confirmed_at, availability_confirmation_batch_id,
       listing_images(storage_path, sort_order),
+      listing_clubs(id, listing_id, sort_order, club_type, iron_number, degree, bounce, grind, shaft, shaft_flex, created_at),
       users!user_id(id, email, role, created_at)
     `)
       .eq("id", id)
@@ -161,15 +163,7 @@ export default async function AdminListingDetailPage({
                     {structuredMeta.join(" · ")}
                   </p>
                 )}
-                {(listing.shaft || listing.degree || listing.shaft_flex) && (
-                  <p className="mt-2 text-sm text-mowing-green/80">
-                    {[
-                      listing.shaft && `Shaft: ${listing.shaft}`,
-                      listing.shaft_flex && `Flex: ${listing.shaft_flex}`,
-                      listing.degree && `Loft: ${listing.degree}${String(listing.degree).trim().endsWith("°") ? "" : "°"}`,
-                    ].filter(Boolean).join(" · ")}
-                  </p>
-                )}
+                <ClubDetailsTable listing={listing as unknown as Listing} />
                 <p className="mt-3 text-xl font-bold text-mowing-green">
                   {formatPrice(listing.price)}
                 </p>
