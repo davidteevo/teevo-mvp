@@ -20,3 +20,7 @@
 # Watchlist still-available reminders (default 3 days after watch / now-available).
 [functions."watchlist-reminders-cron"]
   schedule = "@daily"
+
+# Admin new-users digest: 17:00 and 18:00 UTC; API gates on Europe/London 18:00 (DST-safe).
+[functions."admin-new-users-digest-cron"]
+  schedule = "0 17,18 * * *"

@@ -31,6 +31,7 @@ Automated emails fire from real user actions. Each send is recorded in `sent_ema
 | `watchlist.unavailable` | [Brand] [Model] is no longer available | Watcher | Standard | Reject / archive / admin delete |
 | `listing_availability_reconfirm` | Is your [Product] still available? | Seller | Standard | Admin reconfirm availability |
 | `listing_availability_reconfirm_reminder` | Reminder: is your [Product] still available? | Seller | Standard | Hourly cron, day 2 |
+| `admin.new_users_digest` | New Teevo users — N joined | Admin (`TEEVO_ADMIN_EMAILS`) | Alert | Daily cron `/api/cron/admin-new-users-digest` (18:00 Europe/London) |
 
 ## Idempotency
 
