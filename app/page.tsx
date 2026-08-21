@@ -97,17 +97,7 @@ export default async function HomePage({
   const buyingEnabled = await isBuyingEnabled(admin);
 
   if (isLoggedIn) {
-    const [referralSettings, profile] = await Promise.all([
-      getReferralSettings(admin),
-      admin
-        .from("users")
-        .select("founding_seller_rank")
-        .eq("id", user!.id)
-        .maybeSingle()
-        .then(({ data }) => data),
-    ]);
-    const isFoundingMember =
-      typeof profile?.founding_seller_rank === "number" && profile.founding_seller_rank > 0;
+    const referralSettings = await getReferralSettings(admin);
 
     return (
       <div className="max-w-6xl mx-auto min-w-0 w-full px-4 py-8 overflow-x-clip">
@@ -122,7 +112,6 @@ export default async function HomePage({
           discountPence={referralSettings.discountPence}
           referrerRewardPence={referralSettings.referrerRewardPence}
           sellerListingRewardPence={referralSettings.sellerListingRewardPence}
-          isFoundingMember={isFoundingMember}
         />
 
         <SmartSearchHero />
