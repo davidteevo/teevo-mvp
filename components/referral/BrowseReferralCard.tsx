@@ -70,7 +70,7 @@ function ReferralIllustration({
                 alt=""
                 width={22}
                 height={22}
-                className="h-5.5 w-5.5 object-contain"
+                className="h-5 w-5 object-contain"
               />
             </div>
           </div>
