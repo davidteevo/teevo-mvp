@@ -11,6 +11,8 @@ import {
   type WedgeClubDraft,
   emptyClubSpecsFormState,
   IRON_SET_PRESETS,
+  PUTTER_LENGTH_OPTIONS,
+  CLUB_LENGTH_ADJUST_OPTIONS,
   resolveBounce,
   resolveClubLength,
   resolveDegree,
@@ -57,6 +59,7 @@ export type ClubSpecsSubmitPayload = {
   customised_other_note?: string | null;
   spec_provenance?: SpecProvenanceMap;
   clubs?: ListingClubPayload[];
+  headcover_included?: boolean | null;
 };
 
 function sellerProvenance(fields: string[]): SpecProvenanceMap {
@@ -274,6 +277,14 @@ export function buildClubSpecsSubmitPayload(
     }
   }
 
+  if (state.headcoverIncluded === "yes") {
+    payload.headcover_included = true;
+    provenanceFields.push("headcover_included");
+  } else if (state.headcoverIncluded === "no") {
+    payload.headcover_included = false;
+    provenanceFields.push("headcover_included");
+  }
+
   payload.spec_provenance = sellerProvenance(Array.from(new Set(provenanceFields)));
   return payload;
 }
@@ -432,8 +443,16 @@ export function hydrateClubSpecsFromListing(listing: Partial<Listing> & {
   if (listing.grind === SPEC_UNKNOWN) state.grindUnknown = true;
   else if (listing.grind) state.grind = listing.grind;
   if (listing.club_length) {
-    state.clubLength = listing.club_length;
-    state.clubLengthOther = listing.club_length;
+    const knownLength = [...PUTTER_LENGTH_OPTIONS, ...CLUB_LENGTH_ADJUST_OPTIONS].some(
+      (o) => o.value === listing.club_length
+    );
+    if (knownLength && listing.club_length !== "Other") {
+      state.clubLength = listing.club_length;
+      state.clubLengthOther = "";
+    } else {
+      state.clubLength = "Other";
+      state.clubLengthOther = listing.club_length;
+    }
   }
   if (listing.lie_angle) {
     state.lieAngle = listing.lie_angle;
@@ -456,6 +475,8 @@ export function hydrateClubSpecsFromListing(listing: Partial<Listing> & {
     state.customisedAspects = listing.customised_aspects;
   }
   if (listing.customised_other_note) state.customisedOtherNote = listing.customised_other_note;
+  if (listing.headcover_included === true) state.headcoverIncluded = "yes";
+  if (listing.headcover_included === false) state.headcoverIncluded = "no";
   if (listing.listing_clubs?.length) {
     state.listingFormat = "set";
     state.wedgeClubs = listing.listing_clubs.map((c, i) =>

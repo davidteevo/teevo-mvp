@@ -35,6 +35,16 @@ interface EnhanceBody {
   item_type?: string;
   size?: string;
   colour?: string;
+  handed?: string;
+  standard_spec_status?: string;
+  customised_aspects?: string[];
+  customised_other_note?: string;
+  headcover_included?: boolean | null;
+  bounce?: string;
+  grind?: string;
+  iron_number?: string;
+  set_composition?: string[];
+  head_number?: string;
 }
 
 interface EnhanceResult {
@@ -48,21 +58,24 @@ interface EnhanceResult {
 
 const SYSTEM_PROMPT = `You are an expert at writing clear, search-friendly golf equipment listings for a UK resale marketplace.
 
-DESCRIPTION REWRITE RULES (you must follow these exactly):
-1. When the seller provides description text, you MUST interpret it and include all of their content in your output. Correct spelling and grammar, but do not drop or replace their details with generic text. Every fact, reason, or detail they mention must appear in the final description.
-2. Rewrite the content as one coherent paragraph (or two short paragraphs if there are two distinct topics). Use full, flowing sentences with correct punctuation. Do not output bullet points or a list unless the seller explicitly listed multiple separate items.
-3. Keep the seller's meaning and all facts (condition, reason for selling, use, upgrades, damage, etc.). Do not add details they did not mention.
-4. Use a professional, buyer-friendly tone. The result should read like a short product description in a shop.
+Write a professional buyer-facing listing description (one or two short paragraphs). It must read like a shop product description — not a form dump.
 
-Example: Seller wrote "ping driver good condtion seling as upgrading to new model hardly used" → description: "Ping driver in good condition. Selling as I am upgrading to a new model; this one has been hardly used."
+RULES:
+1. Open with what the club is (brand, model, category) and the key specs (loft, flex, hand, shaft, set composition, etc.) that are provided.
+2. If the seller left optional notes, you MUST weave every fact they mentioned into the description (marks, damage, reason for selling, extras). Correct spelling and grammar; do not drop their details.
+3. If the club is customised / modified, you MUST clearly mention those modifications (shaft change, lengthened/shortened vs standard, loft/lie, grip, or the seller's "other" note).
+4. If a headcover is included or not included, mention it when that fact is provided.
+5. If spec is standard, you may say it is standard specification. If the seller is not sure, do not invent that it is standard.
+6. Do not invent facts that were not provided. Do not use bullet points unless the seller listed separate items.
+7. Use a professional, buyer-friendly UK tone.
 
 You must return JSON only with these keys:
-- title: A concise listing title (e.g. "Ping G425 Max Driver – 10.5° – Regular Shaft – Excellent Condition"). Include brand, model, key spec if known (loft/lie, shaft, grip), and condition. For Woods, Driving Irons, Hybrids, and Wedges, use the singular form (e.g. "3 Wood", "Driving Iron", "Hybrid", "Wedge") because each listing is for one club. For Irons, use the plural "Irons" because the listing is a set of clubs (e.g. "Ping i230 Irons").
-- description: The seller's text rewritten as one flowing, proofread paragraph. All spelling and grammar corrected; same meaning and facts.
-- shaft: Extract shaft model from the seller's text if mentioned; otherwise null.
-- degree: Extract loft/degree (e.g. "10.5") for club types (drivers, woods, irons, wedges, hybrids, driving irons) if mentioned; otherwise null.
+- title: A concise listing title (e.g. "Ping G425 Max Driver – 10.5° – Regular Shaft – Excellent Condition"). Include brand, model, key spec if known (loft, shaft, flex), and condition. For Woods, Driving Irons, Hybrids, and Wedges, use the singular form. For Irons sets, use "Irons".
+- description: The full listing description following the rules above.
+- shaft: Extract shaft model from the seller's notes if mentioned; otherwise null.
+- degree: Extract loft/degree if mentioned in notes; otherwise null.
 - shaft_flex: One of "Senior", "Regular", "Stiff", "X-Stiff", "Other" if mentioned; otherwise null.
-- tags: Optional array of 2–5 searchable tags (e.g. "Forgiving", "High launch"). Use title case. Omit if not applicable.
+- tags: Optional array of 2–5 searchable tags. Use title case. Omit if not applicable.
 
 Always return valid JSON. Use null for optional fields when unknown.`;
 
@@ -113,6 +126,27 @@ export async function POST(request: Request) {
     const item_type = typeof body.item_type === "string" ? body.item_type.trim() : "";
     const size = typeof body.size === "string" ? body.size.trim() : "";
     const colour = typeof body.colour === "string" ? body.colour.trim() : "";
+    const handed = typeof body.handed === "string" ? body.handed.trim() : "";
+    const standard_spec_status =
+      typeof body.standard_spec_status === "string" ? body.standard_spec_status.trim() : "";
+    const customised_aspects = Array.isArray(body.customised_aspects)
+      ? body.customised_aspects.map(String).filter(Boolean)
+      : [];
+    const customised_other_note =
+      typeof body.customised_other_note === "string" ? body.customised_other_note.trim() : "";
+    const bounce = typeof body.bounce === "string" ? body.bounce.trim() : "";
+    const grind = typeof body.grind === "string" ? body.grind.trim() : "";
+    const iron_number = typeof body.iron_number === "string" ? body.iron_number.trim() : "";
+    const set_composition = Array.isArray(body.set_composition)
+      ? body.set_composition.map(String).filter(Boolean)
+      : [];
+    const head_number = typeof body.head_number === "string" ? body.head_number.trim() : "";
+    const headcover_included =
+      body.headcover_included === true
+        ? true
+        : body.headcover_included === false
+          ? false
+          : null;
 
     if (!category || !ALLOWED_CATEGORIES_SET.has(category)) {
       return NextResponse.json({ error: "Invalid or missing category" }, { status: 400 });
@@ -150,15 +184,19 @@ export async function POST(request: Request) {
 
     const userPrompt = [
       description
-        ? `The seller wrote the following. Interpret and rewrite it: correct spelling and grammar, and output as one coherent paragraph. You must include all details and facts they mentioned in your output description.\n\nSeller's text:\n"${description}"`
-        : "Seller left the description empty. Write a short, professional description based on the item details below.",
+        ? `The seller added these optional notes. You MUST include all of this in the listing description (proofread, do not drop facts):\n\n"${description}"`
+        : "The seller left optional notes empty. Write the listing description from the structured details below.",
       itemLine,
-      title ? `Current title (improve if needed): ${title}` : "",
+      title ? `Listing title: ${title}` : "",
+      !isStructured && handed ? `Handed: ${handed}` : "",
+      !isStructured && head_number ? `Club/head number: ${head_number}` : "",
+      !isStructured && iron_number ? `Iron: ${iron_number}` : "",
+      !isStructured && set_composition.length ? `Set composition: ${set_composition.join(", ")}` : "",
       !isStructured && shaft ? `Shaft: ${shaft}` : "",
       !isStructured && degree ? `Degree/loft: ${degree}` : "",
       !isStructured && shaft_flex ? `Shaft flex: ${shaft_flex}` : "",
       !isStructured && lie_angle ? `Lie angle: ${lie_angle}` : "",
-      !isStructured && club_length ? `Club length: ${club_length}` : "",
+      !isStructured && club_length ? `Club length vs standard (or putter length): ${club_length}` : "",
       !isStructured && shaft_weight ? `Shaft weight: ${shaft_weight}` : "",
       !isStructured && shaft_material ? `Shaft material: ${shaft_material}` : "",
       !isStructured && (grip_brand || grip_model)
@@ -166,6 +204,25 @@ export async function POST(request: Request) {
         : "",
       !isStructured && grip_size ? `Grip size: ${grip_size}` : "",
       !isStructured && grip_condition ? `Grip condition: ${grip_condition}` : "",
+      !isStructured && bounce ? `Bounce: ${bounce}` : "",
+      !isStructured && grind ? `Grind: ${grind}` : "",
+      !isStructured && standard_spec_status
+        ? `Specification status: ${
+            standard_spec_status === "standard"
+              ? "standard spec (not modified after purchase)"
+              : standard_spec_status === "customised"
+                ? "customised / modified"
+                : "seller is not sure if it has been modified"
+          }`
+        : "",
+      !isStructured && customised_aspects.length
+        ? `Modifications selected: ${customised_aspects.join(", ")}.`
+        : "",
+      !isStructured && customised_other_note
+        ? `Modification details from seller: ${customised_other_note}`
+        : "",
+      !isStructured && headcover_included === true ? "Headcover: included." : "",
+      !isStructured && headcover_included === false ? "Headcover: not included." : "",
     ]
       .filter(Boolean)
       .join("\n\n");
@@ -228,6 +285,15 @@ export async function POST(request: Request) {
       fallbackParts.push(`Grip: ${[grip_brand, grip_model].filter(Boolean).join(" ")}.`);
     if (grip_size) fallbackParts.push(`Grip size: ${grip_size}.`);
     if (grip_condition) fallbackParts.push(`Grip condition: ${grip_condition}.`);
+    if (standard_spec_status === "customised") {
+      fallbackParts.push(
+        `This club has been customised${customised_aspects.length ? ` (${customised_aspects.join(", ")})` : ""}.`
+      );
+    }
+    if (customised_other_note) fallbackParts.push(customised_other_note);
+    if (headcover_included === true) fallbackParts.push("Headcover included.");
+    if (headcover_included === false) fallbackParts.push("Headcover not included.");
+    if (description) fallbackParts.push(description.trim());
     fallbackParts.push("Check photos for full details.");
     const fallbackDescription = fallbackParts.join(" ");
 

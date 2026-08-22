@@ -12,7 +12,10 @@ import {
   isClothingCategory,
   isAccessoriesCategory,
 } from "@/lib/listing-categories";
-export const dynamic = "force-dynamic";
+import {
+  parseClubSpecsFromBody,
+  replaceListingClubs,
+} from "@/lib/club-specs/server";
 
 const ALLOWED_CATEGORIES_SET = new Set<string>(ALL_CATEGORIES);
 const ALLOWED_CONDITIONS_SET = new Set<string>(CONDITIONS);
@@ -132,6 +135,7 @@ export async function POST(request: Request) {
     }
 
     const parcel_preset = categoryToParcelPreset(category);
+    const clubExtras = parseClubSpecsFromBody(body as Record<string, unknown>);
 
     const { data: listing, error: listError } = await admin
       .from("listings")
@@ -163,12 +167,30 @@ export async function POST(request: Request) {
         status: "verified",
         created_by_admin_id: adminUser.id,
         created_on_behalf: true,
+        listing_format: clubExtras.listing_format,
+        standard_spec_status: clubExtras.standard_spec_status,
+        customised_aspects: clubExtras.customised_aspects,
+        customised_other_note: clubExtras.customised_other_note,
+        iron_number: clubExtras.iron_number,
+        set_composition: clubExtras.set_composition,
+        bounce: clubExtras.bounce,
+        grind: clubExtras.grind,
+        head_number: clubExtras.head_number,
+        headcover_included: clubExtras.headcover_included,
+        spec_provenance: clubExtras.spec_provenance,
       })
       .select("id")
       .single();
 
     if (listError || !listing) {
       return NextResponse.json({ error: listError?.message ?? "Failed to create listing" }, { status: 500 });
+    }
+
+    if (clubExtras.clubs && clubExtras.clubs.length > 0) {
+      const { error: clubsError } = await replaceListingClubs(admin, listing.id, clubExtras.clubs);
+      if (clubsError) {
+        return NextResponse.json({ error: clubsError }, { status: 500 });
+      }
     }
 
     await admin.from("admin_actions").insert({

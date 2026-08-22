@@ -504,6 +504,7 @@ export type ListingVerificationDetail = {
     bounce?: string | null;
     grind?: string | null;
     head_number?: string | null;
+    headcover_included?: boolean | null;
     listing_clubs?: {
       id: string;
       listing_id: string;
@@ -626,7 +627,7 @@ export async function getAdminActionDetail(
     const { data: listing, error } = await admin
       .from("listings")
       .select(
-        "id, user_id, category, brand, model, title, condition, price, description, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, listing_format, standard_spec_status, iron_number, set_composition, bounce, grind, head_number, item_type, size, colour, status, created_at, admin_feedback, listing_images(storage_path, sort_order), listing_clubs(id, listing_id, sort_order, club_type, iron_number, degree, bounce, grind, shaft, shaft_flex, created_at)"
+        "id, user_id, category, brand, model, title, condition, price, description, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, listing_format, standard_spec_status, iron_number, set_composition, bounce, grind, head_number, headcover_included, item_type, size, colour, status, created_at, admin_feedback, listing_images(storage_path, sort_order), listing_clubs(id, listing_id, sort_order, club_type, iron_number, degree, bounce, grind, shaft, shaft_flex, created_at)"
       )
       .eq("id", entityId)
       .maybeSingle();
@@ -675,6 +676,7 @@ export async function getAdminActionDetail(
         bounce: (l.bounce as string | null) ?? null,
         grind: (l.grind as string | null) ?? null,
         head_number: (l.head_number as string | null) ?? null,
+        headcover_included: (l.headcover_included as boolean | null) ?? null,
         listing_clubs:
           (l.listing_clubs as ListingVerificationDetail["listing"]["listing_clubs"]) ?? [],
         item_type: listing.item_type,

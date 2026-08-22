@@ -116,6 +116,7 @@ export function ListingForm({
   const [images, setImages] = useState<File[]>([]);
   const [clubSpecs, setClubSpecs] = useState<ClubSpecsFormState>(emptyClubSpecsFormState);
   const [clubError, setClubError] = useState<{ field: string; message: string } | null>(null);
+  const [writingCopy, setWritingCopy] = useState(false);
   const [stickyVisible, setStickyVisible] = useState(false);
   const [priceGuidance, setPriceGuidance] = useState<{
     minPence: number;
@@ -412,7 +413,7 @@ export function ListingForm({
     setStep(4);
   };
 
-  const handleFinalSubmit = (e: React.FormEvent) => {
+  const handleFinalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (images.length < 5 || images.length > 6) {
       alert("Please upload 5 or 6 images.");
@@ -439,6 +440,67 @@ export function ListingForm({
     const title = titleOverride.trim() || autoTitle || undefined;
     const clubPayload = isGolfEquipment ? buildClubSpecsSubmitPayload(category, clubSpecs) : {};
 
+    let listingDescription = description;
+    setWritingCopy(true);
+    try {
+      const enhanceBody: Record<string, unknown> = isStructured
+        ? {
+            category,
+            brand: effectiveBrand,
+            condition,
+            item_type: itemType,
+            ...(isClothing ? { size: size || undefined, colour: colour.trim() || undefined } : { model: model.trim() || undefined }),
+            description: description.trim() || undefined,
+            title: title || undefined,
+          }
+        : {
+            category,
+            brand: effectiveBrand,
+            model: model.trim(),
+            condition,
+            description: description.trim() || undefined,
+            title: title || undefined,
+            ...(isGolfEquipment
+              ? {
+                  shaft: clubPayload.shaft ?? undefined,
+                  degree: clubPayload.degree ?? undefined,
+                  shaft_flex: clubPayload.shaft_flex ?? undefined,
+                  lie_angle: clubPayload.lie_angle ?? undefined,
+                  club_length: clubPayload.club_length ?? undefined,
+                  shaft_weight: clubPayload.shaft_weight ?? undefined,
+                  shaft_material: clubPayload.shaft_material ?? undefined,
+                  grip_brand: clubPayload.grip_brand ?? undefined,
+                  grip_model: clubPayload.grip_model ?? undefined,
+                  grip_size: clubPayload.grip_size ?? undefined,
+                  grip_condition: clubPayload.grip_condition ?? undefined,
+                  handed: clubPayload.handed,
+                  standard_spec_status: clubPayload.standard_spec_status ?? undefined,
+                  customised_aspects: clubPayload.customised_aspects ?? undefined,
+                  customised_other_note: clubPayload.customised_other_note ?? undefined,
+                  headcover_included: clubPayload.headcover_included ?? undefined,
+                  bounce: clubPayload.bounce ?? undefined,
+                  grind: clubPayload.grind ?? undefined,
+                  iron_number: clubPayload.iron_number ?? undefined,
+                  set_composition: clubPayload.set_composition ?? undefined,
+                  head_number: clubPayload.head_number ?? undefined,
+                }
+              : {}),
+          };
+      const enhanceRes = await fetch("/api/ai/enhance-listing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(enhanceBody),
+      });
+      const enhanceData = await enhanceRes.json().catch(() => ({}));
+      if (enhanceRes.ok && typeof enhanceData.description === "string" && enhanceData.description.trim()) {
+        listingDescription = enhanceData.description.trim();
+      }
+    } catch {
+      // Keep seller notes if AI is unavailable.
+    } finally {
+      setWritingCopy(false);
+    }
+
     abandonedRef.current = true;
     track("listing_submitted", { category });
     track("seller_listing_completed");
@@ -455,7 +517,7 @@ export function ListingForm({
           }
         : { model: model.trim(), item_type: null, size: null, colour: null }),
       condition,
-      description,
+      description: listingDescription,
       price,
       ...(title ? { title } : {}),
       ...(isGolfEquipment
@@ -732,9 +794,12 @@ export function ListingForm({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              placeholder="Marks, damage, headcover included, reason for selling, etc."
+              placeholder="Marks, damage, reason for selling, etc. We’ll write these into the listing description."
               className="w-full rounded-lg border border-mowing-green/30 px-3 py-2 text-mowing-green"
             />
+            <p className="mt-1 text-xs text-mowing-green/55">
+              Teevo writes the listing description from your club details, any modifications, and these notes.
+            </p>
           </div>
 
           {!isGolfEquipment ? (
@@ -783,10 +848,10 @@ export function ListingForm({
           <button
             ref={mainCtaRef}
             type="submit"
-            disabled={submitting}
+            disabled={submitting || writingCopy}
             className="w-full min-h-[48px] rounded-xl bg-mowing-green text-white font-semibold disabled:opacity-60"
           >
-            {submitting ? "Listing…" : "List my club"}
+            {writingCopy ? "Writing listing…" : submitting ? "Listing…" : "List my club"}
           </button>
         )}
       </div>
@@ -807,10 +872,10 @@ export function ListingForm({
         <div className="fixed bottom-0 inset-x-0 z-40 border-t border-mowing-green/15 bg-white/95 backdrop-blur px-4 py-3">
           <button
             type="submit"
-            disabled={submitting}
+            disabled={submitting || writingCopy}
             className="w-full max-w-xl mx-auto block min-h-[48px] rounded-xl bg-mowing-green text-white font-semibold disabled:opacity-60"
           >
-            {submitting ? "Listing…" : "List my club"}
+            {writingCopy ? "Writing listing…" : submitting ? "Listing…" : "List my club"}
           </button>
         </div>
       ) : null}

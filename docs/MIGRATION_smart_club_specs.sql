@@ -83,6 +83,9 @@ CREATE POLICY "Update listing clubs for own listing"
     )
   );
 
+ALTER TABLE public.listings ADD COLUMN IF NOT EXISTS headcover_included BOOLEAN;
+
+
 DROP POLICY IF EXISTS "Delete listing clubs for own listing" ON public.listing_clubs;
 CREATE POLICY "Delete listing clubs for own listing"
   ON public.listing_clubs FOR DELETE

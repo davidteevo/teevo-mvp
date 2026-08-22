@@ -103,6 +103,7 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
           bounce: payload.bounce ?? null,
           grind: payload.grind ?? null,
           head_number: payload.head_number ?? null,
+          headcover_included: payload.headcover_included ?? null,
           spec_provenance: payload.spec_provenance ?? {},
           clubs: payload.clubs ?? null,
         }),
