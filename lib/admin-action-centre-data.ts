@@ -627,15 +627,15 @@ export async function getAdminActionDetail(
     const { data: listing, error } = await admin
       .from("listings")
       .select(
-        "id, user_id, category, brand, model, title, condition, price, description, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, listing_format, standard_spec_status, iron_number, set_composition, bounce, grind, head_number, headcover_included, item_type, size, colour, status, created_at, admin_feedback, listing_images(storage_path, sort_order), listing_clubs(id, listing_id, sort_order, club_type, iron_number, degree, bounce, grind, shaft, shaft_flex, created_at)"
+        "id, user_id, category, brand, model, title, condition, price, description, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, listing_format, standard_spec_status, iron_number, set_composition, bounce, grind, head_number, headcover_included, item_type, size, colour, status, created_at, admin_feedback, listing_images(storage_path, sort_order, visibility), listing_clubs(id, listing_id, sort_order, club_type, iron_number, degree, bounce, grind, shaft, shaft_flex, created_at)"
       )
       .eq("id", entityId)
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!listing) return null;
-    const images = ((listing.listing_images ?? []) as { storage_path: string; sort_order: number }[]).sort(
-      (a, b) => a.sort_order - b.sort_order
-    );
+    const images = ((listing.listing_images ?? []) as { storage_path: string; sort_order: number; visibility?: string | null }[])
+      .filter((img) => img.visibility !== "verification_only")
+      .sort((a, b) => a.sort_order - b.sort_order);
     const { data: seller } = listing.user_id
       ? await admin
           .from("users")

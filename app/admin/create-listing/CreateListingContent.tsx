@@ -6,6 +6,7 @@ import { ListingForm, type ListingFormSubmitPayload } from "@/components/listing
 import { ListingSubmitLoading, type ListingSubmitProgress } from "@/components/listing/ListingSubmitLoading";
 import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
 import { compressListingMain, compressListingThumb } from "@/lib/image-compression";
+import { uploadListingPhotos } from "@/lib/listing-photos/upload-client";
 import type { ClubCatalogue } from "@/lib/club-catalogue";
 
 const LISTINGS_BUCKET = "listings";
@@ -139,8 +140,11 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
 
   const handlePublish = async () => {
     if (!seller || !listingPayload) return;
+    const guided = listingPayload.guidedPhotos;
     const images = listingPayload.images;
-    if (images.length < 5 || images.length > 6) {
+    if (guided?.length) {
+      // ok
+    } else if (images.length < 5 || images.length > 6) {
       setSubmitError("Please upload 5 or 6 images.");
       return;
     }
@@ -158,7 +162,8 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
     setStep(4);
 
     try {
-      const total = images.length + 3;
+      const imageCount = guided?.length ?? images.length;
+      const total = imageCount + 3;
       setSubmitProgress({ current: 1, total });
       const createRes = await fetch("/api/admin/listings/on-behalf", {
         method: "POST",
@@ -173,7 +178,8 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
           condition: listingPayload.condition,
           description: listingPayload.description || null,
           price: pricePence,
-          imageCount: images.length,
+          imageCount,
+          hosel_serial_status: listingPayload.hosel_serial_status ?? null,
           shaft: listingPayload.shaft || null,
           degree: listingPayload.degree || null,
           shaft_flex: listingPayload.shaftFlex ?? listingPayload.shaft_flex ?? null,
@@ -211,6 +217,18 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
       const listingId = createData.id as string;
       const notificationSent = createData.notification_sent === true;
       if (!listingId) throw new Error("No listing id returned");
+
+      if (guided?.length) {
+        await uploadListingPhotos({
+          listingId,
+          photos: guided,
+          hoselSerialStatus: listingPayload.hosel_serial_status ?? null,
+          signal,
+          onProgress: (current, t) => setSubmitProgress({ current, total: t }),
+        });
+        setSuccess({ listingId, notificationSent });
+        return;
+      }
 
       setSubmitProgress({ current: 2, total });
       const urlsRes = await fetch(`/api/listings/${listingId}/upload-urls`, {

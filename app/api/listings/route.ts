@@ -23,6 +23,7 @@ import {
   validateNewGolfListingSpecs,
 } from "@/lib/club-specs/server";
 import { isGolfEquipmentCategory } from "@/lib/club-specs/schemas";
+import { parseHoselSerialStatus, validateListingImageCount } from "@/lib/listing-photos/validate";
 export const dynamic = "force-dynamic";
 
 const ALLOWED_CATEGORIES_SET = new Set<string>(ALL_CATEGORIES);
@@ -92,8 +93,18 @@ export async function POST(request: Request) {
     if (!Number.isFinite(price) || price <= 0) {
       return NextResponse.json({ error: "Invalid price" }, { status: 400 });
     }
-    if (!Number.isFinite(imageCount) || imageCount < 5 || imageCount > 6) {
-      return NextResponse.json({ error: "Upload 5–6 images" }, { status: 400 });
+    const hosel_serial_status = parseHoselSerialStatus(body.hosel_serial_status);
+    const imageCountError = validateListingImageCount({
+      category,
+      imageCount,
+      listingFormat: clubExtras.listing_format,
+      wedgeLofts: (clubExtras.clubs ?? [])
+        .map((c) => (typeof c.degree === "string" ? c.degree : ""))
+        .filter(Boolean),
+      hoselSerialStatus: hosel_serial_status,
+    });
+    if (imageCountError) {
+      return NextResponse.json({ error: imageCountError }, { status: 400 });
     }
 
     if (isClothingCategory(category)) {
@@ -202,6 +213,7 @@ export async function POST(request: Request) {
         head_number: clubExtras.head_number,
         headcover_included: clubExtras.headcover_included,
         spec_provenance: clubExtras.spec_provenance,
+        hosel_serial_status,
       })
       .select("id")
       .single();

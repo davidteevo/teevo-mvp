@@ -7,6 +7,7 @@ import { ListingForm, type ListingFormSubmitPayload, type ListingSubmitProgress 
 import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
 import { compressListingMain, compressListingThumb } from "@/lib/image-compression";
 import type { ClubCatalogue } from "@/lib/club-catalogue";
+import { uploadListingPhotos } from "@/lib/listing-photos/upload-client";
 
 const LISTINGS_BUCKET = "listings";
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -58,12 +59,15 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
       if (Number.isNaN(pricePence) || pricePence <= 0) {
         throw new Error("Invalid price");
       }
-      const images = payload.images;
-      if (images.length < 5 || images.length > 6) {
-        throw new Error("Please upload 5 or 6 images (Front, Back, Sole, Shaft, Grip).");
+      const guided = payload.guidedPhotos;
+      if (guided?.length) {
+        // guided path below
+      } else if (payload.images.length < 5 || payload.images.length > 6) {
+        throw new Error("Please upload 5 or 6 images.");
       }
 
-      const total = images.length + 3;
+      const imageCount = guided?.length ?? payload.images.length;
+      const total = imageCount + 3;
 
       // 1. Create listing (metadata only — no image bytes through API, so no body size limit)
       setSubmitProgress({ current: 1, total });
@@ -78,7 +82,8 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
           condition: payload.condition,
           description: payload.description || null,
           price: pricePence,
-          imageCount: images.length,
+          imageCount,
+          hosel_serial_status: payload.hosel_serial_status ?? null,
           shaft: payload.shaft ?? payload.shaft ?? null,
           degree: payload.degree ?? null,
           shaft_flex: payload.shaftFlex ?? payload.shaft_flex ?? null,
@@ -115,6 +120,20 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
       }
       const listingId = createData.id as string;
       if (!listingId) throw new Error("No listing id returned");
+
+      if (guided?.length) {
+        await uploadListingPhotos({
+          listingId,
+          photos: guided,
+          hoselSerialStatus: payload.hosel_serial_status ?? null,
+          signal,
+          onProgress: (current, t) => setSubmitProgress({ current, total: t }),
+        });
+        router.push("/sell/success");
+        return;
+      }
+
+      const images = payload.images;
 
       // 2. Get signed upload URLs (avoids Storage RLS; server authorizes via service role)
       setSubmitProgress({ current: 2, total });

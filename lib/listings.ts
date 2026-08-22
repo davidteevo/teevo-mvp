@@ -3,6 +3,7 @@ import { brandFilterIlikeTerms, canonicalFilterBrand } from "@/lib/brand-canonic
 import { PUBLIC_MARKETPLACE_STATUSES } from "@/lib/listing-availability";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { publicListingImages } from "@/lib/listing-images";
 import type { ListingCategory, ListingCondition } from "@/types/database";
 
 const LISTING_CONDITION_FILTER: ListingCondition[] = [
@@ -119,10 +120,10 @@ function escapeLike(term: string): string {
 }
 
 const LISTING_DETAIL_SELECT =
-  "id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, listing_format, standard_spec_status, customised_aspects, customised_other_note, iron_number, set_composition, bounce, grind, head_number, headcover_included, spec_provenance, item_type, size, colour, status, flagged, buying_paused, availability_confirmation_status, created_at, updated_at, listing_images ( id, storage_path, sort_order ), listing_clubs ( id, listing_id, sort_order, club_type, iron_number, degree, bounce, grind, shaft, shaft_flex, created_at )";
+  "id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, listing_format, standard_spec_status, customised_aspects, customised_other_note, iron_number, set_composition, bounce, grind, head_number, headcover_included, spec_provenance, item_type, size, colour, status, flagged, buying_paused, availability_confirmation_status, created_at, updated_at, listing_images ( id, storage_path, sort_order, visibility, image_type ), listing_clubs ( id, listing_id, sort_order, club_type, iron_number, degree, bounce, grind, shaft, shaft_flex, created_at )";
 
 const LISTING_CARD_SELECT =
-  "id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, listing_format, standard_spec_status, iron_number, set_composition, bounce, grind, head_number, headcover_included, item_type, size, colour, status, flagged, buying_paused, availability_confirmation_status, created_at, updated_at, listing_images ( id, storage_path, sort_order ), listing_clubs ( id, listing_id, sort_order, club_type, iron_number, degree, bounce, grind, shaft, shaft_flex, created_at ), users!user_id ( display_name, rating_average, rating_count )";
+  "id, user_id, category, brand, model, title, condition, description, price, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, listing_format, standard_spec_status, iron_number, set_composition, bounce, grind, head_number, headcover_included, item_type, size, colour, status, flagged, buying_paused, availability_confirmation_status, created_at, updated_at, listing_images ( id, storage_path, sort_order, visibility, image_type ), listing_clubs ( id, listing_id, sort_order, club_type, iron_number, degree, bounce, grind, shaft, shaft_flex, created_at ), users!user_id ( display_name, rating_average, rating_count )";
 
 /** Uses admin client so this can run inside unstable_cache without request/cookies (e.g. on Netlify). Returns public marketplace listings (pending + verified). */
 async function getPublicListingsUncached(filters?: Filters) {
@@ -139,7 +140,10 @@ async function getPublicListingsUncached(filters?: Filters) {
 
   const { data, error } = await query;
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []).map((listing) => ({
+    ...listing,
+    listing_images: publicListingImages(listing.listing_images),
+  }));
 }
 
 export function getPublicListings(filters?: Filters) {
@@ -189,7 +193,7 @@ async function getListingByIdUncached(id: string) {
     .eq("id", id)
     .single();
   if (error) throw error;
-  return data;
+  return data ? { ...data, listing_images: publicListingImages(data.listing_images) } : data;
 }
 
 /** Fetches listing by id with session (RLS: pending/verified public or own). Not cached so it always runs in request context (cookies available). */
@@ -206,7 +210,7 @@ async function getListingByIdAdminUncached(id: string) {
     .eq("id", id)
     .single();
   if (error) throw error;
-  return data;
+  return data ? { ...data, listing_images: publicListingImages(data.listing_images) } : data;
 }
 
 export function getListingByIdAdmin(id: string) {

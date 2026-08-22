@@ -112,6 +112,14 @@ const ALLOWED_EVENTS = [
   "club_details_completed",
   "listing_submitted",
   "listing_abandoned",
+  "photo_flow_started",
+  "required_photo_uploaded",
+  "required_photo_replaced",
+  "required_photo_removed",
+  "optional_photo_uploaded",
+  "serial_not_found_selected",
+  "photo_flow_completed",
+  "photo_flow_abandoned",
 ] as const;
 
 export type AllowedEventName = (typeof ALLOWED_EVENTS)[number];

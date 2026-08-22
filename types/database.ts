@@ -166,10 +166,23 @@ export interface Listing {
   availability_confirmed_at?: string | null;
   availability_confirmation_reminder_sent_at?: string | null;
   availability_confirmation_batch_id?: string | null;
+  hosel_serial_status?: "uploaded" | "not_found" | "not_applicable" | null;
   created_at: string;
   updated_at: string;
-  listing_images?: { id: string; storage_path: string; sort_order: number }[];
+  listing_images?: ListingImage[];
   listing_clubs?: ListingClub[];
+}
+
+export interface ListingImage {
+  id: string;
+  storage_path: string;
+  sort_order: number;
+  image_type?: string | null;
+  visibility?: "public" | "verification_only" | null;
+  is_required?: boolean | null;
+  club_identifier?: string | null;
+  slot_key?: string | null;
+  storage_bucket?: string | null;
 }
 
 export interface ListingClub {
