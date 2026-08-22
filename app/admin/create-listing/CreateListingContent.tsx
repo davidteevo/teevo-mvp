@@ -198,6 +198,7 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
           bounce: listingPayload.bounce ?? null,
           grind: listingPayload.grind ?? null,
           head_number: listingPayload.head_number ?? null,
+          headcover_included: listingPayload.headcover_included ?? null,
           spec_provenance: listingPayload.spec_provenance ?? {},
           clubs: listingPayload.clubs ?? null,
         }),

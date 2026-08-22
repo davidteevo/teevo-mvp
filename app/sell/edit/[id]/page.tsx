@@ -50,6 +50,7 @@ type Listing = {
   bounce?: string | null;
   grind?: string | null;
   head_number?: string | null;
+  headcover_included?: boolean | null;
   listing_clubs?: {
     id: string;
     degree: string | null;
@@ -117,6 +118,16 @@ export default function SellEditPage() {
             grip_model: clubPayload.grip_model ?? undefined,
             grip_size: clubPayload.grip_size ?? undefined,
             grip_condition: clubPayload.grip_condition ?? undefined,
+            handed: clubPayload.handed,
+            standard_spec_status: clubPayload.standard_spec_status ?? undefined,
+            customised_aspects: clubPayload.customised_aspects ?? undefined,
+            customised_other_note: clubPayload.customised_other_note ?? undefined,
+            headcover_included: clubPayload.headcover_included ?? undefined,
+            bounce: clubPayload.bounce ?? undefined,
+            grind: clubPayload.grind ?? undefined,
+            iron_number: clubPayload.iron_number ?? undefined,
+            set_composition: clubPayload.set_composition ?? undefined,
+            head_number: clubPayload.head_number ?? undefined,
           }),
         }),
       });
@@ -417,7 +428,7 @@ export default function SellEditPage() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            placeholder="Marks, damage, headcover included, reason for selling, etc."
+            placeholder="Marks, damage, reason for selling, etc. Use Improve with AI to write these into the listing."
             className="w-full rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-mowing-green placeholder:text-mowing-green/50 resize-y"
           />
         </div>

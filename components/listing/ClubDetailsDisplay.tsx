@@ -36,7 +36,12 @@ export function getClubDetailsRows(listing: Listing): { label: string; value: st
   if (flex) rows.push({ label: "Flex", value: flex });
 
   const length = formatSpecValue(listing.club_length);
-  if (length) rows.push({ label: "Length", value: length });
+  if (length) {
+    rows.push({
+      label: listing.category === "Putter" ? "Length" : "Length vs standard",
+      value: length,
+    });
+  }
 
   const lie = formatSpecValue(listing.lie_angle, { appendDegree: true });
   if (lie) rows.push({ label: "Lie", value: lie });
@@ -61,6 +66,9 @@ export function getClubDetailsRows(listing: Listing): { label: string; value: st
   if (listing.standard_spec_status === "standard") rows.push({ label: "Spec", value: "Standard" });
   if (listing.standard_spec_status === "customised") rows.push({ label: "Spec", value: "Customised" });
   if (listing.standard_spec_status === "unknown") rows.push({ label: "Spec", value: "Unknown" });
+
+  if (listing.headcover_included === true) rows.push({ label: "Headcover", value: "Included" });
+  if (listing.headcover_included === false) rows.push({ label: "Headcover", value: "Not included" });
 
   return rows.filter((r) => r.value);
 }

@@ -101,6 +101,22 @@ export const PUTTER_LENGTH_OPTIONS: ChipOption[] = [
   { value: "Other", label: "Other" },
 ];
 
+/** Length vs stock spec — used when selling (not the club's measured length). */
+export const CLUB_LENGTH_ADJUST_OPTIONS: ChipOption[] = [
+  { value: '-1"', label: '-1"' },
+  { value: '-0.5"', label: '-0.5"' },
+  { value: "Standard", label: "Standard" },
+  { value: '+0.5"', label: '+0.5"' },
+  { value: '+1"', label: '+1"' },
+  { value: "Other", label: "Other" },
+];
+
+export const HEADCOVER_CATEGORIES = ["Woods", "Hybrids", "Putter"] as const;
+
+export function categoryAsksHeadcover(category: string): boolean {
+  return (HEADCOVER_CATEGORIES as readonly string[]).includes(category);
+}
+
 export const IRON_NUMBER_OPTIONS: ChipOption[] = [
   { value: "3", label: "3" },
   { value: "4", label: "4" },
@@ -274,6 +290,7 @@ export type ClubSpecsFormState = {
   gripModel: string;
   gripSize: string;
   gripCondition: string;
+  headcoverIncluded: "" | "yes" | "no";
   standardSpecStatus: StandardSpecStatus | "";
   customisedAspects: CustomisedAspect[];
   customisedOtherNote: string;
@@ -311,6 +328,7 @@ export function emptyClubSpecsFormState(): ClubSpecsFormState {
     gripModel: "",
     gripSize: "",
     gripCondition: "",
+    headcoverIncluded: "",
     standardSpecStatus: "",
     customisedAspects: [],
     customisedOtherNote: "",

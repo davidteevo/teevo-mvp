@@ -185,6 +185,7 @@ export async function PATCH(
   if (body.bounce !== undefined) updates.bounce = clubExtras.bounce;
   if (body.grind !== undefined) updates.grind = clubExtras.grind;
   if (body.head_number !== undefined) updates.head_number = clubExtras.head_number;
+  if (body.headcover_included !== undefined) updates.headcover_included = clubExtras.headcover_included;
   if (body.spec_provenance !== undefined) updates.spec_provenance = clubExtras.spec_provenance;
   // Track whether this is a resubmission after admin feedback before clearing it
   const isResubmission = Object.keys(updates).length > 1 && !!listing.admin_feedback;

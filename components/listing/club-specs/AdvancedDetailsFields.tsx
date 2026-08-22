@@ -7,6 +7,7 @@ import {
   GRIP_SIZE_OPTIONS,
   LIE_ANGLE_OPTIONS,
   PUTTER_LENGTH_OPTIONS,
+  CLUB_LENGTH_ADJUST_OPTIONS,
   SHAFT_MATERIAL_OPTIONS,
   type ClubSpecsFormState,
 } from "@/lib/club-specs/schemas";
@@ -39,13 +40,7 @@ export function AdvancedDetailsFields({
     !aspectsOnly || aspects.has(key);
 
   const isPutter = category === "Putter";
-  const lengthOptions = isPutter ? PUTTER_LENGTH_OPTIONS : [
-    { value: '44"', label: '44"' },
-    { value: '45"', label: '45"' },
-    { value: '45.5"', label: '45.5"' },
-    { value: '46"', label: '46"' },
-    { value: "Other", label: "Other" },
-  ];
+  const lengthOptions = isPutter ? PUTTER_LENGTH_OPTIONS : CLUB_LENGTH_ADJUST_OPTIONS;
 
   const gripConditions = getConditionsForCategory("Driver");
 
@@ -91,10 +86,10 @@ export function AdvancedDetailsFields({
         </>
       ) : null}
 
-      {show("length") ? (
+      {show("length") && !isPutter ? (
         <div>
           <ChipGroup
-            label={isPutter ? "Length" : "Club length"}
+            label={isPutter ? "Length" : "Length vs standard"}
             options={lengthOptions}
             value={state.clubLength}
             onChange={(v) => patch({ clubLength: v, clubLengthOther: v === "Other" ? state.clubLengthOther : "" })}
@@ -104,7 +99,7 @@ export function AdvancedDetailsFields({
               type="text"
               value={state.clubLengthOther}
               onChange={(e) => patch({ clubLengthOther: e.target.value })}
-              placeholder='e.g. 37.5"'
+              placeholder={isPutter ? 'e.g. 32.5"' : 'e.g. +0.25"'}
               className="mt-2 w-full min-h-[44px] rounded-lg border border-mowing-green/30 px-3 py-2 text-mowing-green"
             />
           ) : null}

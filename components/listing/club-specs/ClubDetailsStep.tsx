@@ -16,6 +16,8 @@ import {
   SHAFT_FLEX_OPTIONS,
   WEDGE_LOFT_OPTIONS,
   WEDGE_SET_MAX,
+  categoryAsksHeadcover,
+  getCategorySpecSchema,
   getClubLoftOptions,
   type ClubSpecsFormState,
   validateClubDetails,
@@ -102,6 +104,18 @@ export function ClubDetailsStep({
         <WedgeFields state={state} patch={patch} shaftOptions={shaftOptions} shaftLoading={shaftLoading} err={err} />
       ) : null}
       {category === "Putter" ? <PutterFields state={state} patch={patch} err={err} /> : null}
+
+      {categoryAsksHeadcover(category) ? (
+        <ChipGroup
+          label="Headcover included"
+          options={[
+            { value: "yes", label: "Yes" },
+            { value: "no", label: "No" },
+          ]}
+          value={state.headcoverIncluded}
+          onChange={(v) => patch({ headcoverIncluded: v as "yes" | "no" })}
+        />
+      ) : null}
 
       <StandardSpecSection
         category={category}
@@ -856,7 +870,10 @@ function StandardSpecSection({
             <p className="text-sm font-medium text-mowing-green mb-1">What&apos;s different?</p>
             <p className="text-sm text-mowing-green/65 mb-2">Select anything that applies.</p>
             <div className="flex flex-wrap gap-2">
-              {CUSTOMISED_ASPECT_OPTIONS.map((opt) => {
+              {CUSTOMISED_ASPECT_OPTIONS.filter((opt) => {
+                const schema = getCategorySpecSchema(category);
+                return !schema || schema.customisedAspects.includes(opt.value);
+              }).map((opt) => {
                 const selected = state.customisedAspects.includes(opt.value);
                 return (
                   <FilterChip
@@ -908,9 +925,7 @@ function StandardSpecSection({
         </div>
       ) : null}
 
-      {(state.standardSpecStatus === "standard" ||
-        state.standardSpecStatus === "unknown" ||
-        state.standardSpecStatus === "customised") && (
+      {(state.standardSpecStatus === "standard" || state.standardSpecStatus === "unknown") && (
         <div>
           <button
             type="button"
@@ -928,7 +943,7 @@ function StandardSpecSection({
             Add more details (optional)
           </button>
           <p className="text-xs text-mowing-green/55 mt-1">
-            Length, shaft weight, grip, lie angle &amp; more
+            Length vs standard, shaft weight, grip, lie angle &amp; more
           </p>
           {state.advancedOpen ? (
             <div className="mt-4">

@@ -200,6 +200,7 @@ export async function POST(request: Request) {
         bounce: clubExtras.bounce,
         grind: clubExtras.grind,
         head_number: clubExtras.head_number,
+        headcover_included: clubExtras.headcover_included,
         spec_provenance: clubExtras.spec_provenance,
       })
       .select("id")

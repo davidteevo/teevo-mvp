@@ -59,6 +59,12 @@ export function parseClubSpecsFromBody(body: Record<string, unknown>) {
     bounce: str("bounce"),
     grind: str("grind"),
     head_number: str("head_number"),
+    headcover_included:
+      body.headcover_included === true || body.headcover_included === "true"
+        ? true
+        : body.headcover_included === false || body.headcover_included === "false"
+          ? false
+          : null,
     spec_provenance:
       body.spec_provenance && typeof body.spec_provenance === "object" && !Array.isArray(body.spec_provenance)
         ? (body.spec_provenance as Record<string, unknown>)

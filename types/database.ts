@@ -149,6 +149,7 @@ export interface Listing {
   bounce?: string | null;
   grind?: string | null;
   head_number?: string | null;
+  headcover_included?: boolean | null;
   spec_provenance?: SpecProvenanceMap | null;
   item_type: string | null;
   size: string | null;
