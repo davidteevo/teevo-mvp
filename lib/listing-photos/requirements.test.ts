@@ -25,15 +25,22 @@ describe("getPhotoSlots", () => {
     expect(types).toContain("shaft");
   });
 
-  it("builds a sole slot per wedge loft", () => {
+  it("asks for a face and sole of each wedge in a set", () => {
     const slots = getPhotoSlots({
       category: "Wedges",
       listingFormat: "set",
       wedgeLofts: ["50", "54°", "58"],
     });
+    const faces = slots.filter((s) => s.imageType === "face");
     const soles = slots.filter((s) => s.imageType === "wedge_specs");
+    expect(faces).toHaveLength(3);
     expect(soles).toHaveLength(3);
+    expect(faces.map((s) => s.clubIdentifier)).toEqual(["50", "54", "58"]);
     expect(soles.map((s) => s.clubIdentifier)).toEqual(["50", "54", "58"]);
+    expect(slots.some((s) => s.imageType === "set_overview")).toBe(true);
+    expect(slots.filter((s) => s.visibility === "public").every((s) => s.imageType !== "hosel_serial")).toBe(
+      true
+    );
   });
 
   it("requires putter address, rear, neck and grip", () => {

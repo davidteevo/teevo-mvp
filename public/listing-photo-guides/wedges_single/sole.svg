@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+ <title id="title">Wedge sole loft bounce and grind</title><desc id="desc">Professional Teevo photo guidance artwork showing wedge sole loft bounce and grind</desc>
+ <defs>
+  <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F7FBF9"/><stop offset=".45" stop-color="#C6D7D1"/><stop offset="1" stop-color="#8FA9A0"/></linearGradient>
+  <linearGradient id="green" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#64D29A"/><stop offset="1" stop-color="#2E9D6B"/></linearGradient>
+  <filter id="shadow" x="-25%" y="-25%" width="150%" height="160%"><feDropShadow dx="0" dy="14" stdDeviation="10" flood-color="#173F35" flood-opacity=".15"/></filter>
+ </defs>
+ <rect width="1200" height="760" rx="52" fill="#FDFCF5"/>
+ <path d="M0 628c188-86 345-68 478 3 127 68 262 75 402 10 98-45 196-54 320-21v140H0Z" fill="#BDEFD4" opacity=".42"/>
+ <g fill="none" stroke="#265C4B" stroke-width="8" stroke-linecap="round" opacity=".45"><path d="M128 175v-36h36M1036 139h36v36M1072 582v36h-36M164 618h-36v-36"/></g>
+ <g fill="none" stroke="#FFD25E" stroke-width="11" stroke-linecap="round"><path d="M91 247h38M110 228v38"/><path d="m1050 228 20-28m9 52 32-5"/></g>
+ <g filter="url(#shadow)" stroke="#173F35" stroke-linejoin="round"><path d="M435 119h67l42 192-81 19Z" fill="#265C4B" stroke-width="11"/><path d="M454 303c85-39 276-47 352-9 50 25 54 168 11 225-61 82-301 123-381 58-65-53-50-240 18-274Z" fill="url(#metal)" stroke-width="12"/><path d="M496 352c66-25 183-34 247-17l35 128c-67 48-199 69-278 39-23-47-25-105-4-150Z" fill="#49C184" stroke-width="8"/><g transform="translate(575 374) scale(0.72)" fill="#173F35"><path d="M0 0h56v12H35v38H21V12H0Z"/><circle cx="28" cy="67" r="8"/></g><text x="695" y="487" font-family="Arial,sans-serif" font-size="46" font-weight="700" fill="#173F35" stroke="none">56°</text><text x="549" y="471" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#FFD25E" stroke="none">12 • M</text></g><ellipse cx="633" cy="437" rx="210" ry="159" fill="none" stroke="#FFD25E" stroke-width="8" stroke-dasharray="14 13"/><path d="M407 465c-55-65-40-158 25-207" fill="none" stroke="#FF8A8A" stroke-width="11" stroke-linecap="round"/><path d="m404 253 34-3-7 34" fill="none" stroke="#FF8A8A" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

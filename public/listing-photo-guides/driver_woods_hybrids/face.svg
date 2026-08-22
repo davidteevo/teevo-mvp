@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+ <title id="title">Driver face straight on</title><desc id="desc">Professional Teevo photo guidance artwork showing driver face straight on</desc>
+ <defs>
+  <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F7FBF9"/><stop offset=".45" stop-color="#C6D7D1"/><stop offset="1" stop-color="#8FA9A0"/></linearGradient>
+  <linearGradient id="green" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#64D29A"/><stop offset="1" stop-color="#2E9D6B"/></linearGradient>
+  <filter id="shadow" x="-25%" y="-25%" width="150%" height="160%"><feDropShadow dx="0" dy="14" stdDeviation="10" flood-color="#173F35" flood-opacity=".15"/></filter>
+ </defs>
+ <rect width="1200" height="760" rx="52" fill="#FDFCF5"/>
+ <path d="M0 628c188-86 345-68 478 3 127 68 262 75 402 10 98-45 196-54 320-21v140H0Z" fill="#BDEFD4" opacity=".42"/>
+ <g fill="none" stroke="#265C4B" stroke-width="8" stroke-linecap="round" opacity=".45"><path d="M128 175v-36h36M1036 139h36v36M1072 582v36h-36M164 618h-36v-36"/></g>
+ <g fill="none" stroke="#FFD25E" stroke-width="11" stroke-linecap="round"><path d="M91 247h38M110 228v38"/><path d="m1050 228 20-28m9 52 32-5"/></g>
+ <g filter="url(#shadow)" stroke="#173F35" stroke-linejoin="round"><path d="M451 122h68l33 173-82 17Z" fill="#265C4B" stroke-width="11"/><path d="M457 291c65-50 276-62 353-13 63 40 73 252 18 309-63 66-313 80-390 21-65-50-48-266 19-317Z" fill="url(#metal)" stroke-width="12"/><path d="M484 332c73-37 234-47 297-17 28 60 34 166 9 227-83 42-230 51-314 18-24-59-20-167 8-228Z" fill="#265C4B" stroke-width="7"/><g stroke="#BDEFD4" stroke-width="7" stroke-linecap="round"><path d="M504 357l257-15"/><path d="m496 396 274-16"/><path d="m492 436 283-17"/><path d="m493 476 281-17"/><path d="m499 516 265-16"/></g><circle cx="636" cy="433" r="10" fill="#FFD25E" stroke="none"/><g transform="translate(595 365) scale(0.65)" fill="#FFD25E"><path d="M0 0h56v12H35v38H21V12H0Z"/><circle cx="28" cy="67" r="8"/></g></g><ellipse cx="634" cy="434" rx="202" ry="183" fill="none" stroke="#FFD25E" stroke-width="8" stroke-dasharray="14 13"/>
+</svg>

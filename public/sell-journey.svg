@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 500" role="img" aria-labelledby="title desc">
+  <title id="title">Sell your golf club with Teevo</title>
+  <desc id="desc">Three-step process: photograph and list your golf club, Teevo verifies it, then a buyer purchases it and you get paid.</desc>
+  <defs>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F3F8F4"/>
+    </linearGradient>
+    <linearGradient id="club" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#64D29A"/>
+      <stop offset="1" stop-color="#2E9D6B"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="9" stdDeviation="9" flood-color="#173F35" flood-opacity=".12"/>
+    </filter>
+    <marker id="arrowhead" viewBox="0 0 30 30" markerUnits="userSpaceOnUse" markerWidth="30" markerHeight="30" refX="24" refY="15" orient="auto">
+      <path d="M5 4l18 11L5 26" fill="none" stroke="#49C184" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <rect x="8" y="8" width="1384" height="484" rx="46" fill="#FDFCF5" stroke="#D5E3DB" stroke-width="4"/>
+  <path d="M8 386c134-56 267-52 386 5 142 68 280 75 430 15 164-66 338-66 568-5v91H8Z" fill="#BDEFD4" opacity=".42"/>
+
+  <!-- Journey line: one club moving through the Teevo process -->
+  <path d="M360 216C438 216 458 216 524 216M874 216c72 0 98 0 165 0" fill="none" stroke="#8CD9B3" stroke-width="9" stroke-linecap="round" marker-end="url(#arrowhead)"/>
+
+  <!-- Step 1: photograph and list -->
+  <g filter="url(#shadow)">
+    <rect x="62" y="58" width="310" height="316" rx="34" fill="url(#card)" stroke="#C7D9D0" stroke-width="4"/>
+  </g>
+  <circle cx="104" cy="99" r="24" fill="#FFD25E"/>
+  <text x="104" y="108" text-anchor="middle" font-family="Fredoka,Arial Rounded MT Bold,Arial,sans-serif" font-size="26" font-weight="700" fill="#173F35">1</text>
+
+  <!-- Phone containing a recognisable driver photo -->
+  <g transform="translate(101 119)" stroke="#173F35" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="0" y="0" width="142" height="184" rx="24" fill="#FFFFFF" stroke-width="8"/>
+    <rect x="15" y="25" width="112" height="128" rx="13" fill="#EAF7EF" stroke-width="4"/>
+    <path d="M55 42l30 84" fill="none" stroke="#173F35" stroke-width="8"/>
+    <path d="M55 42l30 84" fill="none" stroke="#FFD25E" stroke-width="3.5"/>
+    <rect x="41" y="29" width="28" height="43" rx="10" fill="#49C184" stroke-width="5"/>
+    <path d="M83 115c14-17 49-23 66-9 10 8 6 25-10 34-20 11-55 11-69-2-9-8 2-17 13-23Z" transform="translate(-18 -1)" fill="url(#club)" stroke-width="6"/>
+    <circle cx="71" cy="168" r="6" fill="#49C184" stroke="none"/>
+    <path d="M23 44v-9h9M110 35h9v9M119 133v9h-9M32 142h-9v-9" fill="none" stroke="#49C184" stroke-width="4"/>
+  </g>
+
+  <!-- Listing card emerging from phone -->
+  <g transform="translate(226 150) rotate(4)" stroke="#173F35" stroke-linejoin="round" filter="url(#shadow)">
+    <rect x="0" y="0" width="108" height="132" rx="17" fill="#FFFFFF" stroke-width="6"/>
+    <rect x="12" y="13" width="84" height="63" rx="10" fill="#BDEFD4" stroke="none"/>
+    <path d="M35 24l19 42" stroke-width="5"/><path d="M52 57c10-8 28-10 36-3 5 5 1 12-7 16-12 5-28 4-33-2-3-4-1-8 4-11Z" fill="#49C184" stroke-width="4"/>
+    <path d="M15 91h74M15 106h56" stroke="#87A39A" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="87" cy="111" r="10" fill="#FFD25E" stroke="none"/>
+  </g>
+
+  <text x="217" y="419" text-anchor="middle" font-family="Fredoka,Arial Rounded MT Bold,Arial,sans-serif" font-size="31" font-weight="700" fill="#265C4B">Photograph &amp; list</text>
+  <text x="217" y="452" text-anchor="middle" font-family="Fredoka,Arial,sans-serif" font-size="19" font-weight="500" fill="#52796D">Add the club and its key details</text>
+
+  <!-- Step 2: Teevo verification -->
+  <g filter="url(#shadow)">
+    <rect x="545" y="58" width="310" height="316" rx="34" fill="url(#card)" stroke="#C7D9D0" stroke-width="4"/>
+  </g>
+  <circle cx="587" cy="99" r="24" fill="#FFD25E"/>
+  <text x="587" y="108" text-anchor="middle" font-family="Fredoka,Arial Rounded MT Bold,Arial,sans-serif" font-size="26" font-weight="700" fill="#173F35">2</text>
+
+  <!-- Recognisable iron under inspection -->
+  <g transform="translate(568 119)" stroke="#173F35" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M82 3l45 139" stroke-width="17"/>
+    <path d="M82 3l45 139" stroke="#FFD25E" stroke-width="6"/>
+    <rect x="68" y="0" width="30" height="62" rx="13" fill="#49C184" stroke-width="6"/>
+    <path d="M120 132l125-18q23-2 29 19l10 44q4 19-18 24l-149 16q-23 0-28-20l-5-24q-4-19 36-41Z" fill="#D9E5E0" stroke-width="8"/>
+    <path d="m135 151 103-15 8 37-111 13Z" fill="#49C184" stroke-width="6"/>
+    <path d="M160 159h52M158 173h60" fill="none" stroke="#BDEFD4" stroke-width="5"/>
+    <path d="M127 139l-18-15" stroke="#FF8A8A" stroke-width="7" stroke-dasharray="7 8"/>
+  </g>
+
+  <!-- Verification shield and scan ring -->
+  <circle cx="748" cy="199" r="91" fill="#FFFFFF" fill-opacity=".82" stroke="#FFD25E" stroke-width="7" stroke-dasharray="13 12"/>
+  <path d="M748 131c25 18 52 20 68 21v55c0 39-28 66-68 84-40-18-68-45-68-84v-55c16-1 43-3 68-21Z" fill="#265C4B" stroke="#173F35" stroke-width="7" stroke-linejoin="round"/>
+  <path d="m716 207 21 22 44-50" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="792" cy="255" r="23" fill="#FF8A8A" stroke="#173F35" stroke-width="5"/>
+  <path d="m807 270 28 28" stroke="#173F35" stroke-width="11" stroke-linecap="round"/>
+
+  <text x="700" y="419" text-anchor="middle" font-family="Fredoka,Arial Rounded MT Bold,Arial,sans-serif" font-size="31" font-weight="700" fill="#265C4B">Teevo verifies</text>
+  <text x="700" y="452" text-anchor="middle" font-family="Fredoka,Arial,sans-serif" font-size="19" font-weight="500" fill="#52796D">Your listing goes live as Coming Soon</text>
+
+  <!-- Step 3: buyer purchases, seller gets paid -->
+  <g filter="url(#shadow)">
+    <rect x="1028" y="58" width="310" height="316" rx="34" fill="url(#card)" stroke="#C7D9D0" stroke-width="4"/>
+  </g>
+  <circle cx="1070" cy="99" r="24" fill="#FFD25E"/>
+  <text x="1070" y="108" text-anchor="middle" font-family="Fredoka,Arial Rounded MT Bold,Arial,sans-serif" font-size="26" font-weight="700" fill="#173F35">3</text>
+
+  <!-- Buyer purchase confirmation -->
+  <g transform="translate(1060 128)" stroke="#173F35" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="0" y="0" width="151" height="189" rx="24" fill="#FFFFFF" stroke-width="8"/>
+    <circle cx="75" cy="57" r="34" fill="#BDEFD4" stroke-width="6"/>
+    <circle cx="75" cy="49" r="12" fill="#265C4B" stroke="none"/>
+    <path d="M48 81c7-24 47-24 54 0" fill="#265C4B" stroke="none"/>
+    <path d="M24 119h103M24 142h72" stroke="#87A39A" stroke-width="8"/>
+    <circle cx="119" cy="155" r="23" fill="#49C184" stroke-width="5"/>
+    <path d="m107 155 8 9 16-19" fill="none" stroke="#FFFFFF" stroke-width="7"/>
+  </g>
+
+  <!-- Payment wallet -->
+  <g transform="translate(1186 205) rotate(-4)" stroke="#173F35" stroke-linejoin="round" filter="url(#shadow)">
+    <rect x="0" y="0" width="113" height="87" rx="18" fill="#265C4B" stroke-width="7"/>
+    <path d="M72 24h54v42H72c-17 0-17-42 0-42Z" fill="#49C184" stroke-width="6"/>
+    <circle cx="92" cy="45" r="7" fill="#FFD25E" stroke="none"/>
+    <circle cx="12" cy="-14" r="24" fill="#FFD25E" stroke-width="5"/>
+    <text x="12" y="-5" text-anchor="middle" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#173F35" stroke="none">£</text>
+  </g>
+
+  <text x="1183" y="419" text-anchor="middle" font-family="Fredoka,Arial Rounded MT Bold,Arial,sans-serif" font-size="31" font-weight="700" fill="#265C4B">Sell &amp; get paid</text>
+  <text x="1183" y="452" text-anchor="middle" font-family="Fredoka,Arial,sans-serif" font-size="19" font-weight="500" fill="#52796D">A verified buyer purchases your club</text>
+</svg>

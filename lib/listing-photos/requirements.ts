@@ -178,16 +178,26 @@ function wedgeSingleSlots(): PhotoSlot[] {
 }
 
 function wedgeSetSlots(lofts: string[]): PhotoSlot[] {
-  const soles = lofts.map((raw, i) => {
+  const perWedge = lofts.flatMap((raw, i) => {
     const loft = raw.replace(/°/g, "").trim() || `wedge-${i + 1}`;
-    return slot({
-      key: `wedge_sole_${loft}_${i}`,
-      imageType: "wedge_specs",
-      title: `${loft}° — Show the sole`,
-      helper: "Capture loft, bounce and grind markings.",
-      illustrationId: "sole",
-      clubIdentifier: loft,
-    });
+    return [
+      slot({
+        key: `wedge_face_${loft}_${i}`,
+        imageType: "face",
+        title: `${loft}° — Show the face`,
+        helper: "Straight on so buyers can see grooves and wear.",
+        illustrationId: "face",
+        clubIdentifier: loft,
+      }),
+      slot({
+        key: `wedge_sole_${loft}_${i}`,
+        imageType: "wedge_specs",
+        title: `${loft}° — Show the sole`,
+        helper: "Capture loft, bounce, grind and condition.",
+        illustrationId: "sole",
+        clubIdentifier: loft,
+      }),
+    ];
   });
   return [
     slot({
@@ -197,21 +207,7 @@ function wedgeSetSlots(lofts: string[]): PhotoSlot[] {
       helper: "Show every wedge together.",
       illustrationId: "set_overview",
     }),
-    slot({
-      key: "face",
-      imageType: "face",
-      title: "A representative face",
-      helper: "Straight on of one wedge.",
-      illustrationId: "face",
-    }),
-    slot({
-      key: "back",
-      imageType: "back",
-      title: "A representative back",
-      helper: "Logos and markings clearly in shot.",
-      illustrationId: "back",
-    }),
-    ...soles,
+    ...perWedge,
     { key: "hosel_serial", ...HOSEL },
   ];
 }

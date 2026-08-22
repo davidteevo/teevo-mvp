@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+ <title id="title">Back of putter</title><desc id="desc">Professional Teevo photo guidance artwork showing back of putter</desc>
+ <defs>
+  <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F7FBF9"/><stop offset=".45" stop-color="#C6D7D1"/><stop offset="1" stop-color="#8FA9A0"/></linearGradient>
+  <linearGradient id="green" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#64D29A"/><stop offset="1" stop-color="#2E9D6B"/></linearGradient>
+  <filter id="shadow" x="-25%" y="-25%" width="150%" height="160%"><feDropShadow dx="0" dy="14" stdDeviation="10" flood-color="#173F35" flood-opacity=".15"/></filter>
+ </defs>
+ <rect width="1200" height="760" rx="52" fill="#FDFCF5"/>
+ <path d="M0 628c188-86 345-68 478 3 127 68 262 75 402 10 98-45 196-54 320-21v140H0Z" fill="#BDEFD4" opacity=".42"/>
+ <g fill="none" stroke="#265C4B" stroke-width="8" stroke-linecap="round" opacity=".45"><path d="M128 175v-36h36M1036 139h36v36M1072 582v36h-36M164 618h-36v-36"/></g>
+ <g fill="none" stroke="#FFD25E" stroke-width="11" stroke-linecap="round"><path d="M91 247h38M110 228v38"/><path d="m1050 228 20-28m9 52 32-5"/></g>
+ <g filter="url(#shadow)" stroke="#173F35" stroke-linejoin="round" stroke-linecap="round"><path d="M428 105v258c0 28 23 51 51 51h65" fill="none" stroke-width="54"/><path d="M428 105v258c0 28 23 51 51 51h65" fill="none" stroke="#FFD25E" stroke-width="29"/><path d="M334 434c104-47 428-47 532 0l37 112c13 40-29 74-67 58l-112-47H476l-112 47c-38 16-80-18-67-58Z" fill="url(#green)" stroke-width="12"/><path d="M421 466c87-30 271-30 358 0l-24 72c-83-23-227-23-310 0Z" fill="#FFFFFF" stroke-width="9"/><circle cx="375" cy="535" r="29" fill="#FFD25E" stroke-width="7"/><circle cx="825" cy="535" r="29" fill="#FFD25E" stroke-width="7"/><g transform="translate(572 475) scale(0.55)" fill="#173F35"><path d="M0 0h56v12H35v38H21V12H0Z"/><circle cx="28" cy="67" r="8"/></g></g><ellipse cx="600" cy="513" rx="315" ry="124" fill="none" stroke="#FFD25E" stroke-width="8" stroke-dasharray="14 13"/>
+</svg>

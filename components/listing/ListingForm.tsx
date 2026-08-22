@@ -9,6 +9,7 @@ import { ClubDetailsStep } from "./club-specs/ClubDetailsStep";
 import { RadioCards } from "./club-specs/RadioCards";
 import { ChipGroup } from "./club-specs/ChipGroup";
 import { GuidedPhotoStep, flattenGuidedPhotos, guidedPhotosComplete, type GuidedPhotoValue } from "./photo-guide/GuidedPhotoStep";
+import { ListingWizardTimeline } from "./ListingWizardTimeline";
 import {
   CLOTHING_TYPES,
   ACCESSORY_ITEM_TYPES,
@@ -93,6 +94,7 @@ interface ListingFormProps {
   submitProgress?: ListingSubmitProgress | null;
   clubCatalogue?: ClubCatalogue;
   clothingBrands?: string[];
+  onStepChange?: (step: 1 | 2 | 3 | 4) => void;
 }
 
 type StepId = 1 | 2 | 3 | 4;
@@ -107,6 +109,7 @@ export function ListingForm({
   submitProgress = null,
   clubCatalogue,
   clothingBrands,
+  onStepChange,
 }: ListingFormProps) {
   const [step, setStep] = useState<StepId>(1);
   const [category, setCategory] = useState(initialCategory);
@@ -130,7 +133,6 @@ export function ListingForm({
   const [clubSpecs, setClubSpecs] = useState<ClubSpecsFormState>(emptyClubSpecsFormState);
   const [clubError, setClubError] = useState<{ field: string; message: string } | null>(null);
   const [writingCopy, setWritingCopy] = useState(false);
-  const [stickyVisible, setStickyVisible] = useState(false);
   const [priceGuidance, setPriceGuidance] = useState<{
     minPence: number;
     maxPence: number;
@@ -144,7 +146,6 @@ export function ListingForm({
     modelsByBrand: Record<string, string[]>;
   } | null>(null);
   const [gripCatalogueLoading, setGripCatalogueLoading] = useState(false);
-  const mainCtaRef = useRef<HTMLButtonElement>(null);
   const modelSelectRef = useRef<SearchableSelectHandle>(null);
   const abandonedRef = useRef(false);
 
@@ -309,14 +310,9 @@ export function ListingForm({
   }, [isGolfEquipment]);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => setStickyVisible(!entry.isIntersecting),
-      { threshold: 0, rootMargin: "-80px 0px 0px 0px" }
-    );
-    const el = mainCtaRef.current;
-    if (el) observer.observe(el);
-    return () => observer.disconnect();
-  }, [step]);
+    window.scrollTo(0, 0);
+    onStepChange?.(step);
+  }, [step, onStepChange]);
 
   useEffect(() => {
     if (isStructured || !category || !effectiveBrand || !model.trim() || !condition) {
@@ -353,14 +349,6 @@ export function ListingForm({
       cancelled = true;
     };
   }, [category, brand, otherBrandName, model, condition, isStructured, effectiveBrand]);
-
-  const displayStepLabel = () => {
-    const last = totalSteps;
-    if (step === 1) return `Item · 1 of ${last}`;
-    if (step === 2) return `Photos · 2 of ${last}`;
-    if (step === 3 && isGolfEquipment) return `Club details · 3 of ${last}`;
-    return `Condition & price · ${last} of ${last}`;
-  };
 
   const photoSlots = useMemo(
     () =>
@@ -603,7 +591,10 @@ export function ListingForm({
   };
 
   const stepProgressUi = (
-    <p className="text-sm font-medium text-mowing-green/70 mb-4">{displayStepLabel()}</p>
+    <ListingWizardTimeline
+      step={step}
+      includeClubDetails={category ? isGolfEquipment : true}
+    />
   );
 
   const lastStep = totalSteps;
@@ -626,17 +617,18 @@ export function ListingForm({
   };
 
   return (
-    <form onSubmit={handleFinalSubmit} className="mt-8 space-y-6 pb-28">
+    <form onSubmit={handleFinalSubmit} className="mt-8 space-y-6 pb-32">
       {stepProgressUi}
 
       {step === 1 ? (
         <section className="space-y-5">
           <div>
-            <h2 className="text-lg font-semibold text-mowing-green mb-1">Item</h2>
-            <p className="text-sm text-mowing-green/70">What are you selling?</p>
+            <h2 className="text-lg font-semibold text-mowing-green mb-1">What are you selling?</h2>
+            <p className="text-sm text-mowing-green/70">
+              Category, brand, and model — so we can match the right photos and details.
+            </p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-mowing-green mb-1">Category *</label>
             <SearchableSelect
               options={[...categories]}
               value={category}
@@ -651,10 +643,10 @@ export function ListingForm({
               }}
               placeholder="Select category"
               label="Category"
+              required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-mowing-green mb-1">Brand *</label>
             <SearchableSelect
               options={brandsOptions}
               value={brand}
@@ -665,6 +657,7 @@ export function ListingForm({
               }}
               placeholder="Select brand"
               label="Brand"
+              required
               allowCustom={false}
             />
             {brand === "Other" ? (
@@ -680,23 +673,23 @@ export function ListingForm({
           {isClothing ? (
             <>
               <div>
-                <label className="block text-sm font-medium text-mowing-green mb-1">Type *</label>
                 <SearchableSelect
                   options={[...CLOTHING_TYPES]}
                   value={itemType}
                   onChange={setItemType}
                   placeholder="Select type"
                   label="Type"
+                  required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-mowing-green mb-1">Size *</label>
                 <SearchableSelect
                   options={sizeOptions}
                   value={size}
                   onChange={setSize}
                   placeholder="Select size"
                   label="Size"
+                  required
                 />
               </div>
               <div>
@@ -712,19 +705,18 @@ export function ListingForm({
           ) : null}
           {isAccessories ? (
             <div>
-              <label className="block text-sm font-medium text-mowing-green mb-1">Item type *</label>
               <SearchableSelect
                 options={[...ACCESSORY_ITEM_TYPES]}
                 value={itemType}
                 onChange={setItemType}
                 placeholder="Select item type"
                 label="Item type"
+                required
               />
             </div>
           ) : null}
           {!isStructured && category ? (
             <div>
-              <label className="block text-sm font-medium text-mowing-green mb-1">Model *</label>
               <SearchableSelect
                 ref={modelSelectRef}
                 options={modelOptions}
@@ -732,6 +724,7 @@ export function ListingForm({
                 onChange={setModel}
                 placeholder="Select or type model"
                 label="Model"
+                required
                 allowCustom
               />
             </div>
@@ -801,7 +794,7 @@ export function ListingForm({
                     }))
                   }
                 >
-                  Add another loft
+                  Add another wedge
                 </button>
               ) : null}
             </div>
@@ -956,74 +949,49 @@ export function ListingForm({
         </section>
       ) : null}
 
-      <div className="flex flex-col gap-3">
-        {step > 1 ? (
-          <button
-            type="button"
-            onClick={() => {
-              if (step === priceStep && isGolfEquipment) setStep(3);
-              else setStep((step - 1) as StepId);
-            }}
-            className="min-h-[44px] text-sm text-mowing-green/70"
-          >
-            ← Back
-          </button>
-        ) : null}
-
-        {step < lastStep ? (
-          <button
-            ref={mainCtaRef}
-            type="button"
-            onClick={onPrimary}
-            className="w-full min-h-[48px] rounded-xl bg-mowing-green text-white font-semibold"
-          >
-            {primaryCta}
-          </button>
-        ) : (
-          <button
-            ref={mainCtaRef}
-            type="submit"
-            disabled={submitting || writingCopy}
-            className="w-full min-h-[48px] rounded-xl bg-mowing-green text-white font-semibold disabled:opacity-60"
-          >
-            {writingCopy ? "Writing listing…" : submitting ? "Listing…" : "List my club"}
-          </button>
-        )}
-      </div>
-
-      {stickyVisible && step < lastStep ? (
-        <div className="fixed bottom-0 inset-x-0 z-40 border-t border-mowing-green/15 bg-white/95 backdrop-blur px-4 py-3 safe-area-pb">
-          <button
-            type="button"
-            onClick={onPrimary}
-            className="w-full max-w-xl mx-auto block min-h-[48px] rounded-xl bg-mowing-green text-white font-semibold"
-          >
-            {primaryCta}
-          </button>
-        </div>
-      ) : null}
-
-      {stickyVisible && step === lastStep ? (
-        <div className="fixed bottom-0 inset-x-0 z-40 border-t border-mowing-green/15 bg-white/95 backdrop-blur px-4 py-3">
-          <button
-            type="submit"
-            disabled={submitting || writingCopy}
-            className="w-full max-w-xl mx-auto block min-h-[48px] rounded-xl bg-mowing-green text-white font-semibold disabled:opacity-60"
-          >
-            {writingCopy ? "Writing listing…" : submitting ? "Listing…" : "List my club"}
-          </button>
-        </div>
+      {step > 1 ? (
+        <button
+          type="button"
+          onClick={() => {
+            if (step === priceStep && isGolfEquipment) setStep(3);
+            else setStep((step - 1) as StepId);
+          }}
+          className="min-h-[44px] text-sm text-mowing-green/70"
+        >
+          ← Back
+        </button>
       ) : null}
 
       {submitting && submitProgress ? <ListingSubmitLoading progress={submitProgress} /> : null}
 
-      <p className="text-center text-xs text-mowing-green/50">
-        By listing you agree to our{" "}
-        <Link href="/terms" className="underline">
-          terms
-        </Link>
-        .
-      </p>
+      <div className="fixed bottom-0 inset-x-0 z-40 border-t border-mowing-green/15 bg-white/95 backdrop-blur px-4 pt-3 pb-3 safe-area-pb">
+        <div className="mx-auto w-full max-w-xl">
+          {step < lastStep ? (
+            <button
+              type="button"
+              onClick={onPrimary}
+              className="w-full min-h-[48px] rounded-xl bg-mowing-green text-white font-semibold"
+            >
+              {primaryCta}
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={submitting || writingCopy}
+              className="w-full min-h-[48px] rounded-xl bg-mowing-green text-white font-semibold disabled:opacity-60"
+            >
+              {writingCopy ? "Writing listing…" : submitting ? "Listing…" : "List my club"}
+            </button>
+          )}
+          <p className="mt-2 text-center text-xs text-mowing-green/50">
+            By listing you agree to our{" "}
+            <Link href="/terms" className="underline">
+              terms
+            </Link>
+            .
+          </p>
+        </div>
+      </div>
     </form>
   );
 }
