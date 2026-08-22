@@ -4,7 +4,38 @@
  * Legacy paths (e.g. listingId/0.jpg) have no thumb; use main for both.
  */
 
-const LISTINGS_BUCKET = "listings";
+import {
+  PUBLIC_LISTINGS_BUCKET,
+  VERIFICATION_LISTINGS_BUCKET,
+  type ListingImageMeta,
+  type ListingImageVisibility,
+} from "@/lib/listing-photos/types";
+
+const LISTINGS_BUCKET = PUBLIC_LISTINGS_BUCKET;
+
+export type ListingImageRow = {
+  storage_path: string;
+  sort_order?: number | null;
+  visibility?: ListingImageVisibility | null;
+  storage_bucket?: string | null;
+  image_type?: string | null;
+};
+
+export function isPublicListingImage(image: {
+  visibility?: ListingImageVisibility | string | null;
+}): boolean {
+  return image.visibility !== "verification_only";
+}
+
+export function publicListingImages<T extends { visibility?: ListingImageVisibility | string | null }>(
+  images: T[] | null | undefined
+): T[] {
+  return (images ?? []).filter(isPublicListingImage);
+}
+
+export function sortListingImages<T extends { sort_order?: number | null }>(images: T[]): T[] {
+  return [...images].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+}
 
 /** Return the main storage path as-is (main is what we store in listing_images). */
 export function getMainStoragePath(storagePath: string): string {
@@ -17,15 +48,13 @@ export function getMainStoragePath(storagePath: string): string {
  */
 export function getThumbStoragePath(storagePath: string): string {
   if (storagePath.endsWith("-main.webp")) {
-    return storagePath.slice(0, -"-main.webp".length) + "-thumb.webp";
+    return storagePath.slice(0, "-main.webp".length * -1) + "-thumb.webp";
   }
   return storagePath;
 }
 
 /**
- * Build the public URL for a listing image.
- * @param storagePath - The stored path (main path, e.g. listingId/0-main.webp)
- * @param variant - 'main' for detail page, 'thumb' for grids (uses -thumb.webp when available)
+ * Build the public URL for a listing image in the public listings bucket.
  */
 export function getListingImageUrl(
   storagePath: string,
@@ -38,17 +67,31 @@ export function getListingImageUrl(
   return `${base.replace(/\/$/, "")}/storage/v1/object/public/${LISTINGS_BUCKET}/${path}`;
 }
 
-export type ListingImageRow = { storage_path: string; sort_order?: number | null };
+export function listingImageDisplayUrl(
+  image: Pick<ListingImageRow, "storage_path" | "storage_bucket" | "visibility">,
+  variant: "main" | "thumb" = "main",
+  signedVerificationUrl?: string | null
+): string {
+  if (image.visibility === "verification_only" || image.storage_bucket === VERIFICATION_LISTINGS_BUCKET) {
+    return signedVerificationUrl ?? "";
+  }
+  return getListingImageUrl(image.storage_path, variant);
+}
 
 /** Public URL for the first listing image (thumb by default, for emails and cards). */
 export function firstListingImageUrl(
   images: ListingImageRow[] | null | undefined,
   variant: "main" | "thumb" = "thumb"
 ): string | null {
-  if (!images?.length) return null;
-  const sorted = [...images].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  const sorted = sortListingImages(publicListingImages(images));
   const path = sorted[0]?.storage_path;
   if (!path) return null;
   const url = getListingImageUrl(path, variant);
   return url || null;
 }
+
+export function imageBucketForVisibility(visibility: ListingImageVisibility | null | undefined): string {
+  return visibility === "verification_only" ? VERIFICATION_LISTINGS_BUCKET : PUBLIC_LISTINGS_BUCKET;
+}
+
+export type { ListingImageMeta };

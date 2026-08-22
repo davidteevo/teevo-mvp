@@ -6,6 +6,9 @@ import { ImageUpload } from "./ImageUpload";
 import { SearchableSelect, type SearchableSelectHandle } from "./SearchableSelect";
 import { FilterChip } from "./FilterChip";
 import { ClubDetailsStep } from "./club-specs/ClubDetailsStep";
+import { RadioCards } from "./club-specs/RadioCards";
+import { ChipGroup } from "./club-specs/ChipGroup";
+import { GuidedPhotoStep, flattenGuidedPhotos, guidedPhotosComplete, type GuidedPhotoValue } from "./photo-guide/GuidedPhotoStep";
 import {
   CLOTHING_TYPES,
   ACCESSORY_ITEM_TYPES,
@@ -22,6 +25,8 @@ import { ListingSubmitLoading, type ListingSubmitProgress } from "./ListingSubmi
 import {
   emptyClubSpecsFormState,
   isGolfEquipmentCategory,
+  WEDGE_LOFT_OPTIONS,
+  WEDGE_SET_MAX,
   type ClubSpecsFormState,
   validateClubDetails,
 } from "@/lib/club-specs/schemas";
@@ -29,13 +34,14 @@ import {
   buildClubSpecsSubmitPayload,
   buildListingSummaryLines,
   buildListingTitleFromSpecs,
+  newWedgeClubDraft,
   type ClubSpecsSubmitPayload,
 } from "@/lib/club-specs/payload";
 import { track } from "@/lib/analytics";
+import { getPhotoSlots } from "@/lib/listing-photos/requirements";
+import type { UploadableListingPhoto } from "@/lib/listing-photos/upload-client";
 
 export type { ListingSubmitProgress };
-
-const IMAGE_SLOT_LABELS_GOLF = ["Front", "Back", "Sole", "Shaft", "Grip", "Other"];
 
 const MODELS_BY_BRAND: Record<string, string[]> = {
   Titleist: ["TSR2", "TSR3", "TSR4", "TSi2", "TSi3", "917 D2", "917 D3", "T200", "T300", "T100", "Vokey SM9", "Scotty Cameron Select"],
@@ -73,6 +79,8 @@ export type ListingFormSubmitPayload = {
   size?: string | null;
   colour?: string | null;
   images: File[];
+  guidedPhotos?: UploadableListingPhoto[];
+  hosel_serial_status?: "uploaded" | "not_found" | "not_applicable" | null;
 } & ClubSpecsSubmitPayload;
 
 interface ListingFormProps {
@@ -114,6 +122,11 @@ export function ListingForm({
   const [size, setSize] = useState("");
   const [colour, setColour] = useState("");
   const [images, setImages] = useState<File[]>([]);
+  const [guidedPhotos, setGuidedPhotos] = useState<GuidedPhotoValue>({
+    filesBySlot: {},
+    extras: [],
+    serialNotFound: false,
+  });
   const [clubSpecs, setClubSpecs] = useState<ClubSpecsFormState>(emptyClubSpecsFormState);
   const [clubError, setClubError] = useState<{ field: string; message: string } | null>(null);
   const [writingCopy, setWritingCopy] = useState(false);
@@ -342,19 +355,22 @@ export function ListingForm({
   }, [category, brand, otherBrandName, model, condition, isStructured, effectiveBrand]);
 
   const displayStepLabel = () => {
-    if (step === 1) return `Photos · 1 of ${totalSteps}`;
-    if (step === 2) return `Item · 2 of ${totalSteps}`;
-    if (step === 3 && isGolfEquipment) return `Club details · 3 of ${totalSteps}`;
-    return `Condition & price · ${totalSteps} of ${totalSteps}`;
+    const last = totalSteps;
+    if (step === 1) return `Item · 1 of ${last}`;
+    if (step === 2) return `Photos · 2 of ${last}`;
+    if (step === 3 && isGolfEquipment) return `Club details · 3 of ${last}`;
+    return `Condition & price · ${last} of ${last}`;
   };
 
-  const goNextFromPhotos = () => {
-    if (images.length < 5 || images.length > 6) {
-      alert("Please upload 5 or 6 images (Front, Back, Sole, Shaft, Grip).");
-      return;
-    }
-    setStep(2);
-  };
+  const photoSlots = useMemo(
+    () =>
+      getPhotoSlots({
+        category,
+        listingFormat: clubSpecs.listingFormat,
+        wedgeLofts: clubSpecs.wedgeClubs.map((w) => w.degree).filter(Boolean),
+      }),
+    [category, clubSpecs.listingFormat, clubSpecs.wedgeClubs]
+  );
 
   const goNextFromItem = () => {
     if (!category) {
@@ -379,7 +395,7 @@ export function ListingForm({
         alert("Please select size.");
         return;
       }
-      setStep(4);
+      setStep(2);
       return;
     }
     if (isAccessories) {
@@ -387,7 +403,7 @@ export function ListingForm({
         alert("Please select item type.");
         return;
       }
-      setStep(4);
+      setStep(2);
       return;
     }
     if (!model.trim()) {
@@ -395,10 +411,39 @@ export function ListingForm({
       return;
     }
     if (isGolfEquipment) {
+      if (category === "Irons" || category === "Wedges") {
+        if (clubSpecs.listingFormat !== "single" && clubSpecs.listingFormat !== "set") {
+          alert("Please choose one club or a set.");
+          return;
+        }
+      }
+      if (category === "Wedges" && clubSpecs.listingFormat === "set") {
+        const lofts = clubSpecs.wedgeClubs.map((w) => w.degree.trim()).filter(Boolean);
+        if (lofts.length < 2) {
+          alert("Add at least two wedge lofts so we can ask for each sole photo.");
+          return;
+        }
+      }
+      setStep(2);
+      return;
+    }
+    setStep(2);
+  };
+
+  const goNextFromPhotos = () => {
+    if (isGolfEquipment) {
+      if (!guidedPhotosComplete(photoSlots, guidedPhotos)) {
+        alert("Please add the required photos — it only takes a minute.");
+        return;
+      }
       setStep(3);
       return;
     }
-    setStep(4);
+    if (images.length < 5 || images.length > 6) {
+      alert("Please upload 5 or 6 images.");
+      return;
+    }
+    setStep(3);
   };
 
   const goNextFromClubDetails = () => {
@@ -415,9 +460,15 @@ export function ListingForm({
 
   const handleFinalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (images.length < 5 || images.length > 6) {
+    if (isGolfEquipment) {
+      if (!guidedPhotosComplete(photoSlots, guidedPhotos)) {
+        alert("Please add the required photos.");
+        setStep(2);
+        return;
+      }
+    } else if (images.length < 5 || images.length > 6) {
       alert("Please upload 5 or 6 images.");
-      setStep(1);
+      setStep(2);
       return;
     }
     if (!condition) {
@@ -537,7 +588,17 @@ export function ListingForm({
             ...clubPayload,
           }
         : {}),
-      images,
+      images: isGolfEquipment ? flattenGuidedPhotos(photoSlots, guidedPhotos).map((r) => r.file!) : images,
+      guidedPhotos: isGolfEquipment
+        ? flattenGuidedPhotos(photoSlots, guidedPhotos).map((r) => ({ slot: r.slot, file: r.file! }))
+        : undefined,
+      hosel_serial_status: isGolfEquipment
+        ? guidedPhotos.serialNotFound
+          ? "not_found"
+          : photoSlots.some((s) => s.serialHelp && guidedPhotos.filesBySlot[s.key])
+            ? "uploaded"
+            : "not_applicable"
+        : null,
     });
   };
 
@@ -545,21 +606,23 @@ export function ListingForm({
     <p className="text-sm font-medium text-mowing-green/70 mb-4">{displayStepLabel()}</p>
   );
 
+  const lastStep = totalSteps;
+  const priceStep = isGolfEquipment ? 4 : 3;
   const primaryCta =
     step === 1
-      ? "Continue to item →"
+      ? "Continue to photos →"
       : step === 2
         ? isGolfEquipment
           ? "Continue to club details →"
           : "Continue to condition & price →"
-        : step === 3
+        : step === 3 && isGolfEquipment
           ? "Continue to condition & price →"
           : "List my club";
 
   const onPrimary = () => {
-    if (step === 1) goNextFromPhotos();
-    else if (step === 2) goNextFromItem();
-    else if (step === 3) goNextFromClubDetails();
+    if (step === 1) goNextFromItem();
+    else if (step === 2) goNextFromPhotos();
+    else if (step === 3 && isGolfEquipment) goNextFromClubDetails();
   };
 
   return (
@@ -567,28 +630,6 @@ export function ListingForm({
       {stepProgressUi}
 
       {step === 1 ? (
-        <section>
-          <h2 className="text-lg font-semibold text-mowing-green mb-1">Add photos</h2>
-          <p className="text-sm text-mowing-green/70 mb-3">Listings with 5+ photos sell faster.</p>
-          <ImageUpload
-            min={5}
-            max={6}
-            value={images}
-            onChange={setImages}
-            variant="hero"
-            slotLabels={
-              isGolfEquipment || !category
-                ? IMAGE_SLOT_LABELS_GOLF
-                : ["Photo 1", "Photo 2", "Photo 3", "Photo 4", "Photo 5", "Photo 6"]
-            }
-          />
-          <p className="mt-2 text-xs text-mowing-green/60">
-            Recommended: Front, Back, Sole, Shaft, Grip.
-          </p>
-        </section>
-      ) : null}
-
-      {step === 2 ? (
         <section className="space-y-5">
           <div>
             <h2 className="text-lg font-semibold text-mowing-green mb-1">Item</h2>
@@ -606,6 +647,7 @@ export function ListingForm({
                 setCondition("");
                 setItemType("");
                 setClubSpecs(emptyClubSpecsFormState());
+                setGuidedPhotos({ filesBySlot: {}, extras: [], serialNotFound: false });
               }}
               placeholder="Select category"
               label="Category"
@@ -694,7 +736,102 @@ export function ListingForm({
               />
             </div>
           ) : null}
+          {isGolfEquipment && (category === "Irons" || category === "Wedges") ? (
+            <RadioCards
+              label="What are you selling?"
+              required
+              value={clubSpecs.listingFormat}
+              onChange={(v) => {
+                setClubSpecs((prev) => ({
+                  ...prev,
+                  listingFormat: v,
+                  wedgeClubs:
+                    category === "Wedges" && v === "set" && prev.wedgeClubs.length === 0
+                      ? [newWedgeClubDraft(), newWedgeClubDraft()]
+                      : prev.wedgeClubs,
+                }));
+                if (category === "Wedges") {
+                  track(v === "set" ? "wedge_set_selected" : "wedge_single_selected");
+                }
+              }}
+              options={
+                category === "Irons"
+                  ? [
+                      { value: "single", title: "Individual iron", description: "One iron only." },
+                      { value: "set", title: "Iron set", description: "A matching set of irons." },
+                    ]
+                  : [
+                      { value: "single", title: "One wedge", description: "A single wedge." },
+                      { value: "set", title: "A set of wedges", description: "Multiple wedges as one listing." },
+                    ]
+              }
+            />
+          ) : null}
+          {isGolfEquipment && category === "Wedges" && clubSpecs.listingFormat === "set" ? (
+            <div>
+              <p className="text-sm font-medium text-mowing-green mb-2">Wedge lofts *</p>
+              <p className="text-xs text-mowing-green/65 mb-2">
+                We&apos;ll ask for a sole photo of each loft.
+              </p>
+              {clubSpecs.wedgeClubs.map((w, index) => (
+                <div key={w.clientId} className="mb-2">
+                  <ChipGroup
+                    label={`Wedge ${index + 1}`}
+                    options={WEDGE_LOFT_OPTIONS}
+                    value={WEDGE_LOFT_OPTIONS.some((o) => o.value === w.degree) ? w.degree : w.degree ? "Other" : ""}
+                    onChange={(v) =>
+                      setClubSpecs((prev) => ({
+                        ...prev,
+                        wedgeClubs: prev.wedgeClubs.map((c) =>
+                          c.clientId === w.clientId ? { ...c, degree: v === "Other" ? c.degree : v } : c
+                        ),
+                      }))
+                    }
+                  />
+                </div>
+              ))}
+              {clubSpecs.wedgeClubs.length < WEDGE_SET_MAX ? (
+                <button
+                  type="button"
+                  className="text-sm font-medium text-mowing-green underline"
+                  onClick={() =>
+                    setClubSpecs((prev) => ({
+                      ...prev,
+                      wedgeClubs: [...prev.wedgeClubs, newWedgeClubDraft()],
+                    }))
+                  }
+                >
+                  Add another loft
+                </button>
+              ) : null}
+            </div>
+          ) : null}
         </section>
+      ) : null}
+
+      {step === 2 ? (
+        isGolfEquipment ? (
+          <GuidedPhotoStep
+            category={category}
+            listingFormat={clubSpecs.listingFormat}
+            wedgeLofts={clubSpecs.wedgeClubs.map((w) => w.degree)}
+            value={guidedPhotos}
+            onChange={setGuidedPhotos}
+          />
+        ) : (
+          <section>
+            <h2 className="text-lg font-semibold text-mowing-green mb-1">Add photos</h2>
+            <p className="text-sm text-mowing-green/70 mb-3">Listings with 5+ photos sell faster.</p>
+            <ImageUpload
+              min={5}
+              max={6}
+              value={images}
+              onChange={setImages}
+              variant="hero"
+              slotLabels={["Photo 1", "Photo 2", "Photo 3", "Photo 4", "Photo 5", "Photo 6"]}
+            />
+          </section>
+        )
       ) : null}
 
       {step === 3 && isGolfEquipment ? (
@@ -711,7 +848,7 @@ export function ListingForm({
         />
       ) : null}
 
-      {step === 4 ? (
+      {step === priceStep ? (
         <section className="space-y-6">
           <div>
             <h2 className="text-lg font-semibold text-mowing-green mb-1">Condition &amp; price</h2>
@@ -824,10 +961,8 @@ export function ListingForm({
           <button
             type="button"
             onClick={() => {
-              if (step === 4 && isGolfEquipment) setStep(3);
-              else if (step === 4) setStep(2);
-              else if (step === 3) setStep(2);
-              else setStep(1);
+              if (step === priceStep && isGolfEquipment) setStep(3);
+              else setStep((step - 1) as StepId);
             }}
             className="min-h-[44px] text-sm text-mowing-green/70"
           >
@@ -835,7 +970,7 @@ export function ListingForm({
           </button>
         ) : null}
 
-        {step < 4 ? (
+        {step < lastStep ? (
           <button
             ref={mainCtaRef}
             type="button"
@@ -856,7 +991,7 @@ export function ListingForm({
         )}
       </div>
 
-      {stickyVisible && step < 4 ? (
+      {stickyVisible && step < lastStep ? (
         <div className="fixed bottom-0 inset-x-0 z-40 border-t border-mowing-green/15 bg-white/95 backdrop-blur px-4 py-3 safe-area-pb">
           <button
             type="button"
@@ -868,7 +1003,7 @@ export function ListingForm({
         </div>
       ) : null}
 
-      {stickyVisible && step === 4 ? (
+      {stickyVisible && step === lastStep ? (
         <div className="fixed bottom-0 inset-x-0 z-40 border-t border-mowing-green/15 bg-white/95 backdrop-blur px-4 py-3">
           <button
             type="submit"

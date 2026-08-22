@@ -301,8 +301,9 @@ export async function loadFeedbackFormContext(
     getListingTitle(admin, tx.listing_id),
     admin
       .from("listing_images")
-      .select("storage_path, sort_order")
+      .select("storage_path, sort_order, visibility")
       .eq("listing_id", tx.listing_id)
+      .or("visibility.eq.public,visibility.is.null")
       .order("sort_order", { ascending: true })
       .limit(1),
   ]);

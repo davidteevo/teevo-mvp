@@ -34,7 +34,9 @@ type ListingWithSeller = Listing & {
 function firstImage(listing: Listing): string | null {
   const images = listing.listing_images;
   if (!images?.length) return null;
-  const sorted = [...images].sort((a, b) => a.sort_order - b.sort_order);
+  const sorted = [...images]
+    .filter((img) => img.visibility !== "verification_only")
+    .sort((a, b) => a.sort_order - b.sort_order);
   return sorted[0]?.storage_path ?? null;
 }
 

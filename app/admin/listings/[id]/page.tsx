@@ -3,7 +3,7 @@ import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { formatPrice } from "@/lib/format";
 import { getListingDisplayTitle } from "@/lib/listing-display";
-import { getListingImageUrl } from "@/lib/listing-images";
+import { AdminListingPhotos } from "./AdminListingPhotos";
 import type { Listing } from "@/types/database";
 import { ClubDetailsTable } from "@/components/listing/ClubDetailsDisplay";
 import { AdminListingActions } from "./AdminListingActions";
@@ -19,10 +19,6 @@ const admin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-function imageUrl(path: string, variant: "main" | "thumb" = "main") {
-  return getListingImageUrl(path, variant, process.env.NEXT_PUBLIC_SUPABASE_URL);
-}
-
 export default async function AdminListingDetailPage({
   params,
 }: {
@@ -34,8 +30,8 @@ export default async function AdminListingDetailPage({
     admin
       .from("listings")
       .select(`
-      id, user_id, category, brand, model, title, condition, price, description, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, listing_format, standard_spec_status, iron_number, set_composition, bounce, grind, head_number, headcover_included, item_type, size, colour, status, created_at, admin_feedback, created_on_behalf, created_by_admin_id, buying_paused, availability_confirmation_status, availability_confirmation_source, availability_confirmation_requested_at, availability_confirmed_at, availability_confirmation_batch_id,
-      listing_images(storage_path, sort_order),
+      id, user_id, category, brand, model, title, condition, price, description, shaft, degree, shaft_flex, lie_angle, club_length, shaft_weight, shaft_material, grip_brand, grip_model, grip_size, grip_condition, handed, listing_format, standard_spec_status, iron_number, set_composition, bounce, grind, head_number, headcover_included, hosel_serial_status, item_type, size, colour, status, created_at, admin_feedback, created_on_behalf, created_by_admin_id, buying_paused, availability_confirmation_status, availability_confirmation_source, availability_confirmation_requested_at, availability_confirmed_at, availability_confirmation_batch_id,
+      listing_images(storage_path, sort_order, image_type, visibility, slot_key, club_identifier, storage_bucket),
       listing_clubs(id, listing_id, sort_order, club_type, iron_number, degree, bounce, grind, shaft, shaft_flex, created_at),
       users!user_id(id, email, role, created_at)
     `)
@@ -57,10 +53,7 @@ export default async function AdminListingDetailPage({
     if (userRow) sellerData = userRow;
   }
 
-  const images = (listing.listing_images ?? []).sort(
-    (a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order
-  );
-  const imageUrls = images.map((img: { storage_path: string }) => imageUrl(img.storage_path, "main"));
+  const images = listing.listing_images ?? [];
   const displayTitle = getListingDisplayTitle(listing as unknown as Listing);
   const listingRow = listing as {
     buying_paused?: boolean;
@@ -98,47 +91,12 @@ export default async function AdminListingDetailPage({
 
       <div className="rounded-xl border border-par-3-punch/20 bg-white overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 lg:p-8">
-          {/* Large photos for inspection */}
-          <div className="space-y-4">
-            <h2 className="text-sm font-semibold text-mowing-green/70 uppercase tracking-wide">
-              Photos ({imageUrls.length})
-            </h2>
-            <div className="aspect-square relative rounded-xl overflow-hidden bg-mowing-green/5">
-              {imageUrls[0] ? (
-                <img
-                  src={imageUrls[0]}
-                  alt={displayTitle}
-                  className="w-full h-full object-contain bg-white"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-mowing-green/50">
-                  No image
-                </div>
-              )}
-            </div>
-            {imageUrls.length > 1 && (
-              <div className="grid grid-cols-3 gap-3">
-                {imageUrls.map((url, i) => (
-                  <a
-                    key={i}
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="aspect-square block rounded-lg overflow-hidden border border-par-3-punch/20 bg-mowing-green/5 hover:ring-2 hover:ring-mowing-green/30 transition-shadow"
-                  >
-                    <img
-                      src={url}
-                      alt=""
-                      className="w-full h-full object-cover"
-                    />
-                  </a>
-                ))}
-              </div>
-            )}
-            <p className="text-xs text-mowing-green/60">
-              Click thumbnails to open full size in a new tab.
-            </p>
-          </div>
+          <AdminListingPhotos
+            admin={admin}
+            listingId={listing.id}
+            images={images}
+            hoselSerialStatus={(listing as { hosel_serial_status?: string | null }).hosel_serial_status}
+          />
 
           <div>
             {(listing as { created_on_behalf?: boolean }).created_on_behalf && sellerData && (

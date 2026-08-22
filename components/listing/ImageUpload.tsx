@@ -4,7 +4,12 @@ import { useRef, useState } from "react";
 import { Upload, X } from "lucide-react";
 import { getListingImageUrl } from "@/lib/listing-images";
 
-export type StoredImage = { id: string; storage_path: string; sort_order: number };
+export type StoredImage = {
+  id: string;
+  storage_path: string;
+  sort_order: number;
+  visibility?: "public" | "verification_only" | null;
+};
 
 interface BaseProps {
   min: number;

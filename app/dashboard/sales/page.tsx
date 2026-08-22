@@ -70,7 +70,7 @@ function getPackagingStatusLabel(status: NonNullable<PackagingUploadStatus>): st
   }
 }
 
-type ListingImage = { storage_path: string; sort_order: number };
+type ListingImage = { storage_path: string; sort_order: number; visibility?: string | null };
 
 type Transaction = {
   id: string;
@@ -140,7 +140,9 @@ function ManualShippingLabelLink({ transactionId }: { transactionId: string }) {
 
 function firstImagePath(images: ListingImage[] | null | undefined): string | null {
   if (!images?.length) return null;
-  const sorted = [...images].sort((a, b) => a.sort_order - b.sort_order);
+  const sorted = [...images]
+    .filter((img) => img.visibility !== "verification_only")
+    .sort((a, b) => a.sort_order - b.sort_order);
   return sorted[0]?.storage_path ?? null;
 }
 

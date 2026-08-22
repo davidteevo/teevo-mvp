@@ -160,7 +160,9 @@ export default function SellEditPage() {
           setDescription(found.description || "");
           setPrice((found.price / 100).toFixed(2));
           setClubSpecs(hydrateClubSpecsFromListing(found as Parameters<typeof hydrateClubSpecsFromListing>[0]));
-          const imgs = [...(found.listing_images ?? [])].sort((a, b) => a.sort_order - b.sort_order);
+          const imgs = [...(found.listing_images ?? [])]
+            .filter((img) => img.visibility !== "verification_only")
+            .sort((a, b) => a.sort_order - b.sort_order);
           setStoredImages(imgs);
           originalImageOrder.current = imgs;
         } else {

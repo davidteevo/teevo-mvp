@@ -6,7 +6,7 @@ import { createClient as createServerClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { calcOrderBreakdown, formatPence } from "@/lib/pricing";
 import { getListingDisplayTitle, getListingMetaParts } from "@/lib/listing-display";
-import { getListingImageUrl } from "@/lib/listing-images";
+import { getListingImageUrl, publicListingImages, sortListingImages } from "@/lib/listing-images";
 import { BuyButton } from "./BuyButton";
 import { MakeOfferButton } from "./MakeOfferButton";
 import { ListingImageGallery } from "./ListingImageGallery";
@@ -65,9 +65,7 @@ export default async function ListingPage({
 
   const isPurchasedView = isBuyerViewingSold;
 
-  const images = (listing.listing_images ?? []).sort(
-    (a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order
-  );
+  const images = sortListingImages(publicListingImages(listing.listing_images ?? []));
   const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const imageUrls =
     images.length > 0
