@@ -168,7 +168,11 @@ export function GuidedPhotoStep({
       </div>
 
       <div className="rounded-2xl border border-par-3-punch/25 bg-white p-4 space-y-3">
-        <PhotoSlotIllustration id={current.illustrationId} />
+        <PhotoSlotIllustration
+          id={current.illustrationId}
+          category={category}
+          listingFormat={listingFormat}
+        />
         <h3 className="text-base font-semibold text-mowing-green">{current.title}</h3>
         <p className="text-sm text-mowing-green/70">{current.helper}</p>
 

@@ -17,6 +17,7 @@ interface SearchableSelectProps {
   id?: string;
   /** When true, value can be any string; on blur/close without selecting, the typed query is used as value */
   allowCustom?: boolean;
+  hideLabel?: boolean;
 }
 
 export const SearchableSelect = forwardRef<SearchableSelectHandle, SearchableSelectProps>(function SearchableSelect({
@@ -28,6 +29,7 @@ export const SearchableSelect = forwardRef<SearchableSelectHandle, SearchableSel
   required = false,
   id: propId,
   allowCustom = false,
+  hideLabel = false,
 }, ref) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -83,10 +85,17 @@ export const SearchableSelect = forwardRef<SearchableSelectHandle, SearchableSel
 
   return (
     <div ref={containerRef} className="relative">
-      <label htmlFor={id} className="block text-sm font-medium text-mowing-green mb-1">
-        {label}
-        {required && " *"}
-      </label>
+      {hideLabel ? (
+        <span className="sr-only" id={`${id}-label`}>
+          {label}
+          {required ? " required" : ""}
+        </span>
+      ) : (
+        <label htmlFor={id} className="block text-sm font-medium text-mowing-green mb-1">
+          {label}
+          {required && " *"}
+        </label>
+      )}
       <div
         role="combobox"
         aria-expanded={open}

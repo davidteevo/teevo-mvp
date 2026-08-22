@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+ <title id="title">Putter neck hosel and serial close-up</title><desc id="desc">Professional Teevo photo guidance artwork showing putter neck hosel and serial close-up</desc>
+ <defs>
+  <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F7FBF9"/><stop offset=".45" stop-color="#C6D7D1"/><stop offset="1" stop-color="#8FA9A0"/></linearGradient>
+  <linearGradient id="green" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#64D29A"/><stop offset="1" stop-color="#2E9D6B"/></linearGradient>
+  <filter id="shadow" x="-25%" y="-25%" width="150%" height="160%"><feDropShadow dx="0" dy="14" stdDeviation="10" flood-color="#173F35" flood-opacity=".15"/></filter>
+ </defs>
+ <rect width="1200" height="760" rx="52" fill="#FDFCF5"/>
+ <path d="M0 628c188-86 345-68 478 3 127 68 262 75 402 10 98-45 196-54 320-21v140H0Z" fill="#BDEFD4" opacity=".42"/>
+ <g fill="none" stroke="#265C4B" stroke-width="8" stroke-linecap="round" opacity=".45"><path d="M128 175v-36h36M1036 139h36v36M1072 582v36h-36M164 618h-36v-36"/></g>
+ <g fill="none" stroke="#FFD25E" stroke-width="11" stroke-linecap="round"><path d="M91 247h38M110 228v38"/><path d="m1050 228 20-28m9 52 32-5"/></g>
+ <g filter="url(#shadow)" stroke="#173F35" stroke-linejoin="round" stroke-linecap="round"><path d="M366 84v238c0 32 26 58 58 58h82v144" fill="none" stroke-width="82"/><path d="M366 84v238c0 32 26 58 58 58h82v144" fill="none" stroke="#FFD25E" stroke-width="55"/><path d="M245 522c120-45 378-45 498 0l27 89H218Z" fill="url(#metal)" stroke-width="12"/><path d="M277 565h425" stroke="#49C184" stroke-width="10"/><path d="M380 300h83" stroke="#FF8A8A" stroke-width="10" stroke-dasharray="8 10"/></g><g transform="translate(787 319) scale(1.03)" stroke="#173F35" stroke-linecap="round"><circle cx="0" cy="0" r="91" fill="#FFFFFF" fill-opacity=".9" stroke-width="11"/><path d="m65 65 78 78" stroke-width="30"/><path d="m65 65 78 78" stroke="#FFD25E" stroke-width="13"/></g><g stroke="#173F35" stroke-width="9" stroke-linecap="round" stroke-dasharray="10 8"><path d="M720 301h136"/><path d="M728 337h104"/></g>
+</svg>

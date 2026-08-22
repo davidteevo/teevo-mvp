@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+ <title id="title">Whole driver in frame</title><desc id="desc">Professional Teevo photo guidance artwork showing whole driver in frame</desc>
+ <defs>
+  <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F7FBF9"/><stop offset=".45" stop-color="#C6D7D1"/><stop offset="1" stop-color="#8FA9A0"/></linearGradient>
+  <linearGradient id="green" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#64D29A"/><stop offset="1" stop-color="#2E9D6B"/></linearGradient>
+  <filter id="shadow" x="-25%" y="-25%" width="150%" height="160%"><feDropShadow dx="0" dy="14" stdDeviation="10" flood-color="#173F35" flood-opacity=".15"/></filter>
+ </defs>
+ <rect width="1200" height="760" rx="52" fill="#FDFCF5"/>
+ <path d="M0 628c188-86 345-68 478 3 127 68 262 75 402 10 98-45 196-54 320-21v140H0Z" fill="#BDEFD4" opacity=".42"/>
+ <g fill="none" stroke="#265C4B" stroke-width="8" stroke-linecap="round" opacity=".45"><path d="M128 175v-36h36M1036 139h36v36M1072 582v36h-36M164 618h-36v-36"/></g>
+ <g fill="none" stroke="#FFD25E" stroke-width="11" stroke-linecap="round"><path d="M91 247h38M110 228v38"/><path d="m1050 228 20-28m9 52 32-5"/></g>
+ <g filter="url(#shadow)" transform="rotate(-18 600 380)" stroke="#173F35" stroke-linejoin="round" stroke-linecap="round"><g stroke="#173F35" stroke-linecap="round"><rect x="558" y="70" width="58" height="150" rx="22.04" fill="url(#green)" stroke-width="9"/><path d="M568 98h38M566 128h42M566 158h42M569 188h36" stroke="#BDEFD4" stroke-width="7"/></g><path d="M587 218 650 548" fill="none" stroke="#173F35" stroke-width="21" stroke-linecap="round"/><path d="M587 218 650 548" fill="none" stroke="#FFD25E" stroke-width="7.98" stroke-linecap="round"/><rect x="630" y="520" width="41" height="72" rx="17" fill="#265C4B" stroke-width="9"/><path d="M649 574c39-42 112-69 196-68 60 1 103 20 123 52l-13 70c-42 49-147 76-240 59-66-12-101-43-91-78 4-13 12-25 25-35Z" fill="url(#green)" stroke-width="11"/><path d="M684 572c57-36 152-49 228-25l-18 63c-52 34-143 52-214 37-30-7-27-54 4-75Z" fill="#BDEFD4" stroke-width="8"/><path d="M927 541c31 18 43 50 28 87-9 20-23 35-43 47" fill="none" stroke="#FFD25E" stroke-width="11"/><path d="M685 651c69 22 164 7 226-27" fill="none" stroke="#173F35" stroke-width="7" opacity=".55"/><g transform="translate(765 564) scale(0.55)" fill="#173F35"><path d="M0 0h56v12H35v38H21V12H0Z"/><circle cx="28" cy="67" r="8"/></g></g>
+</svg>

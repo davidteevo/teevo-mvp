@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+ <title id="title">Whole putter in frame</title><desc id="desc">Professional Teevo photo guidance artwork showing whole putter in frame</desc>
+ <defs>
+  <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F7FBF9"/><stop offset=".45" stop-color="#C6D7D1"/><stop offset="1" stop-color="#8FA9A0"/></linearGradient>
+  <linearGradient id="green" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#64D29A"/><stop offset="1" stop-color="#2E9D6B"/></linearGradient>
+  <filter id="shadow" x="-25%" y="-25%" width="150%" height="160%"><feDropShadow dx="0" dy="14" stdDeviation="10" flood-color="#173F35" flood-opacity=".15"/></filter>
+ </defs>
+ <rect width="1200" height="760" rx="52" fill="#FDFCF5"/>
+ <path d="M0 628c188-86 345-68 478 3 127 68 262 75 402 10 98-45 196-54 320-21v140H0Z" fill="#BDEFD4" opacity=".42"/>
+ <g fill="none" stroke="#265C4B" stroke-width="8" stroke-linecap="round" opacity=".45"><path d="M128 175v-36h36M1036 139h36v36M1072 582v36h-36M164 618h-36v-36"/></g>
+ <g fill="none" stroke="#FFD25E" stroke-width="11" stroke-linecap="round"><path d="M91 247h38M110 228v38"/><path d="m1050 228 20-28m9 52 32-5"/></g>
+ <g filter="url(#shadow)" transform="rotate(-12 600 380)" stroke="#173F35" stroke-linejoin="round" stroke-linecap="round"><g stroke="#173F35" stroke-linecap="round"><rect x="558" y="65" width="58" height="155" rx="22.04" fill="url(#green)" stroke-width="9"/><path d="M568 93h38M566 123h42M566 153h42M569 183h36" stroke="#BDEFD4" stroke-width="7"/></g><path d="M587 218 637 555" fill="none" stroke="#173F35" stroke-width="20" stroke-linecap="round"/><path d="M587 218 637 555" fill="none" stroke="#FFD25E" stroke-width="7.6" stroke-linecap="round"/><path d="M637 535v71" stroke-width="32"/><path d="M500 595c71-31 275-31 346 0l23 65H477Z" fill="url(#green)" stroke-width="11"/><path d="M530 618h286" stroke="#BDEFD4" stroke-width="9"/><g transform="translate(650 604) scale(0.5)" fill="#173F35"><path d="M0 0h56v12H35v38H21V12H0Z"/><circle cx="28" cy="67" r="8"/></g></g>
+</svg>

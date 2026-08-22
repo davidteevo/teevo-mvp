@@ -4,6 +4,7 @@ import { useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { ListingForm, type ListingFormSubmitPayload, type ListingSubmitProgress } from "@/components/listing/ListingForm";
+import { SellJourneyStrip } from "@/components/listing/SellJourneyStrip";
 import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
 import { compressListingMain, compressListingThumb } from "@/lib/image-compression";
 import type { ClubCatalogue } from "@/lib/club-catalogue";
@@ -31,6 +32,7 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
     categoryFromUrl && ALL_CATEGORIES.includes(categoryFromUrl as (typeof ALL_CATEGORIES)[number])
       ? categoryFromUrl
       : "";
+  const [formStep, setFormStep] = useState<1 | 2 | 3 | 4>(1);
   const [submitting, setSubmitting] = useState(false);
   const [submitProgress, setSubmitProgress] = useState<ListingSubmitProgress | null>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -253,17 +255,16 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
   return (
     <div className="max-w-xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold text-mowing-green">Sell your gear</h1>
-      <p className="mt-2 text-mowing-green/80 text-sm">
-        Your listing goes live as Coming Soon. We verify it before buyers can purchase.
-      </p>
-      <div className="mt-4 rounded-xl border border-mowing-green/20 bg-mowing-green/5 p-4">
-        <p className="text-sm font-medium text-mowing-green mb-2">Sell in 3 steps</p>
-        <ol className="text-sm text-mowing-green/80 space-y-1">
-          <li><strong>1. List your item</strong> — Add photos and key details</li>
-          <li><strong>2. Live as Coming Soon</strong> — We verify within 24 hours before it&apos;s available to buy</li>
-          <li><strong>3. Get paid</strong> — When it sells</li>
-        </ol>
-      </div>
+      {formStep === 1 ? (
+        <div className="mb-2">
+          <p className="mt-2 text-mowing-green/80 text-sm">
+            Your listing goes live as Coming Soon. We verify it before buyers can purchase.
+          </p>
+          <div className="mt-4">
+            <SellJourneyStrip />
+          </div>
+        </div>
+      ) : null}
       <ListingForm
         categories={ALL_CATEGORIES}
         brands={CLUB_BRANDS}
@@ -274,6 +275,7 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
         submitProgress={submitProgress}
         clubCatalogue={clubCatalogue}
         clothingBrands={clothingBrands}
+        onStepChange={setFormStep}
       />
     </div>
   );
