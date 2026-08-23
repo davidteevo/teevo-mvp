@@ -24,6 +24,7 @@ import {
 } from "@/lib/club-specs/server";
 import { isGolfEquipmentCategory } from "@/lib/club-specs/schemas";
 import { parseHoselSerialStatus, validateListingImageCount } from "@/lib/listing-photos/validate";
+import { assertUserNotSuspended } from "@/lib/user-account-status";
 export const dynamic = "force-dynamic";
 
 const ALLOWED_CATEGORIES_SET = new Set<string>(ALL_CATEGORIES);
@@ -43,6 +44,9 @@ export async function POST(request: Request) {
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const adminForStatus = createAdminClient();
+    const suspended = await assertUserNotSuspended(adminForStatus, user.id);
+    if (suspended) return suspended;
 
     const body = await request.json().catch(() => ({}));
     const category = body.category as string;

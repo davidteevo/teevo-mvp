@@ -8,6 +8,7 @@ import { getAppUrl } from "@/lib/app-env";
 import { LISTING_PURCHASE_SELECT, listingPurchaseApiError } from "@/lib/listing-availability";
 import { buyingDisabledResponse, BuyingDisabledError } from "@/lib/buying";
 import { assertStripeModeMatchesEnv } from "@/lib/stripe-env";
+import { assertUserNotSuspended } from "@/lib/user-account-status";
 
 assertStripeModeMatchesEnv();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
@@ -64,6 +65,13 @@ export async function POST(request: Request) {
   const purchaseErr = listingPurchaseApiError(listing);
   if (purchaseErr) {
     return NextResponse.json({ error: purchaseErr.error }, { status: purchaseErr.httpStatus });
+  }
+  const buyerSuspended = await assertUserNotSuspended(admin, user.id);
+  if (buyerSuspended) return buyerSuspended;
+  const listingUserId = (listing as { user_id?: string }).user_id;
+  if (listingUserId) {
+    const sellerSuspended = await assertUserNotSuspended(admin, listingUserId);
+    if (sellerSuspended) return sellerSuspended;
   }
 
   if (acceptedOfferId) {

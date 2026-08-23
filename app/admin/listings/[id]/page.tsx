@@ -166,10 +166,10 @@ export default async function AdminListingDetailPage({
                   <p className="mt-1 text-mowing-green/60 font-mono text-xs">ID: {sellerData.id}</p>
                 </div>
                 <Link
-                  href="/admin/users"
+                  href={`/admin/users/${sellerData.id}`}
                   className="mt-2 inline-block text-sm text-par-3-punch hover:underline"
                 >
-                  View all users →
+                  View user →
                 </Link>
               </div>
             )}

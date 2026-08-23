@@ -6,6 +6,7 @@ import { trackMessagingEvent } from "@/lib/messaging-metrics";
 import { MessagingEventType } from "@/lib/messaging-metrics";
 import { listingPurchaseApiError } from "@/lib/listing-availability";
 import { buyingDisabledResponse } from "@/lib/buying";
+import { assertUserNotSuspended } from "@/lib/user-account-status";
 
 export const dynamic = "force-dynamic";
 
@@ -61,6 +62,10 @@ export async function POST(
   if (purchaseErr) {
     return NextResponse.json({ error: purchaseErr.error }, { status: purchaseErr.httpStatus });
   }
+  const buyerSuspended = await assertUserNotSuspended(admin, offer.buyer_id);
+  if (buyerSuspended) return buyerSuspended;
+  const sellerSuspended = await assertUserNotSuspended(admin, offer.seller_id);
+  if (sellerSuspended) return sellerSuspended;
 
   const { error: updateErr } = await admin
     .from("offers")

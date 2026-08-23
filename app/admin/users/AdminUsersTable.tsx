@@ -90,18 +90,38 @@ export default function AdminUsersTable({
     setUsers(initialUsers);
   }, [initialUsers]);
 
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "suspended">("all");
+  const [foundingFilter, setFoundingFilter] = useState(false);
+  const [hasListingsFilter, setHasListingsFilter] = useState(false);
+  const [hasSalesFilter, setHasSalesFilter] = useState(false);
+  const [hasPurchasesFilter, setHasPurchasesFilter] = useState(false);
+
   const filteredAndSortedUsers = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    const filtered = q
-      ? users.filter(
-          (u) =>
-            (u.email ?? "").toLowerCase().includes(q) ||
-            (u.first_name ?? "").toLowerCase().includes(q) ||
-            (u.surname ?? "").toLowerCase().includes(q)
-        )
-      : users;
+    const filtered = users.filter((u) => {
+      if (q) {
+        const hay = `${u.email ?? ""} ${u.first_name ?? ""} ${u.surname ?? ""} ${u.id}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      if (statusFilter !== "all" && (u.account_status ?? "active") !== statusFilter) return false;
+      if (foundingFilter && u.founding_seller_rank == null) return false;
+      if (hasListingsFilter && (u.listing_count ?? 0) === 0) return false;
+      if (hasSalesFilter && (u.sale_count ?? 0) === 0) return false;
+      if (hasPurchasesFilter && (u.purchase_count ?? 0) === 0) return false;
+      return true;
+    });
     return [...filtered].sort((a, b) => compareUsers(a, b, sortKey, sortAsc));
-  }, [users, searchQuery, sortKey, sortAsc]);
+  }, [
+    users,
+    searchQuery,
+    sortKey,
+    sortAsc,
+    statusFilter,
+    foundingFilter,
+    hasListingsFilter,
+    hasSalesFilter,
+    hasPurchasesFilter,
+  ]);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -189,7 +209,7 @@ export default function AdminUsersTable({
   const searchInput = (
     <input
       type="search"
-      placeholder="Search by email or name"
+      placeholder="Search by name, email, or user ID"
       value={searchQuery}
       onChange={(e) => setSearchQuery(e.target.value)}
       className="w-full max-w-sm rounded-lg border border-mowing-green/30 bg-white px-3 py-2 text-sm text-mowing-green placeholder:text-mowing-green/50"
@@ -299,59 +319,104 @@ export default function AdminUsersTable({
     <div className="space-y-4">
       {createUserForm}
       {searchInput}
+      <div className="flex flex-wrap gap-2 text-sm">
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+          className="rounded-lg border border-mowing-green/20 px-2 py-1"
+        >
+          <option value="all">All statuses</option>
+          <option value="active">Active</option>
+          <option value="suspended">Suspended</option>
+        </select>
+        {[
+          ["Founding members", foundingFilter, setFoundingFilter],
+          ["Has listings", hasListingsFilter, setHasListingsFilter],
+          ["Has completed sales", hasSalesFilter, setHasSalesFilter],
+          ["Has completed purchases", hasPurchasesFilter, setHasPurchasesFilter],
+        ].map(([label, on, set]) => (
+          <label key={String(label)} className="inline-flex items-center gap-1.5 text-mowing-green">
+            <input
+              type="checkbox"
+              checked={on as boolean}
+              onChange={(e) => (set as (v: boolean) => void)(e.target.checked)}
+            />
+            {label as string}
+          </label>
+        ))}
+      </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-par-3-punch/20 bg-mowing-green/5">
-              <SortHeaderButton columnKey="email" label="Email" activeKey={sortKey} asc={sortAsc} onSort={handleSort} />
-              <SortHeaderButton columnKey="first_name" label="First name" activeKey={sortKey} asc={sortAsc} onSort={handleSort} />
-              <SortHeaderButton columnKey="surname" label="Last name" activeKey={sortKey} asc={sortAsc} onSort={handleSort} />
-              <SortHeaderButton columnKey="role" label="Role" activeKey={sortKey} asc={sortAsc} onSort={handleSort} />
-              <SortHeaderButton columnKey="stripe" label="Stripe connected" activeKey={sortKey} asc={sortAsc} onSort={handleSort} />
+              <th className="px-4 py-3 text-sm font-semibold text-mowing-green">User</th>
+              <SortHeaderButton columnKey="role" label="Account" activeKey={sortKey} asc={sortAsc} onSort={handleSort} />
+              <th className="px-4 py-3 text-sm font-semibold text-mowing-green">Marketplace</th>
+              <th className="px-4 py-3 text-sm font-semibold text-mowing-green">Credit</th>
               <SortHeaderButton columnKey="joined" label="Joined" activeKey={sortKey} asc={sortAsc} onSort={handleSort} />
               <th className="px-4 py-3 text-sm font-semibold text-mowing-green">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredAndSortedUsers.map((u) => (
-              <tr key={u.id} className="border-b border-par-3-punch/10">
-                <td className="px-4 py-3 text-sm text-mowing-green">{u.email}</td>
-                <td className="px-4 py-3 text-sm text-mowing-green/90">{u.first_name?.trim() || "—"}</td>
-                <td className="px-4 py-3 text-sm text-mowing-green/90">{u.surname?.trim() || "—"}</td>
-                <td className="px-4 py-3">
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                    u.role === "admin" ? "bg-divot-pink/30 text-mowing-green" :
-                    u.role === "seller" ? "bg-par-3-punch/30 text-mowing-green" :
-                    "bg-mowing-green/10 text-mowing-green"
-                  }`}>
-                    {u.role}
-                  </span>
+              <tr
+                key={u.id}
+                className="border-b border-par-3-punch/10 cursor-pointer hover:bg-mowing-green/5"
+                onClick={() => router.push(`/admin/users/${u.id}`)}
+              >
+                <td className="px-4 py-3 text-sm text-mowing-green">
+                  <div className="flex items-center gap-2">
+                    {u.avatar_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={u.avatar_url} alt="" className="h-8 w-8 rounded-full object-cover" />
+                    ) : (
+                      <span className="h-8 w-8 rounded-full bg-mowing-green/10 inline-flex items-center justify-center text-xs font-semibold">
+                        {(u.first_name || u.email || "?").slice(0, 1).toUpperCase()}
+                      </span>
+                    )}
+                    <span>
+                      <span className="block font-medium">
+                        {[u.first_name, u.surname].filter(Boolean).join(" ") || u.display_name || "—"}
+                      </span>
+                      <span className="block text-mowing-green/70">{u.email}</span>
+                    </span>
+                  </div>
                 </td>
-                <td className="px-4 py-3 text-sm text-mowing-green/80">
-                  {u.stripe_account_id ? "Yes" : "—"}
+                <td className="px-4 py-3 text-sm text-mowing-green/90">
+                  {(u.account_status ?? "active") === "suspended" ? "Suspended" : "Active"}
+                  {u.founding_seller_rank != null ? ` · Founder #${u.founding_seller_rank}` : ""}
                 </td>
+                <td className="px-4 py-3 text-sm text-mowing-green/90">
+                  {u.active_listing_count}/{u.listing_count} listings · {u.purchase_count} buys · {u.sale_count} sales
+                </td>
+                <td className="px-4 py-3 text-sm text-mowing-green/90">£{(u.credit_pence / 100).toFixed(2)}</td>
                 <td className="px-4 py-3 text-sm text-mowing-green/70">
                   {new Date(u.created_at).toLocaleDateString()}
                 </td>
-                <td className="px-4 py-3 flex flex-wrap items-center gap-2">
-                  <select
-                    value={u.role}
-                    onChange={(e) => updateRole(u.id, e.target.value)}
-                    disabled={updatingId === u.id}
-                    className="rounded-lg border border-mowing-green/30 bg-white px-2 py-1.5 text-sm text-mowing-green disabled:opacity-60"
-                  >
-                    <option value="buyer">Buyer</option>
-                    <option value="seller">Seller</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                  <button
-                    type="button"
-                    onClick={() => deleteUser(u.id, u.email)}
-                    disabled={deletingId === u.id}
-                    className="rounded-lg border border-divot-pink text-divot-pink px-2 py-1.5 text-sm font-medium hover:bg-divot-pink/10 disabled:opacity-50"
-                  >
-                    {deletingId === u.id ? "Deleting…" : "Delete"}
-                  </button>
+                <td
+                  className="px-4 py-3"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <select
+                      value={u.role}
+                      onChange={(e) => updateRole(u.id, e.target.value)}
+                      disabled={updatingId === u.id}
+                      className="rounded-lg border border-mowing-green/30 bg-white px-2 py-1.5 text-sm text-mowing-green disabled:opacity-60"
+                    >
+                      <option value="buyer">Buyer</option>
+                      <option value="seller">Seller</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => deleteUser(u.id, u.email)}
+                      disabled={deletingId === u.id}
+                      className="text-xs text-divot-pink hover:underline disabled:opacity-50"
+                    >
+                      {deletingId === u.id ? "Deleting…" : "Delete"}
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

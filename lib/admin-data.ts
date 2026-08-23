@@ -5,6 +5,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { generateDisplayNameFromFirstName } from "@/lib/public-seller-name";
 import { getListingWatchCounts } from "@/lib/watchlist";
+import { enrichAdminUserList, type AdminUserListRow } from "@/lib/admin-users";
 
 function adminClient() {
   return createClient(
@@ -14,25 +15,16 @@ function adminClient() {
   );
 }
 
-export type AdminUser = {
-  id: string;
-  email: string;
-  first_name: string | null;
-  surname: string | null;
-  role: string;
-  stripe_account_id: string | null;
-  created_at: string;
-};
+export type AdminUser = AdminUserListRow;
 
 export async function getAdminUsers(): Promise<AdminUser[]> {
   const admin = adminClient();
   const { data: authUsers } = await admin.auth.admin.listUsers({ perPage: 1000 });
   const authList = authUsers?.users ?? [];
   const authIds = new Set(authList.map((u) => u.id));
-  const { data, error } = await admin
-    .from("users")
-    .select("id, email, first_name, surname, role, stripe_account_id, created_at")
-    .order("created_at", { ascending: false });
+  const selectCols =
+    "id, email, first_name, surname, display_name, avatar_path, role, stripe_account_id, created_at, account_status, founding_seller_rank";
+  const { data, error } = await admin.from("users").select(selectCols).order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
   const rows = data ?? [];
   const existingIds = new Set(rows.map((u) => u.id));
@@ -50,13 +42,13 @@ export async function getAdminUsers(): Promise<AdminUser[]> {
     );
   }
   const { data: refreshed, error: refreshErr } = missing.length
-    ? await admin
-        .from("users")
-        .select("id, email, first_name, surname, role, stripe_account_id, created_at")
-        .order("created_at", { ascending: false })
+    ? await admin.from("users").select(selectCols).order("created_at", { ascending: false })
     : { data: rows, error: null };
   if (refreshErr) throw new Error(refreshErr.message);
-  return (refreshed ?? rows).filter((u) => authIds.has(u.id));
+  return enrichAdminUserList(
+    admin,
+    (refreshed ?? rows).filter((u) => authIds.has(u.id))
+  );
 }
 
 export type PendingListing = {
