@@ -86,44 +86,6 @@ export default function AdminUsersTable({
   const [createError, setCreateError] = useState<string | null>(null);
   const router = useRouter();
 
-  // #region agent log
-  useEffect(() => {
-    fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "f61061" },
-      body: JSON.stringify({
-        sessionId: "f61061",
-        hypothesisId: "B,C",
-        location: "AdminUsersTable.tsx:mount",
-        message: "table mounted",
-        data: {
-          count: Array.isArray(initialUsers) ? initialUsers.length : null,
-          qType: typeof initialQuery,
-          qIsArray: Array.isArray(initialQuery),
-          roles: Array.from(new Set((initialUsers ?? []).map((u) => String(u?.role)))),
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    const onErr = (event: ErrorEvent) => {
-      fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "f61061" },
-        body: JSON.stringify({
-          sessionId: "f61061",
-          hypothesisId: "B,E",
-          location: "AdminUsersTable.tsx:window.onerror",
-          message: event.message,
-          data: { filename: event.filename, lineno: event.lineno, stack: event.error?.stack?.slice?.(0, 1500) },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-    };
-    window.addEventListener("error", onErr);
-    return () => window.removeEventListener("error", onErr);
-  }, [initialUsers, initialQuery]);
-  // #endregion
-
   useEffect(() => {
     setUsers(initialUsers);
   }, [initialUsers]);

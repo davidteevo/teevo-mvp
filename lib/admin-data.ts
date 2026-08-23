@@ -25,25 +25,8 @@ export type AdminUser = {
 };
 
 export async function getAdminUsers(): Promise<AdminUser[]> {
-  const t0 = Date.now();
   const admin = adminClient();
-  const { data: authUsers, error: listErr } = await admin.auth.admin.listUsers({ perPage: 1000 });
-  if (listErr) {
-    // #region agent log
-    fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "f61061" },
-      body: JSON.stringify({
-        sessionId: "f61061",
-        hypothesisId: "A",
-        location: "admin-data.ts:listUsers",
-        message: "listUsers error",
-        data: { err: listErr.message, ms: Date.now() - t0 },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
-  }
+  const { data: authUsers } = await admin.auth.admin.listUsers({ perPage: 1000 });
   const authList = authUsers?.users ?? [];
   const authIds = new Set(authList.map((u) => u.id));
   const { data, error } = await admin
@@ -73,30 +56,7 @@ export async function getAdminUsers(): Promise<AdminUser[]> {
         .order("created_at", { ascending: false })
     : { data: rows, error: null };
   if (refreshErr) throw new Error(refreshErr.message);
-  const filtered = (refreshed ?? rows).filter((u) => authIds.has(u.id));
-  // #region agent log
-  fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "f61061" },
-    body: JSON.stringify({
-      sessionId: "f61061",
-      hypothesisId: "A",
-      runId: "post-fix",
-      location: "admin-data.ts:getAdminUsers",
-      message: "getAdminUsers done",
-      data: {
-        authCount: authList.length,
-        rowCount: (refreshed ?? rows).length,
-        filteredCount: filtered.length,
-        missingInserted: missing.length,
-        totalMs: Date.now() - t0,
-        roles: Array.from(new Set(filtered.map((u) => String(u.role)))),
-      },
-      timestamp: Date.now(),
-    }),
-  }).catch(() => {});
-  // #endregion
-  return filtered;
+  return (refreshed ?? rows).filter((u) => authIds.has(u.id));
 }
 
 export type PendingListing = {
