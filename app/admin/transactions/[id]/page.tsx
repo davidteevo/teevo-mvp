@@ -80,8 +80,22 @@ export default async function AdminTransactionDetailPage({
         <Row label="Cancellation" value={tx.cancellation_status ? `${tx.cancellation_status} (${tx.cancellation_reason ?? ""}) ${fmt(tx.cancelled_at as string | null)}` : "—"} />
         <Row label="Payment" value={String(tx.stripe_payment_id ?? "—")} />
         <Row label="Refund" value={String(tx.stripe_refund_id ?? "—")} />
-        <Row label="Buyer" value={buyer?.email ?? String(tx.buyer_id)} />
-        <Row label="Seller" value={seller?.email ?? String(tx.seller_id)} />
+        <Row
+          label="Buyer"
+          value={
+            <Link href={`/admin/users/${tx.buyer_id}`} className="text-par-3-punch hover:underline">
+              {buyer?.email ?? String(tx.buyer_id)}
+            </Link>
+          }
+        />
+        <Row
+          label="Seller"
+          value={
+            <Link href={`/admin/users/${tx.seller_id}`} className="text-par-3-punch hover:underline">
+              {seller?.email ?? String(tx.seller_id)}
+            </Link>
+          }
+        />
         <Row
           label="Listing"
           value={
