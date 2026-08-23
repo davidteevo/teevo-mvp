@@ -25,33 +25,78 @@ export type AdminUser = {
 };
 
 export async function getAdminUsers(): Promise<AdminUser[]> {
+  const t0 = Date.now();
   const admin = adminClient();
-  const { data: authUsers } = await admin.auth.admin.listUsers({ perPage: 1000 });
-  const authIds = new Set((authUsers?.users ?? []).map((u) => u.id));
-  const now = new Date().toISOString();
-  for (const authUser of authUsers?.users ?? []) {
-    const id = authUser.id;
-    const email = authUser.email ?? "";
-    const { data: existing } = await admin.from("users").select("id").eq("id", id).single();
-    if (existing) {
-      await admin.from("users").update({ email, updated_at: now }).eq("id", id);
-    } else {
-      await admin.from("users").insert({
-        id,
-        email,
-        role: "buyer",
-        display_name: generateDisplayNameFromFirstName(null),
-        updated_at: now,
-      });
-    }
+  const { data: authUsers, error: listErr } = await admin.auth.admin.listUsers({ perPage: 1000 });
+  if (listErr) {
+    // #region agent log
+    fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "f61061" },
+      body: JSON.stringify({
+        sessionId: "f61061",
+        hypothesisId: "A",
+        location: "admin-data.ts:listUsers",
+        message: "listUsers error",
+        data: { err: listErr.message, ms: Date.now() - t0 },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
   }
+  const authList = authUsers?.users ?? [];
+  const authIds = new Set(authList.map((u) => u.id));
   const { data, error } = await admin
     .from("users")
     .select("id, email, first_name, surname, role, stripe_account_id, created_at")
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
   const rows = data ?? [];
-  return rows.filter((u) => authIds.has(u.id));
+  const existingIds = new Set(rows.map((u) => u.id));
+  const missing = authList.filter((u) => !existingIds.has(u.id));
+  if (missing.length > 0) {
+    const now = new Date().toISOString();
+    await admin.from("users").insert(
+      missing.map((authUser) => ({
+        id: authUser.id,
+        email: authUser.email ?? "",
+        role: "buyer",
+        display_name: generateDisplayNameFromFirstName(null),
+        updated_at: now,
+      }))
+    );
+  }
+  const { data: refreshed, error: refreshErr } = missing.length
+    ? await admin
+        .from("users")
+        .select("id, email, first_name, surname, role, stripe_account_id, created_at")
+        .order("created_at", { ascending: false })
+    : { data: rows, error: null };
+  if (refreshErr) throw new Error(refreshErr.message);
+  const filtered = (refreshed ?? rows).filter((u) => authIds.has(u.id));
+  // #region agent log
+  fetch("http://127.0.0.1:7581/ingest/4c9de01a-e4bd-4cc4-acce-f5ab7832ce40", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "f61061" },
+    body: JSON.stringify({
+      sessionId: "f61061",
+      hypothesisId: "A",
+      runId: "post-fix",
+      location: "admin-data.ts:getAdminUsers",
+      message: "getAdminUsers done",
+      data: {
+        authCount: authList.length,
+        rowCount: (refreshed ?? rows).length,
+        filteredCount: filtered.length,
+        missingInserted: missing.length,
+        totalMs: Date.now() - t0,
+        roles: Array.from(new Set(filtered.map((u) => String(u.role)))),
+      },
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
+  // #endregion
+  return filtered;
 }
 
 export type PendingListing = {
