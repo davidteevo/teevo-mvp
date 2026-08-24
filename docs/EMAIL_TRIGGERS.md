@@ -32,7 +32,7 @@ Automated emails fire from real user actions. Each send is recorded in `sent_ema
 | `listing_availability_reconfirm` | Is your [Product] still available? | Seller | Standard | Admin reconfirm availability |
 | `listing_availability_reconfirm_reminder` | Reminder: is your [Product] still available? | Seller | Standard | Hourly cron, day 2 |
 | `admin.new_users_digest` | New Teevo users — N joined | Admin (`TEEVO_ADMIN_EMAILS`) | Alert | Daily cron `/api/cron/admin-new-users-digest` (18:00 Europe/London) |
-| `delivery.issue_reported` | Delivery issue requires review | `support@teevohq.com` + `TEEVO_ADMIN_EMAILS` | Alert | `POST /api/transactions/[id]/report-delivery-issue` |
+| `delivery.issue_reported` | Delivery issue requires review | Admin (`TEEVO_ADMIN_EMAILS`) | Alert | `POST /api/transactions/[id]/report-delivery-issue` |
 
 ## Idempotency
 
