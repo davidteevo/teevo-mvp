@@ -24,8 +24,6 @@ import {
   salesUrl,
 } from "@/lib/notifications";
 
-const SUPPORT_ALERT_EMAIL = "support@teevohq.com";
-
 type TxIds = {
   transactionId: string;
   listingId?: string | null;
@@ -511,7 +509,8 @@ export async function notifyDeliveryIssueReported(
       actionLabel: "Review refund",
       requiresAction: true,
     });
-    const to = Array.from(new Set([SUPPORT_ALERT_EMAIL, ...getAdminAlertEmails()]));
+    const to = getAdminAlertEmails();
+    if (!to.length) return;
     const appUrl = getAppUrl();
     await ensureEmailSent(admin, {
       emailType: EmailTriggerType.DELIVERY_ISSUE_REPORTED_ADMIN,
