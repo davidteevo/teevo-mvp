@@ -3,6 +3,9 @@
  * Never throws.
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { getAppUrl } from "@/lib/app-env";
+import { EmailTriggerType, ensureEmailSent } from "@/lib/email-triggers";
+import { getAdminAlertEmails } from "@/lib/fulfilment-emails";
 import { FulfilmentMode, getTrackingUrl } from "@/lib/fulfilment-providers";
 import {
   NotificationType,
@@ -20,6 +23,8 @@ import {
   resolveNotifications,
   salesUrl,
 } from "@/lib/notifications";
+
+const SUPPORT_ALERT_EMAIL = "support@teevohq.com";
 
 type TxIds = {
   transactionId: string;
@@ -506,6 +511,26 @@ export async function notifyDeliveryIssueReported(
       actionLabel: "Review refund",
       requiresAction: true,
     });
+    const to = Array.from(new Set([SUPPORT_ALERT_EMAIL, ...getAdminAlertEmails()]));
+    const appUrl = getAppUrl();
+    await ensureEmailSent(admin, {
+      emailType: EmailTriggerType.DELIVERY_ISSUE_REPORTED_ADMIN,
+      referenceId: opts.transactionId,
+      to,
+      subject: "Delivery issue requires review",
+      type: "alert",
+      variables: {
+        title: "Delivery issue requires review",
+        subtitle: `The buyer reported a problem with ${title}.`,
+        body: [
+          `Listing: ${title}`,
+          `Order: ${opts.transactionId}`,
+          "A refund may be required after this buyer-reported delivery issue.",
+        ].join("\n"),
+        cta_link: `${appUrl}${adminTransactionUrl(opts.transactionId)}`,
+        cta_text: "Review issue",
+      },
+    }).catch((e) => console.error("delivery_issue_reported_admin email failed", e));
   } catch (e) {
     console.error("notifyDeliveryIssueReported failed", e);
   }
