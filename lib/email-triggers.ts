@@ -53,6 +53,7 @@ export const EmailTriggerType = {
   LISTING_AVAILABILITY_RECONFIRM: "listing_availability_reconfirm",
   LISTING_AVAILABILITY_RECONFIRM_REMINDER: "listing_availability_reconfirm_reminder",
   DISPATCH_CANCELLATION_FAILED_ADMIN: "dispatch_cancellation_failed_admin",
+  DELIVERY_ISSUE_REPORTED_ADMIN: "delivery_issue_reported_admin",
   REFERRAL_CREDIT_EARNED: "referral_credit_earned",
   ADMIN_NEW_USERS_DIGEST: "admin_new_users_digest",
 } as const;
