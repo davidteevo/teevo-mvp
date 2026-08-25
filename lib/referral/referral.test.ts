@@ -13,7 +13,13 @@ import {
 import { attributionSource, decideAttribution, decideNewCustomerDiscount, isDemandReferral, isSupplyReferral } from "@/lib/referral/eligibility";
 import { creditBalanceFromRows } from "@/lib/referral/credit";
 import { buyerShareMessage, sellerShareMessage } from "@/lib/referral/share-copy";
-import { calcOrderBreakdown } from "@/lib/pricing";
+import { calcOrderBreakdown, type BuyerFeeConfig } from "@/lib/pricing";
+
+const defaultFees: BuyerFeeConfig = {
+  percentage: 8,
+  percentageHundredths: 800,
+  fixedPence: 50,
+};
 
 describe("referral codes", () => {
   it("normalizes case and strips non-alphanumerics", () => {
@@ -217,7 +223,7 @@ describe("new customer discount eligibility", () => {
 
 describe("checkout incentives protect seller proceeds", () => {
   it("keeps item pence unchanged and reduces application fee by the discount", () => {
-    const { itemPence, authenticityPence, shippingPence } = calcOrderBreakdown(15000);
+    const { itemPence, authenticityPence, shippingPence } = calcOrderBreakdown(15000, defaultFees);
     const result = computeCheckoutIncentives({
       itemPence,
       authenticityPence,
@@ -234,7 +240,7 @@ describe("checkout incentives protect seller proceeds", () => {
   });
 
   it("applies referral discount first then caps credit to remaining platform take", () => {
-    const { itemPence, authenticityPence, shippingPence } = calcOrderBreakdown(5000);
+    const { itemPence, authenticityPence, shippingPence } = calcOrderBreakdown(5000, defaultFees);
     const platform = authenticityPence + shippingPence;
     const result = computeCheckoutIncentives({
       itemPence,

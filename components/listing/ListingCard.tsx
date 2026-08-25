@@ -13,6 +13,9 @@ import { track } from "@/lib/analytics";
 import { marketplaceListingStatus } from "@/lib/listing-availability";
 import type { WatchSource } from "@/lib/watchlist-context";
 import { formatRatingAverage } from "@/lib/seller-reviews";
+import { loadPublicBuyerFees } from "@/lib/fees/client";
+import type { BuyerFeeConfig } from "@/lib/pricing";
+import { useEffect, useState } from "react";
 
 /** Listing optionally with joined seller display name (from users relation). Supabase returns users as array for the join. */
 type ListingWithSeller = Listing & {
@@ -69,6 +72,7 @@ export function ListingCard({
   unavailableLabel,
   similarHref,
   trackOpenEvent,
+  fees: feesProp,
 }: {
   listing: ListingWithSeller;
   priority?: boolean;
@@ -76,7 +80,16 @@ export function ListingCard({
   unavailableLabel?: string | null;
   similarHref?: string | null;
   trackOpenEvent?: string;
+  fees?: BuyerFeeConfig | null;
 }) {
+  const [fees, setFees] = useState<BuyerFeeConfig | null>(feesProp ?? null);
+  useEffect(() => {
+    if (feesProp !== undefined) {
+      setFees(feesProp);
+      return;
+    }
+    void loadPublicBuyerFees().then(setFees);
+  }, [feesProp]);
   const imgPath = firstImage(listing);
   const sellerName = sellerDisplayName(listing);
   const { average: sellerAverage, count: sellerCount } = sellerRating(listing);
@@ -148,6 +161,7 @@ export function ListingCard({
               pricePence={listing.price}
               displayTitle={displayTitle}
               imageUrl={imageUrl}
+              fees={fees}
             />
           </div>
         </Link>

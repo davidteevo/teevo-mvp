@@ -30,6 +30,7 @@ import {
 } from "@/lib/founder/copy";
 import { getPublicListings } from "@/lib/listings";
 import { getReferralSettings } from "@/lib/referral/settings";
+import { tryGetCachedBuyerFeeSettings } from "@/lib/fees/cached";
 import { cookies } from "next/headers";
 import { REF_COOKIE } from "@/lib/referral/attribution";
 import { lookupReferralCode, normalizeReferralCode } from "@/lib/referral/codes";
@@ -129,12 +130,13 @@ export default async function HomePage({
     );
   }
 
-  const [campaign, referrerFirstName, previewListings] = await Promise.all([
+  const [campaign, referrerFirstName, previewListings, previewFees] = await Promise.all([
     getFounderCampaignSnapshot(admin),
     resolveReferrerFirstName(),
     getPublicListings({})
       .then((rows) => (rows as Listing[]).slice(0, 4))
       .catch(() => [] as Listing[]),
+    tryGetCachedBuyerFeeSettings(),
   ]);
 
   const founderActive = isFounderCampaignActive(campaign);
@@ -174,7 +176,7 @@ export default async function HomePage({
               </div>
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {previewListings.map((listing, i) => (
-                  <ListingCard key={listing.id} listing={listing} priority={i < 2} />
+                  <ListingCard key={listing.id} listing={listing} priority={i < 2} fees={previewFees} />
                 ))}
               </div>
             </section>

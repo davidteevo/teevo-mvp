@@ -332,8 +332,8 @@ export function TermsContent() {
 
       <h2>13. TEEVO FEES</h2>
       <p>
-        At the date of these Terms, Teevo ordinarily charges the buyer a Platform fee equal to{" "}
-        <strong>8% of the item purchase price</strong>.
+        Teevo charges the buyer a Platform fee (Authenticity &amp; Protection / Buyer Protection Fee) as shown at
+        checkout. The fee is added to the item price rather than deducted from the seller&apos;s advertised price.
       </p>
       <p>The exact fee payable will be displayed before the buyer completes the transaction.</p>
       <p>Teevo may change its fees in the future.</p>

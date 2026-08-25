@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { ListingCard } from "./ListingCard";
 import { getPublicListings } from "@/lib/listings";
 import type { Filters } from "@/lib/listings";
+import { tryGetCachedBuyerFeeSettings } from "@/lib/fees/cached";
 
 const PRIORITY_CARD_COUNT = 8;
 const SKELETON_CARD_COUNT = 8;
@@ -37,6 +38,7 @@ async function GridInner({ searchParams }: { searchParams: Filters }) {
   }
   const count = listings.length;
   const atLimit = count >= 60;
+  const fees = await tryGetCachedBuyerFeeSettings();
   return (
     <div className="animate-fade-in">
       <p className="text-sm text-mowing-green/70 mb-3">
@@ -44,7 +46,12 @@ async function GridInner({ searchParams }: { searchParams: Filters }) {
       </p>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 min-w-0 [&>*]:min-w-0">
         {listings.map((listing, index) => (
-          <ListingCard key={listing.id} listing={listing} priority={index < PRIORITY_CARD_COUNT} />
+          <ListingCard
+            key={listing.id}
+            listing={listing}
+            priority={index < PRIORITY_CARD_COUNT}
+            fees={fees}
+          />
         ))}
       </div>
     </div>

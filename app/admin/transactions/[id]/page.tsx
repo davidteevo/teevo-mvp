@@ -79,6 +79,18 @@ export default async function AdminTransactionDetailPage({
         <Row label="Reminders" value={`2-day: ${fmt(tx.dispatch_reminder_after_purchase_sent_at as string | null)} · 1-day: ${fmt(tx.dispatch_reminder_one_day_sent_at as string | null)} · Final: ${fmt(tx.dispatch_reminder_final_sent_at as string | null)}`} />
         <Row label="Cancellation" value={tx.cancellation_status ? `${tx.cancellation_status} (${tx.cancellation_reason ?? ""}) ${fmt(tx.cancelled_at as string | null)}` : "—"} />
         <Row label="Payment" value={String(tx.stripe_payment_id ?? "—")} />
+        {tx.buyer_fee_amount_pence != null && (
+          <>
+            <Row
+              label="Buyer protection fee"
+              value={formatPrice(Number(tx.buyer_fee_amount_pence))}
+            />
+            <Row
+              label="Fee snapshot"
+              value={`${Number(tx.buyer_fee_percentage ?? 0).toFixed(2)}% + ${formatPrice(Number(tx.buyer_fee_fixed_pence ?? 0))}`}
+            />
+          </>
+        )}
         <Row label="Refund" value={String(tx.stripe_refund_id ?? "—")} />
         <Row
           label="Buyer"
