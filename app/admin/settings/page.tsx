@@ -346,6 +346,8 @@ export default function AdminSettingsPage() {
         )}
       </section>
 
+      <FeesSettings />
+
       <ReferralGrowthSettings />
     </div>
   );
@@ -353,6 +355,161 @@ export default function AdminSettingsPage() {
 
 function poundsFromPence(pence: number): string {
   return (pence / 100).toFixed(2);
+}
+
+function FeesSettings() {
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+  const [percentage, setPercentage] = useState("8.00");
+  const [fixedPounds, setFixedPounds] = useState("0.50");
+
+  useEffect(() => {
+    fetch("/api/admin/settings/fees")
+      .then(async (r) => {
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error ?? "Failed to load fee settings");
+        return data as { percentage: number; fixedPence: number };
+      })
+      .then((data) => {
+        setPercentage(data.percentage.toFixed(2));
+        setFixedPounds(poundsFromPence(data.fixedPence));
+      })
+      .catch((e) => {
+        setError(e instanceof Error ? e.message : "Failed to load fee settings");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const exampleFeePence = (() => {
+    const pct = Number(percentage);
+    const pounds = Number(fixedPounds);
+    if (!Number.isFinite(pct) || pct < 0 || pct > 100) return null;
+    if (!Number.isFinite(pounds) || pounds < 0) return null;
+    const hundredths = Math.round(pct * 100);
+    const fixedPence = Math.round(pounds * 100);
+    return Math.round((10000 * hundredths) / 10000) + fixedPence;
+  })();
+
+  const save = async () => {
+    setSaving(true);
+    setError(null);
+    setSaved(false);
+    try {
+      const pct = Number(percentage);
+      if (!Number.isFinite(pct) || pct < 0 || pct > 100) {
+        throw new Error("Percentage fee must be between 0 and 100");
+      }
+      if (!/^\d{1,3}(?:\.\d{1,2})?$/.test(percentage.trim()) || pct > 100) {
+        throw new Error("Percentage fee must have at most two decimal places");
+      }
+      const pounds = Number(fixedPounds);
+      if (!Number.isFinite(pounds) || pounds < 0) {
+        throw new Error("Fixed fee must be a non-negative amount");
+      }
+      if (!/^\d+(?:\.\d{1,2})?$/.test(fixedPounds.trim())) {
+        throw new Error("Fixed fee must have at most two decimal places");
+      }
+      const res = await fetch("/api/admin/settings/fees", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          percentage: pct,
+          fixedPence: Math.round(pounds * 100),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Failed to save");
+      setPercentage(Number(data.percentage).toFixed(2));
+      setFixedPounds(poundsFromPence(data.fixedPence));
+      setSaved(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to save");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <section className="mt-8 rounded-xl border border-par-3-punch/20 bg-white p-6 max-w-lg">
+      <h2 className="text-lg font-semibold text-mowing-green">Fees</h2>
+      <p className="mt-1 text-sm text-mowing-green/70">
+        Buyer Protection Fee (Authenticity &amp; Protection). Changes apply to new purchases only.
+        Existing orders keep the fee that was charged at checkout.
+      </p>
+      {loading ? (
+        <p className="mt-4 text-sm text-mowing-green/70">Loading…</p>
+      ) : (
+        <div className="mt-4 space-y-3">
+          <h3 className="font-medium text-mowing-green">Buyer Protection Fee</h3>
+          <label className="block text-sm text-mowing-green">
+            Percentage fee (%)
+            <div className="mt-1 flex items-center gap-2">
+              <input
+                value={percentage}
+                onChange={(e) => {
+                  setPercentage(e.target.value);
+                  setSaved(false);
+                }}
+                inputMode="decimal"
+                className="w-full rounded-lg border border-mowing-green/30 px-3 py-2"
+              />
+              <span className="text-mowing-green/70">%</span>
+            </div>
+          </label>
+          <label className="block text-sm text-mowing-green">
+            Fixed fee (£)
+            <div className="mt-1 flex items-center gap-2">
+              <span className="text-mowing-green/70">£</span>
+              <input
+                value={fixedPounds}
+                onChange={(e) => {
+                  setFixedPounds(e.target.value);
+                  setSaved(false);
+                }}
+                inputMode="decimal"
+                className="w-full rounded-lg border border-mowing-green/30 px-3 py-2"
+              />
+            </div>
+          </label>
+          {exampleFeePence != null && (
+            <div className="rounded-lg bg-mowing-green/5 px-3 py-2 text-sm text-mowing-green/80">
+              <p className="font-medium text-mowing-green">Example calculation</p>
+              <p className="mt-1">
+                Example: On a £100 item, the buyer would pay a £{(exampleFeePence / 100).toFixed(2)} Buyer
+                Protection Fee.
+              </p>
+              <p className="mt-1">
+                £100 item
+                <br />
+                + £{(exampleFeePence / 100).toFixed(2)} Buyer Protection Fee
+                <br />= £{((10000 + exampleFeePence) / 100).toFixed(2)} before any other applicable costs
+              </p>
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => void save()}
+            disabled={saving}
+            className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium disabled:opacity-70"
+          >
+            {saving ? "Saving…" : "Save Fee Settings"}
+          </button>
+        </div>
+      )}
+      {error && (
+        <p className="mt-3 text-sm text-red-600" role="alert">
+          {error}
+        </p>
+      )}
+      {saved && !error && (
+        <p className="mt-3 text-sm text-mowing-green/80">
+          Buyer Protection Fee settings updated successfully.
+        </p>
+      )}
+    </section>
+  );
 }
 
 function ReferralGrowthSettings() {

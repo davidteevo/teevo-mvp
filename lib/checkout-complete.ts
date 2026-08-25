@@ -18,6 +18,7 @@ import { recordTransactionEvent, TransactionEventType } from "@/lib/transaction-
 import { trackServerEvent } from "@/lib/starter-pack";
 import { onCheckoutComplete } from "@/lib/referral/rewards";
 import { referralEmailModuleHtml } from "@/lib/referral/notify";
+import { parseBuyerFeeSnapshotFromMetadata } from "@/lib/fees/snapshot";
 
 const appUrl = getAppUrl();
 
@@ -87,6 +88,11 @@ export async function createTransactionAndSendEmails(
   const deadlineIso = active.toISOString();
   const deadlineLabel = formatDispatchDeadline(active, createdAt);
 
+  const feeSnapshot = parseBuyerFeeSnapshotFromMetadata(session.metadata);
+  if (!feeSnapshot) {
+    throw new Error("Missing Buyer Protection Fee snapshot on payment session");
+  }
+
   const { data: newTx, error: insertErr } = await admin
     .from("transactions")
     .insert({
@@ -96,6 +102,9 @@ export async function createTransactionAndSendEmails(
       stripe_payment_id: paymentIntentId ?? null,
       stripe_checkout_session_id: session.id,
       amount,
+      buyer_fee_percentage: feeSnapshot.percentage,
+      buyer_fee_fixed_pence: feeSnapshot.fixedPence,
+      buyer_fee_amount_pence: feeSnapshot.amountPence,
       status: "pending",
       order_state: "paid",
       fulfilment_status: FulfilmentStatus.PAID,
@@ -171,6 +180,8 @@ export async function createTransactionAndSendEmails(
 
   const totalGbp = formatGbp(amount);
   const shippingGbp = SHIPPING_FEE_GBP.toFixed(2);
+  const feeGbp = formatGbp(feeSnapshot.amountPence);
+  const buyerFeeEmailLine = `Authenticity &amp; Protection: \u00A3${feeGbp}<br />`;
   const { itemName, hero_image } = await getListingEmailContext(admin, listingId);
   const { data: buyer } = await admin.from("users").select("email").eq("id", buyerId).single();
   const { data: seller } = await admin.from("users").select("email").eq("id", sellerId).single();
@@ -191,7 +202,7 @@ export async function createTransactionAndSendEmails(
       variables: {
         title: `Great choice! Your order is confirmed.`,
         subtitle: "Your payment has been received and the seller has been notified.",
-        body: `Total: \u00A3${totalGbp}<br />Shipping: \u00A3${shippingGbp}<br /><br />The seller will pack and dispatch your club. As soon as it\u2019s on the move, we\u2019ll send you the tracking details so you can follow its journey.<br /><br />Your payment stays protected by Teevo throughout the process.<br /><br />Enjoy the new club! \u26F3`,
+        body: `Total: \u00A3${totalGbp}<br />${buyerFeeEmailLine}Shipping: \u00A3${shippingGbp}<br /><br />The seller will pack and dispatch your club. As soon as it\u2019s on the move, we\u2019ll send you the tracking details so you can follow its journey.<br /><br />Your payment stays protected by Teevo throughout the process.<br /><br />Enjoy the new club! \u26F3`,
         order_number: txId.slice(0, 8),
         item_name: itemName,
         hero_image,
@@ -241,7 +252,7 @@ export async function createTransactionAndSendEmails(
       variables: {
         title: "Payment received",
         subtitle: "Funds are held securely until delivery is confirmed.",
-        body: `Total: \u00A3${totalGbp}<br />Shipping: \u00A3${shippingGbp}`,
+        body: `Total: \u00A3${totalGbp}<br />${buyerFeeEmailLine}Shipping: \u00A3${shippingGbp}`,
         order_number: txId.slice(0, 8),
         item_name: itemName,
         hero_image,

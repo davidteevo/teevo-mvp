@@ -1,23 +1,32 @@
 /**
  * Teevo pricing: authenticity & protection fee (Vinted-style) and shipping.
- * All amounts in pence.
+ * All amounts in pence. Fee rates come from platform settings, not constants.
  */
 
-export const AUTHENTICITY_FEE_RATE = 0.08;
-export const AUTHENTICITY_FEE_FIXED_PENCE = 50;
 export const SHIPPING_PENCE = 949; // £9.49
 
-export function calcAuthenticityFeePence(itemPricePence: number): number {
-  return Math.round(itemPricePence * AUTHENTICITY_FEE_RATE + AUTHENTICITY_FEE_FIXED_PENCE);
+export type BuyerFeeConfig = {
+  /** Display percentage, e.g. 8 for 8%. */
+  percentage: number;
+  /** Percentage × 100, e.g. 8.00% → 800. */
+  percentageHundredths: number;
+  fixedPence: number;
+};
+
+export function calcAuthenticityFeePence(itemPricePence: number, fees: BuyerFeeConfig): number {
+  return Math.round((itemPricePence * fees.percentageHundredths) / 10000) + fees.fixedPence;
 }
 
-export function calcOrderBreakdown(itemPricePence: number): {
+export function calcOrderBreakdown(
+  itemPricePence: number,
+  fees: BuyerFeeConfig
+): {
   itemPence: number;
   authenticityPence: number;
   shippingPence: number;
   totalPence: number;
 } {
-  const authenticityPence = calcAuthenticityFeePence(itemPricePence);
+  const authenticityPence = calcAuthenticityFeePence(itemPricePence, fees);
   return {
     itemPence: itemPricePence,
     authenticityPence,

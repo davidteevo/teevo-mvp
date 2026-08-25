@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { calcOrderBreakdown } from "@/lib/pricing";
+import { BuyerFeeSettingsError, getBuyerFeeSettings } from "@/lib/fees/settings";
 import { computeCheckoutIncentives } from "@/lib/referral/checkout-incentives";
 import { resolveCheckoutIncentivesForBuyer } from "@/lib/referral/rewards";
 
@@ -20,8 +21,18 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "itemPence required" }, { status: 400 });
   }
   const applyCredit = searchParams.get("applyCredit") !== "false";
-  const breakdown = calcOrderBreakdown(itemPence);
   const admin = createAdminClient();
+  let breakdown;
+  try {
+    const fees = await getBuyerFeeSettings(admin);
+    breakdown = calcOrderBreakdown(itemPence, fees);
+  } catch (e) {
+    if (e instanceof BuyerFeeSettingsError) {
+      console.error("[checkout-preview] fee settings unavailable", e);
+      return NextResponse.json({ error: e.message }, { status: 503 });
+    }
+    throw e;
+  }
   const eligibility = await resolveCheckoutIncentivesForBuyer(admin, {
     buyerId: user.id,
     itemPence: breakdown.itemPence,

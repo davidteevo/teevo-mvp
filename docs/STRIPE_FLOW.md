@@ -2,7 +2,7 @@
 
 ## Overview
 
-- **Sellers:** Stripe Connect Express accounts. Sellers receive the **item price** via destination charge; platform keeps **authenticity fee (8% + £0.50)** and **shipping** as application fee.
+- **Sellers:** Stripe Connect Express accounts. Sellers receive the **item price** via destination charge; platform keeps **authenticity / Buyer Protection fee** (configured in Admin → Settings → Fees) and **shipping** as application fee.
 - **Buyers:** Stripe Checkout one-time payment. Total = item + authenticity & protection + shipping (tracked £9.49). Funds: item → seller; authenticity + shipping → platform.
 
 ## 1. Seller onboarding (Stripe Connect Express)
@@ -35,17 +35,18 @@
 2. App calls POST /api/checkout/create with { listingId, buyerPostcode?, shippingOption? }.
 3. API (lib/stripe-checkout.ts):
    - Loads listing and seller (must have stripe_account_id).
-   - Computes total: item + authenticity (8% + £0.50) + shipping (£9.49).
+   - Loads current Buyer Protection Fee settings from `platform_settings` (fails closed if missing).
+   - Computes total: item + authenticity (percentage + fixed pence) + shipping (£9.49).
    - Creates Stripe Checkout Session:
      - mode: 'payment'
      - payment_intent_data.transfer_data.destination = seller.stripe_account_id
-     - payment_intent_data.application_fee_amount = authenticity + shipping (platform keeps this)
+     - payment_intent_data.application_fee_amount = authenticity + shipping (platform keeps this; incentives reduce this, never the item)
      - line_items: [ Item, Authenticity & Protection, Shipping (Tracked) ]
-     - metadata: listingId, buyerId, sellerId, buyerPostcode?, shippingOption?
+     - metadata: listingId, buyerId, sellerId, itemPence, buyerFeePercentage, buyerFeeFixedPence, buyerFeeAmountPence, buyerPostcode?, shippingOption?
 4. Return session.url; redirect buyer to Stripe Checkout.
 5. Buyer pays; redirected to success_url.
 6. Webhook checkout.session.completed:
-   - Insert transaction (status: pending, order_state: paid, buyer_postcode, shipping_option, stripe_checkout_session_id).
+   - Insert transaction (status: pending, order_state: paid, buyer_postcode, shipping_option, stripe_checkout_session_id, fee snapshot columns from metadata).
    - Set listing to sold (trigger or webhook).
 ```
 

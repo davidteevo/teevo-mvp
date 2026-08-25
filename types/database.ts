@@ -234,6 +234,9 @@ export interface Transaction {
   stripe_payment_id: string | null;
   stripe_transfer_id: string | null;
   amount: number;
+  buyer_fee_percentage?: number | null;
+  buyer_fee_fixed_pence?: number | null;
+  buyer_fee_amount_pence?: number | null;
   referral_discount_pence?: number;
   credit_redeemed_pence?: number;
   referral_id?: string | null;

@@ -18,6 +18,7 @@ import { ensureDisplayNameForUser } from "@/lib/public-seller-name";
 import { formatRatingAverage } from "@/lib/seller-reviews";
 import { getPlatformFulfilmentMode } from "@/lib/fulfilment";
 import { isBuyingEnabled } from "@/lib/buying";
+import { tryGetCachedBuyerFeeSettings } from "@/lib/fees/cached";
 import {
   buyerPurchaseBlockCopy,
   isPublicMarketplaceStatus,
@@ -39,13 +40,14 @@ export default async function ListingPage({
   const { data: { user } } = await supabase.auth.getUser();
 
   const admin = createAdminClient();
-  const [listingResult, txResult, fulfilmentMode, buyingEnabled] = await Promise.all([
+  const [listingResult, txResult, fulfilmentMode, buyingEnabled, fees] = await Promise.all([
     getListingById(id).then((l) => ({ listing: l, err: null })).catch((err) => ({ listing: null, err })),
     user?.id
       ? admin.from("transactions").select("id").eq("listing_id", id).eq("buyer_id", user.id).single().then(({ data }) => data)
       : Promise.resolve(null),
     getPlatformFulfilmentMode(admin),
     isBuyingEnabled(admin),
+    tryGetCachedBuyerFeeSettings(),
   ]);
 
   let listing = listingResult.listing;
@@ -73,8 +75,11 @@ export default async function ListingPage({
           getListingImageUrl(img.storage_path, "main", baseUrl)
         )
       : ["/placeholder-listing.svg"];
-  const { itemPence, authenticityPence, shippingPence, totalPence } =
-    calcOrderBreakdown(listing.price);
+  const breakdown = fees ? calcOrderBreakdown(listing.price, fees) : null;
+  const itemPence = breakdown?.itemPence ?? listing.price;
+  const authenticityPence = breakdown?.authenticityPence;
+  const shippingPence = breakdown?.shippingPence;
+  const totalPence = breakdown?.totalPence;
   const displayTitle = getListingDisplayTitle(listing);
   const metaParts = getListingMetaParts(listing);
   const structuredMeta = [
@@ -186,11 +191,17 @@ export default async function ListingPage({
             )}
           </div>
           <div className="mt-2 space-y-0.5 text-mowing-green/80 text-[15px]">
-            <p>{formatPence(authenticityPence)} Authenticity &amp; Protection</p>
-            <p>est. {formatPence(shippingPence)} shipping</p>
-            <p className="text-mowing-green font-medium pt-1">
-              Total estimated: {formatPence(totalPence)}
-            </p>
+            {fees && authenticityPence != null && shippingPence != null && totalPence != null ? (
+              <>
+                <p>{formatPence(authenticityPence)} Authenticity &amp; Protection</p>
+                <p>est. {formatPence(shippingPence)} shipping</p>
+                <p className="text-mowing-green font-medium pt-1">
+                  Total estimated: {formatPence(totalPence)}
+                </p>
+              </>
+            ) : (
+              <p className="text-sm">Fees confirmed at checkout</p>
+            )}
           </div>
 
           <div className="mt-6 flex flex-wrap gap-3">

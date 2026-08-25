@@ -5,6 +5,7 @@ import { createCheckoutSession } from "@/lib/stripe-checkout";
 import { getAppUrl } from "@/lib/app-env";
 import { LISTING_PURCHASE_SELECT, listingPurchaseApiError } from "@/lib/listing-availability";
 import { buyingDisabledResponse, BuyingDisabledError } from "@/lib/buying";
+import { BuyerFeeSettingsError } from "@/lib/fees/settings";
 
 export const dynamic = "force-dynamic";
 
@@ -71,6 +72,10 @@ export async function POST(request: Request) {
   } catch (e) {
     if (e instanceof BuyingDisabledError) {
       return NextResponse.json({ error: e.message }, { status: 403 });
+    }
+    if (e instanceof BuyerFeeSettingsError) {
+      console.error("[checkout] fee settings unavailable", e);
+      return NextResponse.json({ error: e.message }, { status: 503 });
     }
     throw e;
   }

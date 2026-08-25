@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import { calcOrderBreakdown } from "@/lib/pricing";
+import { formatBuyerFeePercentage, getBuyerFeeSettings } from "@/lib/fees/settings";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { BuyingDisabledError, isBuyingEnabled } from "@/lib/buying";
 import { computeCheckoutIncentives } from "@/lib/referral/checkout-incentives";
@@ -52,7 +53,8 @@ export async function createCheckoutSession(params: CreateCheckoutParams): Promi
     applyCredit = true,
   } = params;
 
-  const { itemPence, authenticityPence, shippingPence } = calcOrderBreakdown(listingPricePence);
+  const fees = await getBuyerFeeSettings(admin);
+  const { itemPence, authenticityPence, shippingPence } = calcOrderBreakdown(listingPricePence, fees);
   const eligibility = await resolveCheckoutIncentivesForBuyer(admin, {
     buyerId,
     itemPence,
@@ -136,6 +138,9 @@ export async function createCheckoutSession(params: CreateCheckoutParams): Promi
       buyerId,
       sellerId,
       itemPence: String(itemPence),
+      buyerFeePercentage: formatBuyerFeePercentage(fees.percentage),
+      buyerFeeFixedPence: String(fees.fixedPence),
+      buyerFeeAmountPence: String(authenticityPence),
       referralDiscountPence: String(incentives.referralDiscountAppliedPence),
       creditRedeemedPence: String(incentives.creditRedeemedPence),
       ...(buyerPostcode != null && buyerPostcode !== "" && { buyerPostcode: String(buyerPostcode).slice(0, 32) }),
