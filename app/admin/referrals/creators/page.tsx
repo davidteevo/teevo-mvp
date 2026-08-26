@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Settings } from "lucide-react";
 import { formatPence } from "@/lib/pricing";
 
 type Creator = {
