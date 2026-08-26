@@ -6,25 +6,14 @@ import {
 } from "@/lib/referral/eligibility";
 import { getReferralSettings } from "@/lib/referral/settings";
 import { trackServerEvent } from "@/lib/starter-pack";
+import {
+  REF_COOKIE,
+  VISITOR_COOKIE,
+  REF_COOKIE_MAX_AGE_SECONDS,
+  referralCookieOptions,
+} from "@/lib/referral/cookies";
 
-export const REF_COOKIE = "teevo_ref";
-export const VISITOR_COOKIE = "teevo_vid";
-export const REF_COOKIE_MAX_AGE_SECONDS = 60 * 24 * 60 * 60; // 60 days
-
-export function referralCookieOptions(): {
-  maxAge: number;
-  sameSite: "lax";
-  path: string;
-  domain?: string;
-} {
-  const domain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN || undefined;
-  return {
-    maxAge: REF_COOKIE_MAX_AGE_SECONDS,
-    sameSite: "lax",
-    path: "/",
-    ...(domain ? { domain } : {}),
-  };
-}
+export { REF_COOKIE, VISITOR_COOKIE, REF_COOKIE_MAX_AGE_SECONDS, referralCookieOptions };
 
 export type ReferralRow = {
   id: string;
