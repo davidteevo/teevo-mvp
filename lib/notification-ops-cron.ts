@@ -4,6 +4,7 @@ import { NotificationType, notifyAdmins, adminTransactionUrl, getListingTitle } 
 import { sendSellerFeedbackReminders } from "@/lib/seller-review-events";
 import { processDispatchDeadlines } from "@/lib/dispatch-cron";
 import { runAvailabilityReconfirmCron } from "@/lib/listing-availability-admin";
+import { runStripeSetupReminderCron } from "@/lib/stripe-setup-reminder";
 
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
@@ -58,6 +59,8 @@ export async function runNotificationOpsCron(admin: SupabaseClient): Promise<{
   dispatchCancelFailed: number;
   availabilityReminders: number;
   availabilityExpired: number;
+  stripeSetupRemindersSent: number;
+  stripeSetupRemindersSkippedComplete: number;
 }> {
   const counts = {
     sellerNotDispatched: 0,
@@ -72,6 +75,8 @@ export async function runNotificationOpsCron(admin: SupabaseClient): Promise<{
     dispatchCancelFailed: 0,
     availabilityReminders: 0,
     availabilityExpired: 0,
+    stripeSetupRemindersSent: 0,
+    stripeSetupRemindersSkippedComplete: 0,
   };
 
   const dispatch = await processDispatchDeadlines(admin);
@@ -172,6 +177,10 @@ export async function runNotificationOpsCron(admin: SupabaseClient): Promise<{
   const availability = await runAvailabilityReconfirmCron(admin);
   counts.availabilityReminders = availability.reminders;
   counts.availabilityExpired = availability.expired;
+
+  const stripeSetup = await runStripeSetupReminderCron(admin);
+  counts.stripeSetupRemindersSent = stripeSetup.sent;
+  counts.stripeSetupRemindersSkippedComplete = stripeSetup.skippedComplete;
 
   return counts;
 }

@@ -29,6 +29,7 @@ export const NotificationType = {
   FUNDS_RELEASE_REQUIRES_ACTION: "funds_release_requires_action",
   SELLER_PAYOUT_FAILED: "seller_payout_failed",
   SELLER_PAYOUT_ACCOUNT_ISSUE: "seller_payout_account_issue",
+  STRIPE_PAYOUTS_SETUP_REQUIRED: "stripe_payouts_setup_required",
   PAYMENT_ISSUE_REQUIRES_REVIEW: "payment_issue_requires_review",
   REFUND_REQUIRES_ACTION: "refund_requires_action",
   TRANSACTION_STUCK: "transaction_stuck",

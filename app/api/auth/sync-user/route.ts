@@ -6,6 +6,7 @@ import { getAppUrl } from "@/lib/app-env";
 import { provisionNewUserReferral } from "@/lib/referral/attribution";
 import { allocateFoundingMemberIfEligible } from "@/lib/founder/allocate";
 import { assertStripeModeMatchesEnv } from "@/lib/stripe-env";
+import { ensureUserEmailConfirmedAt } from "@/lib/user-email-confirmed";
 
 assertStripeModeMatchesEnv();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
@@ -31,6 +32,11 @@ export async function POST() {
       .update({ email: user.email ?? "", updated_at })
       .eq("id", user.id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    await ensureUserEmailConfirmedAt(
+      supabaseAdmin,
+      user.id,
+      user.email_confirmed_at ?? null
+    );
     return NextResponse.json({ ok: true, isNewUser: false });
   }
 
@@ -61,12 +67,18 @@ export async function POST() {
     stripe_account_id,
     first_name,
     display_name: generateDisplayNameFromFirstName(first_name),
+    email_confirmed_at: user.email_confirmed_at ?? null,
     updated_at,
   });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+  await ensureUserEmailConfirmedAt(
+    supabaseAdmin,
+    user.id,
+    user.email_confirmed_at ?? null
+  );
   const refFromMeta =
     typeof user.user_metadata?.referral_code === "string" ? user.user_metadata.referral_code : "";
   await provisionNewUserReferral(supabaseAdmin, {

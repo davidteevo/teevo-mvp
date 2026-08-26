@@ -97,6 +97,14 @@ function ConfirmEmailContent() {
         setError(verifyError.message);
         return;
       }
+      try {
+        await fetch("/api/auth/mark-email-confirmed", {
+          method: "POST",
+          credentials: "include",
+        });
+      } catch {
+        // Stamp can happen later via sync-user / auth callback
+      }
       const confirmedEmail = data.user?.email?.trim() || email;
       try {
         await supabase.auth.signOut({ scope: "local" });

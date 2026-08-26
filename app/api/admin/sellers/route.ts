@@ -109,6 +109,7 @@ export async function POST(request: Request) {
             display_name: generateDisplayNameFromFirstName(first_name),
             created_by_admin: true,
             invited_at: now,
+            email_confirmed_at: now,
             phone,
             updated_at: now,
           });
@@ -192,6 +193,7 @@ export async function POST(request: Request) {
         display_name: generateDisplayNameFromFirstName(first_name),
         created_by_admin: true,
         invited_at: now,
+        email_confirmed_at: now,
         phone,
         updated_at: now,
       });
@@ -236,6 +238,7 @@ export async function POST(request: Request) {
         display_name: generateDisplayNameFromFirstName(first_name),
         created_by_admin: true,
         invited_at: now,
+        email_confirmed_at: now,
         phone,
         updated_at: now,
       });
@@ -263,6 +266,7 @@ export async function POST(request: Request) {
       display_name: generateDisplayNameFromFirstName(first_name),
       created_by_admin: true,
       invited_at: now,
+      email_confirmed_at: now,
       phone,
       updated_at: now,
     });

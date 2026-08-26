@@ -67,5 +67,6 @@ export async function POST(
   revalidateTag("public-listings");
   revalidatePath(`/listing/${id}`);
   revalidatePath("/");
+  revalidatePath("/admin");
   return NextResponse.json({ ok: true });
 }

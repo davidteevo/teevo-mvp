@@ -10,6 +10,7 @@ import { provisionNewUserReferral, REF_COOKIE } from "@/lib/referral/attribution
 import { allocateFoundingMemberIfEligible } from "@/lib/founder/allocate";
 import { getFounderCampaignSnapshot } from "@/lib/founder/campaign";
 import { assertStripeModeMatchesEnv } from "@/lib/stripe-env";
+import { ensureUserEmailConfirmedAt } from "@/lib/user-email-confirmed";
 
 assertStripeModeMatchesEnv();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
@@ -47,6 +48,7 @@ export async function GET(request: Request) {
       const updated_at = new Date().toISOString();
       if (existing) {
         await admin.from("users").update({ email: user.email ?? "", updated_at }).eq("id", user.id);
+        await ensureUserEmailConfirmedAt(admin, user.id, user.email_confirmed_at ?? null);
       } else {
         isNewUser = true;
         let stripe_account_id: string | null = null;
@@ -75,8 +77,10 @@ export async function GET(request: Request) {
           stripe_account_id,
           first_name,
           display_name: generateDisplayNameFromFirstName(first_name),
+          email_confirmed_at: user.email_confirmed_at ?? null,
           updated_at,
         });
+        await ensureUserEmailConfirmedAt(admin, user.id, user.email_confirmed_at ?? null);
         const cookieHeader = request.headers.get("cookie") ?? "";
         const cookieMatch = cookieHeader.match(new RegExp(`(?:^|;\\s*)${REF_COOKIE}=([^;]*)`));
         const refFromCookie = cookieMatch ? decodeURIComponent(cookieMatch[1]) : "";
