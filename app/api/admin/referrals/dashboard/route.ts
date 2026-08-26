@@ -40,7 +40,9 @@ export async function GET(request: Request) {
       rewardRows
         .filter(
           (r) =>
-            (r.reward_type === "buyer_referrer_credit" || r.reward_type === "creator_commission") &&
+            (r.reward_type === "buyer_referrer_credit" ||
+              r.reward_type === "creator_commission" ||
+              r.reward_type === "creator_transaction_reward") &&
             (r.status === "approved" || r.status === "paid")
         )
         .map((r) => r.referral_id)
@@ -51,6 +53,12 @@ export async function GET(request: Request) {
     const sellerSale = rewardRows.filter(
       (r) => r.reward_type === "seller_sale_credit" && (r.status === "approved" || r.status === "paid")
     ).length;
+
+    const creatorMilestoneTypes = new Set([
+      "creator_new_user_reward",
+      "creator_listing_reward",
+      "creator_transaction_reward",
+    ]);
 
     let creditIssued = 0;
     let creditRedeemed = 0;
@@ -123,7 +131,9 @@ export async function GET(request: Request) {
       creatorCounts.set(r.creator_id, cur);
     }
     for (const rw of rewardRows) {
-      if (rw.reward_type !== "creator_commission") continue;
+      const isCreatorReward =
+        rw.reward_type === "creator_commission" || creatorMilestoneTypes.has(rw.reward_type);
+      if (!isCreatorReward) continue;
       if (rw.status !== "approved" && rw.status !== "paid") continue;
       const ref = referralRows.find((r) => r.id === rw.referral_id);
       if (!ref?.creator_id) continue;

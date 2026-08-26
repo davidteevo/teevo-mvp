@@ -5,6 +5,7 @@ export type CreditType =
   | "seller_listing_referral"
   | "seller_sale_referral"
   | "referred_seller_listing_credit"
+  | "creator_milestone_reward"
   | "admin_adjustment"
   | "redemption"
   | "reversal"
@@ -118,6 +119,7 @@ export async function reverseAvailableCreditForReward(
       "seller_listing_referral",
       "seller_sale_referral",
       "referred_seller_listing_credit",
+      "creator_milestone_reward",
     ])
     .maybeSingle();
   if (!issued) return;

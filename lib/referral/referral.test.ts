@@ -10,10 +10,13 @@ import {
   computeCheckoutIncentives,
   sellerProceedsPence,
 } from "@/lib/referral/checkout-incentives";
-import { attributionSource, decideAttribution, decideNewCustomerDiscount, isDemandReferral, isSupplyReferral } from "@/lib/referral/eligibility";
+import { attributionSource, decideAttribution, decideCreatorMilestone, decideNewCustomerDiscount, isDemandReferral, isSupplyReferral } from "@/lib/referral/eligibility";
 import { creditBalanceFromRows } from "@/lib/referral/credit";
 import { buyerShareMessage, sellerShareMessage } from "@/lib/referral/share-copy";
 import { calcOrderBreakdown, type BuyerFeeConfig } from "@/lib/pricing";
+import { isCreatorMilestoneRewardType, ReferralRewardType } from "@/lib/referral/types";
+import { DEFAULT_REFERRAL_SETTINGS } from "@/lib/referral/settings";
+import { isValidEmail } from "@/lib/admin/resolve-or-create-user";
 
 const defaultFees: BuyerFeeConfig = {
   percentage: 8,
@@ -296,5 +299,105 @@ describe("credit ledger balance", () => {
       now
     );
     expect(balance).toBe(300);
+  });
+});
+
+describe("creator milestone rewards", () => {
+  const base = {
+    creatorProgrammeEnabled: true,
+    eventEnabled: true,
+    amountPence: 200,
+    creatorStatus: "active" as const,
+    creatorUserId: "creator-user",
+    referredUserId: "referred-user",
+    alreadyHasReward: false,
+  };
+
+  it("awards when programme, event, active creator, and linked user are ok", () => {
+    expect(decideCreatorMilestone(base)).toEqual({ ok: true, reason: "ok" });
+  });
+
+  it("supports independent event toggles", () => {
+    expect(decideCreatorMilestone({ ...base, eventEnabled: false }).reason).toBe("event_disabled");
+    expect(decideCreatorMilestone({ ...base, creatorProgrammeEnabled: false }).reason).toBe(
+      "programme_disabled"
+    );
+    expect(decideCreatorMilestone({ ...base, amountPence: 0 }).reason).toBe("zero_amount");
+  });
+
+  it("blocks self-referral and missing/inactive creator account", () => {
+    expect(
+      decideCreatorMilestone({ ...base, referredUserId: "creator-user" }).reason
+    ).toBe("self_referral");
+    expect(decideCreatorMilestone({ ...base, creatorUserId: null }).reason).toBe(
+      "missing_creator_user"
+    );
+    expect(decideCreatorMilestone({ ...base, creatorStatus: "paused" }).reason).toBe(
+      "creator_inactive"
+    );
+  });
+
+  it("is idempotent per referred user + reward type", () => {
+    expect(decideCreatorMilestone({ ...base, alreadyHasReward: true }).reason).toBe(
+      "already_awarded"
+    );
+    // Different users can each qualify once
+    expect(
+      decideCreatorMilestone({
+        ...base,
+        referredUserId: "user-b",
+        alreadyHasReward: false,
+      }).ok
+    ).toBe(true);
+    expect(
+      decideCreatorMilestone({
+        ...base,
+        referredUserId: "user-c",
+        alreadyHasReward: false,
+      }).ok
+    ).toBe(true);
+  });
+
+  it("simulates funnel: signup then listing then transaction once each", () => {
+    const awarded = new Set<string>();
+    const tryAward = (kind: string, referredUserId: string) => {
+      const key = `${referredUserId}:${kind}`;
+      const decision = decideCreatorMilestone({
+        ...base,
+        amountPence: kind === "listing" ? 1000 : kind === "transaction" ? 500 : 200,
+        referredUserId,
+        alreadyHasReward: awarded.has(key),
+      });
+      if (decision.ok) awarded.add(key);
+      return decision;
+    };
+
+    expect(tryAward("new_user", "user-b").ok).toBe(true);
+    expect(tryAward("new_user", "user-b").reason).toBe("already_awarded");
+    expect(tryAward("listing", "user-b").ok).toBe(true);
+    expect(tryAward("listing", "user-b").reason).toBe("already_awarded");
+    expect(tryAward("transaction", "user-b").ok).toBe(true);
+    expect(tryAward("transaction", "user-b").reason).toBe("already_awarded");
+    expect(awarded.size).toBe(3);
+  });
+
+  it("maps milestone reward types to the credit ledger family", () => {
+    expect(isCreatorMilestoneRewardType(ReferralRewardType.CREATOR_NEW_USER_REWARD)).toBe(true);
+    expect(isCreatorMilestoneRewardType(ReferralRewardType.CREATOR_LISTING_REWARD)).toBe(true);
+    expect(isCreatorMilestoneRewardType(ReferralRewardType.CREATOR_TRANSACTION_REWARD)).toBe(true);
+    expect(isCreatorMilestoneRewardType(ReferralRewardType.CREATOR_COMMISSION)).toBe(false);
+    expect(isCreatorMilestoneRewardType(ReferralRewardType.BUYER_REFERRER_CREDIT)).toBe(false);
+  });
+
+  it("defaults creator milestone settings to PRD example amounts", () => {
+    expect(DEFAULT_REFERRAL_SETTINGS.creatorNewUserRewardPence).toBe(200);
+    expect(DEFAULT_REFERRAL_SETTINGS.creatorListingRewardPence).toBe(1000);
+    expect(DEFAULT_REFERRAL_SETTINGS.creatorTransactionRewardPence).toBe(500);
+    expect(DEFAULT_REFERRAL_SETTINGS.creatorNewUserRewardEnabled).toBe(true);
+  });
+
+  it("validates emails for creator user create/link", () => {
+    expect(isValidEmail("creator@example.com")).toBe(true);
+    expect(isValidEmail("not-an-email")).toBe(false);
   });
 });
