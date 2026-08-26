@@ -11,6 +11,7 @@ import {
 import { NotificationType, resolveNotifications } from "@/lib/notifications";
 import { onOrderInvalidated } from "@/lib/referral/rewards";
 import { assertStripeModeMatchesEnv } from "@/lib/stripe-env";
+import { resolveStripeSetupReminder } from "@/lib/stripe-setup-reminder";
 
 assertStripeModeMatchesEnv();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
@@ -235,6 +236,7 @@ export async function POST(request: Request) {
         .eq("stripe_account_id", account.id)
         .maybeSingle();
       if (seller?.id) {
+        await resolveStripeSetupReminder(admin, seller.id);
         const { data: txs } = await admin
           .from("transactions")
           .select("id")

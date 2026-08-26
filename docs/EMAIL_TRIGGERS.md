@@ -13,7 +13,7 @@ Automated emails fire from real user actions. Each send is recorded in `sent_ema
 | `delivery.confirmed` | Funds released | Seller | Transactional | `POST /api/transactions/[id]/confirm-receipt` |
 | `payout.sent` | Review request | Seller | Transactional | P1 – not wired yet |
 | `delivery.confirmed + 24h` | Payout confirmation | Buyer | Standard | P0 – needs cron/scheduler |
-| `seller.kyc_required` | KYC incomplete reminder | Seller | Alert | Not wired – needs Stripe `account.updated` |
+| `seller.kyc_required` | KYC incomplete reminder | Seller | Alert | Hourly `notification-ops` cron — 24h after `users.email_confirmed_at`, skipped if Stripe payouts already enabled |
 | `user.created` | Email verification | User | Alert | Supabase built-in (or custom hook) |
 | `auth.password_reset_requested` | Forgot password | User | Alert | Supabase built-in (or custom hook) |
 | `listing.pending` | New listing to verify | Admin | Alert | `POST /api/listings` |

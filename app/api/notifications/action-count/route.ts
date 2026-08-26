@@ -20,6 +20,7 @@ const SELLER_ACTION_TYPES = [
   "dispatch_required_today",
   "seller_payout_failed",
   "seller_payout_account_issue",
+  "stripe_payouts_setup_required",
   "starter_pack_dispatched",
 ];
 

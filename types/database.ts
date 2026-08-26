@@ -114,6 +114,10 @@ export interface User {
   phone?: string | null;
   /** When included in an admin signup digest; NULL = not yet reported. */
   admin_signup_digest_sent_at?: string | null;
+  /** Copied from auth when email is confirmed; drives Stripe setup reminder. */
+  email_confirmed_at?: string | null;
+  /** When Stripe payouts setup reminder was sent or skipped. */
+  stripe_setup_reminder_sent_at?: string | null;
   account_status?: "active" | "suspended" | "restricted";
   suspended_at?: string | null;
   suspended_by?: string | null;
