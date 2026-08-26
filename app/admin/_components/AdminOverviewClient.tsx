@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   AdminActionFilter,
@@ -45,15 +45,20 @@ export function AdminOverviewClient({
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<AdminActionItem | null>(null);
+  const removedIdsRef = useRef(new Set<string>());
+
+  const applyItems = useCallback((next: AdminActionItem[]) => {
+    setItems(next.filter((i) => !removedIdsRef.current.has(i.id)));
+  }, []);
 
   useEffect(() => {
     setFilter(readStoredFilter());
   }, []);
 
   useEffect(() => {
-    setItems(initialCentre.items);
+    applyItems(initialCentre.items);
     setExceptions(initialExceptions);
-  }, [initialCentre, initialExceptions]);
+  }, [initialCentre, initialExceptions, applyItems]);
 
   const setFilterPersist = (next: AdminActionFilterValue) => {
     setFilter(next);
@@ -63,17 +68,17 @@ export function AdminOverviewClient({
   const refreshQueue = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/action-centre");
+      const res = await fetch(`/api/admin/action-centre?t=${Date.now()}`, { cache: "no-store" });
       const data = await res.json();
       if (res.ok) {
-        setItems(data.items ?? []);
+        applyItems(data.items ?? []);
         setExceptions(data.exceptions ?? []);
       }
     } finally {
       setLoading(false);
       router.refresh();
     }
-  }, [router]);
+  }, [router, applyItems]);
 
   const visible = useMemo(() => filterAdminActions(items, filter), [items, filter]);
   const counts = useMemo(() => countAdminActions(items), [items]);
@@ -86,12 +91,14 @@ export function AdminOverviewClient({
 
   const onCompleted = (itemId: string, keepInQueue: boolean) => {
     if (!keepInQueue) {
+      removedIdsRef.current.add(itemId);
       setItems((prev) => prev.filter((i) => i.id !== itemId));
     }
     void refreshQueue();
   };
 
   const onAlreadyProcessed = (itemId: string) => {
+    removedIdsRef.current.add(itemId);
     setItems((prev) => prev.filter((i) => i.id !== itemId));
     void refreshQueue();
   };
