@@ -201,19 +201,26 @@ export default function AdminCreatorsPage() {
       <Link href="/admin/referrals" className="text-sm text-par-3-punch hover:underline">
         ← Referrals
       </Link>
-      <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-mowing-green">Creators</h1>
-          <p className="mt-1 text-sm text-mowing-green/70">
-            Creator codes, Teevo credit milestones, and conversion tracking.
-          </p>
-        </div>
+      <h1 className="mt-3 text-2xl font-bold text-mowing-green">Creators</h1>
+      <p className="mt-1 text-sm text-mowing-green/70">
+        Creator codes, Teevo credit milestones, and conversion tracking.
+      </p>
+
+      <div className="mt-4 grid gap-3 md:grid-cols-3 max-w-3xl">
         <button
           type="button"
           onClick={openRewardSettings}
-          className="rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-sm font-medium text-mowing-green hover:bg-off-white-pique"
+          className="rounded-xl border border-par-3-punch/20 bg-white p-4 hover:shadow-md transition-shadow flex items-start gap-3 text-left"
         >
-          Reward settings
+          <div className="rounded-lg bg-golden-tee/20 p-2">
+            <Settings className="h-5 w-5 text-mowing-green" />
+          </div>
+          <div>
+            <p className="font-semibold text-mowing-green">Reward settings</p>
+            <p className="mt-0.5 text-sm text-mowing-green/70">
+              Choose which milestones pay Teevo credit, and the amount for each.
+            </p>
+          </div>
         </button>
       </div>
 
