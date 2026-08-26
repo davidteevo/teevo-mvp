@@ -147,7 +147,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
     const name = (body.name ?? "").trim();
-    if (!name) return NextResponse.json({ error: "Creator name is required" }, { status: 400 });
+    if (!name) return NextResponse.json({ error: "Creator/brand name is required" }, { status: 400 });
     const email = (body.email ?? "").trim().toLowerCase();
     if (!email) return NextResponse.json({ error: "Email is required" }, { status: 400 });
     if (!isValidEmail(email)) {

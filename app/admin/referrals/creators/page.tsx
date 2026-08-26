@@ -134,7 +134,7 @@ export default function AdminCreatorsPage() {
             {success.message ?? "Creator created successfully"}
           </p>
           <ul className="mt-2 text-sm text-mowing-green/80 space-y-1">
-            <li>Name: {success.name}</li>
+            <li>Creator/brand name: {success.name}</li>
             <li>
               Referral code: <span className="font-mono">{success.code}</span>
             </li>
@@ -161,7 +161,7 @@ export default function AdminCreatorsPage() {
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Name"
+          placeholder="Creator/brand name"
           className="w-full rounded-lg border border-mowing-green/30 px-3 py-2 text-sm"
         />
         <input
