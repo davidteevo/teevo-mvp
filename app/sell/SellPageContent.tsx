@@ -9,6 +9,10 @@ import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
 import { compressListingMain, compressListingThumb } from "@/lib/image-compression";
 import type { ClubCatalogue } from "@/lib/club-catalogue";
 import { uploadListingPhotos } from "@/lib/listing-photos/upload-client";
+import {
+  MIN_GENERIC_LISTING_IMAGES,
+  MAX_GENERIC_LISTING_IMAGES,
+} from "@/lib/listing-photos/types";
 
 const LISTINGS_BUCKET = "listings";
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -64,8 +68,13 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
       const guided = payload.guidedPhotos;
       if (guided?.length) {
         // guided path below
-      } else if (payload.images.length < 5 || payload.images.length > 6) {
-        throw new Error("Please upload 5 or 6 images.");
+      } else if (
+        payload.images.length < MIN_GENERIC_LISTING_IMAGES ||
+        payload.images.length > MAX_GENERIC_LISTING_IMAGES
+      ) {
+        throw new Error(
+          `Please upload ${MIN_GENERIC_LISTING_IMAGES}–${MAX_GENERIC_LISTING_IMAGES} images.`
+        );
       }
 
       const imageCount = guided?.length ?? payload.images.length;
@@ -101,6 +110,7 @@ export function SellPageContent({ clubCatalogue, clothingBrands }: SellPageConte
           item_type: payload.item_type ?? null,
           size: payload.size ?? null,
           colour: payload.colour ?? null,
+          gender: payload.gender ?? null,
           listing_format: payload.listing_format ?? null,
           standard_spec_status: payload.standard_spec_status ?? null,
           customised_aspects: payload.customised_aspects ?? null,

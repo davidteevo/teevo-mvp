@@ -95,6 +95,10 @@ export const SIZES_SHOES_UK = ["6", "7", "8", "9", "10", "11", "12", "13"] as co
 /** Clothing type slug that uses shoe sizes */
 export const CLOTHING_TYPE_SHOES = "Shoes";
 
+/** Men / Women / Junior (department) for clothing listings */
+export const CLOTHING_GENDERS = ["Men", "Women", "Junior"] as const;
+export type ClothingGender = (typeof CLOTHING_GENDERS)[number];
+
 /** All sizes for dropdown when type is unknown (e.g. filters) */
 export const SIZES_ALL = [...SIZES_GENERAL, ...SIZES_SHOES_UK];
 

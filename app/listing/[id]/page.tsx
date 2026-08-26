@@ -83,6 +83,7 @@ export default async function ListingPage({
   const displayTitle = getListingDisplayTitle(listing);
   const metaParts = getListingMetaParts(listing);
   const structuredMeta = [
+    listing.gender?.trim(),
     listing.item_type?.trim(),
     listing.size?.trim(),
     listing.colour?.trim(),

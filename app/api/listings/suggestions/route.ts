@@ -30,7 +30,7 @@ export async function GET(request: Request) {
     const supabase = createAdminClient();
     const { data: rows, error } = await supabase
       .from("listings")
-      .select("model, brand, category, title, item_type, size, colour")
+      .select("model, brand, category, title, item_type, size, colour, gender")
       .in("status", [...PUBLIC_MARKETPLACE_STATUSES])
       .is("archived_at", null)
       .or(

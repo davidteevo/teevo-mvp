@@ -61,5 +61,5 @@ export type ListingImageMeta = {
 export const PUBLIC_LISTINGS_BUCKET = "listings";
 export const VERIFICATION_LISTINGS_BUCKET = "listing-verification";
 export const MAX_LISTING_IMAGES = 16;
-export const MIN_GENERIC_LISTING_IMAGES = 5;
+export const MIN_GENERIC_LISTING_IMAGES = 3;
 export const MAX_GENERIC_LISTING_IMAGES = 6;

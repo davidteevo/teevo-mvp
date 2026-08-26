@@ -76,7 +76,7 @@ export async function getPendingListings(): Promise<PendingListing[]> {
   const admin = adminClient();
   const { data, error } = await admin
     .from("listings")
-    .select("id, user_id, category, brand, model, title, condition, price, description, status, created_at, item_type, size, colour, created_on_behalf, created_by_admin_id, listing_images(storage_path, sort_order)")
+    .select("id, user_id, category, brand, model, title, condition, price, description, status, created_at, item_type, size, colour, gender, created_on_behalf, created_by_admin_id, listing_images(storage_path, sort_order)")
     .eq("status", "pending")
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
@@ -131,7 +131,7 @@ export async function getAllListings(opts: {
   const admin = adminClient();
   let query = admin
     .from("listings")
-    .select("id, user_id, category, brand, model, title, condition, price, status, created_at, item_type, size, colour, created_on_behalf, created_by_admin_id, buying_paused, availability_confirmation_status, availability_confirmation_source, availability_confirmation_requested_at, availability_confirmed_at, availability_confirmation_batch_id, archived_at, review_count")
+    .select("id, user_id, category, brand, model, title, condition, price, status, created_at, item_type, size, colour, gender, created_on_behalf, created_by_admin_id, buying_paused, availability_confirmation_status, availability_confirmation_source, availability_confirmation_requested_at, availability_confirmed_at, availability_confirmation_batch_id, archived_at, review_count")
     .order("created_at", { ascending: false });
   if (opts.status && ["pending", "verified", "rejected", "sold"].includes(opts.status)) {
     query = query.eq("status", opts.status);

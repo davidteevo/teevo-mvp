@@ -40,7 +40,7 @@ export function validateListingImageCount(opts: {
   }
   if (!usesGuidedPhotos(category)) {
     if (imageCount < MIN_GENERIC_LISTING_IMAGES || imageCount > MAX_GENERIC_LISTING_IMAGES) {
-      return "Upload 5–6 images";
+      return `Upload ${MIN_GENERIC_LISTING_IMAGES}–${MAX_GENERIC_LISTING_IMAGES} images`;
     }
     return null;
   }
@@ -74,7 +74,7 @@ export function validateRegisteredImages(opts: {
       opts.images.length < MIN_GENERIC_LISTING_IMAGES ||
       opts.images.length > MAX_GENERIC_LISTING_IMAGES
     ) {
-      return "Need 5–6 image paths";
+      return `Need ${MIN_GENERIC_LISTING_IMAGES}–${MAX_GENERIC_LISTING_IMAGES} image paths`;
     }
     return null;
   }

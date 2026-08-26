@@ -35,6 +35,7 @@ interface EnhanceBody {
   item_type?: string;
   size?: string;
   colour?: string;
+  gender?: string;
   handed?: string;
   standard_spec_status?: string;
   customised_aspects?: string[];
@@ -100,7 +101,7 @@ Always return valid JSON. Use null for shaft, degree, shaft_flex.`;
 
 /**
  * POST /api/ai/enhance-listing
- * Body: { category?, brand?, model?, condition?, description?, title?, shaft?, degree?, shaft_flex?, lie_angle?, club_length?, shaft_weight?, shaft_material?, grip_brand?, grip_model?, grip_size?, grip_condition?, item_type?, size?, colour? }
+ * Body: { category?, brand?, model?, condition?, description?, title?, shaft?, degree?, shaft_flex?, lie_angle?, club_length?, shaft_weight?, shaft_material?, grip_brand?, grip_model?, grip_size?, grip_condition?, item_type?, size?, colour?, gender? }
  * Returns AI-suggested title, description, and extracted specs. For clubs: model required. For Clothing/Accessories: item_type required.
  */
 export async function POST(request: Request) {
@@ -126,6 +127,7 @@ export async function POST(request: Request) {
     const item_type = typeof body.item_type === "string" ? body.item_type.trim() : "";
     const size = typeof body.size === "string" ? body.size.trim() : "";
     const colour = typeof body.colour === "string" ? body.colour.trim() : "";
+    const gender = typeof body.gender === "string" ? body.gender.trim() : "";
     const handed = typeof body.handed === "string" ? body.handed.trim() : "";
     const standard_spec_status =
       typeof body.standard_spec_status === "string" ? body.standard_spec_status.trim() : "";
@@ -173,6 +175,7 @@ export async function POST(request: Request) {
     const itemLine = isStructured
       ? [
           `Item: ${category}, ${brand}, ${item_type}.`,
+          gender ? `For: ${gender}.` : "",
           size ? `Size: ${size}.` : "",
           colour ? `Colour: ${colour}.` : "",
           category === "Accessories" && model ? `Model: ${model}.` : "",
@@ -255,7 +258,7 @@ export async function POST(request: Request) {
 
     // Fallback when LLM is unavailable or returns invalid JSON.
     if (isStructured) {
-      const fallbackTitleParts = [brand, item_type, size, colour].filter(Boolean);
+      const fallbackTitleParts = [brand, gender, item_type, size, colour].filter(Boolean);
       const fallbackTitle = fallbackTitleParts.length
         ? `${fallbackTitleParts.join(" – ")} – ${condition}`
         : condition;
