@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 import { getAppUrl } from "@/lib/app-env";
-import { REF_COOKIE, referralCookieOptions } from "@/lib/referral/attribution";
+import { REF_COOKIE, referralCookieOptions } from "@/lib/referral/cookies";
 import { normalizeReferralCode } from "@/lib/referral/codes";
 
 const ADMIN_DOMAIN = process.env.NEXT_PUBLIC_ADMIN_DOMAIN;
