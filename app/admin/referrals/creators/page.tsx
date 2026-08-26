@@ -30,6 +30,10 @@ type CreateSuccess = {
   message?: string;
 };
 
+function poundsFromPence(pence: number): string {
+  return (pence / 100).toFixed(2);
+}
+
 export default function AdminCreatorsPage() {
   const [creators, setCreators] = useState<Creator[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -42,6 +46,18 @@ export default function AdminCreatorsPage() {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState<CreateSuccess | null>(null);
 
+  const [settingsLoading, setSettingsLoading] = useState(true);
+  const [settingsSaving, setSettingsSaving] = useState(false);
+  const [settingsSaved, setSettingsSaved] = useState(false);
+  const [settingsError, setSettingsError] = useState<string | null>(null);
+  const [creatorEnabled, setCreatorEnabled] = useState(true);
+  const [creatorNewUserEnabled, setCreatorNewUserEnabled] = useState(true);
+  const [creatorNewUserReward, setCreatorNewUserReward] = useState("2.00");
+  const [creatorListingEnabled, setCreatorListingEnabled] = useState(true);
+  const [creatorListingReward, setCreatorListingReward] = useState("10.00");
+  const [creatorTxEnabled, setCreatorTxEnabled] = useState(true);
+  const [creatorTxReward, setCreatorTxReward] = useState("5.00");
+
   const load = () => {
     fetch("/api/admin/referrals/creators")
       .then((r) => r.json())
@@ -52,9 +68,60 @@ export default function AdminCreatorsPage() {
       .catch((e) => setError(e instanceof Error ? e.message : "Failed to load"));
   };
 
+  const loadSettings = () => {
+    setSettingsLoading(true);
+    fetch("/api/admin/referrals/settings")
+      .then(async (r) => {
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error ?? "Failed to load reward settings");
+        setCreatorEnabled(data.creatorEnabled === true);
+        setCreatorNewUserEnabled(data.creatorNewUserRewardEnabled !== false);
+        setCreatorNewUserReward(poundsFromPence(data.creatorNewUserRewardPence ?? 200));
+        setCreatorListingEnabled(data.creatorListingRewardEnabled !== false);
+        setCreatorListingReward(poundsFromPence(data.creatorListingRewardPence ?? 1000));
+        setCreatorTxEnabled(data.creatorTransactionRewardEnabled !== false);
+        setCreatorTxReward(poundsFromPence(data.creatorTransactionRewardPence ?? 500));
+      })
+      .catch((e) => setSettingsError(e instanceof Error ? e.message : "Failed to load settings"))
+      .finally(() => setSettingsLoading(false));
+  };
+
   useEffect(() => {
     load();
+    loadSettings();
   }, []);
+
+  const saveRewardSettings = async () => {
+    setSettingsSaving(true);
+    setSettingsError(null);
+    setSettingsSaved(false);
+    try {
+      const toPence = (raw: string, label: string) => {
+        const n = Number(raw);
+        if (!Number.isFinite(n) || n < 0) throw new Error(`${label} must be a non-negative amount`);
+        return Math.round(n * 100);
+      };
+      const res = await fetch("/api/admin/referrals/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          creatorNewUserRewardEnabled: creatorNewUserEnabled,
+          creatorNewUserRewardPence: toPence(creatorNewUserReward, "Creator new user reward"),
+          creatorListingRewardEnabled: creatorListingEnabled,
+          creatorListingRewardPence: toPence(creatorListingReward, "Creator listing reward"),
+          creatorTransactionRewardEnabled: creatorTxEnabled,
+          creatorTransactionRewardPence: toPence(creatorTxReward, "Creator transaction reward"),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Failed to save");
+      setSettingsSaved(true);
+    } catch (e) {
+      setSettingsError(e instanceof Error ? e.message : "Failed to save");
+    } finally {
+      setSettingsSaving(false);
+    }
+  };
 
   const create = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,6 +194,117 @@ export default function AdminCreatorsPage() {
           {error}
         </p>
       )}
+
+      <section className="mt-6 rounded-xl border border-par-3-punch/20 bg-white p-4 space-y-3 max-w-lg">
+        <h2 className="font-semibold text-mowing-green">Reward settings</h2>
+        <p className="text-sm text-mowing-green/70">
+          Configure which milestones pay Teevo credit and how much. Changes apply to future rewards only.
+          {!creatorEnabled && (
+            <>
+              {" "}
+              The creator programme is currently off — enable it in{" "}
+              <Link href="/admin/settings" className="underline text-par-3-punch">
+                Admin → Settings
+              </Link>
+              .
+            </>
+          )}
+        </p>
+        {settingsLoading ? (
+          <p className="text-sm text-mowing-green/70">Loading…</p>
+        ) : (
+          <>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                className="mt-1"
+                checked={creatorNewUserEnabled}
+                onChange={(e) => setCreatorNewUserEnabled(e.target.checked)}
+                disabled={!creatorEnabled}
+              />
+              <span>
+                <span className="font-medium text-mowing-green">Reward creators for new users</span>
+                <span className="block text-sm text-mowing-green/70">
+                  Teevo credit when a referred user successfully creates an account (once per user).
+                </span>
+              </span>
+            </label>
+            <label className="block text-sm text-mowing-green">
+              New user reward (£)
+              <input
+                value={creatorNewUserReward}
+                onChange={(e) => setCreatorNewUserReward(e.target.value)}
+                disabled={!creatorEnabled || !creatorNewUserEnabled}
+                className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2 disabled:opacity-60"
+              />
+            </label>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                className="mt-1"
+                checked={creatorListingEnabled}
+                onChange={(e) => setCreatorListingEnabled(e.target.checked)}
+                disabled={!creatorEnabled}
+              />
+              <span>
+                <span className="font-medium text-mowing-green">Reward creators for successful listings</span>
+                <span className="block text-sm text-mowing-green/70">
+                  Paid once when a referred user&apos;s first eligible listing is approved.
+                </span>
+              </span>
+            </label>
+            <label className="block text-sm text-mowing-green">
+              Listing reward (£)
+              <input
+                value={creatorListingReward}
+                onChange={(e) => setCreatorListingReward(e.target.value)}
+                disabled={!creatorEnabled || !creatorListingEnabled}
+                className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2 disabled:opacity-60"
+              />
+            </label>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                className="mt-1"
+                checked={creatorTxEnabled}
+                onChange={(e) => setCreatorTxEnabled(e.target.checked)}
+                disabled={!creatorEnabled}
+              />
+              <span>
+                <span className="font-medium text-mowing-green">Reward creators for successful transactions</span>
+                <span className="block text-sm text-mowing-green/70">
+                  Paid once when a referred user completes their first eligible transaction (as buyer or seller).
+                </span>
+              </span>
+            </label>
+            <label className="block text-sm text-mowing-green">
+              Transaction reward (£)
+              <input
+                value={creatorTxReward}
+                onChange={(e) => setCreatorTxReward(e.target.value)}
+                disabled={!creatorEnabled || !creatorTxEnabled}
+                className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2 disabled:opacity-60"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => void saveRewardSettings()}
+              disabled={settingsSaving || !creatorEnabled}
+              className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium disabled:opacity-70"
+            >
+              {settingsSaving ? "Saving…" : "Save reward settings"}
+            </button>
+            {settingsError && (
+              <p className="text-sm text-red-600" role="alert">
+                {settingsError}
+              </p>
+            )}
+            {settingsSaved && !settingsError && (
+              <p className="text-sm text-mowing-green/80">Saved. Future creator rewards will use these values.</p>
+            )}
+          </>
+        )}
+      </section>
 
       {success && (
         <div className="mt-4 rounded-xl border border-mowing-green/30 bg-white p-4 max-w-lg">
