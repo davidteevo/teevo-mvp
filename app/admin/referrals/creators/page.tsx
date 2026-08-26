@@ -46,6 +46,7 @@ export default function AdminCreatorsPage() {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState<CreateSuccess | null>(null);
 
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsLoading, setSettingsLoading] = useState(true);
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [settingsSaved, setSettingsSaved] = useState(false);
@@ -70,6 +71,7 @@ export default function AdminCreatorsPage() {
 
   const loadSettings = () => {
     setSettingsLoading(true);
+    setSettingsError(null);
     fetch("/api/admin/referrals/settings")
       .then(async (r) => {
         const data = await r.json();
@@ -90,6 +92,20 @@ export default function AdminCreatorsPage() {
     load();
     loadSettings();
   }, []);
+
+  const openRewardSettings = () => {
+    setSettingsSaved(false);
+    setSettingsError(null);
+    setSettingsOpen(true);
+    loadSettings();
+  };
+
+  const closeRewardSettings = () => {
+    if (settingsSaving) return;
+    setSettingsOpen(false);
+    setSettingsSaved(false);
+    setSettingsError(null);
+  };
 
   const saveRewardSettings = async () => {
     setSettingsSaving(true);
@@ -184,10 +200,21 @@ export default function AdminCreatorsPage() {
       <Link href="/admin/referrals" className="text-sm text-par-3-punch hover:underline">
         ← Referrals
       </Link>
-      <h1 className="mt-3 text-2xl font-bold text-mowing-green">Creators</h1>
-      <p className="mt-1 text-sm text-mowing-green/70">
-        Creator codes, Teevo credit milestones, and conversion tracking.
-      </p>
+      <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-mowing-green">Creators</h1>
+          <p className="mt-1 text-sm text-mowing-green/70">
+            Creator codes, Teevo credit milestones, and conversion tracking.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={openRewardSettings}
+          className="rounded-lg border border-mowing-green/30 bg-white px-4 py-2 text-sm font-medium text-mowing-green hover:bg-off-white-pique"
+        >
+          Reward settings
+        </button>
+      </div>
 
       {error && (
         <p className="mt-3 text-sm text-red-600" role="alert">
@@ -195,116 +222,149 @@ export default function AdminCreatorsPage() {
         </p>
       )}
 
-      <section className="mt-6 rounded-xl border border-par-3-punch/20 bg-white p-4 space-y-3 max-w-lg">
-        <h2 className="font-semibold text-mowing-green">Reward settings</h2>
-        <p className="text-sm text-mowing-green/70">
-          Configure which milestones pay Teevo credit and how much. Changes apply to future rewards only.
-          {!creatorEnabled && (
-            <>
-              {" "}
-              The creator programme is currently off — enable it in{" "}
-              <Link href="/admin/settings" className="underline text-par-3-punch">
-                Admin → Settings
-              </Link>
-              .
-            </>
-          )}
-        </p>
-        {settingsLoading ? (
-          <p className="text-sm text-mowing-green/70">Loading…</p>
-        ) : (
-          <>
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                className="mt-1"
-                checked={creatorNewUserEnabled}
-                onChange={(e) => setCreatorNewUserEnabled(e.target.checked)}
-                disabled={!creatorEnabled}
-              />
-              <span>
-                <span className="font-medium text-mowing-green">Reward creators for new users</span>
-                <span className="block text-sm text-mowing-green/70">
-                  Teevo credit when a referred user successfully creates an account (once per user).
-                </span>
-              </span>
-            </label>
-            <label className="block text-sm text-mowing-green">
-              New user reward (£)
-              <input
-                value={creatorNewUserReward}
-                onChange={(e) => setCreatorNewUserReward(e.target.value)}
-                disabled={!creatorEnabled || !creatorNewUserEnabled}
-                className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2 disabled:opacity-60"
-              />
-            </label>
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                className="mt-1"
-                checked={creatorListingEnabled}
-                onChange={(e) => setCreatorListingEnabled(e.target.checked)}
-                disabled={!creatorEnabled}
-              />
-              <span>
-                <span className="font-medium text-mowing-green">Reward creators for successful listings</span>
-                <span className="block text-sm text-mowing-green/70">
-                  Paid once when a referred user&apos;s first eligible listing is approved.
-                </span>
-              </span>
-            </label>
-            <label className="block text-sm text-mowing-green">
-              Listing reward (£)
-              <input
-                value={creatorListingReward}
-                onChange={(e) => setCreatorListingReward(e.target.value)}
-                disabled={!creatorEnabled || !creatorListingEnabled}
-                className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2 disabled:opacity-60"
-              />
-            </label>
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                className="mt-1"
-                checked={creatorTxEnabled}
-                onChange={(e) => setCreatorTxEnabled(e.target.checked)}
-                disabled={!creatorEnabled}
-              />
-              <span>
-                <span className="font-medium text-mowing-green">Reward creators for successful transactions</span>
-                <span className="block text-sm text-mowing-green/70">
-                  Paid once when a referred user completes their first eligible transaction (as buyer or seller).
-                </span>
-              </span>
-            </label>
-            <label className="block text-sm text-mowing-green">
-              Transaction reward (£)
-              <input
-                value={creatorTxReward}
-                onChange={(e) => setCreatorTxReward(e.target.value)}
-                disabled={!creatorEnabled || !creatorTxEnabled}
-                className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2 disabled:opacity-60"
-              />
-            </label>
-            <button
-              type="button"
-              onClick={() => void saveRewardSettings()}
-              disabled={settingsSaving || !creatorEnabled}
-              className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium disabled:opacity-70"
-            >
-              {settingsSaving ? "Saving…" : "Save reward settings"}
-            </button>
-            {settingsError && (
-              <p className="text-sm text-red-600" role="alert">
-                {settingsError}
+      {settingsOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="creator-reward-settings-title"
+          onClick={closeRewardSettings}
+        >
+          <div
+            className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 id="creator-reward-settings-title" className="text-lg font-semibold text-mowing-green">
+              Reward settings
+            </h2>
+            <p className="mt-1 text-sm text-mowing-green/70">
+              Choose which milestones pay Teevo credit, and the amount for each. Changes apply to future rewards
+              only.
+            </p>
+            {!creatorEnabled && !settingsLoading && (
+              <p className="mt-2 text-sm text-amber-700">
+                The creator programme is currently off — enable it in{" "}
+                <Link href="/admin/settings" className="underline">
+                  Admin → Settings
+                </Link>
+                .
               </p>
             )}
-            {settingsSaved && !settingsError && (
-              <p className="text-sm text-mowing-green/80">Saved. Future creator rewards will use these values.</p>
+
+            {settingsLoading ? (
+              <p className="mt-4 text-sm text-mowing-green/70">Loading…</p>
+            ) : (
+              <div className="mt-4 space-y-3">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="mt-1"
+                    checked={creatorNewUserEnabled}
+                    onChange={(e) => setCreatorNewUserEnabled(e.target.checked)}
+                    disabled={!creatorEnabled}
+                  />
+                  <span>
+                    <span className="font-medium text-mowing-green">Reward creators for new users</span>
+                    <span className="block text-sm text-mowing-green/70">
+                      Teevo credit when a referred user successfully creates an account (once per user).
+                    </span>
+                  </span>
+                </label>
+                <label className="block text-sm text-mowing-green">
+                  New user reward (£)
+                  <input
+                    value={creatorNewUserReward}
+                    onChange={(e) => setCreatorNewUserReward(e.target.value)}
+                    disabled={!creatorEnabled || !creatorNewUserEnabled}
+                    className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2 disabled:opacity-60"
+                  />
+                </label>
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="mt-1"
+                    checked={creatorListingEnabled}
+                    onChange={(e) => setCreatorListingEnabled(e.target.checked)}
+                    disabled={!creatorEnabled}
+                  />
+                  <span>
+                    <span className="font-medium text-mowing-green">Reward creators for successful listings</span>
+                    <span className="block text-sm text-mowing-green/70">
+                      Paid once when a referred user&apos;s first eligible listing is approved.
+                    </span>
+                  </span>
+                </label>
+                <label className="block text-sm text-mowing-green">
+                  Listing reward (£)
+                  <input
+                    value={creatorListingReward}
+                    onChange={(e) => setCreatorListingReward(e.target.value)}
+                    disabled={!creatorEnabled || !creatorListingEnabled}
+                    className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2 disabled:opacity-60"
+                  />
+                </label>
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="mt-1"
+                    checked={creatorTxEnabled}
+                    onChange={(e) => setCreatorTxEnabled(e.target.checked)}
+                    disabled={!creatorEnabled}
+                  />
+                  <span>
+                    <span className="font-medium text-mowing-green">
+                      Reward creators for successful transactions
+                    </span>
+                    <span className="block text-sm text-mowing-green/70">
+                      Paid once when a referred user completes their first eligible transaction (as buyer or
+                      seller).
+                    </span>
+                  </span>
+                </label>
+                <label className="block text-sm text-mowing-green">
+                  Transaction reward (£)
+                  <input
+                    value={creatorTxReward}
+                    onChange={(e) => setCreatorTxReward(e.target.value)}
+                    disabled={!creatorEnabled || !creatorTxEnabled}
+                    className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2 disabled:opacity-60"
+                  />
+                </label>
+
+                {settingsError && (
+                  <p className="text-sm text-red-600" role="alert">
+                    {settingsError}
+                  </p>
+                )}
+                {settingsSaved && !settingsError && (
+                  <p className="text-sm text-mowing-green/80">
+                    Saved. Future creator rewards will use these values.
+                  </p>
+                )}
+
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => void saveRewardSettings()}
+                    disabled={settingsSaving || !creatorEnabled}
+                    className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium disabled:opacity-70"
+                  >
+                    {settingsSaving ? "Saving…" : "Save"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeRewardSettings}
+                    disabled={settingsSaving}
+                    className="rounded-lg border border-mowing-green/30 px-4 py-2 text-sm font-medium text-mowing-green disabled:opacity-70"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
             )}
-          </>
-        )}
-      </section>
+          </div>
+        </div>
+      )}
 
       {success && (
         <div className="mt-4 rounded-xl border border-mowing-green/30 bg-white p-4 max-w-lg">
