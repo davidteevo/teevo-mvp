@@ -8,6 +8,10 @@ import { ALL_CATEGORIES, CONDITIONS } from "@/lib/listing-categories";
 import { compressListingMain, compressListingThumb } from "@/lib/image-compression";
 import { uploadListingPhotos } from "@/lib/listing-photos/upload-client";
 import type { ClubCatalogue } from "@/lib/club-catalogue";
+import {
+  MIN_GENERIC_LISTING_IMAGES,
+  MAX_GENERIC_LISTING_IMAGES,
+} from "@/lib/listing-photos/types";
 
 const LISTINGS_BUCKET = "listings";
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -144,8 +148,13 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
     const images = listingPayload.images;
     if (guided?.length) {
       // ok
-    } else if (images.length < 5 || images.length > 6) {
-      setSubmitError("Please upload 5 or 6 images.");
+    } else if (
+      images.length < MIN_GENERIC_LISTING_IMAGES ||
+      images.length > MAX_GENERIC_LISTING_IMAGES
+    ) {
+      setSubmitError(
+        `Please upload ${MIN_GENERIC_LISTING_IMAGES}–${MAX_GENERIC_LISTING_IMAGES} images.`
+      );
       return;
     }
     const pricePence = Math.round(parseFloat(listingPayload.price) * 100);
@@ -195,6 +204,7 @@ export function CreateListingContent({ clubCatalogue, clothingBrands }: CreateLi
           item_type: listingPayload.item_type ?? null,
           size: listingPayload.size ?? null,
           colour: listingPayload.colour ?? null,
+          gender: listingPayload.gender ?? null,
           listing_format: listingPayload.listing_format ?? null,
           standard_spec_status: listingPayload.standard_spec_status ?? null,
           customised_aspects: listingPayload.customised_aspects ?? null,

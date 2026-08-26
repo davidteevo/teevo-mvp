@@ -21,7 +21,7 @@ export function getListingDisplayTitle(listing: Listing): string {
     return normalizeListingTitleForCategory(listing.title.trim(), listing.category);
   }
   if (isClothingCategory(listing.category) && listing.item_type) {
-    const parts = [listing.brand, listing.item_type];
+    const parts = [listing.brand, listing.gender, listing.item_type].filter(Boolean);
     if (listing.size) parts.push(listing.size);
     return parts.join(" – ");
   }
@@ -56,6 +56,7 @@ export function getListingDisplayTitle(listing: Listing): string {
  */
 export function getListingMetaParts(listing: Listing): string[] {
   const parts: string[] = [listing.condition];
+  if (listing.gender?.trim()) parts.push(listing.gender.trim());
   if (listing.colour?.trim()) parts.push(listing.colour.trim());
   return parts;
 }

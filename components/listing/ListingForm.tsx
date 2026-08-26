@@ -12,6 +12,7 @@ import { GuidedPhotoStep, flattenGuidedPhotos, guidedPhotosComplete, type Guided
 import { ListingWizardTimeline } from "./ListingWizardTimeline";
 import {
   CLOTHING_TYPES,
+  CLOTHING_GENDERS,
   ACCESSORY_ITEM_TYPES,
   CLOTHING_BRANDS,
   ACCESSORY_BRANDS,
@@ -41,6 +42,10 @@ import {
 import { track } from "@/lib/analytics";
 import { getPhotoSlots } from "@/lib/listing-photos/requirements";
 import type { UploadableListingPhoto } from "@/lib/listing-photos/upload-client";
+import {
+  MIN_GENERIC_LISTING_IMAGES,
+  MAX_GENERIC_LISTING_IMAGES,
+} from "@/lib/listing-photos/types";
 
 export type { ListingSubmitProgress };
 
@@ -79,6 +84,7 @@ export type ListingFormSubmitPayload = {
   item_type?: string | null;
   size?: string | null;
   colour?: string | null;
+  gender?: string | null;
   images: File[];
   guidedPhotos?: UploadableListingPhoto[];
   hosel_serial_status?: "uploaded" | "not_found" | "not_applicable" | null;
@@ -124,6 +130,7 @@ export function ListingForm({
   const [itemType, setItemType] = useState("");
   const [size, setSize] = useState("");
   const [colour, setColour] = useState("");
+  const [gender, setGender] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [guidedPhotos, setGuidedPhotos] = useState<GuidedPhotoValue>({
     filesBySlot: {},
@@ -296,8 +303,12 @@ export function ListingForm({
   }, [brand, isStructured]);
 
   useEffect(() => {
-    if (!isClothing) setSize("");
-    else if (itemType) {
+    if (!isClothing) {
+      setSize("");
+      setGender("");
+      return;
+    }
+    if (itemType) {
       const allowed = getSizeOptionsForClothingType(itemType);
       setSize((s) => (s && allowed.includes(s) ? s : ""));
     }
@@ -379,6 +390,10 @@ export function ListingForm({
         alert("Please select clothing type.");
         return;
       }
+      if (!gender) {
+        alert("Please select Men, Women, or Junior.");
+        return;
+      }
       if (!size) {
         alert("Please select size.");
         return;
@@ -427,8 +442,11 @@ export function ListingForm({
       setStep(3);
       return;
     }
-    if (images.length < 5 || images.length > 6) {
-      alert("Please upload 5 or 6 images.");
+    if (
+      images.length < MIN_GENERIC_LISTING_IMAGES ||
+      images.length > MAX_GENERIC_LISTING_IMAGES
+    ) {
+      alert(`Please upload ${MIN_GENERIC_LISTING_IMAGES}–${MAX_GENERIC_LISTING_IMAGES} images.`);
       return;
     }
     setStep(3);
@@ -454,8 +472,11 @@ export function ListingForm({
         setStep(2);
         return;
       }
-    } else if (images.length < 5 || images.length > 6) {
-      alert("Please upload 5 or 6 images.");
+    } else if (
+      images.length < MIN_GENERIC_LISTING_IMAGES ||
+      images.length > MAX_GENERIC_LISTING_IMAGES
+    ) {
+      alert(`Please upload ${MIN_GENERIC_LISTING_IMAGES}–${MAX_GENERIC_LISTING_IMAGES} images.`);
       setStep(2);
       return;
     }
@@ -488,7 +509,13 @@ export function ListingForm({
             brand: effectiveBrand,
             condition,
             item_type: itemType,
-            ...(isClothing ? { size: size || undefined, colour: colour.trim() || undefined } : { model: model.trim() || undefined }),
+            ...(isClothing
+              ? {
+                  size: size || undefined,
+                  colour: colour.trim() || undefined,
+                  gender: gender || undefined,
+                }
+              : { model: model.trim() || undefined }),
             description: description.trim() || undefined,
             title: title || undefined,
           }
@@ -553,8 +580,9 @@ export function ListingForm({
             item_type: itemType || null,
             size: isClothing ? size || null : null,
             colour: colour.trim() || null,
+            gender: isClothing ? gender || null : null,
           }
-        : { model: model.trim(), item_type: null, size: null, colour: null }),
+        : { model: model.trim(), item_type: null, size: null, colour: null, gender: null }),
       condition,
       description: listingDescription,
       price,
@@ -638,6 +666,7 @@ export function ListingForm({
                 setModel("");
                 setCondition("");
                 setItemType("");
+                setGender("");
                 setClubSpecs(emptyClubSpecsFormState());
                 setGuidedPhotos({ filesBySlot: {}, extras: [], serialNotFound: false });
               }}
@@ -681,6 +710,18 @@ export function ListingForm({
                   label="Type"
                   required
                 />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-mowing-green mb-2">
+                  For <span className="text-par-3-punch">*</span>
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {CLOTHING_GENDERS.map((g) => (
+                    <FilterChip key={g} selected={gender === g} onClick={() => setGender(g)}>
+                      {g}
+                    </FilterChip>
+                  ))}
+                </div>
               </div>
               <div>
                 <SearchableSelect
@@ -814,10 +855,12 @@ export function ListingForm({
         ) : (
           <section>
             <h2 className="text-lg font-semibold text-mowing-green mb-1">Add photos</h2>
-            <p className="text-sm text-mowing-green/70 mb-3">Listings with 5+ photos sell faster.</p>
+            <p className="text-sm text-mowing-green/70 mb-3">
+              Add at least {MIN_GENERIC_LISTING_IMAGES} photos — more photos sell faster.
+            </p>
             <ImageUpload
-              min={5}
-              max={6}
+              min={MIN_GENERIC_LISTING_IMAGES}
+              max={MAX_GENERIC_LISTING_IMAGES}
               value={images}
               onChange={setImages}
               variant="hero"

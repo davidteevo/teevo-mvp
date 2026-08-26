@@ -103,6 +103,7 @@ Staging site → **Site configuration** → **Visitor access** (or **Password pr
 - `20250309140000_listings_clothing_accessories.sql`
 - `20250309140000_listings_title_and_fair.sql`
 - `20250309150000_merge_apparel_into_clothing.sql`
+- `20260826120000_listings_clothing_gender.sql`
 - `20250309150000_offers_initiated_by.sql`
 - `20250309160000_founding_seller_rank.sql`
 - `20250309170000_add_driving_irons_hybrids.sql`

@@ -158,6 +158,8 @@ export interface Listing {
   item_type: string | null;
   size: string | null;
   colour: string | null;
+  /** Clothing department: Men, Women, or Junior */
+  gender: string | null;
   status: ListingStatus;
   flagged: boolean;
   created_by_admin_id?: string | null;

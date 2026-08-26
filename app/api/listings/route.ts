@@ -11,6 +11,7 @@ import {
   ALL_CATEGORIES,
   CONDITIONS,
   CLOTHING_TYPES,
+  CLOTHING_GENDERS,
   ACCESSORY_ITEM_TYPES,
   getSizeOptionsForClothingType,
   isClothingCategory,
@@ -30,6 +31,7 @@ export const dynamic = "force-dynamic";
 const ALLOWED_CATEGORIES_SET = new Set<string>(ALL_CATEGORIES);
 const ALLOWED_CONDITIONS_SET = new Set<string>(CONDITIONS);
 const CLOTHING_TYPES_SET = new Set<string>(CLOTHING_TYPES);
+const CLOTHING_GENDERS_SET = new Set<string>(CLOTHING_GENDERS);
 const ACCESSORY_ITEM_TYPES_SET = new Set<string>(ACCESSORY_ITEM_TYPES);
 /**
  * POST /api/listings
@@ -82,6 +84,8 @@ export async function POST(request: Request) {
     const size = typeof body.size === "string" ? body.size.trim() || null : null;
     const colour =
       typeof body.colour === "string" ? body.colour.trim() || null : null;
+    const gender =
+      typeof body.gender === "string" ? body.gender.trim() || null : null;
     const price = typeof body.price === "number" ? body.price : parseInt(String(body.price), 10);
     const imageCount =
       typeof body.imageCount === "number" ? body.imageCount : parseInt(String(body.imageCount), 10);
@@ -117,6 +121,9 @@ export async function POST(request: Request) {
       }
       if (!item_type || !CLOTHING_TYPES_SET.has(item_type)) {
         return NextResponse.json({ error: "Invalid clothing type" }, { status: 400 });
+      }
+      if (!gender || !CLOTHING_GENDERS_SET.has(gender)) {
+        return NextResponse.json({ error: "Invalid gender for clothing" }, { status: 400 });
       }
       const allowedSizes = getSizeOptionsForClothingType(item_type);
       if (!size || !allowedSizes.includes(size)) {
@@ -203,6 +210,7 @@ export async function POST(request: Request) {
         item_type: item_type ?? null,
         size: size ?? null,
         colour: colour ?? null,
+        gender: isClothingCategory(category) ? gender : null,
         price,
         parcel_preset,
         status: "pending",
