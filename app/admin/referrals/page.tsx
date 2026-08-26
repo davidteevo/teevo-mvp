@@ -149,8 +149,8 @@ export default function AdminReferralsPage() {
           <Stat label="Credit issued" value={formatPence(dash.creditIssuedPence)} />
           <Stat label="Credit redeemed" value={formatPence(dash.creditRedeemedPence)} />
           <Stat label="Pending referral liability" value={formatPence(dash.pendingLiabilityPence)} />
-          <Stat label="Creator commission pending" value={formatPence(dash.creatorCommissionPendingPence)} />
-          <Stat label="Creator commission paid" value={formatPence(dash.creatorCommissionPaidPence)} />
+          <Stat label="Creator cash commission pending (legacy)" value={formatPence(dash.creatorCommissionPendingPence)} />
+          <Stat label="Creator cash commission paid (legacy)" value={formatPence(dash.creatorCommissionPaidPence)} />
         </div>
       )}
 
@@ -236,7 +236,8 @@ export default function AdminReferralsPage() {
                             Cancel
                           </button>
                         )}
-                        {(rw.status === "approved" || rw.status === "paid") && rw.reward_type !== "creator_commission" && (
+                        {(rw.status === "approved" || rw.status === "paid") &&
+                          rw.reward_type !== "creator_commission" && (
                           <button
                             type="button"
                             disabled={busyId === rw.id}

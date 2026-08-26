@@ -527,7 +527,12 @@ function ReferralGrowthSettings() {
   const [minPurchase, setMinPurchase] = useState("50.00");
   const [listingReward, setListingReward] = useState("5.00");
   const [saleReward, setSaleReward] = useState("5.00");
-  const [creatorCommission, setCreatorCommission] = useState("7.50");
+  const [creatorNewUserEnabled, setCreatorNewUserEnabled] = useState(true);
+  const [creatorNewUserReward, setCreatorNewUserReward] = useState("2.00");
+  const [creatorListingEnabled, setCreatorListingEnabled] = useState(true);
+  const [creatorListingReward, setCreatorListingReward] = useState("10.00");
+  const [creatorTxEnabled, setCreatorTxEnabled] = useState(true);
+  const [creatorTxReward, setCreatorTxReward] = useState("5.00");
   const [expiryDays, setExpiryDays] = useState("");
 
   useEffect(() => {
@@ -545,7 +550,12 @@ function ReferralGrowthSettings() {
         setMinPurchase(poundsFromPence(data.minItemPence ?? 5000));
         setListingReward(poundsFromPence(data.sellerListingRewardPence ?? 500));
         setSaleReward(poundsFromPence(data.sellerSaleRewardPence ?? 500));
-        setCreatorCommission(poundsFromPence(data.creatorDefaultCommissionPence ?? 750));
+        setCreatorNewUserEnabled(data.creatorNewUserRewardEnabled !== false);
+        setCreatorNewUserReward(poundsFromPence(data.creatorNewUserRewardPence ?? 200));
+        setCreatorListingEnabled(data.creatorListingRewardEnabled !== false);
+        setCreatorListingReward(poundsFromPence(data.creatorListingRewardPence ?? 1000));
+        setCreatorTxEnabled(data.creatorTransactionRewardEnabled !== false);
+        setCreatorTxReward(poundsFromPence(data.creatorTransactionRewardPence ?? 500));
         setExpiryDays(data.creditExpiryDays ? String(data.creditExpiryDays) : "");
       })
       .catch((e) => setError(e instanceof Error ? e.message : "Failed to load"))
@@ -577,7 +587,12 @@ function ReferralGrowthSettings() {
           minItemPence: toPence(minPurchase, "Minimum purchase"),
           sellerListingRewardPence: toPence(listingReward, "Supply listing reward"),
           sellerSaleRewardPence: toPence(saleReward, "First sale reward"),
-          creatorDefaultCommissionPence: toPence(creatorCommission, "Default creator commission"),
+          creatorNewUserRewardEnabled: creatorNewUserEnabled,
+          creatorNewUserRewardPence: toPence(creatorNewUserReward, "Creator new user reward"),
+          creatorListingRewardEnabled: creatorListingEnabled,
+          creatorListingRewardPence: toPence(creatorListingReward, "Creator listing reward"),
+          creatorTransactionRewardEnabled: creatorTxEnabled,
+          creatorTransactionRewardPence: toPence(creatorTxReward, "Creator transaction reward"),
           creditExpiryDays: expiry,
         }),
       });
@@ -677,10 +692,82 @@ function ReferralGrowthSettings() {
             <span>
               <span className="font-medium text-mowing-green">Creator programme</span>
               <span className="block text-sm text-mowing-green/70">
-                Lets creators share unique codes. A qualifying first purchase pays their commission instead of a
-                member referrer reward.
+                Lets creators share unique codes. Milestone Teevo credit is awarded to the creator&apos;s account
+                for signup, first verified listing, and first completed transaction (when enabled below).
               </span>
             </span>
+          </label>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={creatorNewUserEnabled}
+              onChange={(e) => setCreatorNewUserEnabled(e.target.checked)}
+              disabled={!creatorEnabled}
+            />
+            <span>
+              <span className="font-medium text-mowing-green">Reward creators for new users</span>
+              <span className="block text-sm text-mowing-green/70">
+                Teevo credit when a referred user successfully creates an account (once per user).
+              </span>
+            </span>
+          </label>
+          <label className="block text-sm text-mowing-green">
+            New user reward (£) — Teevo credit to creator
+            <input
+              value={creatorNewUserReward}
+              onChange={(e) => setCreatorNewUserReward(e.target.value)}
+              disabled={!creatorEnabled || !creatorNewUserEnabled}
+              className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2 disabled:opacity-60"
+            />
+          </label>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={creatorListingEnabled}
+              onChange={(e) => setCreatorListingEnabled(e.target.checked)}
+              disabled={!creatorEnabled}
+            />
+            <span>
+              <span className="font-medium text-mowing-green">Reward creators for successful listings</span>
+              <span className="block text-sm text-mowing-green/70">
+                Paid once when a referred user&apos;s first eligible listing is approved.
+              </span>
+            </span>
+          </label>
+          <label className="block text-sm text-mowing-green">
+            Listing reward (£) — Teevo credit to creator
+            <input
+              value={creatorListingReward}
+              onChange={(e) => setCreatorListingReward(e.target.value)}
+              disabled={!creatorEnabled || !creatorListingEnabled}
+              className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2 disabled:opacity-60"
+            />
+          </label>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={creatorTxEnabled}
+              onChange={(e) => setCreatorTxEnabled(e.target.checked)}
+              disabled={!creatorEnabled}
+            />
+            <span>
+              <span className="font-medium text-mowing-green">Reward creators for successful transactions</span>
+              <span className="block text-sm text-mowing-green/70">
+                Paid once when a referred user completes their first eligible transaction (as buyer or seller).
+              </span>
+            </span>
+          </label>
+          <label className="block text-sm text-mowing-green">
+            Transaction reward (£) — Teevo credit to creator
+            <input
+              value={creatorTxReward}
+              onChange={(e) => setCreatorTxReward(e.target.value)}
+              disabled={!creatorEnabled || !creatorTxEnabled}
+              className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2 disabled:opacity-60"
+            />
           </label>
           <label className="flex items-start gap-3 cursor-pointer">
             <input
@@ -734,14 +821,6 @@ function ReferralGrowthSettings() {
             <input
               value={saleReward}
               onChange={(e) => setSaleReward(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2"
-            />
-          </label>
-          <label className="block text-sm text-mowing-green">
-            Default creator commission (£)
-            <input
-              value={creatorCommission}
-              onChange={(e) => setCreatorCommission(e.target.value)}
               className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2"
             />
           </label>

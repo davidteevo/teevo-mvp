@@ -42,6 +42,30 @@ function copyForReward(rewardType: ReferralRewardTypeValue, amountGbp: string): 
       emailBody: `Your referral completed their first sale on Teevo.\n\nWe\u2019ve added another \u00A3${amountGbp} Teevo credit to your account. Use it towards your next club.`,
     };
   }
+  if (rewardType === ReferralRewardType.CREATOR_NEW_USER_REWARD) {
+    return {
+      title: `\u00A3${amountGbp} Teevo credit earned`,
+      message: "Someone signed up with your creator link.",
+      emailSubject: `\uD83D\uDCB8 \u00A3${amountGbp} creator credit earned!`,
+      emailBody: `Someone signed up on Teevo using your creator link.\n\nWe\u2019ve added \u00A3${amountGbp} Teevo credit to your account.`,
+    };
+  }
+  if (rewardType === ReferralRewardType.CREATOR_LISTING_REWARD) {
+    return {
+      title: `\u00A3${amountGbp} Teevo credit earned`,
+      message: "A user you referred had their first listing approved.",
+      emailSubject: `\uD83D\uDCB8 \u00A3${amountGbp} creator credit earned!`,
+      emailBody: `A user you referred had their first Teevo listing approved.\n\nWe\u2019ve added \u00A3${amountGbp} Teevo credit to your account.`,
+    };
+  }
+  if (rewardType === ReferralRewardType.CREATOR_TRANSACTION_REWARD) {
+    return {
+      title: `\u00A3${amountGbp} Teevo credit earned`,
+      message: "A user you referred completed their first marketplace transaction.",
+      emailSubject: `\uD83D\uDCB8 \u00A3${amountGbp} creator credit earned!`,
+      emailBody: `A user you referred completed their first Teevo transaction.\n\nWe\u2019ve added \u00A3${amountGbp} Teevo credit to your account.`,
+    };
+  }
   return {
     title: `You\u2019ve earned \u00A3${amountGbp} Teevo credit \uD83C\uDF89`,
     message: "Your referral completed their first purchase. Teevo credit has been added to your account.",

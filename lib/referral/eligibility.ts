@@ -90,3 +90,36 @@ export function isDemandReferral(
   if (referral.reward_priority === "supply") return false;
   return settings.programmeEnabled;
 }
+
+export type CreatorMilestoneDecision = {
+  ok: boolean;
+  reason:
+    | "ok"
+    | "programme_disabled"
+    | "event_disabled"
+    | "zero_amount"
+    | "creator_inactive"
+    | "missing_creator_user"
+    | "self_referral"
+    | "already_awarded";
+};
+
+/** Pure gates for creator milestone credit (signup / listing / transaction). */
+export function decideCreatorMilestone(opts: {
+  creatorProgrammeEnabled: boolean;
+  eventEnabled: boolean;
+  amountPence: number;
+  creatorStatus: "active" | "paused" | "disabled";
+  creatorUserId: string | null;
+  referredUserId: string;
+  alreadyHasReward: boolean;
+}): CreatorMilestoneDecision {
+  if (!opts.creatorProgrammeEnabled) return { ok: false, reason: "programme_disabled" };
+  if (!opts.eventEnabled) return { ok: false, reason: "event_disabled" };
+  if (opts.amountPence <= 0) return { ok: false, reason: "zero_amount" };
+  if (opts.creatorStatus !== "active") return { ok: false, reason: "creator_inactive" };
+  if (!opts.creatorUserId) return { ok: false, reason: "missing_creator_user" };
+  if (opts.creatorUserId === opts.referredUserId) return { ok: false, reason: "self_referral" };
+  if (opts.alreadyHasReward) return { ok: false, reason: "already_awarded" };
+  return { ok: true, reason: "ok" };
+}

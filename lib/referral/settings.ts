@@ -15,7 +15,12 @@ export const ReferralSettingKey = {
   SELLER_LISTING_REWARD_PENCE: "seller_listing_reward_pence",
   SELLER_SALE_REWARD_PENCE: "seller_sale_reward_pence",
   CREATOR_ENABLED: "creator_programme_enabled",
-  CREATOR_DEFAULT_COMMISSION_PENCE: "creator_default_commission_pence",
+  CREATOR_NEW_USER_REWARD_ENABLED: "creator_new_user_reward_enabled",
+  CREATOR_NEW_USER_REWARD_PENCE: "creator_new_user_reward_pence",
+  CREATOR_LISTING_REWARD_ENABLED: "creator_listing_reward_enabled",
+  CREATOR_LISTING_REWARD_PENCE: "creator_listing_reward_pence",
+  CREATOR_TRANSACTION_REWARD_ENABLED: "creator_transaction_reward_enabled",
+  CREATOR_TRANSACTION_REWARD_PENCE: "creator_transaction_reward_pence",
   CREDIT_ENABLED: "credit_enabled",
   CREDIT_EXPIRY_DAYS: "credit_expiry_days",
   REFERRAL_PRIORITY: "referral_priority",
@@ -30,7 +35,12 @@ export type ReferralSettings = {
   sellerListingRewardPence: number;
   sellerSaleRewardPence: number;
   creatorEnabled: boolean;
-  creatorDefaultCommissionPence: number;
+  creatorNewUserRewardEnabled: boolean;
+  creatorNewUserRewardPence: number;
+  creatorListingRewardEnabled: boolean;
+  creatorListingRewardPence: number;
+  creatorTransactionRewardEnabled: boolean;
+  creatorTransactionRewardPence: number;
   creditEnabled: boolean;
   creditExpiryDays: number | null;
   referralPriority: ReferralPriorityValue;
@@ -45,7 +55,12 @@ export const DEFAULT_REFERRAL_SETTINGS: ReferralSettings = {
   sellerListingRewardPence: 500,
   sellerSaleRewardPence: 500,
   creatorEnabled: true,
-  creatorDefaultCommissionPence: 750,
+  creatorNewUserRewardEnabled: true,
+  creatorNewUserRewardPence: 200,
+  creatorListingRewardEnabled: true,
+  creatorListingRewardPence: 1000,
+  creatorTransactionRewardEnabled: true,
+  creatorTransactionRewardPence: 500,
   creditEnabled: true,
   creditExpiryDays: null,
   referralPriority: ReferralPriority.SUPPLY,
@@ -107,9 +122,29 @@ export async function getReferralSettings(admin: SupabaseClient): Promise<Referr
       DEFAULT_REFERRAL_SETTINGS.sellerSaleRewardPence
     ),
     creatorEnabled: parseBool(map.get(ReferralSettingKey.CREATOR_ENABLED), DEFAULT_REFERRAL_SETTINGS.creatorEnabled),
-    creatorDefaultCommissionPence: parseNonNegInt(
-      map.get(ReferralSettingKey.CREATOR_DEFAULT_COMMISSION_PENCE),
-      DEFAULT_REFERRAL_SETTINGS.creatorDefaultCommissionPence
+    creatorNewUserRewardEnabled: parseBool(
+      map.get(ReferralSettingKey.CREATOR_NEW_USER_REWARD_ENABLED),
+      DEFAULT_REFERRAL_SETTINGS.creatorNewUserRewardEnabled
+    ),
+    creatorNewUserRewardPence: parseNonNegInt(
+      map.get(ReferralSettingKey.CREATOR_NEW_USER_REWARD_PENCE),
+      DEFAULT_REFERRAL_SETTINGS.creatorNewUserRewardPence
+    ),
+    creatorListingRewardEnabled: parseBool(
+      map.get(ReferralSettingKey.CREATOR_LISTING_REWARD_ENABLED),
+      DEFAULT_REFERRAL_SETTINGS.creatorListingRewardEnabled
+    ),
+    creatorListingRewardPence: parseNonNegInt(
+      map.get(ReferralSettingKey.CREATOR_LISTING_REWARD_PENCE),
+      DEFAULT_REFERRAL_SETTINGS.creatorListingRewardPence
+    ),
+    creatorTransactionRewardEnabled: parseBool(
+      map.get(ReferralSettingKey.CREATOR_TRANSACTION_REWARD_ENABLED),
+      DEFAULT_REFERRAL_SETTINGS.creatorTransactionRewardEnabled
+    ),
+    creatorTransactionRewardPence: parseNonNegInt(
+      map.get(ReferralSettingKey.CREATOR_TRANSACTION_REWARD_PENCE),
+      DEFAULT_REFERRAL_SETTINGS.creatorTransactionRewardPence
     ),
     creditEnabled: parseBool(map.get(ReferralSettingKey.CREDIT_ENABLED), DEFAULT_REFERRAL_SETTINGS.creditEnabled),
     creditExpiryDays: parseExpiryDays(map.get(ReferralSettingKey.CREDIT_EXPIRY_DAYS)),
@@ -126,7 +161,12 @@ export type ReferralSettingsPatch = Partial<{
   sellerListingRewardPence: number;
   sellerSaleRewardPence: number;
   creatorEnabled: boolean;
-  creatorDefaultCommissionPence: number;
+  creatorNewUserRewardEnabled: boolean;
+  creatorNewUserRewardPence: number;
+  creatorListingRewardEnabled: boolean;
+  creatorListingRewardPence: number;
+  creatorTransactionRewardEnabled: boolean;
+  creatorTransactionRewardPence: number;
   creditEnabled: boolean;
   creditExpiryDays: number | null;
   referralPriority: ReferralPriorityValue;
@@ -159,10 +199,23 @@ export async function setReferralSettings(
   addPence(ReferralSettingKey.SELLER_LISTING_REWARD_PENCE, patch.sellerListingRewardPence, "Supply listing reward");
   addPence(ReferralSettingKey.SELLER_SALE_REWARD_PENCE, patch.sellerSaleRewardPence, "First sale reward");
   addBool(ReferralSettingKey.CREATOR_ENABLED, patch.creatorEnabled);
+  addBool(ReferralSettingKey.CREATOR_NEW_USER_REWARD_ENABLED, patch.creatorNewUserRewardEnabled);
   addPence(
-    ReferralSettingKey.CREATOR_DEFAULT_COMMISSION_PENCE,
-    patch.creatorDefaultCommissionPence,
-    "Default creator commission"
+    ReferralSettingKey.CREATOR_NEW_USER_REWARD_PENCE,
+    patch.creatorNewUserRewardPence,
+    "Creator new user reward"
+  );
+  addBool(ReferralSettingKey.CREATOR_LISTING_REWARD_ENABLED, patch.creatorListingRewardEnabled);
+  addPence(
+    ReferralSettingKey.CREATOR_LISTING_REWARD_PENCE,
+    patch.creatorListingRewardPence,
+    "Creator listing reward"
+  );
+  addBool(ReferralSettingKey.CREATOR_TRANSACTION_REWARD_ENABLED, patch.creatorTransactionRewardEnabled);
+  addPence(
+    ReferralSettingKey.CREATOR_TRANSACTION_REWARD_PENCE,
+    patch.creatorTransactionRewardPence,
+    "Creator transaction reward"
   );
   addBool(ReferralSettingKey.CREDIT_ENABLED, patch.creditEnabled);
   if (patch.referralPriority !== undefined) {

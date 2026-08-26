@@ -6,12 +6,18 @@ import {
   reverseRedemptionForTransaction,
   type CreditType,
 } from "@/lib/referral/credit";
-import { creditExpiresAt, getReferralSettings } from "@/lib/referral/settings";
+import { creditExpiresAt, getReferralSettings, type ReferralSettings } from "@/lib/referral/settings";
 import { getReferralForUser, type ReferralRow } from "@/lib/referral/attribution";
-import { decideNewCustomerDiscount, isDemandReferral, isSupplyReferral } from "@/lib/referral/eligibility";
+import {
+  decideCreatorMilestone,
+  decideNewCustomerDiscount,
+  isDemandReferral,
+  isSupplyReferral,
+} from "@/lib/referral/eligibility";
 import { trackServerEvent } from "@/lib/starter-pack";
 import { notifyReferralRewardApproved } from "@/lib/referral/notify";
 import {
+  isCreatorMilestoneRewardType,
   ReferralRewardStatus,
   ReferralRewardType,
   type ReferralRewardTypeValue,
@@ -26,6 +32,7 @@ function creditTypeForReward(rewardType: ReferralRewardTypeValue): CreditType | 
   if (rewardType === ReferralRewardType.REFERRED_SELLER_LISTING_CREDIT) {
     return "referred_seller_listing_credit";
   }
+  if (isCreatorMilestoneRewardType(rewardType)) return "creator_milestone_reward";
   return null;
 }
 
@@ -112,6 +119,27 @@ async function issueAvailableCredit(
   return issued?.id ?? null;
 }
 
+async function resolveCreditUserId(
+  admin: SupabaseClient,
+  rewardType: string,
+  referral: { referrer_user_id: string; referred_user_id: string; creator_id: string | null } | null
+): Promise<string | null> {
+  if (!referral) return null;
+  if (rewardType === ReferralRewardType.REFERRED_SELLER_LISTING_CREDIT) {
+    return referral.referred_user_id;
+  }
+  if (isCreatorMilestoneRewardType(rewardType)) {
+    if (!referral.creator_id) return null;
+    const { data: creator } = await admin
+      .from("creators")
+      .select("user_id")
+      .eq("id", referral.creator_id)
+      .maybeSingle();
+    return creator?.user_id ?? null;
+  }
+  return referral.referrer_user_id;
+}
+
 export async function approveReward(
   admin: SupabaseClient,
   rewardId: string
@@ -148,10 +176,7 @@ export async function approveReward(
     .maybeSingle();
 
   if (reward.reward_type !== ReferralRewardType.CREATOR_COMMISSION) {
-    const creditUserId =
-      reward.reward_type === ReferralRewardType.REFERRED_SELLER_LISTING_CREDIT
-        ? referral?.referred_user_id
-        : referral?.referrer_user_id;
+    const creditUserId = await resolveCreditUserId(admin, reward.reward_type, referral);
     if (creditUserId) {
       await issueAvailableCredit(admin, {
         rewardId,
@@ -170,23 +195,24 @@ export async function approveReward(
   }
 
   await trackServerEvent(admin, "referral_reward_approved", {
-    userId:
-      reward.reward_type === ReferralRewardType.REFERRED_SELLER_LISTING_CREDIT
-        ? referral?.referred_user_id
-        : referral?.referrer_user_id,
+    userId: (await resolveCreditUserId(admin, reward.reward_type, referral)) ?? undefined,
     properties: {
       reward_id: rewardId,
       reward_type: reward.reward_type,
       amount_pence: reward.amount_pence,
     },
   });
-  if (reward.reward_type === ReferralRewardType.CREATOR_COMMISSION) {
+  if (
+    reward.reward_type === ReferralRewardType.CREATOR_COMMISSION ||
+    isCreatorMilestoneRewardType(reward.reward_type)
+  ) {
     await trackServerEvent(admin, "creator_referral_conversion", {
       properties: {
         reward_id: rewardId,
         referral_id: reward.referral_id,
         creator_id: referral?.creator_id,
         amount_pence: reward.amount_pence,
+        reward_type: reward.reward_type,
       },
     });
   }
@@ -297,6 +323,82 @@ async function hasExistingReward(
   return !!data;
 }
 
+type CreatorMilestoneKind = "new_user" | "listing" | "transaction";
+
+function milestoneConfig(
+  settings: ReferralSettings,
+  kind: CreatorMilestoneKind
+): { enabled: boolean; amountPence: number; rewardType: ReferralRewardTypeValue } {
+  if (kind === "new_user") {
+    return {
+      enabled: settings.creatorNewUserRewardEnabled,
+      amountPence: settings.creatorNewUserRewardPence,
+      rewardType: ReferralRewardType.CREATOR_NEW_USER_REWARD,
+    };
+  }
+  if (kind === "listing") {
+    return {
+      enabled: settings.creatorListingRewardEnabled,
+      amountPence: settings.creatorListingRewardPence,
+      rewardType: ReferralRewardType.CREATOR_LISTING_REWARD,
+    };
+  }
+  return {
+    enabled: settings.creatorTransactionRewardEnabled,
+    amountPence: settings.creatorTransactionRewardPence,
+    rewardType: ReferralRewardType.CREATOR_TRANSACTION_REWARD,
+  };
+}
+
+/**
+ * Idempotent: at most one reward of each creator milestone type per referral.
+ * Issues Teevo credit to creators.user_id on approve.
+ */
+export async function maybeCreateCreatorMilestoneReward(
+  admin: SupabaseClient,
+  opts: {
+    referral: ReferralRow;
+    kind: CreatorMilestoneKind;
+    relatedTransactionId?: string | null;
+    relatedListingId?: string | null;
+    settings?: ReferralSettings;
+  }
+): Promise<{ id: string; created: boolean } | null> {
+  if (!opts.referral.creator_id) return null;
+  const settings = opts.settings ?? (await getReferralSettings(admin));
+  const cfg = milestoneConfig(settings, opts.kind);
+
+  const { data: creator } = await admin
+    .from("creators")
+    .select("id, user_id, status")
+    .eq("id", opts.referral.creator_id)
+    .maybeSingle();
+  if (!creator) return null;
+
+  const exists = await hasExistingReward(admin, opts.referral.id, cfg.rewardType);
+  const decision = decideCreatorMilestone({
+    creatorProgrammeEnabled: settings.creatorEnabled,
+    eventEnabled: cfg.enabled,
+    amountPence: cfg.amountPence,
+    creatorStatus: creator.status as "active" | "paused" | "disabled",
+    creatorUserId: creator.user_id,
+    referredUserId: opts.referral.referred_user_id,
+    alreadyHasReward: exists,
+  });
+  if (!decision.ok) return null;
+
+  const created = await createPendingReward(admin, {
+    referralId: opts.referral.id,
+    rewardType: cfg.rewardType,
+    amountPence: cfg.amountPence,
+    relatedTransactionId: opts.relatedTransactionId ?? null,
+    relatedListingId: opts.relatedListingId ?? null,
+  });
+  if (!created) return null;
+  await approveReward(admin, created.id);
+  return created;
+}
+
 /**
  * After a paid checkout: store incentives, redeem credit, create pending rewards.
  */
@@ -381,7 +483,7 @@ async function maybeCreateBuyerConversionRewards(
     buyerId: string;
     itemPence: number;
     discountApplied: boolean;
-    settings: Awaited<ReturnType<typeof getReferralSettings>>;
+    settings: ReferralSettings;
   }
 ): Promise<void> {
   if (!isDemandReferral(opts.referral, opts.settings)) return;
@@ -397,21 +499,8 @@ async function maybeCreateBuyerConversionRewards(
   });
   if (!decision.eligible && !opts.discountApplied) return;
 
-  if (opts.referral.creator_id) {
-    if (!opts.settings.creatorEnabled) return;
-    const { data: creator } = await admin
-      .from("creators")
-      .select("id, status, commission_pence")
-      .eq("id", opts.referral.creator_id)
-      .maybeSingle();
-    if (!creator || creator.status !== "active") return;
-    await createPendingReward(admin, {
-      referralId: opts.referral.id,
-      rewardType: ReferralRewardType.CREATOR_COMMISSION,
-      amountPence: creator.commission_pence,
-      relatedTransactionId: opts.transactionId,
-    });
-  } else {
+  // Creator referrals no longer create creator_commission; milestones settle on order completion / signup / listing.
+  if (!opts.referral.creator_id) {
     await createPendingReward(admin, {
       referralId: opts.referral.id,
       rewardType: ReferralRewardType.BUYER_REFERRER_CREDIT,
@@ -437,6 +526,26 @@ export async function onOrderCompleted(admin: SupabaseClient, transactionId: str
     .eq("status", ReferralRewardStatus.PENDING);
   for (const reward of rewards ?? []) {
     await approveReward(admin, reward.id);
+  }
+
+  const { data: tx } = await admin
+    .from("transactions")
+    .select("id, buyer_id, seller_id")
+    .eq("id", transactionId)
+    .maybeSingle();
+  if (!tx) return;
+
+  const settings = await getReferralSettings(admin);
+  const participantIds = Array.from(new Set([tx.buyer_id, tx.seller_id].filter(Boolean))) as string[];
+  for (const userId of participantIds) {
+    const referral = await getReferralForUser(admin, userId);
+    if (!referral?.creator_id) continue;
+    await maybeCreateCreatorMilestoneReward(admin, {
+      referral,
+      kind: "transaction",
+      relatedTransactionId: transactionId,
+      settings,
+    });
   }
 }
 
@@ -466,47 +575,57 @@ export async function onListingVerified(
   const settings = await getReferralSettings(admin);
   const referral = await getReferralForUser(admin, opts.sellerId);
   if (!referral) return;
-  if (!isSupplyReferral(referral, settings)) return;
 
-  const amountPence = settings.sellerListingRewardPence;
-  const referrerExists = await hasExistingReward(
-    admin,
-    referral.id,
-    ReferralRewardType.SELLER_LISTING_CREDIT
-  );
-  if (!referrerExists) {
-    const created = await createPendingReward(admin, {
-      referralId: referral.id,
-      rewardType: ReferralRewardType.SELLER_LISTING_CREDIT,
-      amountPence,
-      relatedListingId: opts.listingId,
-    });
-    if (created?.created) {
-      await approveReward(admin, created.id);
-      await trackServerEvent(admin, "referral_first_listing", {
-        userId: opts.sellerId,
-        properties: { referral_id: referral.id, listing_id: opts.listingId },
+  if (isSupplyReferral(referral, settings)) {
+    const amountPence = settings.sellerListingRewardPence;
+    const referrerExists = await hasExistingReward(
+      admin,
+      referral.id,
+      ReferralRewardType.SELLER_LISTING_CREDIT
+    );
+    if (!referrerExists) {
+      const created = await createPendingReward(admin, {
+        referralId: referral.id,
+        rewardType: ReferralRewardType.SELLER_LISTING_CREDIT,
+        amountPence,
+        relatedListingId: opts.listingId,
       });
-    } else if (created && !created.created) {
-      await approveReward(admin, created.id);
+      if (created?.created) {
+        await approveReward(admin, created.id);
+        await trackServerEvent(admin, "referral_first_listing", {
+          userId: opts.sellerId,
+          properties: { referral_id: referral.id, listing_id: opts.listingId },
+        });
+      } else if (created && !created.created) {
+        await approveReward(admin, created.id);
+      }
+    }
+
+    const referredExists = await hasExistingReward(
+      admin,
+      referral.id,
+      ReferralRewardType.REFERRED_SELLER_LISTING_CREDIT
+    );
+    if (!referredExists) {
+      const created = await createPendingReward(admin, {
+        referralId: referral.id,
+        rewardType: ReferralRewardType.REFERRED_SELLER_LISTING_CREDIT,
+        amountPence,
+        relatedListingId: opts.listingId,
+      });
+      if (created) {
+        await approveReward(admin, created.id);
+      }
     }
   }
 
-  const referredExists = await hasExistingReward(
-    admin,
-    referral.id,
-    ReferralRewardType.REFERRED_SELLER_LISTING_CREDIT
-  );
-  if (!referredExists) {
-    const created = await createPendingReward(admin, {
-      referralId: referral.id,
-      rewardType: ReferralRewardType.REFERRED_SELLER_LISTING_CREDIT,
-      amountPence,
+  if (referral.creator_id) {
+    await maybeCreateCreatorMilestoneReward(admin, {
+      referral,
+      kind: "listing",
       relatedListingId: opts.listingId,
+      settings,
     });
-    if (created) {
-      await approveReward(admin, created.id);
-    }
   }
 }
 

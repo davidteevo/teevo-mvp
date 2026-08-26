@@ -54,7 +54,11 @@ export async function GET() {
       .from("referral_rewards")
       .select("id, reward_type, amount_pence, status, created_at")
       .in("referral_id", ids)
-      .neq("reward_type", "creator_commission")
+      .not(
+        "reward_type",
+        "in",
+        "(creator_commission,creator_new_user_reward,creator_listing_reward,creator_transaction_reward)"
+      )
       .order("created_at", { ascending: false });
     rewards = rewardRows ?? [];
     for (const r of rewards) {

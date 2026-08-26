@@ -334,13 +334,17 @@ export type ReferralRewardTypeName =
   | "seller_listing_credit"
   | "seller_sale_credit"
   | "creator_commission"
-  | "referred_seller_listing_credit";
+  | "referred_seller_listing_credit"
+  | "creator_new_user_reward"
+  | "creator_listing_reward"
+  | "creator_transaction_reward";
 export type ReferralRewardStatusName = "pending" | "approved" | "paid" | "cancelled" | "reversed";
 export type CreditTransactionType =
   | "referral_buyer_reward"
   | "seller_listing_referral"
   | "seller_sale_referral"
   | "referred_seller_listing_credit"
+  | "creator_milestone_reward"
   | "admin_adjustment"
   | "redemption"
   | "reversal"

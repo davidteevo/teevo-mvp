@@ -145,7 +145,17 @@ export async function persistReferralAttribution(
       },
     });
 
-    return (data as ReferralRow | null) ?? null;
+    const row = data as ReferralRow | null;
+    if (row?.creator_id) {
+      const { maybeCreateCreatorMilestoneReward } = await import("@/lib/referral/rewards");
+      await maybeCreateCreatorMilestoneReward(admin, {
+        referral: row,
+        kind: "new_user",
+        settings,
+      }).catch((e) => console.error("creator new_user milestone failed", e));
+    }
+
+    return row;
   } catch (e) {
     console.error("persistReferralAttribution failed", e);
     return null;
