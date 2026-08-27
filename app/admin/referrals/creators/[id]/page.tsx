@@ -195,6 +195,15 @@ export default function AdminCreatorDetailPage() {
             >
               View User
             </Link>
+            <Link
+              href="/dashboard/creator"
+              className="inline-block mt-2 ml-4 text-par-3-punch underline"
+            >
+              Open Creator Hub
+            </Link>
+            <p className="mt-2 text-xs text-mowing-green/60">
+              Creator Hub opens for the account you&apos;re signed in as (not impersonation).
+            </p>
           </dl>
         ) : (
           <div className="mt-3">

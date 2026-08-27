@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Settings } from "lucide-react";
+import { Settings, Sparkles } from "lucide-react";
 import { formatPence } from "@/lib/pricing";
 
 type Creator = {
@@ -264,6 +264,20 @@ export default function AdminCreatorsPage() {
             </p>
           </div>
         </button>
+        <Link
+          href="/dashboard/creator"
+          className="rounded-xl border border-par-3-punch/20 bg-white p-4 hover:shadow-md transition-shadow flex items-start gap-3"
+        >
+          <div className="rounded-lg bg-par-3-punch/20 p-2">
+            <Sparkles className="h-5 w-5 text-mowing-green" />
+          </div>
+          <div>
+            <p className="font-semibold text-mowing-green">Creator Hub</p>
+            <p className="mt-0.5 text-sm text-mowing-green/70">
+              Open the consumer Creator Hub for the account you&apos;re signed in as.
+            </p>
+          </div>
+        </Link>
       </div>
 
       {error && (
