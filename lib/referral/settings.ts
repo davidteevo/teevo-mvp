@@ -21,6 +21,12 @@ export const ReferralSettingKey = {
   CREATOR_LISTING_REWARD_PENCE: "creator_listing_reward_pence",
   CREATOR_TRANSACTION_REWARD_ENABLED: "creator_transaction_reward_enabled",
   CREATOR_TRANSACTION_REWARD_PENCE: "creator_transaction_reward_pence",
+  CREATOR_MISSION_TITLE: "creator_mission_title",
+  CREATOR_MISSION_BODY: "creator_mission_body",
+  CREATOR_MISSION_CTA_LABEL: "creator_mission_cta_label",
+  CREATOR_MISSION_CTA_URL: "creator_mission_cta_url",
+  CREATOR_MISSION_REWARD_CALLOUT: "creator_mission_reward_callout",
+  CREATOR_MONTHLY_REFERRAL_TARGET: "creator_monthly_referral_target",
   CREDIT_ENABLED: "credit_enabled",
   CREDIT_EXPIRY_DAYS: "credit_expiry_days",
   REFERRAL_PRIORITY: "referral_priority",
@@ -41,6 +47,12 @@ export type ReferralSettings = {
   creatorListingRewardPence: number;
   creatorTransactionRewardEnabled: boolean;
   creatorTransactionRewardPence: number;
+  creatorMissionTitle: string;
+  creatorMissionBody: string;
+  creatorMissionCtaLabel: string;
+  creatorMissionCtaUrl: string;
+  creatorMissionRewardCallout: string;
+  creatorMonthlyReferralTarget: number;
   creditEnabled: boolean;
   creditExpiryDays: number | null;
   referralPriority: ReferralPriorityValue;
@@ -61,6 +73,13 @@ export const DEFAULT_REFERRAL_SETTINGS: ReferralSettings = {
   creatorListingRewardPence: 1000,
   creatorTransactionRewardEnabled: true,
   creatorTransactionRewardPence: 500,
+  creatorMissionTitle: "Bring more clubs onto Teevo",
+  creatorMissionBody:
+    "We're building the marketplace. More great listings = more reasons for golfers to come back.",
+  creatorMissionCtaLabel: "Find a seller",
+  creatorMissionCtaUrl: "",
+  creatorMissionRewardCallout: "First approved listing from each new referral = {listing}",
+  creatorMonthlyReferralTarget: 10,
   creditEnabled: true,
   creditExpiryDays: null,
   referralPriority: ReferralPriority.SUPPLY,
@@ -94,6 +113,17 @@ function parseReferralPriority(value: unknown): ReferralPriorityValue {
   if (value === ReferralPriority.DEMAND || value === "DEMAND") return ReferralPriority.DEMAND;
   if (value === ReferralPriority.SUPPLY || value === "SUPPLY") return ReferralPriority.SUPPLY;
   return DEFAULT_REFERRAL_SETTINGS.referralPriority;
+}
+
+function parseString(value: unknown, fallback: string): string {
+  if (typeof value === "string") return value;
+  if (value == null) return fallback;
+  return String(value);
+}
+
+function parsePositiveInt(value: unknown, fallback: number): number {
+  const n = parseNonNegInt(value, fallback);
+  return n > 0 ? n : fallback;
 }
 
 export async function getReferralSettings(admin: SupabaseClient): Promise<ReferralSettings> {
@@ -146,6 +176,30 @@ export async function getReferralSettings(admin: SupabaseClient): Promise<Referr
       map.get(ReferralSettingKey.CREATOR_TRANSACTION_REWARD_PENCE),
       DEFAULT_REFERRAL_SETTINGS.creatorTransactionRewardPence
     ),
+    creatorMissionTitle: parseString(
+      map.get(ReferralSettingKey.CREATOR_MISSION_TITLE),
+      DEFAULT_REFERRAL_SETTINGS.creatorMissionTitle
+    ),
+    creatorMissionBody: parseString(
+      map.get(ReferralSettingKey.CREATOR_MISSION_BODY),
+      DEFAULT_REFERRAL_SETTINGS.creatorMissionBody
+    ),
+    creatorMissionCtaLabel: parseString(
+      map.get(ReferralSettingKey.CREATOR_MISSION_CTA_LABEL),
+      DEFAULT_REFERRAL_SETTINGS.creatorMissionCtaLabel
+    ),
+    creatorMissionCtaUrl: parseString(
+      map.get(ReferralSettingKey.CREATOR_MISSION_CTA_URL),
+      DEFAULT_REFERRAL_SETTINGS.creatorMissionCtaUrl
+    ),
+    creatorMissionRewardCallout: parseString(
+      map.get(ReferralSettingKey.CREATOR_MISSION_REWARD_CALLOUT),
+      DEFAULT_REFERRAL_SETTINGS.creatorMissionRewardCallout
+    ),
+    creatorMonthlyReferralTarget: parsePositiveInt(
+      map.get(ReferralSettingKey.CREATOR_MONTHLY_REFERRAL_TARGET),
+      DEFAULT_REFERRAL_SETTINGS.creatorMonthlyReferralTarget
+    ),
     creditEnabled: parseBool(map.get(ReferralSettingKey.CREDIT_ENABLED), DEFAULT_REFERRAL_SETTINGS.creditEnabled),
     creditExpiryDays: parseExpiryDays(map.get(ReferralSettingKey.CREDIT_EXPIRY_DAYS)),
     referralPriority: parseReferralPriority(map.get(ReferralSettingKey.REFERRAL_PRIORITY)),
@@ -167,6 +221,12 @@ export type ReferralSettingsPatch = Partial<{
   creatorListingRewardPence: number;
   creatorTransactionRewardEnabled: boolean;
   creatorTransactionRewardPence: number;
+  creatorMissionTitle: string;
+  creatorMissionBody: string;
+  creatorMissionCtaLabel: string;
+  creatorMissionCtaUrl: string;
+  creatorMissionRewardCallout: string;
+  creatorMonthlyReferralTarget: number;
   creditEnabled: boolean;
   creditExpiryDays: number | null;
   referralPriority: ReferralPriorityValue;
@@ -217,6 +277,43 @@ export async function setReferralSettings(
     patch.creatorTransactionRewardPence,
     "Creator transaction reward"
   );
+  const addText = (key: string, value: string | undefined, maxLen: number) => {
+    if (value === undefined) return;
+    if (typeof value !== "string") throw new Error("Mission fields must be text");
+    const trimmed = value.trim();
+    if (trimmed.length > maxLen) throw new Error(`Text must be at most ${maxLen} characters`);
+    rows.push({ key, value: trimmed, updated_at: now });
+  };
+  addText(ReferralSettingKey.CREATOR_MISSION_TITLE, patch.creatorMissionTitle, 120);
+  addText(ReferralSettingKey.CREATOR_MISSION_BODY, patch.creatorMissionBody, 500);
+  addText(ReferralSettingKey.CREATOR_MISSION_CTA_LABEL, patch.creatorMissionCtaLabel, 60);
+  if (patch.creatorMissionCtaUrl !== undefined) {
+    if (typeof patch.creatorMissionCtaUrl !== "string") {
+      throw new Error("Mission CTA URL must be text");
+    }
+    const url = patch.creatorMissionCtaUrl.trim();
+    if (url.length > 500) throw new Error("Mission CTA URL must be at most 500 characters");
+    if (url && !url.startsWith("/") && !/^https?:\/\//i.test(url)) {
+      throw new Error("Mission CTA URL must be a path or http(s) URL");
+    }
+    rows.push({
+      key: ReferralSettingKey.CREATOR_MISSION_CTA_URL,
+      value: url,
+      updated_at: now,
+    });
+  }
+  addText(ReferralSettingKey.CREATOR_MISSION_REWARD_CALLOUT, patch.creatorMissionRewardCallout, 240);
+  if (patch.creatorMonthlyReferralTarget !== undefined) {
+    const target = patch.creatorMonthlyReferralTarget;
+    if (typeof target !== "number" || !Number.isInteger(target) || target < 1 || target > 1000) {
+      throw new Error("Monthly referral target must be an integer between 1 and 1000");
+    }
+    rows.push({
+      key: ReferralSettingKey.CREATOR_MONTHLY_REFERRAL_TARGET,
+      value: String(target),
+      updated_at: now,
+    });
+  }
   addBool(ReferralSettingKey.CREDIT_ENABLED, patch.creditEnabled);
   if (patch.referralPriority !== undefined) {
     if (

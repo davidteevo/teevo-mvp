@@ -7,7 +7,7 @@ import {
   NotificationType,
 } from "@/lib/notifications";
 import { ensureUserReferralCode, referralShareUrl } from "@/lib/referral/codes";
-import { ReferralPriority, ReferralRewardType, type ReferralRewardTypeValue } from "@/lib/referral/types";
+import { isCreatorMilestoneRewardType, ReferralPriority, ReferralRewardType, type ReferralRewardTypeValue } from "@/lib/referral/types";
 import { getReferralSettings } from "@/lib/referral/settings";
 
 const appUrl = getAppUrl();
@@ -85,6 +85,7 @@ export async function notifyReferralRewardApproved(
 ): Promise<void> {
   const amountGbp = formatGbp(opts.amountPence);
   const copy = copyForReward(opts.rewardType, amountGbp);
+  const isCreatorReward = isCreatorMilestoneRewardType(opts.rewardType);
   const type =
     opts.rewardType === ReferralRewardType.SELLER_LISTING_CREDIT
       ? NotificationType.REFERRAL_SELLER_LISTING_REWARD
@@ -94,6 +95,9 @@ export async function notifyReferralRewardApproved(
           ? NotificationType.REFERRAL_SELLER_SALE_REWARD
           : NotificationType.REFERRAL_BUYER_REWARD;
 
+  const actionUrl = isCreatorReward ? "/dashboard/creator" : "/dashboard/referrals";
+  const actionLabel = isCreatorReward ? "Open Creator Hub" : "View referrals";
+
   await createNotification(admin, {
     userId: opts.referrerUserId,
     type,
@@ -101,8 +105,8 @@ export async function notifyReferralRewardApproved(
     message: copy.message,
     entityType: NotificationEntityType.ACCOUNT,
     entityId: opts.rewardId,
-    actionUrl: "/dashboard/referrals",
-    actionLabel: "View referrals",
+    actionUrl,
+    actionLabel,
     requiresAction: false,
   });
 
@@ -127,8 +131,8 @@ export async function notifyReferralRewardApproved(
       item_name: "Teevo credit",
       order_number: opts.rewardId.slice(0, 8),
       hero_image: "",
-      cta_link: `${appUrl}/dashboard/referrals`,
-      cta_text: "View your credit",
+      cta_link: `${appUrl}${actionUrl}`,
+      cta_text: isCreatorReward ? "Open Creator Hub" : "View your credit",
     },
   });
 }

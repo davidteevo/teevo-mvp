@@ -17,3 +17,34 @@ export function supplyShareMessage(url: string, listingRewardPence = 500): strin
 export function demandShareMessage(url: string, discountPence = 500): string {
   return buyerShareMessage(url, discountPence);
 }
+
+/** Default creator share message for native share / WhatsApp. */
+export function creatorShareMessage(url: string): string {
+  return `Got golf clubs gathering dust?\n\nSell them on Teevo — the marketplace built for golf gear.\n\n${url}`;
+}
+
+export type CreatorToolkitCaption = {
+  id: string;
+  title: string;
+  caption: string;
+};
+
+/** MVP ready-to-share captions (no CMS). */
+export function creatorToolkitCaptions(url: string): CreatorToolkitCaption[] {
+  return [
+    {
+      id: "dust",
+      title: "WhatsApp / caption",
+      caption: `Got golf clubs gathering dust?\n\nSell them on Teevo — the marketplace built for golf gear.\n\n${url}`,
+    },
+    {
+      id: "sellers",
+      title: "Invite sellers",
+      caption: `Know a golfer with clubs they never use?\n\nTeevo makes it easy to list and sell golf gear — verified, fair, and built for golfers.\n\n${url}`,
+    },
+  ];
+}
+
+export function creatorPotentialEarningsLine(potentialPence: number): string {
+  return `One great referral could earn you ${formatPoundsCompact(potentialPence)}`;
+}

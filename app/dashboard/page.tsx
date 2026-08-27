@@ -8,7 +8,7 @@ import { OnboardingStripeBanner } from "@/components/dashboard/OnboardingStripeB
 import { FoundingSellerBadge } from "@/components/trust/FoundingSellerBadge";
 import { FounderJourneyCard } from "@/components/founder/FounderJourneyCard";
 import { FounderMembershipCard } from "@/components/founder/FounderMembershipCard";
-import { Calendar, ClipboardCheck, Gift, Heart, MessageCircle, Package, PlusCircle, Send, ShoppingBag, ShoppingCart, Star, TrendingUp, User } from "lucide-react";
+import { Calendar, ClipboardCheck, Gift, Heart, MessageCircle, Package, PlusCircle, Send, ShoppingBag, ShoppingCart, Sparkles, Star, TrendingUp, User } from "lucide-react";
 
 function FoundingSellerFeedback() {
   const [message, setMessage] = useState("");
@@ -92,6 +92,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const [counts, setCounts] = useState<DashboardCounts>(null);
   const [edited, setEdited] = useState(false);
+  const [isCreator, setIsCreator] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -107,6 +108,14 @@ export default function DashboardPage() {
       window.history.replaceState({}, "", "/dashboard");
     }
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    fetch("/api/creator/status")
+      .then((r) => (r.ok ? r.json() : { isCreator: false }))
+      .then((data) => setIsCreator(data.isCreator === true))
+      .catch(() => setIsCreator(false));
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -325,6 +334,20 @@ export default function DashboardPage() {
             <p className="text-sm text-mowing-green/70">Share Teevo with a mate</p>
           </div>
         </Link>
+        {isCreator && (
+          <Link
+            href="/dashboard/creator"
+            className="flex items-center gap-4 rounded-xl border border-par-3-punch/20 bg-white p-4 hover:shadow-md transition-shadow"
+          >
+            <div className="rounded-lg bg-par-3-punch/25 p-3">
+              <Sparkles className="h-6 w-6 text-mowing-green" />
+            </div>
+            <div>
+              <p className="font-semibold text-mowing-green">Creator Hub</p>
+              <p className="text-sm text-mowing-green/70">Earnings, squad & share</p>
+            </div>
+          </Link>
+        )}
         <Link
           href="/dashboard/purchases"
           className="flex items-center gap-4 rounded-xl border border-par-3-punch/20 bg-white p-4 hover:shadow-md transition-shadow relative"

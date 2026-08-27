@@ -394,6 +394,8 @@ describe("creator milestone rewards", () => {
     expect(DEFAULT_REFERRAL_SETTINGS.creatorListingRewardPence).toBe(1000);
     expect(DEFAULT_REFERRAL_SETTINGS.creatorTransactionRewardPence).toBe(500);
     expect(DEFAULT_REFERRAL_SETTINGS.creatorNewUserRewardEnabled).toBe(true);
+    expect(DEFAULT_REFERRAL_SETTINGS.creatorMissionTitle).toBe("Bring more clubs onto Teevo");
+    expect(DEFAULT_REFERRAL_SETTINGS.creatorMonthlyReferralTarget).toBe(10);
   });
 
   it("validates emails for creator user create/link", () => {
