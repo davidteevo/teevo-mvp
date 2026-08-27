@@ -26,6 +26,7 @@ export const ReferralSettingKey = {
   CREATOR_MISSION_CTA_LABEL: "creator_mission_cta_label",
   CREATOR_MISSION_CTA_URL: "creator_mission_cta_url",
   CREATOR_MISSION_REWARD_CALLOUT: "creator_mission_reward_callout",
+  CREATOR_SUGGESTED_MESSAGE: "creator_suggested_message",
   CREATOR_MONTHLY_REFERRAL_TARGET: "creator_monthly_referral_target",
   CREDIT_ENABLED: "credit_enabled",
   CREDIT_EXPIRY_DAYS: "credit_expiry_days",
@@ -52,6 +53,7 @@ export type ReferralSettings = {
   creatorMissionCtaLabel: string;
   creatorMissionCtaUrl: string;
   creatorMissionRewardCallout: string;
+  creatorSuggestedMessage: string;
   creatorMonthlyReferralTarget: number;
   creditEnabled: boolean;
   creditExpiryDays: number | null;
@@ -79,6 +81,8 @@ export const DEFAULT_REFERRAL_SETTINGS: ReferralSettings = {
   creatorMissionCtaLabel: "Find a seller",
   creatorMissionCtaUrl: "",
   creatorMissionRewardCallout: "First approved listing from each new referral = {listing}",
+  creatorSuggestedMessage:
+    "Got golf clubs gathering dust?\n\nSell them on Teevo — the marketplace built for golf gear.",
   creatorMonthlyReferralTarget: 10,
   creditEnabled: true,
   creditExpiryDays: null,
@@ -196,6 +200,10 @@ export async function getReferralSettings(admin: SupabaseClient): Promise<Referr
       map.get(ReferralSettingKey.CREATOR_MISSION_REWARD_CALLOUT),
       DEFAULT_REFERRAL_SETTINGS.creatorMissionRewardCallout
     ),
+    creatorSuggestedMessage: parseString(
+      map.get(ReferralSettingKey.CREATOR_SUGGESTED_MESSAGE),
+      DEFAULT_REFERRAL_SETTINGS.creatorSuggestedMessage
+    ),
     creatorMonthlyReferralTarget: parsePositiveInt(
       map.get(ReferralSettingKey.CREATOR_MONTHLY_REFERRAL_TARGET),
       DEFAULT_REFERRAL_SETTINGS.creatorMonthlyReferralTarget
@@ -226,6 +234,7 @@ export type ReferralSettingsPatch = Partial<{
   creatorMissionCtaLabel: string;
   creatorMissionCtaUrl: string;
   creatorMissionRewardCallout: string;
+  creatorSuggestedMessage: string;
   creatorMonthlyReferralTarget: number;
   creditEnabled: boolean;
   creditExpiryDays: number | null;
@@ -303,6 +312,7 @@ export async function setReferralSettings(
     });
   }
   addText(ReferralSettingKey.CREATOR_MISSION_REWARD_CALLOUT, patch.creatorMissionRewardCallout, 240);
+  addText(ReferralSettingKey.CREATOR_SUGGESTED_MESSAGE, patch.creatorSuggestedMessage, 1000);
   if (patch.creatorMonthlyReferralTarget !== undefined) {
     const target = patch.creatorMonthlyReferralTarget;
     if (typeof target !== "number" || !Number.isInteger(target) || target < 1 || target > 1000) {

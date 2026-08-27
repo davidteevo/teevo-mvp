@@ -17,12 +17,16 @@ type Props = {
   url: string;
   code: string;
   id?: string;
+  suggestedMessage?: string;
 };
 
-export function CreatorSharePanel({ url, code, id }: Props) {
+export function CreatorSharePanel({ url, code, id, suggestedMessage }: Props) {
   const [copiedLink, setCopiedLink] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
-  const message = useMemo(() => creatorShareMessage(url), [url]);
+  const message = useMemo(
+    () => creatorShareMessage(url, suggestedMessage),
+    [url, suggestedMessage]
+  );
   const canNativeShare = useMemo(
     () => typeof navigator !== "undefined" && typeof navigator.share === "function",
     []
@@ -46,6 +50,7 @@ export function CreatorSharePanel({ url, code, id }: Props) {
     try {
       await navigator.clipboard.writeText(url);
       setCopiedLink(true);
+      track("creator_link_copied", { channel: "copy" });
       track("creator_link_shared", { channel: "copy" });
       window.setTimeout(() => setCopiedLink(false), 2000);
     } catch {
@@ -66,6 +71,7 @@ export function CreatorSharePanel({ url, code, id }: Props) {
     try {
       await navigator.clipboard.writeText(message);
       flash("Message copied — paste it anywhere");
+      track("creator_message_copied", { channel: "share_fallback" });
       track("creator_link_shared", { channel: "copy_message" });
     } catch {
       flash("Could not copy");
@@ -76,6 +82,7 @@ export function CreatorSharePanel({ url, code, id }: Props) {
     try {
       await navigator.clipboard.writeText(message);
       flash(`${label}: caption + link copied`);
+      track("creator_message_copied", { channel });
       track("creator_link_shared", { channel });
     } catch {
       flash("Could not copy");
@@ -153,8 +160,11 @@ export function CreatorSharePanel({ url, code, id }: Props) {
 }
 
 /** Imperative helpers for hero / sticky share when panel is elsewhere */
-export async function shareCreatorLink(url: string): Promise<"shared" | "copied" | "cancelled"> {
-  const message = creatorShareMessage(url);
+export async function shareCreatorLink(
+  url: string,
+  suggestedMessage?: string
+): Promise<"shared" | "copied" | "cancelled"> {
+  const message = creatorShareMessage(url, suggestedMessage);
   if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
     try {
       await navigator.share({ title: "Teevo", text: message, url });
@@ -166,6 +176,7 @@ export async function shareCreatorLink(url: string): Promise<"shared" | "copied"
   }
   try {
     await navigator.clipboard.writeText(message);
+    track("creator_message_copied", { channel: "share_fallback" });
     track("creator_link_shared", { channel: "copy_message" });
     return "copied";
   } catch {
@@ -176,6 +187,7 @@ export async function shareCreatorLink(url: string): Promise<"shared" | "copied"
 export async function copyCreatorUrl(url: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(url);
+    track("creator_link_copied", { channel: "copy" });
     track("creator_link_shared", { channel: "copy" });
     return true;
   } catch {

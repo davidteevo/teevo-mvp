@@ -24,3 +24,7 @@
 # Admin new-users digest: 17:00 and 18:00 UTC; API gates on Europe/London 18:00 (DST-safe).
 [functions."admin-new-users-digest-cron"]
   schedule = "0 17,18 * * *"
+
+# Weekly Creator Roundup: Mon 08:00 and 09:00 UTC; API gates on Europe/London Monday 09:00.
+[functions."creator-weekly-roundup-cron"]
+  schedule = "0 8,9 * * 1"

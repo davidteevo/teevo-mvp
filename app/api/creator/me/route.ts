@@ -18,8 +18,7 @@ export async function GET() {
   const result = await buildCreatorHubPayload(admin, { userId: user.id, settings });
 
   if ("error" in result) {
-    const status = result.error === "programme_disabled" ? 403 : 404;
-    return NextResponse.json({ error: result.error }, { status });
+    return NextResponse.json({ error: result.error }, { status: 404 });
   }
 
   return NextResponse.json(result.data);

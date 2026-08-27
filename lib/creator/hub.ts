@@ -57,11 +57,17 @@ export type CreatorHubPayload = {
   code: string;
   url: string;
   status: string;
+  programmePaused: boolean;
+  creatorInactive: boolean;
+  advertiseOpportunities: boolean;
   earnedPence: number;
   pendingPence: number;
   totalEarnedPence: number;
   golfersReferred: number;
+  successfulListings: number;
+  successfulTransactions: number;
   rewardsThisWeek: number;
+  suggestedMessage: string;
   rewardJourney: {
     steps: CreatorHubJourneyStep[];
     potentialTotalPence: number;
@@ -113,7 +119,7 @@ function countableReward(status: string): boolean {
   return status === "approved" || status === "paid" || status === "pending";
 }
 
-function fillMissionCallout(template: string, settings: ReferralSettings): string {
+export function fillMissionCallout(template: string, settings: ReferralSettings): string {
   return template
     .split("{join}").join(formatPoundsCompact(settings.creatorNewUserRewardPence))
     .split("{listing}").join(formatPoundsCompact(settings.creatorListingRewardPence))
@@ -149,33 +155,32 @@ function activityCopy(
   };
 }
 
-function squadLabel(opts: {
-  firstName?: string | null;
-  displayName?: string | null;
-  userId: string;
-}): { label: string; shortId: string } {
-  const shortId = opts.userId.replace(/-/g, "").slice(0, 4).toUpperCase();
-  const first = (opts.firstName ?? "").trim();
-  if (first) return { label: first, shortId };
-  const display = (opts.displayName ?? "").trim();
-  if (display && !display.includes("@")) return { label: display.split(/\s+/)[0]!, shortId };
+/** Stable anonymised label — never expose referee names. */
+function squadLabel(userId: string): { label: string; shortId: string } {
+  const shortId = userId.replace(/-/g, "").slice(0, 4).toUpperCase();
   return { label: `Golfer #${shortId}`, shortId };
 }
 
 function nextStepHint(
   member: { joined: boolean; listed: boolean; transacted: boolean },
   settings: ReferralSettings,
-  totalSteps: number
+  totalSteps: number,
+  advertiseOpportunities: boolean
 ): string | null {
-  if (totalSteps === 0) return null;
+  if (!advertiseOpportunities || totalSteps === 0) return null;
   if (member.joined && !member.listed && settings.creatorListingRewardEnabled) {
-    return `One more step → potential +${formatPoundsCompact(settings.creatorListingRewardPence)}`;
+    return `Next milestone: first listing (+${formatPoundsCompact(settings.creatorListingRewardPence)})`;
   }
   if (member.listed && !member.transacted && settings.creatorTransactionRewardEnabled) {
-    return `One more step → potential +${formatPoundsCompact(settings.creatorTransactionRewardPence)}`;
+    return `Next milestone: first transaction (+${formatPoundsCompact(settings.creatorTransactionRewardPence)})`;
   }
-  if (member.joined && !member.listed && !settings.creatorListingRewardEnabled && settings.creatorTransactionRewardEnabled) {
-    return `One more step → potential +${formatPoundsCompact(settings.creatorTransactionRewardPence)}`;
+  if (
+    member.joined &&
+    !member.listed &&
+    !settings.creatorListingRewardEnabled &&
+    settings.creatorTransactionRewardEnabled
+  ) {
+    return `Next milestone: first transaction (+${formatPoundsCompact(settings.creatorTransactionRewardPence)})`;
   }
   return null;
 }
@@ -194,7 +199,7 @@ function buildInsight(funnel: {
   }
   const joinedNotListed = funnel.joined - funnel.listed;
   if (joinedNotListed >= 2) {
-    return `${joinedNotListed} people joined but haven't listed yet.`;
+    return `${joinedNotListed} golfers joined but haven't listed yet.`;
   }
   if (funnel.listed >= 2 && funnel.transacted === 0) {
     return `${funnel.listed} golfers listed — next up is their first transaction.`;
@@ -237,99 +242,11 @@ function buildPersonalBest(opts: {
   return null;
 }
 
-export async function getCreatorStatusForUser(
-  admin: SupabaseClient,
-  userId: string
-): Promise<{ isCreator: boolean; status: string | null }> {
-  const { data } = await admin
-    .from("creators")
-    .select("id, status")
-    .eq("user_id", userId)
-    .maybeSingle();
-  if (!data) return { isCreator: false, status: null };
-  return { isCreator: data.status === "active", status: data.status };
-}
-
-export async function buildCreatorHubPayload(
-  admin: SupabaseClient,
-  opts: { userId: string; settings: ReferralSettings }
-): Promise<{ error: "not_a_creator" | "programme_disabled" } | { data: CreatorHubPayload }> {
-  const { settings } = opts;
-  if (!settings.creatorEnabled) {
-    return { error: "programme_disabled" };
-  }
-
-  const { data: creator } = await admin
-    .from("creators")
-    .select("id, status, referral_code_id, referral_codes(code, status)")
-    .eq("user_id", opts.userId)
-    .maybeSingle();
-
-  if (!creator || creator.status !== "active") {
-    return { error: "not_a_creator" };
-  }
-
-  const codeRel = creator.referral_codes as unknown as
-    | { code?: string; status?: string }
-    | { code?: string; status?: string }[]
-    | null;
-  const codeObj = Array.isArray(codeRel) ? codeRel[0] : codeRel;
-  const code = codeObj?.code;
-  if (!code) return { error: "not_a_creator" };
-
-  const { data: profile } = await admin
-    .from("users")
-    .select("first_name")
-    .eq("id", opts.userId)
-    .maybeSingle();
-
-  const { data: referrals } = await admin
-    .from("referrals")
-    .select(
-      "id, referred_user_id, attributed_at, created_at, users:referred_user_id(id, first_name, display_name)"
-    )
-    .eq("creator_id", creator.id)
-    .order("created_at", { ascending: false });
-
-  const referralIds = (referrals ?? []).map((r) => r.id);
-  const { data: rewards } = referralIds.length
-    ? await admin
-        .from("referral_rewards")
-        .select(
-          "id, referral_id, reward_type, amount_pence, status, created_at, approved_at"
-        )
-        .in("referral_id", referralIds)
-        .in("reward_type", CREATOR_REWARD_TYPES)
-        .order("created_at", { ascending: false })
-    : { data: [] as {
-        id: string;
-        referral_id: string;
-        reward_type: string;
-        amount_pence: number;
-        status: string;
-        created_at: string;
-        approved_at: string | null;
-      }[] };
-
-  const rewardsByRef = new Map<string, NonNullable<typeof rewards>>();
-  for (const rw of rewards ?? []) {
-    const list = rewardsByRef.get(rw.referral_id) ?? [];
-    list.push(rw);
-    rewardsByRef.set(rw.referral_id, list);
-  }
-
-  let earnedPence = 0;
-  let pendingPence = 0;
-  const weekStart = startOfUtcWeek().toISOString();
-  let rewardsThisWeek = 0;
-  for (const rw of rewards ?? []) {
-    if (!countableReward(rw.status)) continue;
-    if (rw.status === "pending") pendingPence += rw.amount_pence;
-    else earnedPence += rw.amount_pence;
-    const ts = rw.approved_at ?? rw.created_at;
-    if (ts >= weekStart) rewardsThisWeek += 1;
-  }
-
+export function buildJourneySteps(
+  settings: ReferralSettings,
+  advertiseOpportunities: boolean
+): CreatorHubJourneyStep[] {
+  if (!advertiseOpportunities) return [];
   const journeySteps: CreatorHubJourneyStep[] = [];
   if (settings.creatorNewUserRewardEnabled && settings.creatorNewUserRewardPence > 0) {
     journeySteps.push({
@@ -352,43 +269,139 @@ export async function buildCreatorHubPayload(
       amountPence: settings.creatorTransactionRewardPence,
     });
   }
-  const potentialTotalPence = journeySteps.reduce((s, step) => s + step.amountPence, 0);
+  return journeySteps;
+}
 
-  const totalSteps = journeySteps.length;
-  const enabledKeys = new Set(journeySteps.map((s) => s.key));
+/** Progress rails: join always; list + transact for squad milestone UI. */
+function progressStepKeys(): Array<"join" | "list" | "transact"> {
+  return ["join", "list", "transact"];
+}
+
+export async function getCreatorStatusForUser(
+  admin: SupabaseClient,
+  userId: string
+): Promise<{ isCreator: boolean; status: string | null }> {
+  const { data } = await admin
+    .from("creators")
+    .select("id, status")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!data) return { isCreator: false, status: null };
+  // Linked creator row → Hub entry available (including paused/disabled for historical view)
+  return { isCreator: true, status: data.status };
+}
+
+export async function buildCreatorHubPayload(
+  admin: SupabaseClient,
+  opts: { userId: string; settings: ReferralSettings }
+): Promise<{ error: "not_a_creator" } | { data: CreatorHubPayload }> {
+  const { settings } = opts;
+
+  const { data: creator } = await admin
+    .from("creators")
+    .select("id, status, referral_code_id, referral_codes(code, status)")
+    .eq("user_id", opts.userId)
+    .maybeSingle();
+
+  if (!creator) {
+    return { error: "not_a_creator" };
+  }
+
+  const programmePaused = !settings.creatorEnabled;
+  const creatorInactive = creator.status !== "active";
+  const advertiseOpportunities = !programmePaused && !creatorInactive;
+
+  const codeRel = creator.referral_codes as unknown as
+    | { code?: string; status?: string }
+    | { code?: string; status?: string }[]
+    | null;
+  const codeObj = Array.isArray(codeRel) ? codeRel[0] : codeRel;
+  const code = codeObj?.code;
+  if (!code) return { error: "not_a_creator" };
+
+  const { data: profile } = await admin
+    .from("users")
+    .select("first_name")
+    .eq("id", opts.userId)
+    .maybeSingle();
+
+  const { data: referrals } = await admin
+    .from("referrals")
+    .select("id, referred_user_id, attributed_at, created_at")
+    .eq("creator_id", creator.id)
+    .order("created_at", { ascending: false });
+
+  const referralIds = (referrals ?? []).map((r) => r.id);
+  const { data: rewards } = referralIds.length
+    ? await admin
+        .from("referral_rewards")
+        .select(
+          "id, referral_id, reward_type, amount_pence, status, created_at, approved_at"
+        )
+        .in("referral_id", referralIds)
+        .in("reward_type", CREATOR_REWARD_TYPES)
+        .order("created_at", { ascending: false })
+    : {
+        data: [] as {
+          id: string;
+          referral_id: string;
+          reward_type: string;
+          amount_pence: number;
+          status: string;
+          created_at: string;
+          approved_at: string | null;
+        }[],
+      };
+
+  const rewardsByRef = new Map<string, NonNullable<typeof rewards>>();
+  for (const rw of rewards ?? []) {
+    const list = rewardsByRef.get(rw.referral_id) ?? [];
+    list.push(rw);
+    rewardsByRef.set(rw.referral_id, list);
+  }
+
+  let earnedPence = 0;
+  let pendingPence = 0;
+  let successfulListings = 0;
+  let successfulTransactions = 0;
+  const weekStart = startOfUtcWeek().toISOString();
+  let rewardsThisWeek = 0;
+  for (const rw of rewards ?? []) {
+    if (!countableReward(rw.status)) continue;
+    if (rw.status === "pending") pendingPence += rw.amount_pence;
+    else earnedPence += rw.amount_pence;
+    if (rw.reward_type === ReferralRewardType.CREATOR_LISTING_REWARD) successfulListings += 1;
+    if (rw.reward_type === ReferralRewardType.CREATOR_TRANSACTION_REWARD) {
+      successfulTransactions += 1;
+    }
+    const ts = rw.approved_at ?? rw.created_at;
+    if (ts >= weekStart) rewardsThisWeek += 1;
+  }
+
+  const journeySteps = buildJourneySteps(settings, advertiseOpportunities);
+  const potentialTotalPence = journeySteps.reduce((s, step) => s + step.amountPence, 0);
+  const progressKeys = progressStepKeys();
+  const totalProgressSteps = progressKeys.length;
 
   const squad: CreatorHubSquadMember[] = (referrals ?? []).map((r) => {
-    const u = r.users as unknown as
-      | { id?: string; first_name?: string; display_name?: string }
-      | { id?: string; first_name?: string; display_name?: string }[]
-      | null;
-    const user = Array.isArray(u) ? u[0] : u;
-    const { label, shortId } = squadLabel({
-      firstName: user?.first_name,
-      displayName: user?.display_name,
-      userId: r.referred_user_id,
-    });
+    const { label, shortId } = squadLabel(r.referred_user_id);
     const rws = rewardsByRef.get(r.id) ?? [];
     const memberJoined = true;
-    const memberListed = enabledKeys.has("list")
-      ? rws.some(
-          (rw) =>
-            rw.reward_type === ReferralRewardType.CREATOR_LISTING_REWARD && countableReward(rw.status)
-        )
-      : false;
-    const memberTransacted = enabledKeys.has("transact")
-      ? rws.some(
-          (rw) =>
-            rw.reward_type === ReferralRewardType.CREATOR_TRANSACTION_REWARD &&
-            countableReward(rw.status)
-        )
-      : false;
+    const memberListed = rws.some(
+      (rw) =>
+        rw.reward_type === ReferralRewardType.CREATOR_LISTING_REWARD && countableReward(rw.status)
+    );
+    const memberTransacted = rws.some(
+      (rw) =>
+        rw.reward_type === ReferralRewardType.CREATOR_TRANSACTION_REWARD &&
+        countableReward(rw.status)
+    );
 
     let completedSteps = 0;
-    for (const step of journeySteps) {
-      if (step.key === "join" && memberJoined) completedSteps += 1;
-      if (step.key === "list" && memberListed) completedSteps += 1;
-      if (step.key === "transact" && memberTransacted) completedSteps += 1;
+    for (const key of progressKeys) {
+      if (key === "join" && memberJoined) completedSteps += 1;
+      if (key === "list" && memberListed) completedSteps += 1;
+      if (key === "transact" && memberTransacted) completedSteps += 1;
     }
 
     const earned = rws
@@ -403,12 +416,13 @@ export async function buildCreatorHubPayload(
       listed: memberListed,
       transacted: memberTransacted,
       completedSteps,
-      totalSteps: totalSteps || 1,
+      totalSteps: totalProgressSteps,
       earnedPence: earned,
       nextStepHint: nextStepHint(
         { joined: memberJoined, listed: memberListed, transacted: memberTransacted },
         settings,
-        totalSteps
+        journeySteps.length,
+        advertiseOpportunities
       ),
     };
   });
@@ -472,6 +486,9 @@ export async function buildCreatorHubPayload(
   });
 
   const url = referralShareUrl(code);
+  const suggestedMessage =
+    (settings.creatorSuggestedMessage ?? "").trim() ||
+    "Got golf clubs gathering dust?\n\nSell them on Teevo — the marketplace built for golf gear.";
   const isEmpty = (referrals ?? []).length === 0 && earnedPence === 0 && pendingPence === 0;
 
   return {
@@ -480,22 +497,32 @@ export async function buildCreatorHubPayload(
       code,
       url,
       status: creator.status,
+      programmePaused,
+      creatorInactive,
+      advertiseOpportunities,
       earnedPence,
       pendingPence,
       totalEarnedPence: earnedPence + pendingPence,
       golfersReferred: (referrals ?? []).length,
+      successfulListings,
+      successfulTransactions,
       rewardsThisWeek,
+      suggestedMessage,
       rewardJourney: {
         steps: journeySteps,
         potentialTotalPence,
-        headline: creatorPotentialEarningsLine(potentialTotalPence),
+        headline: advertiseOpportunities
+          ? creatorPotentialEarningsLine(potentialTotalPence)
+          : "Reward opportunities are currently paused.",
       },
       mission: {
         title: settings.creatorMissionTitle,
         body: settings.creatorMissionBody,
         ctaLabel: settings.creatorMissionCtaLabel,
         ctaUrl: settings.creatorMissionCtaUrl.trim() || null,
-        rewardCallout: fillMissionCallout(settings.creatorMissionRewardCallout, settings),
+        rewardCallout: advertiseOpportunities
+          ? fillMissionCallout(settings.creatorMissionRewardCallout, settings)
+          : "",
       },
       squad,
       funnelThisMonth,
@@ -507,7 +534,7 @@ export async function buildCreatorHubPayload(
         remaining: Math.max(0, streakTarget - streakCurrent),
       },
       personalBest,
-      toolkit: creatorToolkitCaptions(url),
+      toolkit: creatorToolkitCaptions(url, suggestedMessage, settings.creatorMissionBody),
       isEmpty,
     },
   };
