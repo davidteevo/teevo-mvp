@@ -36,6 +36,7 @@ export default function CreatorHubPage() {
   const [error, setError] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [celebration, setCelebration] = useState<CreatorHubActivityItem[] | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const shareSentinelRef = useRef<HTMLDivElement>(null!);
   const trackedView = useRef(false);
 
@@ -47,11 +48,13 @@ export default function CreatorHubPage() {
 
   useEffect(() => {
     if (!user) return;
+    setError(null);
+    setHub(null);
     fetch("/api/creator/me")
       .then(async (r) => {
         const data = await r.json();
         if (!r.ok) {
-          if (data.error === "not_a_creator" || data.error === "programme_disabled") {
+          if (data.error === "not_a_creator") {
             router.replace("/dashboard");
             return;
           }
@@ -59,13 +62,19 @@ export default function CreatorHubPage() {
         }
         setHub(data as CreatorHubPayload);
       })
-      .catch((e) => setError(e instanceof Error ? e.message : "Could not load Creator Hub"));
-  }, [user, router]);
+      .catch(() =>
+        setError("We couldn't load your Creator Hub. Please try again.")
+      );
+  }, [user, router, reloadKey]);
 
   useEffect(() => {
     if (!hub || trackedView.current) return;
     trackedView.current = true;
-    track("creator_hub_viewed", { empty: hub.isEmpty });
+    track("creator_hub_viewed", {
+      empty: hub.isEmpty,
+      programmePaused: hub.programmePaused,
+      creatorInactive: hub.creatorInactive,
+    });
   }, [hub]);
 
   useEffect(() => {
@@ -98,7 +107,7 @@ export default function CreatorHubPage() {
 
   const onShare = async () => {
     if (!hub) return;
-    const result = await shareCreatorLink(hub.url);
+    const result = await shareCreatorLink(hub.url, hub.suggestedMessage);
     if (result === "copied") setCopiedLink(true);
   };
 
@@ -124,6 +133,16 @@ export default function CreatorHubPage() {
         <p className="mt-4 text-sm text-divot-pink" role="alert">
           {error}
         </p>
+        <button
+          type="button"
+          onClick={() => {
+            trackedView.current = false;
+            setReloadKey((k) => k + 1);
+          }}
+          className="mt-4 rounded-xl bg-mowing-green px-4 py-2.5 text-sm font-semibold text-off-white-pique"
+        >
+          Try again
+        </button>
       </div>
     );
   }
@@ -136,8 +155,38 @@ export default function CreatorHubPage() {
     );
   }
 
-  const journeyHasList = hub.rewardJourney.steps.some((s) => s.key === "list");
-  const journeyHasTx = hub.rewardJourney.steps.some((s) => s.key === "transact");
+  const journeyHasList = true;
+  const journeyHasTx = true;
+  const showOpportunities = hub.advertiseOpportunities;
+
+  const statusBanners = (
+    <>
+      {hub.programmePaused && (
+        <div
+          className="rounded-2xl border border-golden-tee/50 bg-golden-tee/20 px-4 py-3 text-sm text-mowing-green"
+          role="status"
+        >
+          <p className="font-semibold">Creator campaign currently paused</p>
+          <p className="mt-1 text-mowing-green/80">
+            You can still view your earnings, squad, and activity. New rewards are not being offered
+            right now.
+          </p>
+        </div>
+      )}
+      {hub.creatorInactive && !hub.programmePaused && (
+        <div
+          className="rounded-2xl border border-divot-pink/40 bg-divot-pink/10 px-4 py-3 text-sm text-mowing-green"
+          role="status"
+        >
+          <p className="font-semibold">Your Creator Programme access is currently inactive.</p>
+          <p className="mt-1 text-mowing-green/80">
+            Historical performance stays available. New rewards and attribution follow programme
+            rules while inactive.
+          </p>
+        </div>
+      )}
+    </>
+  );
 
   if (hub.isEmpty) {
     return (
@@ -145,7 +194,8 @@ export default function CreatorHubPage() {
         <Link href="/dashboard" className="text-sm text-par-3-punch hover:underline">
           ← Dashboard
         </Link>
-        <div className="mt-6">
+        <div className="mt-6 space-y-4">
+          {statusBanners}
           <CreatorEmptyState
             steps={hub.rewardJourney.steps}
             potentialTotalPence={hub.rewardJourney.potentialTotalPence}
@@ -153,9 +203,10 @@ export default function CreatorHubPage() {
             url={hub.url}
             code={hub.code}
             toolkit={hub.toolkit}
+            suggestedMessage={hub.suggestedMessage}
           />
         </div>
-        {hub.mission.title && (
+        {showOpportunities && hub.mission.title && (
           <div className="mt-6">
             <CreatorMissionCard
               title={hub.mission.title}
@@ -179,12 +230,14 @@ export default function CreatorHubPage() {
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
         <div className="space-y-6">
+          {statusBanners}
+
           <CreatorHubHero
-            firstName={hub.firstName}
             earnedPence={hub.earnedPence}
             pendingPence={hub.pendingPence}
             golfersReferred={hub.golfersReferred}
-            rewardsThisWeek={hub.rewardsThisWeek}
+            successfulListings={hub.successfulListings}
+            successfulTransactions={hub.successfulTransactions}
             onShare={() => void onShare()}
             onCopyLink={() => void onCopyLink()}
             copiedLink={copiedLink}
@@ -199,26 +252,35 @@ export default function CreatorHubPage() {
             />
           )}
 
-          <CreatorMissionCard
-            title={hub.mission.title}
-            body={hub.mission.body}
-            ctaLabel={hub.mission.ctaLabel}
-            ctaUrl={hub.mission.ctaUrl}
-            rewardCallout={hub.mission.rewardCallout}
-            onShareCta={scrollToShare}
-          />
+          {showOpportunities && (
+            <CreatorMissionCard
+              title={hub.mission.title}
+              body={hub.mission.body}
+              ctaLabel={hub.mission.ctaLabel}
+              ctaUrl={hub.mission.ctaUrl}
+              rewardCallout={hub.mission.rewardCallout}
+              onShareCta={scrollToShare}
+            />
+          )}
 
           <div className="lg:hidden">
-            <CreatorSharePanel url={hub.url} code={hub.code} id="creator-share" />
-          </div>
-
-          <div className="lg:hidden">
-            <CreatorRewardJourney
-              steps={hub.rewardJourney.steps}
-              potentialTotalPence={hub.rewardJourney.potentialTotalPence}
-              headline={hub.rewardJourney.headline}
+            <CreatorSharePanel
+              url={hub.url}
+              code={hub.code}
+              id="creator-share"
+              suggestedMessage={hub.suggestedMessage}
             />
           </div>
+
+          {showOpportunities && (
+            <div className="lg:hidden">
+              <CreatorRewardJourney
+                steps={hub.rewardJourney.steps}
+                potentialTotalPence={hub.rewardJourney.potentialTotalPence}
+                headline={hub.rewardJourney.headline}
+              />
+            </div>
+          )}
 
           <CreatorSquadList
             members={hub.squad}
@@ -251,12 +313,19 @@ export default function CreatorHubPage() {
         </div>
 
         <aside className="hidden space-y-6 lg:sticky lg:top-24 lg:block">
-          <CreatorSharePanel url={hub.url} code={hub.code} id="creator-share-desktop" />
-          <CreatorRewardJourney
-            steps={hub.rewardJourney.steps}
-            potentialTotalPence={hub.rewardJourney.potentialTotalPence}
-            headline={hub.rewardJourney.headline}
+          <CreatorSharePanel
+            url={hub.url}
+            code={hub.code}
+            id="creator-share-desktop"
+            suggestedMessage={hub.suggestedMessage}
           />
+          {showOpportunities && (
+            <CreatorRewardJourney
+              steps={hub.rewardJourney.steps}
+              potentialTotalPence={hub.rewardJourney.potentialTotalPence}
+              headline={hub.rewardJourney.headline}
+            />
+          )}
           <CreatorToolkit captions={hub.toolkit} />
         </aside>
       </div>

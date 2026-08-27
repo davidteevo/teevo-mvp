@@ -5,11 +5,11 @@ import { useEffect, useState } from "react";
 import { formatPoundsCompact, prefersReducedMotion } from "@/components/creator/utils";
 
 type Props = {
-  firstName: string | null;
   earnedPence: number;
   pendingPence: number;
   golfersReferred: number;
-  rewardsThisWeek: number;
+  successfulListings: number;
+  successfulTransactions: number;
   onShare: () => void;
   onCopyLink: () => void;
   copiedLink: boolean;
@@ -17,18 +17,17 @@ type Props = {
 };
 
 export function CreatorHubHero({
-  firstName,
   earnedPence,
   pendingPence,
   golfersReferred,
-  rewardsThisWeek,
+  successfulListings,
+  successfulTransactions,
   onShare,
   onCopyLink,
   copiedLink,
   shareRef,
 }: Props) {
   const [displayEarned, setDisplayEarned] = useState(earnedPence);
-  const greeting = firstName ? `Hey ${firstName}` : "Hey there";
 
   useEffect(() => {
     if (prefersReducedMotion() || earnedPence === 0) {
@@ -61,11 +60,16 @@ export function CreatorHubHero({
       />
 
       <p className="text-lg font-semibold sm:text-xl">
-        {greeting} <span aria-hidden>👋</span>
+        Creator Hub <span aria-hidden>👋</span>
       </p>
-      <p className="mt-3 text-sm text-off-white-pique/80">You&apos;ve earned</p>
-      <p className="mt-1 text-4xl font-bold tracking-tight sm:text-5xl">
-        {formatPoundsCompact(displayEarned)}
+      <p className="mt-3 text-base text-off-white-pique/90 sm:text-lg">
+        You&apos;ve helped bring{" "}
+        <strong className="font-bold text-off-white-pique">{golfersReferred}</strong> golfer
+        {golfersReferred === 1 ? "" : "s"} to Teevo
+      </p>
+      <p className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">
+        {formatPoundsCompact(displayEarned)}{" "}
+        <span className="text-2xl font-semibold text-off-white-pique/80 sm:text-3xl">earned</span>
       </p>
       {pendingPence > 0 && (
         <p className="mt-2 inline-flex rounded-full bg-golden-tee/90 px-3 py-1 text-sm font-semibold text-mowing-green">
@@ -73,19 +77,15 @@ export function CreatorHubHero({
         </p>
       )}
 
-      <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-sm text-off-white-pique/90">
-        <span>
-          <strong className="font-semibold text-off-white-pique">{golfersReferred}</strong>{" "}
-          golfer{golfersReferred === 1 ? "" : "s"} referred
+      <p className="mt-4 text-sm text-off-white-pique/85">
+        <strong className="font-semibold text-off-white-pique">{successfulListings}</strong> successful
+        seller{successfulListings === 1 ? "" : "s"}
+        <span className="mx-2 text-off-white-pique/40" aria-hidden>
+          ·
         </span>
-        {rewardsThisWeek > 0 && (
-          <span>
-            <span aria-hidden>🔥</span>{" "}
-            <strong className="font-semibold text-off-white-pique">{rewardsThisWeek}</strong> reward
-            {rewardsThisWeek === 1 ? "" : "s"} earned this week
-          </span>
-        )}
-      </div>
+        <strong className="font-semibold text-off-white-pique">{successfulTransactions}</strong>{" "}
+        transaction{successfulTransactions === 1 ? "" : "s"}
+      </p>
 
       <div ref={shareRef} className="mt-6 flex flex-col gap-2 sm:flex-row">
         <button
@@ -94,7 +94,7 @@ export function CreatorHubHero({
           className="inline-flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-xl bg-golden-tee px-4 py-3 text-sm font-semibold text-mowing-green hover:opacity-95"
         >
           <Share2 className="h-4 w-4" aria-hidden />
-          Share Teevo
+          Share Teevo 🚀
         </button>
         <button
           type="button"
@@ -102,7 +102,7 @@ export function CreatorHubHero({
           className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-off-white-pique/40 bg-white/10 px-4 py-3 text-sm font-semibold text-off-white-pique hover:bg-white/15"
         >
           {copiedLink ? <Check className="h-4 w-4" aria-hidden /> : <Link2 className="h-4 w-4" aria-hidden />}
-          {copiedLink ? "Copied ✓" : "Copy Creator Link"}
+          {copiedLink ? "Copied ✓" : "Copy Link"}
         </button>
       </div>
     </section>

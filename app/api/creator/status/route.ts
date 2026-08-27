@@ -18,7 +18,7 @@ export async function GET() {
   const status = await getCreatorStatusForUser(admin, user.id);
 
   return NextResponse.json({
-    isCreator: status.isCreator && settings.creatorEnabled,
+    isCreator: status.isCreator,
     status: status.status,
     programmeEnabled: settings.creatorEnabled,
   });

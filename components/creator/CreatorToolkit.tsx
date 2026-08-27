@@ -22,6 +22,7 @@ export function CreatorToolkit({ captions }: Props) {
       await navigator.clipboard.writeText(c.caption);
       setCopiedId(c.id);
       track("creator_caption_copied", { captionId: c.id });
+      track("creator_message_copied", { captionId: c.id });
       window.setTimeout(() => setCopiedId(null), 2000);
     } catch {
       setCopiedId(null);

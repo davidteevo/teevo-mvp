@@ -18,9 +18,20 @@ export function demandShareMessage(url: string, discountPence = 500): string {
   return buyerShareMessage(url, discountPence);
 }
 
+export const DEFAULT_CREATOR_SUGGESTED_MESSAGE =
+  "Got golf clubs gathering dust?\n\nSell them on Teevo — the marketplace built for golf gear.";
+
+/** Append creator URL to a suggested message body (without duplicating if already present). */
+export function withCreatorLink(message: string, url: string): string {
+  const trimmed = message.trim();
+  if (!trimmed) return url;
+  if (trimmed.includes(url)) return trimmed;
+  return `${trimmed}\n\n${url}`;
+}
+
 /** Default creator share message for native share / WhatsApp. */
-export function creatorShareMessage(url: string): string {
-  return `Got golf clubs gathering dust?\n\nSell them on Teevo — the marketplace built for golf gear.\n\n${url}`;
+export function creatorShareMessage(url: string, suggestedMessage?: string): string {
+  return withCreatorLink(suggestedMessage?.trim() || DEFAULT_CREATOR_SUGGESTED_MESSAGE, url);
 }
 
 export type CreatorToolkitCaption = {
@@ -29,20 +40,32 @@ export type CreatorToolkitCaption = {
   caption: string;
 };
 
-/** MVP ready-to-share captions (no CMS). */
-export function creatorToolkitCaptions(url: string): CreatorToolkitCaption[] {
-  return [
+/** Ready-to-share captions: Admin suggested message + optional mission-derived secondary. */
+export function creatorToolkitCaptions(
+  url: string,
+  suggestedMessage?: string,
+  missionBody?: string
+): CreatorToolkitCaption[] {
+  const primary = withCreatorLink(
+    suggestedMessage?.trim() || DEFAULT_CREATOR_SUGGESTED_MESSAGE,
+    url
+  );
+  const captions: CreatorToolkitCaption[] = [
     {
-      id: "dust",
-      title: "WhatsApp / caption",
-      caption: `Got golf clubs gathering dust?\n\nSell them on Teevo — the marketplace built for golf gear.\n\n${url}`,
-    },
-    {
-      id: "sellers",
-      title: "Invite sellers",
-      caption: `Know a golfer with clubs they never use?\n\nTeevo makes it easy to list and sell golf gear — verified, fair, and built for golfers.\n\n${url}`,
+      id: "suggested",
+      title: "Suggested message",
+      caption: primary,
     },
   ];
+  const mission = (missionBody ?? "").trim();
+  if (mission && mission !== (suggestedMessage ?? "").trim()) {
+    captions.push({
+      id: "mission",
+      title: "Mission angle",
+      caption: withCreatorLink(mission, url),
+    });
+  }
+  return captions;
 }
 
 export function creatorPotentialEarningsLine(potentialPence: number): string {

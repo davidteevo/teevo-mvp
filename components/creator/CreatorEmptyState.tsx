@@ -13,6 +13,7 @@ type Props = {
   url: string;
   code: string;
   toolkit: { id: string; title: string; caption: string }[];
+  suggestedMessage?: string;
 };
 
 export function CreatorEmptyState({
@@ -22,6 +23,7 @@ export function CreatorEmptyState({
   url,
   code,
   toolkit,
+  suggestedMessage,
 }: Props) {
   return (
     <div className="space-y-6">
@@ -31,28 +33,37 @@ export function CreatorEmptyState({
           Your Creator journey starts here <span aria-hidden>🚀</span>
         </h1>
         <p className="mt-3 text-base text-off-white-pique/90">
-          Turn your audience into Teevo&apos;s next sellers.
+          Help bring Teevo&apos;s next golfers onto the marketplace.
         </p>
-        <p className="mt-5 text-sm font-semibold text-golden-tee">Your current earning opportunity</p>
-        <ul className="mt-3 space-y-2 text-sm">
-          {steps.map((s) => (
-            <li key={s.key} className="flex items-center justify-between gap-3">
-              <span>
-                {s.key === "join" && "👤 Join"}
-                {s.key === "list" && "🏌️ List"}
-                {s.key === "transact" && "💸 Transact"}
-              </span>
-              <strong>+{formatPoundsCompact(s.amountPence)}</strong>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-4 text-lg font-bold">
-          One successful referral = up to{" "}
-          <span className="text-golden-tee">{formatPoundsCompact(potentialTotalPence)}</span>
-        </p>
+        {steps.length > 0 && (
+          <>
+            <p className="mt-5 text-sm font-semibold text-golden-tee">Your current earning opportunity</p>
+            <ul className="mt-3 space-y-2 text-sm">
+              {steps.map((s) => (
+                <li key={s.key} className="flex items-center justify-between gap-3">
+                  <span>
+                    {s.key === "join" && "👤 Join"}
+                    {s.key === "list" && "🏌️ List"}
+                    {s.key === "transact" && "💸 Transact"}
+                  </span>
+                  <strong>+{formatPoundsCompact(s.amountPence)}</strong>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4 text-lg font-bold">
+              One successful referral = up to{" "}
+              <span className="text-golden-tee">{formatPoundsCompact(potentialTotalPence)}</span>
+            </p>
+          </>
+        )}
       </section>
 
-      <CreatorSharePanel url={url} code={code} id="creator-share" />
+      <CreatorSharePanel
+        url={url}
+        code={code}
+        id="creator-share"
+        suggestedMessage={suggestedMessage}
+      />
       <CreatorRewardJourney
         steps={steps}
         potentialTotalPence={potentialTotalPence}

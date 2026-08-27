@@ -20,7 +20,8 @@ function FunnelStep({ value, label }: { value: number; label: string }) {
 export function CreatorFunnel({ visits, joined, listed, transacted, insight }: Props) {
   return (
     <section className="rounded-2xl border border-par-3-punch/20 bg-white p-5 sm:p-6">
-      <h2 className="text-lg font-bold text-mowing-green">This month</h2>
+      <h2 className="text-lg font-bold text-mowing-green">Your Performance</h2>
+      <p className="mt-1 text-sm text-mowing-green/70">This month</p>
       <div className="mt-5 flex flex-col items-center gap-2">
         <FunnelStep value={visits} label="Link visits" />
         <span className="text-par-3-punch" aria-hidden>

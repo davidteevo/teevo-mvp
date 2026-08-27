@@ -56,6 +56,7 @@ export const EmailTriggerType = {
   DELIVERY_ISSUE_REPORTED_ADMIN: "delivery_issue_reported_admin",
   REFERRAL_CREDIT_EARNED: "referral_credit_earned",
   ADMIN_NEW_USERS_DIGEST: "admin_new_users_digest",
+  CREATOR_WEEKLY_ROUNDUP: "creator_weekly_roundup",
 } as const;
 
 export type EmailTriggerTypeValue = (typeof EmailTriggerType)[keyof typeof EmailTriggerType];

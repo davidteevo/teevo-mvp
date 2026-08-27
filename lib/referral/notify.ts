@@ -44,26 +44,26 @@ function copyForReward(rewardType: ReferralRewardTypeValue, amountGbp: string): 
   }
   if (rewardType === ReferralRewardType.CREATOR_NEW_USER_REWARD) {
     return {
-      title: `\u00A3${amountGbp} Teevo credit earned`,
-      message: "Someone signed up with your creator link.",
-      emailSubject: `\uD83D\uDCB8 \u00A3${amountGbp} creator credit earned!`,
-      emailBody: `Someone signed up on Teevo using your creator link.\n\nWe\u2019ve added \u00A3${amountGbp} Teevo credit to your account.`,
+      title: `You earned \u00A3${amountGbp} \uD83C\uDF89`,
+      message: "A new golfer joined through your Creator Link.",
+      emailSubject: `\uD83C\uDF89 You earned \u00A3${amountGbp} creator credit!`,
+      emailBody: `A new golfer joined Teevo using your Creator Link.\n\nWe\u2019ve added \u00A3${amountGbp} Teevo credit to your account.`,
     };
   }
   if (rewardType === ReferralRewardType.CREATOR_LISTING_REWARD) {
     return {
-      title: `\u00A3${amountGbp} Teevo credit earned`,
-      message: "A user you referred had their first listing approved.",
-      emailSubject: `\uD83D\uDCB8 \u00A3${amountGbp} creator credit earned!`,
-      emailBody: `A user you referred had their first Teevo listing approved.\n\nWe\u2019ve added \u00A3${amountGbp} Teevo credit to your account.`,
+      title: `You earned \u00A3${amountGbp} \uD83C\uDFCC\uFE0F`,
+      message: "One of your referrals just had their first listing approved.",
+      emailSubject: `\uD83C\uDFCC\uFE0F You earned \u00A3${amountGbp} creator credit!`,
+      emailBody: `One of your referrals just had their first Teevo listing approved.\n\nWe\u2019ve added \u00A3${amountGbp} Teevo credit to your account.`,
     };
   }
   if (rewardType === ReferralRewardType.CREATOR_TRANSACTION_REWARD) {
     return {
-      title: `\u00A3${amountGbp} Teevo credit earned`,
-      message: "A user you referred completed their first marketplace transaction.",
-      emailSubject: `\uD83D\uDCB8 \u00A3${amountGbp} creator credit earned!`,
-      emailBody: `A user you referred completed their first Teevo transaction.\n\nWe\u2019ve added \u00A3${amountGbp} Teevo credit to your account.`,
+      title: `You earned \u00A3${amountGbp} \uD83D\uDCB8`,
+      message: "One of your referrals just completed their first transaction.",
+      emailSubject: `\uD83D\uDCB8 You earned \u00A3${amountGbp} creator credit!`,
+      emailBody: `One of your referrals completed their first Teevo transaction.\n\nWe\u2019ve added \u00A3${amountGbp} Teevo credit to your account.`,
     };
   }
   return {

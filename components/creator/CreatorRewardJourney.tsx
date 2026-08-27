@@ -55,7 +55,7 @@ export function CreatorRewardJourney({ steps, potentialTotalPence, headline }: P
           </span>
           <div className="pt-0.5">
             <p className="font-semibold text-mowing-green">
-              You earned {formatPoundsCompact(potentialTotalPence)}
+              You could earn {formatPoundsCompact(potentialTotalPence)}
             </p>
             <p className="mt-1 text-sm text-mowing-green/70">{headline}</p>
           </div>

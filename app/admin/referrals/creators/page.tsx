@@ -68,6 +68,9 @@ export default function AdminCreatorsPage() {
   const [missionRewardCallout, setMissionRewardCallout] = useState(
     "First approved listing from each new referral = {listing}"
   );
+  const [suggestedMessage, setSuggestedMessage] = useState(
+    "Got golf clubs gathering dust?\n\nSell them on Teevo — the marketplace built for golf gear."
+  );
   const [monthlyTarget, setMonthlyTarget] = useState("10");
 
   const load = () => {
@@ -104,6 +107,10 @@ export default function AdminCreatorsPage() {
         setMissionRewardCallout(
           data.creatorMissionRewardCallout ??
             "First approved listing from each new referral = {listing}"
+        );
+        setSuggestedMessage(
+          data.creatorSuggestedMessage ??
+            "Got golf clubs gathering dust?\n\nSell them on Teevo — the marketplace built for golf gear."
         );
         setMonthlyTarget(String(data.creatorMonthlyReferralTarget ?? 10));
       })
@@ -155,6 +162,7 @@ export default function AdminCreatorsPage() {
           creatorMissionCtaLabel: missionCtaLabel,
           creatorMissionCtaUrl: missionCtaUrl,
           creatorMissionRewardCallout: missionRewardCallout,
+          creatorSuggestedMessage: suggestedMessage,
           creatorMonthlyReferralTarget: (() => {
             const n = Number(monthlyTarget);
             if (!Number.isInteger(n) || n < 1 || n > 1000) {
@@ -420,6 +428,19 @@ export default function AdminCreatorsPage() {
                     onChange={(e) => setMissionRewardCallout(e.target.value)}
                     className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2"
                   />
+                </label>
+                <label className="block text-sm text-mowing-green">
+                  Suggested creator message
+                  <textarea
+                    value={suggestedMessage}
+                    onChange={(e) => setSuggestedMessage(e.target.value)}
+                    rows={4}
+                    className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2"
+                  />
+                  <span className="mt-1 block text-xs text-mowing-green/60">
+                    Used in Creator Hub share/toolkit and weekly roundup. Creator link is appended
+                    automatically.
+                  </span>
                 </label>
                 <label className="block text-sm text-mowing-green">
                   Monthly referral target (motivational only — not a bonus)

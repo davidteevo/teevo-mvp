@@ -1,16 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import type { CreatorHubPayload } from "@/lib/creator/hub";
 import { CreatorSquadList } from "@/components/creator/CreatorSquadList";
+import { track } from "@/lib/analytics";
 
 export default function CreatorSquadPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [hub, setHub] = useState<CreatorHubPayload | null>(null);
+  const tracked = useRef(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -32,12 +34,15 @@ export default function CreatorSquadPage() {
       .catch(() => router.replace("/dashboard/creator"));
   }, [user, router]);
 
+  useEffect(() => {
+    if (!hub || tracked.current) return;
+    tracked.current = true;
+    track("creator_referrals_viewed", { count: hub.squad.length });
+  }, [hub]);
+
   if (loading || !user || !hub) {
     return <div className="mx-auto max-w-xl px-4 py-12 text-mowing-green/80">Loading…</div>;
   }
-
-  const journeyHasList = hub.rewardJourney.steps.some((s) => s.key === "list");
-  const journeyHasTx = hub.rewardJourney.steps.some((s) => s.key === "transact");
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
@@ -49,8 +54,8 @@ export default function CreatorSquadPage() {
           members={hub.squad}
           limit={0}
           showViewAll={false}
-          journeyHasList={journeyHasList}
-          journeyHasTx={journeyHasTx}
+          journeyHasList
+          journeyHasTx
         />
       </div>
     </div>
