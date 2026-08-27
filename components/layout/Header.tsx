@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   Menu, X, ChevronDown, Settings, LogOut, ShoppingCart,
   Shield, User, Bell, Heart, Gift, Plus, ListFilter, ShoppingBag,
-  HelpCircle, BarChart2, LayoutDashboard,
+  HelpCircle, BarChart2, LayoutDashboard, Sparkles,
 } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { useState, useRef, useEffect } from "react";
@@ -46,6 +46,7 @@ export function Header() {
   const [publicAvatarError, setPublicAvatarError] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [actionCount, setActionCount] = useState(0);
+  const [isCreator, setIsCreator] = useState(false);
   const accountRef = useRef<HTMLDivElement>(null);
   const scrollLockYRef = useRef(0);
   const usePublicAvatar = avatarError && avatarRetry >= 1;
@@ -62,6 +63,17 @@ export function Header() {
     document.addEventListener("click", close);
     return () => document.removeEventListener("click", close);
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setIsCreator(false);
+      return;
+    }
+    fetch("/api/creator/status")
+      .then((r) => (r.ok ? r.json() : { isCreator: false }))
+      .then((data) => setIsCreator(data.isCreator === true))
+      .catch(() => setIsCreator(false));
+  }, [user, pathname]);
 
   useEffect(() => {
     if (!user) return;
@@ -191,6 +203,9 @@ export function Header() {
                   <Link href="/dashboard/purchases" className="block px-4 py-2 text-sm text-mowing-green hover:bg-mowing-green/5" onClick={() => setAccountOpen(false)}>My Purchases</Link>
                   <Link href="/watchlist" className="block px-4 py-2 text-sm text-mowing-green hover:bg-mowing-green/5" onClick={() => setAccountOpen(false)}>Watchlist</Link>
                   <Link href="/dashboard/referrals" className="block px-4 py-2 text-sm text-mowing-green hover:bg-mowing-green/5" onClick={() => setAccountOpen(false)}>Refer a Friend</Link>
+                  {isCreator && (
+                    <Link href="/dashboard/creator" className="block px-4 py-2 text-sm text-mowing-green hover:bg-mowing-green/5" onClick={() => setAccountOpen(false)}>Creator Hub</Link>
+                  )}
                   <div className="my-1 h-px bg-par-3-punch/20" />
                   <Link href="/dashboard/profile" className="block px-4 py-2 text-sm text-mowing-green hover:bg-mowing-green/5" onClick={() => setAccountOpen(false)}>Profile</Link>
                   <Link href="/dashboard/settings" className="block px-4 py-2 text-sm text-mowing-green hover:bg-mowing-green/5" onClick={() => setAccountOpen(false)}>Settings</Link>
@@ -376,6 +391,19 @@ export function Header() {
                     </span>
                     Refer a Friend
                   </Link>
+
+                  {isCreator && (
+                    <Link
+                      href="/dashboard/creator"
+                      className="flex items-center gap-3 rounded-lg py-3 px-3 text-mowing-green font-medium hover:bg-mowing-green/5 active:bg-mowing-green/10 transition-colors"
+                      onClick={close}
+                    >
+                      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-golden-tee/30">
+                        <Sparkles className="h-4 w-4 text-mowing-green" />
+                      </span>
+                      Creator Hub
+                    </Link>
+                  )}
 
                   <MenuDivider />
 

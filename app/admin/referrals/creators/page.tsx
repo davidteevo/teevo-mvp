@@ -59,6 +59,16 @@ export default function AdminCreatorsPage() {
   const [creatorListingReward, setCreatorListingReward] = useState("10.00");
   const [creatorTxEnabled, setCreatorTxEnabled] = useState(true);
   const [creatorTxReward, setCreatorTxReward] = useState("5.00");
+  const [missionTitle, setMissionTitle] = useState("Bring more clubs onto Teevo");
+  const [missionBody, setMissionBody] = useState(
+    "We're building the marketplace. More great listings = more reasons for golfers to come back."
+  );
+  const [missionCtaLabel, setMissionCtaLabel] = useState("Find a seller");
+  const [missionCtaUrl, setMissionCtaUrl] = useState("");
+  const [missionRewardCallout, setMissionRewardCallout] = useState(
+    "First approved listing from each new referral = {listing}"
+  );
+  const [monthlyTarget, setMonthlyTarget] = useState("10");
 
   const load = () => {
     fetch("/api/admin/referrals/creators")
@@ -84,6 +94,18 @@ export default function AdminCreatorsPage() {
         setCreatorListingReward(poundsFromPence(data.creatorListingRewardPence ?? 1000));
         setCreatorTxEnabled(data.creatorTransactionRewardEnabled !== false);
         setCreatorTxReward(poundsFromPence(data.creatorTransactionRewardPence ?? 500));
+        setMissionTitle(data.creatorMissionTitle ?? "Bring more clubs onto Teevo");
+        setMissionBody(
+          data.creatorMissionBody ??
+            "We're building the marketplace. More great listings = more reasons for golfers to come back."
+        );
+        setMissionCtaLabel(data.creatorMissionCtaLabel ?? "Find a seller");
+        setMissionCtaUrl(data.creatorMissionCtaUrl ?? "");
+        setMissionRewardCallout(
+          data.creatorMissionRewardCallout ??
+            "First approved listing from each new referral = {listing}"
+        );
+        setMonthlyTarget(String(data.creatorMonthlyReferralTarget ?? 10));
       })
       .catch((e) => setSettingsError(e instanceof Error ? e.message : "Failed to load settings"))
       .finally(() => setSettingsLoading(false));
@@ -128,6 +150,18 @@ export default function AdminCreatorsPage() {
           creatorListingRewardPence: toPence(creatorListingReward, "Creator listing reward"),
           creatorTransactionRewardEnabled: creatorTxEnabled,
           creatorTransactionRewardPence: toPence(creatorTxReward, "Creator transaction reward"),
+          creatorMissionTitle: missionTitle,
+          creatorMissionBody: missionBody,
+          creatorMissionCtaLabel: missionCtaLabel,
+          creatorMissionCtaUrl: missionCtaUrl,
+          creatorMissionRewardCallout: missionRewardCallout,
+          creatorMonthlyReferralTarget: (() => {
+            const n = Number(monthlyTarget);
+            if (!Number.isInteger(n) || n < 1 || n > 1000) {
+              throw new Error("Monthly referral target must be an integer between 1 and 1000");
+            }
+            return n;
+          })(),
         }),
       });
       const data = await res.json();
@@ -216,9 +250,9 @@ export default function AdminCreatorsPage() {
             <Settings className="h-5 w-5 text-mowing-green" />
           </div>
           <div>
-            <p className="font-semibold text-mowing-green">Reward settings</p>
+            <p className="font-semibold text-mowing-green">Programme settings</p>
             <p className="mt-0.5 text-sm text-mowing-green/70">
-              Choose which milestones pay Teevo credit, and the amount for each.
+              Milestone rewards, Creator Hub mission, and monthly target.
             </p>
           </div>
         </button>
@@ -243,11 +277,10 @@ export default function AdminCreatorsPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <h2 id="creator-reward-settings-title" className="text-lg font-semibold text-mowing-green">
-              Reward settings
+              Creator programme settings
             </h2>
             <p className="mt-1 text-sm text-mowing-green/70">
-              Choose which milestones pay Teevo credit, and the amount for each. Changes apply to future rewards
-              only.
+              Milestone rewards and Creator Hub mission. Reward amount changes apply to future rewards only.
             </p>
             {!creatorEnabled && !settingsLoading && (
               <p className="mt-2 text-sm text-amber-700">
@@ -339,6 +372,65 @@ export default function AdminCreatorsPage() {
                   />
                 </label>
 
+                <div className="border-t border-par-3-punch/20 pt-3 mt-2">
+                  <p className="font-medium text-mowing-green">Creator Hub mission</p>
+                  <p className="text-sm text-mowing-green/70 mt-0.5">
+                    Shown on the Creator Hub. Use {"{join}"}, {"{listing}"}, or {"{transact}"} in the reward
+                    callout to insert current amounts.
+                  </p>
+                </div>
+                <label className="block text-sm text-mowing-green">
+                  Mission title
+                  <input
+                    value={missionTitle}
+                    onChange={(e) => setMissionTitle(e.target.value)}
+                    className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2"
+                  />
+                </label>
+                <label className="block text-sm text-mowing-green">
+                  Mission body
+                  <textarea
+                    value={missionBody}
+                    onChange={(e) => setMissionBody(e.target.value)}
+                    rows={3}
+                    className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2"
+                  />
+                </label>
+                <label className="block text-sm text-mowing-green">
+                  CTA label
+                  <input
+                    value={missionCtaLabel}
+                    onChange={(e) => setMissionCtaLabel(e.target.value)}
+                    className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2"
+                  />
+                </label>
+                <label className="block text-sm text-mowing-green">
+                  CTA URL (optional — leave blank to open Share)
+                  <input
+                    value={missionCtaUrl}
+                    onChange={(e) => setMissionCtaUrl(e.target.value)}
+                    placeholder="/sell or https://…"
+                    className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2"
+                  />
+                </label>
+                <label className="block text-sm text-mowing-green">
+                  Reward callout
+                  <input
+                    value={missionRewardCallout}
+                    onChange={(e) => setMissionRewardCallout(e.target.value)}
+                    className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2"
+                  />
+                </label>
+                <label className="block text-sm text-mowing-green">
+                  Monthly referral target (motivational only — not a bonus)
+                  <input
+                    value={monthlyTarget}
+                    onChange={(e) => setMonthlyTarget(e.target.value)}
+                    inputMode="numeric"
+                    className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2"
+                  />
+                </label>
+
                 {settingsError && (
                   <p className="text-sm text-red-600" role="alert">
                     {settingsError}
@@ -346,7 +438,7 @@ export default function AdminCreatorsPage() {
                 )}
                 {settingsSaved && !settingsError && (
                   <p className="text-sm text-mowing-green/80">
-                    Saved. Future creator rewards will use these values.
+                    Saved. Creator Hub and future rewards will use these values.
                   </p>
                 )}
 
@@ -354,7 +446,7 @@ export default function AdminCreatorsPage() {
                   <button
                     type="button"
                     onClick={() => void saveRewardSettings()}
-                    disabled={settingsSaving || !creatorEnabled}
+                    disabled={settingsSaving}
                     className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium disabled:opacity-70"
                   >
                     {settingsSaving ? "Saving…" : "Save"}
