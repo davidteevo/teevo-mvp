@@ -1,16 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import type { CreatorHubPayload } from "@/lib/creator/hub";
 import { CreatorActivityFeed } from "@/components/creator/CreatorActivityFeed";
+import { track } from "@/lib/analytics";
 
 export default function CreatorActivityPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [hub, setHub] = useState<CreatorHubPayload | null>(null);
+  const tracked = useRef(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -31,6 +33,12 @@ export default function CreatorActivityPage() {
       })
       .catch(() => router.replace("/dashboard/creator"));
   }, [user, router]);
+
+  useEffect(() => {
+    if (!hub || tracked.current) return;
+    tracked.current = true;
+    track("creator_activity_viewed", { count: hub.activity.length });
+  }, [hub]);
 
   if (loading || !user || !hub) {
     return <div className="mx-auto max-w-xl px-4 py-12 text-mowing-green/80">Loading…</div>;

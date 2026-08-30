@@ -1,78 +1,73 @@
 "use client";
 
+import { Share2 } from "lucide-react";
 import { formatPoundsCompact } from "@/components/creator/utils";
-import { CreatorRewardJourney } from "@/components/creator/CreatorRewardJourney";
-import { CreatorSharePanel } from "@/components/creator/CreatorSharePanel";
-import { CreatorToolkit } from "@/components/creator/CreatorToolkit";
 import type { CreatorHubJourneyStep } from "@/lib/creator/hub";
+import { track } from "@/lib/analytics";
 
 type Props = {
   steps: CreatorHubJourneyStep[];
   potentialTotalPence: number;
-  headline: string;
-  url: string;
-  code: string;
-  toolkit: { id: string; title: string; caption: string }[];
-  suggestedMessage?: string;
+  onShare: () => void;
+  shareRef?: React.RefObject<HTMLDivElement>;
 };
 
 export function CreatorEmptyState({
   steps,
   potentialTotalPence,
-  headline,
-  url,
-  code,
-  toolkit,
-  suggestedMessage,
+  onShare,
+  shareRef,
 }: Props) {
-  return (
-    <div className="space-y-6">
-      <section className="rounded-3xl bg-gradient-to-br from-mowing-green to-[#1a4035] px-5 py-7 text-off-white-pique sm:px-7">
-        <p className="text-sm font-medium text-off-white-pique/80">Creator Hub</p>
-        <h1 className="mt-2 text-2xl font-bold sm:text-3xl">
-          Your Creator journey starts here <span aria-hidden>🚀</span>
-        </h1>
-        <p className="mt-3 text-base text-off-white-pique/90">
-          Help bring Teevo&apos;s next golfers onto the marketplace.
-        </p>
-        {steps.length > 0 && (
-          <>
-            <p className="mt-5 text-sm font-semibold text-golden-tee">Your current earning opportunity</p>
-            <ul className="mt-3 space-y-2 text-sm">
-              {steps.map((s) => (
-                <li key={s.key} className="flex items-center justify-between gap-3">
-                  <span>
-                    {s.key === "join" && "👤 Join"}
-                    {s.key === "list" && "🏌️ List"}
-                    {s.key === "transact" && "💸 Transact"}
-                  </span>
-                  <strong>+{formatPoundsCompact(s.amountPence)}</strong>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-4 text-lg font-bold">
-              One successful referral = up to{" "}
-              <span className="text-golden-tee">{formatPoundsCompact(potentialTotalPence)}</span>
-            </p>
-          </>
-        )}
-      </section>
+  const listStep = steps.find((s) => s.key === "list");
+  const txStep = steps.find((s) => s.key === "transact");
+  const joinStep = steps.find((s) => s.key === "join");
 
-      <CreatorSharePanel
-        url={url}
-        code={code}
-        id="creator-share"
-        suggestedMessage={suggestedMessage}
-      />
-      <CreatorRewardJourney
-        steps={steps}
-        potentialTotalPence={potentialTotalPence}
-        headline={headline}
-      />
-      <div>
-        <p className="mb-2 text-sm font-semibold text-mowing-green">Need something to post?</p>
-        <CreatorToolkit captions={toolkit} />
+  return (
+    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-mowing-green to-[#1a4035] px-5 py-6 text-off-white-pique sm:px-7">
+      <p className="text-xs font-semibold uppercase tracking-wide text-off-white-pique/75">
+        Creator Hub
+      </p>
+      <h1 className="mt-2 text-2xl font-bold sm:text-3xl">
+        Your first {formatPoundsCompact(potentialTotalPence || 0)} starts here{" "}
+        <span aria-hidden>🚀</span>
+      </h1>
+      <p className="mt-3 text-base text-off-white-pique/90">Refer a golfer to Teevo.</p>
+
+      {(listStep || txStep || joinStep) && (
+        <ul className="mt-4 space-y-2 text-sm text-off-white-pique/90">
+          {joinStep && (
+            <li>
+              Earn <strong>{formatPoundsCompact(joinStep.amountPence)}</strong> when they join
+            </li>
+          )}
+          {listStep && (
+            <li>
+              Earn <strong>{formatPoundsCompact(listStep.amountPence)}</strong> when their first
+              listing is approved
+            </li>
+          )}
+          {txStep && (
+            <li>
+              + <strong>{formatPoundsCompact(txStep.amountPence)}</strong> when they complete their
+              first transaction
+            </li>
+          )}
+        </ul>
+      )}
+
+      <div ref={shareRef} className="mt-6">
+        <button
+          type="button"
+          onClick={() => {
+            track("creator_share_clicked", { source: "empty_hero" });
+            onShare();
+          }}
+          className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-golden-tee px-4 py-3 text-sm font-semibold text-mowing-green hover:opacity-95"
+        >
+          <Share2 className="h-4 w-4" aria-hidden />
+          Find your first seller
+        </button>
       </div>
-    </div>
+    </section>
   );
 }
