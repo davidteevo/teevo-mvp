@@ -47,7 +47,7 @@ export function CreatorRewardCelebration({ items, totalEarnedPence, onDismiss }:
       </p>
       <p className="mt-1 text-sm text-mowing-green/80">{primary.body}</p>
       <p className="mt-3 text-sm font-medium text-mowing-green">
-        {formatPoundsCompact(totalEarnedPence)} total earned
+        {formatPoundsCompact(totalEarnedPence)} Teevo credit total
       </p>
       <button
         type="button"

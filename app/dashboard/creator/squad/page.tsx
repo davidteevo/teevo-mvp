@@ -38,24 +38,31 @@ export default function CreatorSquadPage() {
     if (!hub || tracked.current) return;
     tracked.current = true;
     track("creator_referrals_viewed", { count: hub.squad.length });
+    track("creator_squad_viewed", { count: hub.squad.length });
   }, [hub]);
 
   if (loading || !user || !hub) {
     return <div className="mx-auto max-w-xl px-4 py-12 text-mowing-green/80">Loading…</div>;
   }
 
+  const journeyHasList = hub.rewardJourney.steps.some((s) => s.key === "list");
+  const journeyHasTx = hub.rewardJourney.steps.some((s) => s.key === "transact");
+
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8">
+    <div className="mx-auto max-w-xl px-4 py-8">
       <Link href="/dashboard/creator" className="text-sm text-par-3-punch hover:underline">
         ← Creator Hub
       </Link>
       <div className="mt-6">
         <CreatorSquadList
           members={hub.squad}
+          funnel={hub.squadFunnel}
+          opportunityPence={hub.opportunityPence}
+          oneStepAwayCount={hub.oneStepAwayCount}
           limit={0}
           showViewAll={false}
-          journeyHasList
-          journeyHasTx
+          journeyHasList={journeyHasList}
+          journeyHasTx={journeyHasTx}
         />
       </div>
     </div>

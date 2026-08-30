@@ -15,19 +15,49 @@ import {
   shareCreatorLink,
 } from "@/components/creator/CreatorSharePanel";
 import { CreatorSquadList } from "@/components/creator/CreatorSquadList";
-import { CreatorFunnel } from "@/components/creator/CreatorFunnel";
 import { CreatorActivityFeed } from "@/components/creator/CreatorActivityFeed";
-import { CreatorStreakBar } from "@/components/creator/CreatorStreakBar";
-import { CreatorPersonalBest } from "@/components/creator/CreatorPersonalBest";
 import { CreatorToolkit } from "@/components/creator/CreatorToolkit";
 import { CreatorEmptyState } from "@/components/creator/CreatorEmptyState";
 import { CreatorStickyShare } from "@/components/creator/CreatorStickyShare";
+import {
+  CreatorQuickNav,
+  type CreatorQuickToolId,
+} from "@/components/creator/CreatorQuickNav";
+import { CreatorStickyNav } from "@/components/creator/CreatorStickyNav";
+import { CreatorEarningsCard } from "@/components/creator/CreatorEarningsCard";
 import {
   loadSeenRewardIds,
   saveSeenRewardIds,
 } from "@/components/creator/utils";
 import { track } from "@/lib/analytics";
 import type { CreatorHubActivityItem } from "@/lib/creator/hub";
+
+const SECTION_IDS: Record<CreatorQuickToolId, string> = {
+  share: "creator-share",
+  squad: "creator-squad",
+  earnings: "creator-earnings",
+  activity: "creator-activity",
+  content: "creator-content",
+  mission: "creator-mission",
+};
+
+function scrollToSection(id: CreatorQuickToolId) {
+  document.getElementById(SECTION_IDS[id])?.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+}
+
+function HubSkeleton() {
+  return (
+    <div className="mx-auto max-w-xl space-y-4 px-4 py-8">
+      <div className="h-48 animate-pulse rounded-3xl bg-mowing-green/20" />
+      <div className="h-20 animate-pulse rounded-xl bg-par-3-punch/15" />
+      <div className="h-32 animate-pulse rounded-xl bg-par-3-punch/10" />
+      <div className="h-28 animate-pulse rounded-xl bg-par-3-punch/10" />
+    </div>
+  );
+}
 
 export default function CreatorHubPage() {
   const { user, loading } = useAuth();
@@ -38,6 +68,7 @@ export default function CreatorHubPage() {
   const [celebration, setCelebration] = useState<CreatorHubActivityItem[] | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
   const shareSentinelRef = useRef<HTMLDivElement>(null!);
+  const quickNavRef = useRef<HTMLElement | null>(null);
   const trackedView = useRef(false);
 
   useEffect(() => {
@@ -80,7 +111,9 @@ export default function CreatorHubPage() {
   useEffect(() => {
     if (!hub || hub.activity.length === 0) return;
     const seen = loadSeenRewardIds();
-    const fresh = hub.activity.filter((a) => !seen.has(a.id));
+    const fresh = hub.activity.filter(
+      (a) => a.amountPence > 0 && a.tone === "earned" && !seen.has(a.id)
+    );
     if (fresh.length === 0) {
       const all = new Set(seen);
       for (const a of hub.activity) all.add(a.id);
@@ -98,13 +131,6 @@ export default function CreatorHubPage() {
     setCelebration(null);
   }, [hub]);
 
-  const scrollToShare = () => {
-    const el =
-      document.getElementById("creator-share") ??
-      document.getElementById("creator-share-desktop");
-    el?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
   const onShare = async () => {
     if (!hub) return;
     const result = await shareCreatorLink(hub.url, hub.suggestedMessage);
@@ -121,7 +147,7 @@ export default function CreatorHubPage() {
   };
 
   if (loading || !user) {
-    return <div className="mx-auto max-w-xl px-4 py-12 text-mowing-green/80">Loading…</div>;
+    return <HubSkeleton />;
   }
 
   if (error) {
@@ -148,16 +174,13 @@ export default function CreatorHubPage() {
   }
 
   if (!hub) {
-    return (
-      <div className="mx-auto max-w-xl px-4 py-8">
-        <div className="mt-6 h-72 animate-pulse rounded-2xl border border-par-3-punch/20 bg-par-3-punch/10" />
-      </div>
-    );
+    return <HubSkeleton />;
   }
 
-  const journeyHasList = true;
-  const journeyHasTx = true;
   const showOpportunities = hub.advertiseOpportunities;
+  const showMission = showOpportunities && Boolean(hub.mission.title);
+  const journeyHasList = hub.rewardJourney.steps.some((s) => s.key === "list");
+  const journeyHasTx = hub.rewardJourney.steps.some((s) => s.key === "transact");
 
   const statusBanners = (
     <>
@@ -168,8 +191,8 @@ export default function CreatorHubPage() {
         >
           <p className="font-semibold">Creator campaign currently paused</p>
           <p className="mt-1 text-mowing-green/80">
-            You can still view your earnings, squad, and activity. New rewards are not being offered
-            right now.
+            You can still view your Teevo credit, squad, and activity. New rewards are not being
+            offered right now.
           </p>
         </div>
       )}
@@ -188,53 +211,27 @@ export default function CreatorHubPage() {
     </>
   );
 
-  if (hub.isEmpty) {
-    return (
-      <div className="mx-auto max-w-xl px-4 py-8 pb-24 lg:pb-8">
-        <Link href="/dashboard" className="text-sm text-par-3-punch hover:underline">
-          ← Dashboard
-        </Link>
-        <div className="mt-6 space-y-4">
-          {statusBanners}
-          <CreatorEmptyState
-            steps={hub.rewardJourney.steps}
-            potentialTotalPence={hub.rewardJourney.potentialTotalPence}
-            headline={hub.rewardJourney.headline}
-            url={hub.url}
-            code={hub.code}
-            toolkit={hub.toolkit}
-            suggestedMessage={hub.suggestedMessage}
-          />
-        </div>
-        {showOpportunities && hub.mission.title && (
-          <div className="mt-6">
-            <CreatorMissionCard
-              title={hub.mission.title}
-              body={hub.mission.body}
-              ctaLabel={hub.mission.ctaLabel}
-              ctaUrl={hub.mission.ctaUrl}
-              rewardCallout={hub.mission.rewardCallout}
-              onShareCta={scrollToShare}
-            />
-          </div>
-        )}
-      </div>
-    );
-  }
-
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 pb-28 lg:pb-8">
+    <div className="mx-auto w-full min-w-0 max-w-xl overflow-x-clip px-4 py-6 pb-28 lg:pb-10">
       <Link href="/dashboard" className="text-sm text-par-3-punch hover:underline">
         ← Dashboard
       </Link>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
-        <div className="space-y-6">
-          {statusBanners}
+      <div className="mt-4 min-w-0 space-y-5">
+        {statusBanners}
 
+        {hub.isEmpty ? (
+          <CreatorEmptyState
+            steps={hub.rewardJourney.steps}
+            potentialTotalPence={hub.rewardJourney.potentialTotalPence}
+            onShare={() => void onShare()}
+            shareRef={shareSentinelRef}
+          />
+        ) : (
           <CreatorHubHero
             earnedPence={hub.earnedPence}
             pendingPence={hub.pendingPence}
+            opportunityPence={hub.opportunityPence}
             golfersReferred={hub.golfersReferred}
             successfulListings={hub.successfulListings}
             successfulTransactions={hub.successfulTransactions}
@@ -243,94 +240,89 @@ export default function CreatorHubPage() {
             copiedLink={copiedLink}
             shareRef={shareSentinelRef}
           />
+        )}
 
-          {celebration && celebration.length > 0 && (
-            <CreatorRewardCelebration
-              items={celebration}
-              totalEarnedPence={hub.totalEarnedPence}
-              onDismiss={markCelebrationSeen}
-            />
-          )}
-
-          {showOpportunities && (
-            <CreatorMissionCard
-              title={hub.mission.title}
-              body={hub.mission.body}
-              ctaLabel={hub.mission.ctaLabel}
-              ctaUrl={hub.mission.ctaUrl}
-              rewardCallout={hub.mission.rewardCallout}
-              onShareCta={scrollToShare}
-            />
-          )}
-
-          <div className="lg:hidden">
-            <CreatorSharePanel
-              url={hub.url}
-              code={hub.code}
-              id="creator-share"
-              suggestedMessage={hub.suggestedMessage}
-            />
-          </div>
-
-          {showOpportunities && (
-            <div className="lg:hidden">
-              <CreatorRewardJourney
-                steps={hub.rewardJourney.steps}
-                potentialTotalPence={hub.rewardJourney.potentialTotalPence}
-                headline={hub.rewardJourney.headline}
-              />
-            </div>
-          )}
-
-          <CreatorSquadList
-            members={hub.squad}
-            limit={5}
-            journeyHasList={journeyHasList}
-            journeyHasTx={journeyHasTx}
+        {celebration && celebration.length > 0 && (
+          <CreatorRewardCelebration
+            items={celebration}
+            totalEarnedPence={hub.totalEarnedPence}
+            onDismiss={markCelebrationSeen}
           />
+        )}
 
-          <CreatorFunnel
-            visits={hub.funnelThisMonth.visits}
-            joined={hub.funnelThisMonth.joined}
-            listed={hub.funnelThisMonth.listed}
-            transacted={hub.funnelThisMonth.transacted}
-            insight={hub.insight}
+        <CreatorQuickNav
+          showMission={showMission}
+          onNavigate={scrollToSection}
+          navRef={quickNavRef}
+        />
+
+        <CreatorStickyNav
+          showMission={showMission}
+          quickNavRef={quickNavRef}
+          onNavigate={scrollToSection}
+        />
+
+        <CreatorSharePanel
+          url={hub.url}
+          code={hub.code}
+          id="creator-share"
+          suggestedMessage={hub.suggestedMessage}
+        />
+
+        <CreatorSquadList
+          id="creator-squad"
+          members={hub.squad}
+          funnel={hub.squadFunnel}
+          opportunityPence={hub.opportunityPence}
+          oneStepAwayCount={hub.oneStepAwayCount}
+          limit={3}
+          journeyHasList={journeyHasList}
+          journeyHasTx={journeyHasTx}
+          onShare={() => void onShare()}
+        />
+
+        {showMission && (
+          <CreatorMissionCard
+            id="creator-mission"
+            title={hub.mission.title}
+            body={hub.mission.body}
+            ctaLabel={hub.mission.ctaLabel}
+            ctaUrl={hub.mission.ctaUrl}
+            rewardCallout={hub.mission.rewardCallout}
+            progressCurrent={hub.mission.progressCurrent}
+            progressTarget={hub.mission.progressTarget}
+            potentialRewardPence={hub.mission.potentialRewardPence}
+            onShareCta={() => scrollToSection("share")}
           />
+        )}
 
-          <CreatorStreakBar
-            current={hub.streak.current}
-            target={hub.streak.target}
-            remaining={hub.streak.remaining}
+        <CreatorActivityFeed id="creator-activity" items={hub.activity} limit={4} />
+
+        <CreatorToolkit id="creator-content" captions={hub.toolkit} />
+
+        <CreatorEarningsCard
+          id="creator-earnings"
+          earnedPence={hub.earnedPence}
+          pendingPence={hub.pendingPence}
+          opportunityPence={hub.opportunityPence}
+          recentRewards={hub.activity}
+          personalBest={hub.personalBest}
+        />
+
+        {showOpportunities && (
+          <CreatorRewardJourney
+            id="creator-how-you-earn"
+            steps={hub.rewardJourney.steps}
+            potentialTotalPence={hub.rewardJourney.potentialTotalPence}
           />
-
-          {hub.personalBest && <CreatorPersonalBest best={hub.personalBest} />}
-
-          <CreatorActivityFeed items={hub.activity} limit={5} />
-
-          <div className="lg:hidden">
-            <CreatorToolkit captions={hub.toolkit} />
-          </div>
-        </div>
-
-        <aside className="hidden space-y-6 lg:sticky lg:top-24 lg:block">
-          <CreatorSharePanel
-            url={hub.url}
-            code={hub.code}
-            id="creator-share-desktop"
-            suggestedMessage={hub.suggestedMessage}
-          />
-          {showOpportunities && (
-            <CreatorRewardJourney
-              steps={hub.rewardJourney.steps}
-              potentialTotalPence={hub.rewardJourney.potentialTotalPence}
-              headline={hub.rewardJourney.headline}
-            />
-          )}
-          <CreatorToolkit captions={hub.toolkit} />
-        </aside>
+        )}
       </div>
 
-      <CreatorStickyShare onShare={() => void onShare()} sentinelRef={shareSentinelRef} />
+      <CreatorStickyShare
+        onShare={() => void onShare()}
+        sentinelRef={shareSentinelRef}
+        potentialTotalPence={hub.rewardJourney.potentialTotalPence}
+      />
     </div>
   );
 }

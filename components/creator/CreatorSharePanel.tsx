@@ -32,15 +32,6 @@ export function CreatorSharePanel({ url, code, id, suggestedMessage }: Props) {
     []
   );
 
-  const compactUrl = (() => {
-    try {
-      const u = new URL(url);
-      return `${u.host}${u.pathname}`;
-    } catch {
-      return url;
-    }
-  })();
-
   const flash = (text: string) => {
     setFeedback(text);
     window.setTimeout(() => setFeedback(null), 2500);
@@ -59,6 +50,7 @@ export function CreatorSharePanel({ url, code, id, suggestedMessage }: Props) {
   };
 
   const sharePrimary = async () => {
+    track("creator_share_clicked", { source: "share_panel" });
     if (canNativeShare) {
       try {
         await navigator.share({ title: "Teevo", text: message, url });
@@ -92,66 +84,62 @@ export function CreatorSharePanel({ url, code, id, suggestedMessage }: Props) {
   const whatsappHref = `https://wa.me/?text=${encodeURIComponent(message)}`;
 
   return (
-    <section
-      id={id}
-      className="rounded-2xl border border-par-3-punch/20 bg-white p-5 sm:p-6 scroll-mt-24"
-    >
-      <h2 className="text-lg font-bold text-mowing-green">Share Teevo</h2>
-      <p className="mt-1 text-sm text-mowing-green/70">Your Creator Link</p>
-      <p className="mt-2 truncate rounded-xl bg-off-white-pique px-3 py-2 font-mono text-sm text-mowing-green">
-        {compactUrl}
-        <span className="sr-only"> ({code})</span>
-      </p>
+    <section id={id} className="scroll-mt-28">
+      <h2 className="text-lg font-bold text-mowing-green">
+        Share Teevo <span aria-hidden>🔗</span>
+      </h2>
+      <p className="mt-1 text-sm text-mowing-green/70">Your personal creator link is ready.</p>
+      <span className="sr-only">Creator code {code}</span>
 
       <button
         type="button"
         onClick={() => void sharePrimary()}
-        className="mt-4 inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-mowing-green px-4 py-3 text-sm font-semibold text-off-white-pique hover:opacity-90"
+        className="mt-3 inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-mowing-green px-4 py-3 text-sm font-semibold text-off-white-pique hover:opacity-90"
       >
         <Share2 className="h-4 w-4" aria-hidden />
         Share my link 🚀
       </button>
 
-      <div className="mt-2 grid grid-cols-2 gap-2">
+      <div className="mt-2 flex flex-wrap gap-2">
         <button
           type="button"
           onClick={() => void copyLink()}
-          className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-mowing-green/30 bg-white px-3 py-2.5 text-sm font-semibold text-mowing-green hover:bg-mowing-green/5"
+          className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-mowing-green/25 bg-white px-3 py-2 text-sm font-medium text-mowing-green hover:bg-mowing-green/5"
         >
-          {copiedLink ? <Check className="h-4 w-4" /> : <Link2 className="h-4 w-4" />}
+          {copiedLink ? <Check className="h-3.5 w-3.5" /> : <Link2 className="h-3.5 w-3.5" />}
           {copiedLink ? "Copied ✓" : "Copy link"}
         </button>
         <a
           href={whatsappHref}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={() => track("creator_link_shared", { channel: "whatsapp" })}
-          className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-mowing-green/30 bg-white px-3 py-2.5 text-sm font-semibold text-mowing-green hover:bg-mowing-green/5"
+          onClick={() => {
+            track("creator_whatsapp_clicked", {});
+            track("creator_link_shared", { channel: "whatsapp" });
+          }}
+          className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-mowing-green/25 bg-white px-3 py-2 text-sm font-medium text-mowing-green hover:bg-mowing-green/5"
         >
-          <WhatsAppIcon className="h-4 w-4" />
+          <WhatsAppIcon className="h-3.5 w-3.5" />
           WhatsApp
         </a>
-      </div>
-
-      <div className="mt-2 grid grid-cols-2 gap-2">
         <button
           type="button"
           onClick={() => void copyForPlatform("instagram", "Instagram")}
-          className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-mowing-green/20 bg-par-3-punch/10 px-3 py-2.5 text-sm font-medium text-mowing-green hover:bg-par-3-punch/20"
+          className="inline-flex min-h-[40px] items-center rounded-lg border border-mowing-green/25 bg-white px-3 py-2 text-sm font-medium text-mowing-green hover:bg-mowing-green/5"
         >
           Instagram
         </button>
         <button
           type="button"
           onClick={() => void copyForPlatform("tiktok", "TikTok")}
-          className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-mowing-green/20 bg-par-3-punch/10 px-3 py-2.5 text-sm font-medium text-mowing-green hover:bg-mowing-green/5"
+          className="inline-flex min-h-[40px] items-center rounded-lg border border-mowing-green/25 bg-white px-3 py-2 text-sm font-medium text-mowing-green hover:bg-mowing-green/5"
         >
           TikTok
         </button>
       </div>
 
       {feedback && (
-        <p className="mt-3 text-sm text-mowing-green" role="status">
+        <p className="mt-2 text-sm text-mowing-green" role="status">
           {feedback}
         </p>
       )}

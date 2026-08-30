@@ -34,8 +34,11 @@ export type CreatorHubSquadMember = {
   completedSteps: number;
   totalSteps: number;
   earnedPence: number;
+  remainingPence: number;
   nextStepHint: string | null;
 };
+
+export type CreatorHubActivityTone = "earned" | "pending" | "neutral";
 
 export type CreatorHubActivityItem = {
   id: string;
@@ -44,6 +47,7 @@ export type CreatorHubActivityItem = {
   title: string;
   body: string;
   createdAt: string;
+  tone: CreatorHubActivityTone;
 };
 
 export type CreatorHubPersonalBest = {
@@ -63,6 +67,8 @@ export type CreatorHubPayload = {
   earnedPence: number;
   pendingPence: number;
   totalEarnedPence: number;
+  opportunityPence: number;
+  oneStepAwayCount: number;
   golfersReferred: number;
   successfulListings: number;
   successfulTransactions: number;
@@ -79,8 +85,16 @@ export type CreatorHubPayload = {
     ctaLabel: string;
     ctaUrl: string | null;
     rewardCallout: string;
+    progressCurrent: number;
+    progressTarget: number;
+    potentialRewardPence: number;
   };
   squad: CreatorHubSquadMember[];
+  squadFunnel: {
+    joined: number;
+    listed: number;
+    transacted: number;
+  };
   funnelThisMonth: {
     visits: number;
     joined: number;
@@ -95,7 +109,7 @@ export type CreatorHubPayload = {
     remaining: number;
   };
   personalBest: CreatorHubPersonalBest;
-  toolkit: { id: string; title: string; caption: string }[];
+  toolkit: { id: string; title: string; caption: string; platform?: string }[];
   isEmpty: boolean;
 };
 
@@ -119,6 +133,14 @@ function countableReward(status: string): boolean {
   return status === "approved" || status === "paid" || status === "pending";
 }
 
+/** Reward row exists for this type (any status) — blocks re-award via unique constraint. */
+function hasRewardOfType(
+  rewards: { reward_type: string }[],
+  type: string
+): boolean {
+  return rewards.some((rw) => rw.reward_type === type);
+}
+
 export function fillMissionCallout(template: string, settings: ReferralSettings): string {
   return template
     .split("{join}").join(formatPoundsCompact(settings.creatorNewUserRewardPence))
@@ -126,32 +148,154 @@ export function fillMissionCallout(template: string, settings: ReferralSettings)
     .split("{transact}").join(formatPoundsCompact(settings.creatorTransactionRewardPence));
 }
 
+/**
+ * Remaining Teevo credit opportunity on one referral at current rates.
+ * Join is already done for squad members. Cancelled/reversed rows still
+ * occupy the unique slot — treat those milestones as unavailable.
+ */
+export function remainingOpportunityPence(
+  member: { listed: boolean; transacted: boolean },
+  settings: Pick<
+    ReferralSettings,
+    | "creatorListingRewardEnabled"
+    | "creatorListingRewardPence"
+    | "creatorTransactionRewardEnabled"
+    | "creatorTransactionRewardPence"
+  >,
+  opts?: {
+    /** When true, listing/tx already have a reward row of any status. */
+    hasListingRewardRow?: boolean;
+    hasTransactionRewardRow?: boolean;
+  }
+): number {
+  let remaining = 0;
+  const listingBlocked = opts?.hasListingRewardRow ?? member.listed;
+  const txBlocked = opts?.hasTransactionRewardRow ?? member.transacted;
+
+  if (
+    !listingBlocked &&
+    settings.creatorListingRewardEnabled &&
+    settings.creatorListingRewardPence > 0
+  ) {
+    remaining += settings.creatorListingRewardPence;
+  }
+  if (
+    !txBlocked &&
+    settings.creatorTransactionRewardEnabled &&
+    settings.creatorTransactionRewardPence > 0
+  ) {
+    remaining += settings.creatorTransactionRewardPence;
+  }
+  return remaining;
+}
+
+/** Primary per-referral reward used for mission potential (listing preferred). */
+export function primaryMissionRewardPence(
+  settings: Pick<
+    ReferralSettings,
+    | "creatorListingRewardEnabled"
+    | "creatorListingRewardPence"
+    | "creatorNewUserRewardEnabled"
+    | "creatorNewUserRewardPence"
+    | "creatorTransactionRewardEnabled"
+    | "creatorTransactionRewardPence"
+  >
+): number {
+  if (settings.creatorListingRewardEnabled && settings.creatorListingRewardPence > 0) {
+    return settings.creatorListingRewardPence;
+  }
+  if (settings.creatorNewUserRewardEnabled && settings.creatorNewUserRewardPence > 0) {
+    return settings.creatorNewUserRewardPence;
+  }
+  if (settings.creatorTransactionRewardEnabled && settings.creatorTransactionRewardPence > 0) {
+    return settings.creatorTransactionRewardPence;
+  }
+  return 0;
+}
+
+/** True when exactly one enabled post-join milestone remains. */
+export function isOneStepAway(
+  member: { listed: boolean; transacted: boolean },
+  settings: Pick<
+    ReferralSettings,
+    | "creatorListingRewardEnabled"
+    | "creatorListingRewardPence"
+    | "creatorTransactionRewardEnabled"
+    | "creatorTransactionRewardPence"
+  >
+): boolean {
+  const listingOpen =
+    !member.listed &&
+    settings.creatorListingRewardEnabled &&
+    settings.creatorListingRewardPence > 0;
+  const txOpen =
+    !member.transacted &&
+    settings.creatorTransactionRewardEnabled &&
+    settings.creatorTransactionRewardPence > 0;
+  return (listingOpen ? 1 : 0) + (txOpen ? 1 : 0) === 1;
+}
+
 function activityCopy(
   rewardType: string,
-  amountPence: number
-): { title: string; body: string } {
+  amountPence: number,
+  status: string
+): { title: string; body: string; tone: CreatorHubActivityTone } {
   const amount = formatPoundsCompact(amountPence);
+  const pending = status === "pending";
+
+  if (rewardType === "creator_join") {
+    return {
+      title: "New golfer joined your squad",
+      body: "Someone signed up with your Creator Link.",
+      tone: "neutral",
+    };
+  }
   if (rewardType === ReferralRewardType.CREATOR_NEW_USER_REWARD) {
+    if (pending) {
+      return {
+        title: `${amount} pending`,
+        body: "Join reward is waiting to clear.",
+        tone: "pending",
+      };
+    }
     return {
       title: `Someone joined Teevo`,
-      body: "Your creator link brought in another golfer.",
+      body: `+${amount} Teevo credit earned.`,
+      tone: "earned",
     };
   }
   if (rewardType === ReferralRewardType.CREATOR_LISTING_REWARD) {
+    if (pending) {
+      return {
+        title: "Listing approved",
+        body: `${amount} Teevo credit pending.`,
+        tone: "pending",
+      };
+    }
     return {
-      title: `You earned ${amount}`,
-      body: "A golfer you referred just had their first listing approved.",
+      title: "New listing approved",
+      body: `+${amount} Teevo credit earned.`,
+      tone: "earned",
     };
   }
   if (rewardType === ReferralRewardType.CREATOR_TRANSACTION_REWARD) {
+    if (pending) {
+      return {
+        title: "First transaction completed",
+        body: `${amount} Teevo credit pending.`,
+        tone: "pending",
+      };
+    }
     return {
-      title: `+${amount} earned`,
-      body: "One of your referrals completed their first transaction.",
+      title: "First transaction completed",
+      body: `+${amount} Teevo credit earned.`,
+      tone: "earned",
     };
   }
   return {
-    title: `You earned ${amount}`,
+    title: pending ? `${amount} pending` : `You earned ${amount}`,
     body: "A reward from your creator programme.",
+    tone: pending ? "pending" : "earned",
   };
 }
 
@@ -272,9 +416,24 @@ export function buildJourneySteps(
   return journeySteps;
 }
 
-/** Progress rails: join always; list + transact for squad milestone UI. */
-function progressStepKeys(): Array<"join" | "list" | "transact"> {
-  return ["join", "list", "transact"];
+/** Squad progress rails: always join; list/tx only when those rewards are enabled. */
+export function progressStepKeys(
+  settings: Pick<
+    ReferralSettings,
+    | "creatorListingRewardEnabled"
+    | "creatorListingRewardPence"
+    | "creatorTransactionRewardEnabled"
+    | "creatorTransactionRewardPence"
+  >
+): Array<"join" | "list" | "transact"> {
+  const keys: Array<"join" | "list" | "transact"> = ["join"];
+  if (settings.creatorListingRewardEnabled && settings.creatorListingRewardPence > 0) {
+    keys.push("list");
+  }
+  if (settings.creatorTransactionRewardEnabled && settings.creatorTransactionRewardPence > 0) {
+    keys.push("transact");
+  }
+  return keys;
 }
 
 export async function getCreatorStatusForUser(
@@ -380,13 +539,18 @@ export async function buildCreatorHubPayload(
 
   const journeySteps = buildJourneySteps(settings, advertiseOpportunities);
   const potentialTotalPence = journeySteps.reduce((s, step) => s + step.amountPence, 0);
-  const progressKeys = progressStepKeys();
+  const progressKeys = progressStepKeys(settings);
   const totalProgressSteps = progressKeys.length;
+
+  let opportunityPence = 0;
+  let oneStepAwayCount = 0;
 
   const squad: CreatorHubSquadMember[] = (referrals ?? []).map((r) => {
     const { label, shortId } = squadLabel(r.referred_user_id);
     const rws = rewardsByRef.get(r.id) ?? [];
     const memberJoined = true;
+    const hasListingRow = hasRewardOfType(rws, ReferralRewardType.CREATOR_LISTING_REWARD);
+    const hasTxRow = hasRewardOfType(rws, ReferralRewardType.CREATOR_TRANSACTION_REWARD);
     const memberListed = rws.some(
       (rw) =>
         rw.reward_type === ReferralRewardType.CREATOR_LISTING_REWARD && countableReward(rw.status)
@@ -408,6 +572,25 @@ export async function buildCreatorHubPayload(
       .filter((rw) => countableReward(rw.status))
       .reduce((sum, rw) => sum + rw.amount_pence, 0);
 
+    const remaining = advertiseOpportunities
+      ? remainingOpportunityPence(
+          { listed: memberListed, transacted: memberTransacted },
+          settings,
+          { hasListingRewardRow: hasListingRow, hasTransactionRewardRow: hasTxRow }
+        )
+      : 0;
+    opportunityPence += remaining;
+
+    if (
+      advertiseOpportunities &&
+      isOneStepAway(
+        { listed: memberListed || hasListingRow, transacted: memberTransacted || hasTxRow },
+        settings
+      )
+    ) {
+      oneStepAwayCount += 1;
+    }
+
     return {
       referralId: r.id,
       shortId,
@@ -418,6 +601,7 @@ export async function buildCreatorHubPayload(
       completedSteps,
       totalSteps: totalProgressSteps,
       earnedPence: earned,
+      remainingPence: remaining,
       nextStepHint: nextStepHint(
         { joined: memberJoined, listed: memberListed, transacted: memberTransacted },
         settings,
@@ -462,11 +646,16 @@ export async function buildCreatorHubPayload(
     transacted: transactedMonth,
   };
 
-  const activity: CreatorHubActivityItem[] = (rewards ?? [])
+  const referralIdsWithJoinReward = new Set(
+    (rewards ?? [])
+      .filter((rw) => rw.reward_type === ReferralRewardType.CREATOR_NEW_USER_REWARD)
+      .map((rw) => rw.referral_id)
+  );
+
+  const rewardActivity: CreatorHubActivityItem[] = (rewards ?? [])
     .filter((rw) => countableReward(rw.status))
-    .slice(0, 50)
     .map((rw) => {
-      const copy = activityCopy(rw.reward_type, rw.amount_pence);
+      const copy = activityCopy(rw.reward_type, rw.amount_pence, rw.status);
       return {
         id: rw.id,
         type: rw.reward_type,
@@ -474,11 +663,32 @@ export async function buildCreatorHubPayload(
         title: copy.title,
         body: copy.body,
         createdAt: rw.approved_at ?? rw.created_at,
+        tone: copy.tone,
       };
     });
 
+  const joinOnlyActivity: CreatorHubActivityItem[] = (referrals ?? [])
+    .filter((r) => !referralIdsWithJoinReward.has(r.id))
+    .map((r) => {
+      const copy = activityCopy("creator_join", 0, "approved");
+      return {
+        id: `join-${r.id}`,
+        type: "creator_join",
+        amountPence: 0,
+        title: copy.title,
+        body: copy.body,
+        createdAt: r.attributed_at ?? r.created_at,
+        tone: copy.tone,
+      };
+    });
+
+  const activity: CreatorHubActivityItem[] = [...rewardActivity, ...joinOnlyActivity]
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
+    .slice(0, 50);
+
   const streakCurrent = joinedMonth;
   const streakTarget = settings.creatorMonthlyReferralTarget;
+  const streakRemaining = Math.max(0, streakTarget - streakCurrent);
   const personalBest = buildPersonalBest({
     referralsThisMonth: joinedMonth,
     joinsByMonth,
@@ -490,6 +700,9 @@ export async function buildCreatorHubPayload(
     (settings.creatorSuggestedMessage ?? "").trim() ||
     "Got golf clubs gathering dust?\n\nSell them on Teevo — the marketplace built for golf gear.";
   const isEmpty = (referrals ?? []).length === 0 && earnedPence === 0 && pendingPence === 0;
+
+  const missionPotential =
+    advertiseOpportunities ? streakRemaining * primaryMissionRewardPence(settings) : 0;
 
   return {
     data: {
@@ -503,6 +716,8 @@ export async function buildCreatorHubPayload(
       earnedPence,
       pendingPence,
       totalEarnedPence: earnedPence + pendingPence,
+      opportunityPence,
+      oneStepAwayCount,
       golfersReferred: (referrals ?? []).length,
       successfulListings,
       successfulTransactions,
@@ -523,15 +738,23 @@ export async function buildCreatorHubPayload(
         rewardCallout: advertiseOpportunities
           ? fillMissionCallout(settings.creatorMissionRewardCallout, settings)
           : "",
+        progressCurrent: streakCurrent,
+        progressTarget: streakTarget,
+        potentialRewardPence: missionPotential,
       },
       squad,
+      squadFunnel: {
+        joined: (referrals ?? []).length,
+        listed: successfulListings,
+        transacted: successfulTransactions,
+      },
       funnelThisMonth,
       insight: buildInsight(funnelThisMonth),
       activity,
       streak: {
         current: streakCurrent,
         target: streakTarget,
-        remaining: Math.max(0, streakTarget - streakCurrent),
+        remaining: streakRemaining,
       },
       personalBest,
       toolkit: creatorToolkitCaptions(url, suggestedMessage, settings.creatorMissionBody),
