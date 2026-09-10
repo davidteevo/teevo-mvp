@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { resolveOrCreateUserByEmail, isValidEmail } from "@/lib/admin/resolve-or-create-user";
+import { sendCreatorOnboardingEmail } from "@/lib/creator/onboarding-email";
 import { logAdminAction, requireAdmin } from "@/lib/referral/admin-auth";
 import { disableReferralCode } from "@/lib/referral/codes";
 import { ReferralRewardType } from "@/lib/referral/types";
@@ -303,7 +304,10 @@ export async function PATCH(
     }
     if (body.notes !== undefined) patch.notes = body.notes;
 
-    if (body.linkTeevoAccount || (!existing.user_id && body.email)) {
+    let linkedResolved: Awaited<ReturnType<typeof resolveOrCreateUserByEmail>> | null = null;
+    const linkingAccount = Boolean(body.linkTeevoAccount || (!existing.user_id && body.email));
+
+    if (linkingAccount) {
       const email = (body.email ?? "").trim().toLowerCase();
       if (!email || !isValidEmail(email)) {
         return NextResponse.json({ error: "A valid email is required to link a Teevo account" }, { status: 400 });
@@ -312,7 +316,7 @@ export async function PATCH(
         email,
         firstName: (typeof body.name === "string" ? body.name : existing.name).split(/\s+/)[0],
         adminId: auth.user.id,
-        sendInvite: true,
+        sendInvite: false,
       });
       if (!resolved.ok) {
         return NextResponse.json({ error: resolved.error }, { status: resolved.status });
@@ -330,6 +334,7 @@ export async function PATCH(
         );
       }
       patch.user_id = resolved.userId;
+      linkedResolved = resolved;
       await auth.admin
         .from("referral_codes")
         .update({ owner_user_id: resolved.userId, updated_at: new Date().toISOString() })
@@ -341,6 +346,28 @@ export async function PATCH(
 
     if (body.disableCode || body.status === "disabled") {
       await disableReferralCode(auth.admin, existing.referral_code_id);
+    }
+
+    // First-time link only (was unlinked → now has user_id).
+    if (linkingAccount && !existing.user_id && linkedResolved && linkedResolved.ok) {
+      try {
+        const { data: codeRow } = await auth.admin
+          .from("referral_codes")
+          .select("code")
+          .eq("id", existing.referral_code_id)
+          .maybeSingle();
+        await sendCreatorOnboardingEmail(auth.admin, {
+          creatorId: id,
+          userId: linkedResolved.userId,
+          email: linkedResolved.email,
+          firstName: (typeof body.name === "string" ? body.name : existing.name).split(/\s+/)[0],
+          referralCode: codeRow?.code ?? null,
+          kind: linkedResolved.linkedExisting ? "existing" : "new",
+          accountActivationUrl: linkedResolved.activationUrl ?? null,
+        });
+      } catch (e) {
+        console.error("creator onboarding email failed after link", e);
+      }
     }
 
     await logAdminAction(auth.admin, {

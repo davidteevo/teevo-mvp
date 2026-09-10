@@ -24,6 +24,8 @@ export type ResolveOrCreateUserResult =
       linkedExisting: boolean;
       warning?: string;
       accountStatus: string | null;
+      /** Set-password link when a new auth user was created (even if invite email was suppressed). */
+      activationUrl?: string | null;
     }
   | { ok: false; error: string; status: number };
 
@@ -151,65 +153,63 @@ export async function resolveOrCreateUserByEmail(
 
   let invited = false;
   let warning: string | undefined;
+  let activationUrl: string | null = null;
 
-  if (opts.sendInvite !== false) {
-    const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
-      type: "recovery",
-      email,
-      options: { redirectTo: `${appUrl}/login/reset-password` },
-    });
+  const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+    type: "recovery",
+    email,
+    options: { redirectTo: `${appUrl}/login/reset-password` },
+  });
 
-    const hashedToken =
-      (linkData as { properties?: { hashed_token?: string }; hashed_token?: string })?.properties
-        ?.hashed_token ?? (linkData as { hashed_token?: string })?.hashed_token;
+  const hashedToken =
+    (linkData as { properties?: { hashed_token?: string }; hashed_token?: string })?.properties
+      ?.hashed_token ?? (linkData as { hashed_token?: string })?.hashed_token;
 
-    const actionLinkFromResponse =
-      (linkData as { properties?: { action_link?: string }; action_link?: string })?.properties
-        ?.action_link ?? (linkData as { action_link?: string })?.action_link;
+  const actionLinkFromResponse =
+    (linkData as { properties?: { action_link?: string }; action_link?: string })?.properties
+      ?.action_link ?? (linkData as { action_link?: string })?.action_link;
 
-    let tokenForApi: string | undefined = hashedToken;
-    if (!tokenForApi && actionLinkFromResponse) {
-      try {
-        const verifyUrl = new URL(actionLinkFromResponse);
-        tokenForApi =
-          verifyUrl.searchParams.get("token_hash") ?? verifyUrl.searchParams.get("token") ?? undefined;
-      } catch {
-        // ignore
-      }
+  let tokenForApi: string | undefined = hashedToken;
+  if (!tokenForApi && actionLinkFromResponse) {
+    try {
+      const verifyUrl = new URL(actionLinkFromResponse);
+      tokenForApi =
+        verifyUrl.searchParams.get("token_hash") ?? verifyUrl.searchParams.get("token") ?? undefined;
+    } catch {
+      // ignore
     }
+  }
 
-    let actionLink: string | undefined;
-    if (tokenForApi) {
-      actionLink = `${appUrl}/api/auth/set-password?token_hash=${encodeURIComponent(tokenForApi)}`;
-    } else if (actionLinkFromResponse) {
-      const sep = actionLinkFromResponse.includes("?") ? "&" : "?";
-      actionLink = `${actionLinkFromResponse}${sep}redirect_to=${encodeURIComponent(`${appUrl}/login/reset-password`)}`;
-    }
+  if (tokenForApi) {
+    activationUrl = `${appUrl}/api/auth/set-password?token_hash=${encodeURIComponent(tokenForApi)}`;
+  } else if (actionLinkFromResponse) {
+    const sep = actionLinkFromResponse.includes("?") ? "&" : "?";
+    activationUrl = `${actionLinkFromResponse}${sep}redirect_to=${encodeURIComponent(`${appUrl}/login/reset-password`)}`;
+  }
 
-    if (linkError || !actionLink) {
+  if (linkError || !activationUrl) {
+    warning =
+      "User created but set-password link could not be generated. They can use Forgot password on the login page.";
+  } else if (opts.sendInvite !== false) {
+    const firstName = first_name?.trim() || "there";
+    try {
+      await sendEmail({
+        type: "alert",
+        to: email,
+        subject: "\u26F3 You\u2019re invited to join Teevo",
+        variables: {
+          title: "You're invited to join Teevo",
+          subtitle: "Set your password to get started.",
+          body: `Hi ${firstName}, you've been invited to Teevo as a creator partner.\n\nClick the button below to set your password and access your account.`,
+          cta_link: activationUrl,
+          cta_text: "Set your password",
+        },
+      });
+      invited = true;
+    } catch (e) {
+      console.error("Creator invite email failed:", e);
       warning =
-        "User created but set-password link could not be generated. They can use Forgot password on the login page.";
-    } else {
-      const firstName = first_name?.trim() || "there";
-      try {
-        await sendEmail({
-          type: "alert",
-          to: email,
-          subject: "\u26F3 You\u2019re invited to join Teevo",
-          variables: {
-            title: "You're invited to join Teevo",
-            subtitle: "Set your password to get started.",
-            body: `Hi ${firstName}, you've been invited to Teevo as a creator partner.\n\nClick the button below to set your password and access your account.`,
-            cta_link: actionLink,
-            cta_text: "Set your password",
-          },
-        });
-        invited = true;
-      } catch (e) {
-        console.error("Creator invite email failed:", e);
-        warning =
-          "User created but invite email failed. They can use Forgot password on the login page.";
-      }
+        "User created but invite email failed. They can use Forgot password on the login page.";
     }
   }
 
@@ -250,5 +250,6 @@ export async function resolveOrCreateUserByEmail(
     linkedExisting: false,
     warning,
     accountStatus: "active",
+    activationUrl,
   };
 }

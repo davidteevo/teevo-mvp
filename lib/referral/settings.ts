@@ -28,10 +28,20 @@ export const ReferralSettingKey = {
   CREATOR_MISSION_REWARD_CALLOUT: "creator_mission_reward_callout",
   CREATOR_SUGGESTED_MESSAGE: "creator_suggested_message",
   CREATOR_MONTHLY_REFERRAL_TARGET: "creator_monthly_referral_target",
+  CREATOR_PRIMARY_OBJECTIVE: "creator_primary_objective",
   CREDIT_ENABLED: "credit_enabled",
   CREDIT_EXPIRY_DAYS: "credit_expiry_days",
   REFERRAL_PRIORITY: "referral_priority",
 } as const;
+
+export const CreatorPrimaryObjective = {
+  LISTINGS: "listings",
+  NEW_USERS: "new_users",
+  TRANSACTIONS: "transactions",
+} as const;
+
+export type CreatorPrimaryObjectiveValue =
+  (typeof CreatorPrimaryObjective)[keyof typeof CreatorPrimaryObjective];
 
 export type ReferralSettings = {
   programmeEnabled: boolean;
@@ -55,6 +65,7 @@ export type ReferralSettings = {
   creatorMissionRewardCallout: string;
   creatorSuggestedMessage: string;
   creatorMonthlyReferralTarget: number;
+  creatorPrimaryObjective: CreatorPrimaryObjectiveValue;
   creditEnabled: boolean;
   creditExpiryDays: number | null;
   referralPriority: ReferralPriorityValue;
@@ -84,6 +95,7 @@ export const DEFAULT_REFERRAL_SETTINGS: ReferralSettings = {
   creatorSuggestedMessage:
     "Got golf clubs gathering dust?\n\nSell them on Teevo — the marketplace built for golf gear.",
   creatorMonthlyReferralTarget: 10,
+  creatorPrimaryObjective: CreatorPrimaryObjective.LISTINGS,
   creditEnabled: true,
   creditExpiryDays: null,
   referralPriority: ReferralPriority.SUPPLY,
@@ -117,6 +129,19 @@ function parseReferralPriority(value: unknown): ReferralPriorityValue {
   if (value === ReferralPriority.DEMAND || value === "DEMAND") return ReferralPriority.DEMAND;
   if (value === ReferralPriority.SUPPLY || value === "SUPPLY") return ReferralPriority.SUPPLY;
   return DEFAULT_REFERRAL_SETTINGS.referralPriority;
+}
+
+function parseCreatorPrimaryObjective(value: unknown): CreatorPrimaryObjectiveValue {
+  if (value === CreatorPrimaryObjective.NEW_USERS || value === "new_users") {
+    return CreatorPrimaryObjective.NEW_USERS;
+  }
+  if (value === CreatorPrimaryObjective.TRANSACTIONS || value === "transactions") {
+    return CreatorPrimaryObjective.TRANSACTIONS;
+  }
+  if (value === CreatorPrimaryObjective.LISTINGS || value === "listings") {
+    return CreatorPrimaryObjective.LISTINGS;
+  }
+  return DEFAULT_REFERRAL_SETTINGS.creatorPrimaryObjective;
 }
 
 function parseString(value: unknown, fallback: string): string {
@@ -208,6 +233,9 @@ export async function getReferralSettings(admin: SupabaseClient): Promise<Referr
       map.get(ReferralSettingKey.CREATOR_MONTHLY_REFERRAL_TARGET),
       DEFAULT_REFERRAL_SETTINGS.creatorMonthlyReferralTarget
     ),
+    creatorPrimaryObjective: parseCreatorPrimaryObjective(
+      map.get(ReferralSettingKey.CREATOR_PRIMARY_OBJECTIVE)
+    ),
     creditEnabled: parseBool(map.get(ReferralSettingKey.CREDIT_ENABLED), DEFAULT_REFERRAL_SETTINGS.creditEnabled),
     creditExpiryDays: parseExpiryDays(map.get(ReferralSettingKey.CREDIT_EXPIRY_DAYS)),
     referralPriority: parseReferralPriority(map.get(ReferralSettingKey.REFERRAL_PRIORITY)),
@@ -236,6 +264,7 @@ export type ReferralSettingsPatch = Partial<{
   creatorMissionRewardCallout: string;
   creatorSuggestedMessage: string;
   creatorMonthlyReferralTarget: number;
+  creatorPrimaryObjective: CreatorPrimaryObjectiveValue;
   creditEnabled: boolean;
   creditExpiryDays: number | null;
   referralPriority: ReferralPriorityValue;
@@ -321,6 +350,21 @@ export async function setReferralSettings(
     rows.push({
       key: ReferralSettingKey.CREATOR_MONTHLY_REFERRAL_TARGET,
       value: String(target),
+      updated_at: now,
+    });
+  }
+  if (patch.creatorPrimaryObjective !== undefined) {
+    const objective = parseCreatorPrimaryObjective(patch.creatorPrimaryObjective);
+    if (
+      patch.creatorPrimaryObjective !== CreatorPrimaryObjective.LISTINGS &&
+      patch.creatorPrimaryObjective !== CreatorPrimaryObjective.NEW_USERS &&
+      patch.creatorPrimaryObjective !== CreatorPrimaryObjective.TRANSACTIONS
+    ) {
+      throw new Error("Primary creator objective must be listings, new_users, or transactions");
+    }
+    rows.push({
+      key: ReferralSettingKey.CREATOR_PRIMARY_OBJECTIVE,
+      value: objective,
       updated_at: now,
     });
   }

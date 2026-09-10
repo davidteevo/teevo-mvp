@@ -1,9 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Settings } from "lucide-react";
+import { creatorObjectivePreview } from "@/lib/creator/objective";
 import { formatPence } from "@/lib/pricing";
+import {
+  CreatorPrimaryObjective,
+  type CreatorPrimaryObjectiveValue,
+  type ReferralSettings,
+} from "@/lib/referral/settings";
+import { ReferralPriority } from "@/lib/referral/types";
 
 type Creator = {
   id: string;
@@ -96,6 +103,60 @@ export default function AdminCreatorsPage() {
     "Got golf clubs gathering dust?\n\nSell them on Teevo — the marketplace built for golf gear."
   );
   const [monthlyTarget, setMonthlyTarget] = useState("10");
+  const [primaryObjective, setPrimaryObjective] =
+    useState<CreatorPrimaryObjectiveValue>(CreatorPrimaryObjective.LISTINGS);
+
+  const objectivePreview = useMemo(() => {
+    const toPenceSafe = (raw: string, fallback: number) => {
+      const n = Number(raw);
+      if (!Number.isFinite(n) || n < 0) return fallback;
+      return Math.round(n * 100);
+    };
+    const draft: ReferralSettings = {
+      programmeEnabled: true,
+      discountPence: 500,
+      referrerRewardPence: 500,
+      minItemPence: 5000,
+      sellerEnabled: true,
+      sellerListingRewardPence: 500,
+      sellerSaleRewardPence: 500,
+      creatorEnabled,
+      creatorNewUserRewardEnabled: creatorNewUserEnabled,
+      creatorNewUserRewardPence: toPenceSafe(creatorNewUserReward, 200),
+      creatorListingRewardEnabled: creatorListingEnabled,
+      creatorListingRewardPence: toPenceSafe(creatorListingReward, 1000),
+      creatorTransactionRewardEnabled: creatorTxEnabled,
+      creatorTransactionRewardPence: toPenceSafe(creatorTxReward, 500),
+      creatorMissionTitle: missionTitle,
+      creatorMissionBody: missionBody,
+      creatorMissionCtaLabel: missionCtaLabel,
+      creatorMissionCtaUrl: missionCtaUrl,
+      creatorMissionRewardCallout: missionRewardCallout,
+      creatorSuggestedMessage: suggestedMessage,
+      creatorMonthlyReferralTarget: Number(monthlyTarget) || 10,
+      creatorPrimaryObjective: primaryObjective,
+      creditEnabled: true,
+      creditExpiryDays: null,
+      referralPriority: ReferralPriority.SUPPLY,
+    };
+    return creatorObjectivePreview(draft);
+  }, [
+    creatorEnabled,
+    creatorNewUserEnabled,
+    creatorNewUserReward,
+    creatorListingEnabled,
+    creatorListingReward,
+    creatorTxEnabled,
+    creatorTxReward,
+    missionTitle,
+    missionBody,
+    missionCtaLabel,
+    missionCtaUrl,
+    missionRewardCallout,
+    suggestedMessage,
+    monthlyTarget,
+    primaryObjective,
+  ]);
 
   const load = () => {
     fetch("/api/admin/referrals/creators")
@@ -137,6 +198,13 @@ export default function AdminCreatorsPage() {
             "Got golf clubs gathering dust?\n\nSell them on Teevo — the marketplace built for golf gear."
         );
         setMonthlyTarget(String(data.creatorMonthlyReferralTarget ?? 10));
+        setPrimaryObjective(
+          data.creatorPrimaryObjective === CreatorPrimaryObjective.NEW_USERS ||
+            data.creatorPrimaryObjective === CreatorPrimaryObjective.TRANSACTIONS ||
+            data.creatorPrimaryObjective === CreatorPrimaryObjective.LISTINGS
+            ? data.creatorPrimaryObjective
+            : CreatorPrimaryObjective.LISTINGS
+        );
       })
       .catch((e) => setSettingsError(e instanceof Error ? e.message : "Failed to load settings"))
       .finally(() => setSettingsLoading(false));
@@ -264,6 +332,7 @@ export default function AdminCreatorsPage() {
           creatorMissionCtaUrl: missionCtaUrl,
           creatorMissionRewardCallout: missionRewardCallout,
           creatorSuggestedMessage: suggestedMessage,
+          creatorPrimaryObjective: primaryObjective,
           creatorMonthlyReferralTarget: (() => {
             const n = Number(monthlyTarget);
             if (!Number.isInteger(n) || n < 1 || n > 1000) {
@@ -395,7 +464,8 @@ export default function AdminCreatorsPage() {
               Creator programme settings
             </h2>
             <p className="mt-1 text-sm text-mowing-green/70">
-              Milestone rewards and Creator Hub mission. Reward amount changes apply to future rewards only.
+              Primary objective (onboarding emails), milestone rewards, and Creator Hub mission. Reward
+              amount changes apply to future rewards only.
             </p>
             {!creatorEnabled && !settingsLoading && (
               <p className="mt-2 text-sm text-amber-700">
@@ -411,6 +481,68 @@ export default function AdminCreatorsPage() {
               <p className="mt-4 text-sm text-mowing-green/70">Loading…</p>
             ) : (
               <div className="mt-4 space-y-3">
+                <div className="rounded-lg border border-par-3-punch/25 bg-off-white-pique/60 p-3 space-y-3">
+                  <div>
+                    <p className="font-medium text-mowing-green">Primary Creator Objective</p>
+                    <p className="text-sm text-mowing-green/70 mt-0.5">
+                      Controls onboarding email messaging for new and existing creators. Changing this does
+                      not re-email current creators.
+                    </p>
+                  </div>
+                  <fieldset className="space-y-2">
+                    <legend className="sr-only">Primary Creator Objective</legend>
+                    {(
+                      [
+                        {
+                          value: CreatorPrimaryObjective.LISTINGS,
+                          label: "Generate listings",
+                          hint: "Encourage creators to bring sellers and successful listings.",
+                        },
+                        {
+                          value: CreatorPrimaryObjective.NEW_USERS,
+                          label: "Generate new users",
+                          hint: "Encourage creators to introduce more golfers to Teevo.",
+                        },
+                        {
+                          value: CreatorPrimaryObjective.TRANSACTIONS,
+                          label: "Generate transactions",
+                          hint: "Encourage creators to drive buyers and completed deals.",
+                        },
+                      ] as const
+                    ).map((opt) => (
+                      <label key={opt.value} className="flex items-start gap-3 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="creator-primary-objective"
+                          className="mt-1"
+                          checked={primaryObjective === opt.value}
+                          onChange={() => setPrimaryObjective(opt.value)}
+                          disabled={!creatorEnabled}
+                        />
+                        <span>
+                          <span className="font-medium text-mowing-green">{opt.label}</span>
+                          <span className="block text-sm text-mowing-green/70">{opt.hint}</span>
+                        </span>
+                      </label>
+                    ))}
+                  </fieldset>
+                  <p className="text-sm text-mowing-green">{objectivePreview.rewardLine}</p>
+                  <p className="text-xs text-mowing-green/60">Edit reward amounts in the sections below.</p>
+                  <div className="rounded-lg border border-mowing-green/20 bg-white p-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-mowing-green/60">
+                      Onboarding email preview
+                    </p>
+                    <p className="mt-2 font-semibold text-mowing-green">{objectivePreview.headline}</p>
+                    <p className="mt-1 text-sm text-mowing-green/80">{objectivePreview.description}</p>
+                    <p className="mt-2 text-sm font-medium text-mowing-green">
+                      Example: {objectivePreview.exampleReward}
+                    </p>
+                    <p className="mt-2 inline-block rounded-md bg-mowing-green px-3 py-1.5 text-sm text-off-white-pique">
+                      {objectivePreview.cta}
+                    </p>
+                  </div>
+                </div>
+
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input
                     type="checkbox"
@@ -566,7 +698,7 @@ export default function AdminCreatorsPage() {
                 )}
                 {settingsSaved && !settingsError && (
                   <p className="text-sm text-mowing-green/80">
-                    Saved. Creator Hub and future rewards will use these values.
+                    Saved. Onboarding emails for new creators and future rewards will use these values.
                   </p>
                 )}
 
