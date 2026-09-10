@@ -10,6 +10,7 @@ import {
   creatorToolkitCaptions,
 } from "@/lib/referral/share-copy";
 import type { ReferralSettings } from "@/lib/referral/settings";
+import { isCreatorBrandPackAvailable } from "@/lib/referral/settings";
 import { ReferralRewardType } from "@/lib/referral/types";
 
 const CREATOR_REWARD_TYPES = [
@@ -110,6 +111,9 @@ export type CreatorHubPayload = {
   };
   personalBest: CreatorHubPersonalBest;
   toolkit: { id: string; title: string; caption: string; platform?: string }[];
+  brandPack: {
+    available: boolean;
+  };
   isEmpty: boolean;
 };
 
@@ -758,6 +762,9 @@ export async function buildCreatorHubPayload(
       },
       personalBest,
       toolkit: creatorToolkitCaptions(url, suggestedMessage, settings.creatorMissionBody),
+      brandPack: {
+        available: isCreatorBrandPackAvailable(settings),
+      },
       isEmpty,
     },
   };

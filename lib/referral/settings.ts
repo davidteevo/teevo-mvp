@@ -29,10 +29,15 @@ export const ReferralSettingKey = {
   CREATOR_SUGGESTED_MESSAGE: "creator_suggested_message",
   CREATOR_MONTHLY_REFERRAL_TARGET: "creator_monthly_referral_target",
   CREATOR_PRIMARY_OBJECTIVE: "creator_primary_objective",
+  CREATOR_BRAND_PACK_ENABLED: "creator_brand_pack_enabled",
+  CREATOR_BRAND_PACK_URL: "creator_brand_pack_url",
   CREDIT_ENABLED: "credit_enabled",
   CREDIT_EXPIRY_DAYS: "credit_expiry_days",
   REFERRAL_PRIORITY: "referral_priority",
 } as const;
+
+export const DEFAULT_CREATOR_BRAND_PACK_URL =
+  "https://drive.google.com/drive/folders/1Z08g03AmCv24bVuvzojjDiIeyEC-buZy?usp=sharing";
 
 export const CreatorPrimaryObjective = {
   LISTINGS: "listings",
@@ -66,6 +71,8 @@ export type ReferralSettings = {
   creatorSuggestedMessage: string;
   creatorMonthlyReferralTarget: number;
   creatorPrimaryObjective: CreatorPrimaryObjectiveValue;
+  creatorBrandPackEnabled: boolean;
+  creatorBrandPackUrl: string;
   creditEnabled: boolean;
   creditExpiryDays: number | null;
   referralPriority: ReferralPriorityValue;
@@ -96,6 +103,8 @@ export const DEFAULT_REFERRAL_SETTINGS: ReferralSettings = {
     "Got golf clubs gathering dust?\n\nSell them on Teevo — the marketplace built for golf gear.",
   creatorMonthlyReferralTarget: 10,
   creatorPrimaryObjective: CreatorPrimaryObjective.LISTINGS,
+  creatorBrandPackEnabled: true,
+  creatorBrandPackUrl: DEFAULT_CREATOR_BRAND_PACK_URL,
   creditEnabled: true,
   creditExpiryDays: null,
   referralPriority: ReferralPriority.SUPPLY,
@@ -236,6 +245,14 @@ export async function getReferralSettings(admin: SupabaseClient): Promise<Referr
     creatorPrimaryObjective: parseCreatorPrimaryObjective(
       map.get(ReferralSettingKey.CREATOR_PRIMARY_OBJECTIVE)
     ),
+    creatorBrandPackEnabled: parseBool(
+      map.get(ReferralSettingKey.CREATOR_BRAND_PACK_ENABLED),
+      DEFAULT_REFERRAL_SETTINGS.creatorBrandPackEnabled
+    ),
+    creatorBrandPackUrl: parseString(
+      map.get(ReferralSettingKey.CREATOR_BRAND_PACK_URL),
+      DEFAULT_REFERRAL_SETTINGS.creatorBrandPackUrl
+    ),
     creditEnabled: parseBool(map.get(ReferralSettingKey.CREDIT_ENABLED), DEFAULT_REFERRAL_SETTINGS.creditEnabled),
     creditExpiryDays: parseExpiryDays(map.get(ReferralSettingKey.CREDIT_EXPIRY_DAYS)),
     referralPriority: parseReferralPriority(map.get(ReferralSettingKey.REFERRAL_PRIORITY)),
@@ -265,6 +282,8 @@ export type ReferralSettingsPatch = Partial<{
   creatorSuggestedMessage: string;
   creatorMonthlyReferralTarget: number;
   creatorPrimaryObjective: CreatorPrimaryObjectiveValue;
+  creatorBrandPackEnabled: boolean;
+  creatorBrandPackUrl: string;
   creditEnabled: boolean;
   creditExpiryDays: number | null;
   referralPriority: ReferralPriorityValue;
@@ -368,6 +387,22 @@ export async function setReferralSettings(
       updated_at: now,
     });
   }
+  addBool(ReferralSettingKey.CREATOR_BRAND_PACK_ENABLED, patch.creatorBrandPackEnabled);
+  if (patch.creatorBrandPackUrl !== undefined) {
+    if (typeof patch.creatorBrandPackUrl !== "string") {
+      throw new Error("Brand Pack URL must be text");
+    }
+    const url = patch.creatorBrandPackUrl.trim();
+    if (url.length > 500) throw new Error("Brand Pack URL must be at most 500 characters");
+    if (url && !/^https:\/\//i.test(url)) {
+      throw new Error("Brand Pack URL must be an https:// link");
+    }
+    rows.push({
+      key: ReferralSettingKey.CREATOR_BRAND_PACK_URL,
+      value: url,
+      updated_at: now,
+    });
+  }
   addBool(ReferralSettingKey.CREDIT_ENABLED, patch.creditEnabled);
   if (patch.referralPriority !== undefined) {
     if (
@@ -405,4 +440,10 @@ export function creditExpiresAt(now: Date, expiryDays: number | null): string | 
   const d = new Date(now.getTime());
   d.setUTCDate(d.getUTCDate() + expiryDays);
   return d.toISOString();
+}
+
+/** Brand Pack is shown when enabled and a valid https URL is configured. */
+export function isCreatorBrandPackAvailable(settings: ReferralSettings): boolean {
+  const url = settings.creatorBrandPackUrl.trim();
+  return settings.creatorBrandPackEnabled && /^https:\/\//i.test(url);
 }
