@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { resolveOrCreateUserByEmail, isValidEmail } from "@/lib/admin/resolve-or-create-user";
+import { sendCreatorOnboardingEmail } from "@/lib/creator/onboarding-email";
 import { createCreatorReferralCode, lookupReferralCode } from "@/lib/referral/codes";
 import { logAdminAction, requireAdmin } from "@/lib/referral/admin-auth";
 import { ReferralRewardType } from "@/lib/referral/types";
@@ -160,7 +161,8 @@ export async function POST(request: Request) {
       surname: name.split(/\s+/).slice(1).join(" ") || null,
       adminId: auth.user.id,
       adminNotes: body.notes ?? null,
-      sendInvite: true,
+      // Creator onboarding Email B replaces the generic invite for new users.
+      sendInvite: false,
     });
     if (!resolved.ok) {
       return NextResponse.json({ error: resolved.error }, { status: resolved.status });
@@ -213,6 +215,23 @@ export async function POST(request: Request) {
     if (error || !data) {
       return NextResponse.json({ error: error?.message ?? "Could not create creator" }, { status: 500 });
     }
+
+    let onboarding: { sent: boolean; kind: "existing" | "new"; skippedReason?: string } | null =
+      null;
+    try {
+      onboarding = await sendCreatorOnboardingEmail(auth.admin, {
+        creatorId: data.id,
+        userId: resolved.userId,
+        email: resolved.email,
+        firstName: name.split(/\s+/)[0] ?? name,
+        referralCode: created.row.code,
+        kind: resolved.linkedExisting ? "existing" : "new",
+        accountActivationUrl: resolved.activationUrl ?? null,
+      });
+    } catch (e) {
+      console.error("creator onboarding email failed after create", e);
+    }
+
     await logAdminAction(auth.admin, {
       adminId: auth.user.id,
       action: "create_creator",
@@ -223,6 +242,7 @@ export async function POST(request: Request) {
         code: created.row.code,
         user_id: resolved.userId,
         linked_existing: resolved.linkedExisting,
+        onboarding_email: onboarding,
       },
     });
     return NextResponse.json({
@@ -233,8 +253,15 @@ export async function POST(request: Request) {
       email: resolved.email,
       accountStatus: resolved.accountStatus,
       linkedExisting: resolved.linkedExisting,
-      invited: resolved.invited,
-      warning: resolved.warning,
+      invited: onboarding?.sent === true && onboarding.kind === "new",
+      onboardingEmail: onboarding,
+      warning:
+        resolved.warning ??
+        (onboarding && !onboarding.sent && onboarding.skippedReason === "missing_activation_url"
+          ? "Creator created but account activation link could not be generated. They can use Forgot password on the login page."
+          : onboarding && !onboarding.sent && onboarding.skippedReason === "send_failed"
+            ? "Creator created but onboarding email failed to send."
+            : undefined),
       message: resolved.linkedExisting
         ? "Existing Teevo user found. This creator will be linked to that account."
         : "Creator created successfully",

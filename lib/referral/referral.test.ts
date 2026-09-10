@@ -396,6 +396,7 @@ describe("creator milestone rewards", () => {
     expect(DEFAULT_REFERRAL_SETTINGS.creatorNewUserRewardEnabled).toBe(true);
     expect(DEFAULT_REFERRAL_SETTINGS.creatorMissionTitle).toBe("Bring more clubs onto Teevo");
     expect(DEFAULT_REFERRAL_SETTINGS.creatorMonthlyReferralTarget).toBe(10);
+    expect(DEFAULT_REFERRAL_SETTINGS.creatorPrimaryObjective).toBe("listings");
   });
 
   it("validates emails for creator user create/link", () => {

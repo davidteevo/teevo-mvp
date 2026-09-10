@@ -57,6 +57,8 @@ export const EmailTriggerType = {
   REFERRAL_CREDIT_EARNED: "referral_credit_earned",
   ADMIN_NEW_USERS_DIGEST: "admin_new_users_digest",
   CREATOR_WEEKLY_ROUNDUP: "creator_weekly_roundup",
+  CREATOR_ONBOARDING_EXISTING: "creator_onboarding_existing",
+  CREATOR_ONBOARDING_NEW: "creator_onboarding_new",
 } as const;
 
 export type EmailTriggerTypeValue = (typeof EmailTriggerType)[keyof typeof EmailTriggerType];
@@ -116,7 +118,15 @@ export async function ensureEmailSent(
   opts: {
     emailType: EmailTriggerTypeValue;
     referenceId: string;
-    referenceType?: "transaction" | "user" | "listing" | "message" | "offer" | "watchlist" | "review";
+    referenceType?:
+      | "transaction"
+      | "user"
+      | "listing"
+      | "message"
+      | "offer"
+      | "watchlist"
+      | "review"
+      | "creator";
     recipientId?: string | null;
     to: string | string[];
     subject: string;

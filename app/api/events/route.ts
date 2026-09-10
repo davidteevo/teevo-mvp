@@ -95,6 +95,7 @@ const ALLOWED_EVENTS = [
   "creator_content_copied",
   "creator_content_shared",
   "creator_mission_cta_clicked",
+  "creator_onboarding_email_sent",
   "creator_referrals_viewed",
   "creator_squad_viewed",
   "creator_earnings_viewed",
