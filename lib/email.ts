@@ -19,7 +19,7 @@ function getResend(): Resend {
   return new Resend(RESEND_API_KEY);
 }
 
-export type EmailType = "transactional" | "standard" | "alert";
+export type EmailType = "transactional" | "standard" | "alert" | "creator-onboarding";
 
 function escapeHtml(value: string): string {
   return value
@@ -94,7 +94,12 @@ export async function sendEmail({
   const rawHtml = loadTemplate(type);
   const prepared: Record<string, string> = { hero_image: "", item_name: "", ...variables };
   if (prepared.item_name) prepared.item_name = escapeHtml(prepared.item_name);
-  if (prepared.body) prepared.body = prepared.body.replace(/\r\n/g, "\n").replace(/\n/g, "<br />");
+  // creator-onboarding bodies are prebuilt HTML — do not convert newlines to <br>.
+  if (prepared.body && type !== "creator-onboarding") {
+    prepared.body = prepared.body.replace(/\r\n/g, "\n").replace(/\n/g, "<br />");
+  } else if (prepared.body && type === "creator-onboarding") {
+    prepared.body = prepared.body.replace(/\r\n/g, "\n").replace(/\n+/g, "");
+  }
   const html = render(rawHtml, prepared);
 
   let finalSubject = subject;

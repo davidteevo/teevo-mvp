@@ -136,15 +136,16 @@ export function buildCreatorObjectiveCopy(settings: ReferralSettings): CreatorOb
         "Mention Teevo in your content",
         "Introduce your audience to Teevo",
       ],
-      incentiveEyebrow: "GET REWARDED FOR BUILDING TEEVO",
+      incentiveEyebrow: "GET REWARDED",
       incentiveTitle: reward.enabled
-        ? `${amount} PER NEW USER`
-        : "HELP GROW THE TEEVO COMMUNITY",
+        ? `${amount} per new user`
+        : "Help grow the Teevo community",
       onboardingWhatToDo:
-        "Help grow the Teevo community by introducing more golfers to the marketplace.\n\nYou have a unique creator link — share it with golfers who'd love Teevo.",
-      onboardingFirstAction: "Send your link to 3 golfers who'd love Teevo.",
+        "Right now Teevo's priority is bringing more golfers onto the marketplace.\n\nYou have a unique creator referral link. When someone joins Teevo through your link, you earn a reward.",
+      onboardingFirstAction:
+        "Your first challenge: send your creator link to 3 golfers who'd love Teevo.",
       onboardingSecondaryShare:
-        "You can also share via Instagram Stories, WhatsApp groups, or your golf content.",
+        "Instagram Stories, WhatsApp groups, golf clubs and your creator content are all good places to share it.",
       onboardingQuickStart: "Know 3 golfers not on Teevo yet? Send them your link today.",
     };
   }
@@ -179,15 +180,16 @@ export function buildCreatorObjectiveCopy(settings: ReferralSettings): CreatorOb
         "Share your creator link with your audience",
         "Recommend Teevo when golfers are discussing equipment purchases",
       ],
-      incentiveEyebrow: "GET REWARDED FOR BUILDING TEEVO",
+      incentiveEyebrow: "GET REWARDED",
       incentiveTitle: reward.enabled
-        ? `${amount} PER SUCCESSFUL TRANSACTION`
-        : "DRIVE TRANSACTIONS ON TEEVO",
+        ? `${amount} per successful transaction`
+        : "Drive transactions on Teevo",
       onboardingWhatToDo:
-        "Help golfers discover and buy great golf equipment through Teevo.\n\nYou have a unique creator link — share it with golfers ready to buy or upgrade.",
-      onboardingFirstAction: "Send Teevo to 3 golfers ready to buy or upgrade.",
+        "Right now Teevo's priority is helping more golfers buy and sell great equipment.\n\nYou have a unique creator referral link. When someone joins through your link and completes a qualifying transaction, you earn a reward.",
+      onboardingFirstAction:
+        "Your first challenge: send your creator link to 3 golfers ready to buy or upgrade.",
       onboardingSecondaryShare:
-        "You can also share listings via Instagram Stories, WhatsApp groups, or your golf content.",
+        "Instagram Stories, WhatsApp groups, golf clubs and your creator content are all good places to share it.",
       onboardingQuickStart: "Know 3 golfers shopping for clubs? Send them your link today.",
     };
   }
@@ -222,16 +224,16 @@ export function buildCreatorObjectiveCopy(settings: ReferralSettings): CreatorOb
       "Mention Teevo in your golf content",
       "Share it with golfers currently trying to sell clubs elsewhere",
     ],
-    incentiveEyebrow: "GET REWARDED FOR BUILDING TEEVO",
+    incentiveEyebrow: "GET REWARDED",
     incentiveTitle: reward.enabled
-      ? `${amount} PER SUCCESSFUL LISTING`
-      : "HELP BUILD THE TEEVO MARKETPLACE",
+      ? `${amount} per successful listing`
+      : "Help build the Teevo marketplace",
     onboardingWhatToDo:
-      "Our biggest priority right now is getting more great golf equipment onto Teevo.\n\nYou have a unique creator link — share it with golfers who have equipment to sell.",
+      "Right now Teevo's priority is getting more great golf equipment listed.\n\nYou have a unique creator referral link. When someone joins Teevo through your link and completes a qualifying successful listing, you earn a reward.",
     onboardingFirstAction:
-      "Send your link to 3 golfers you know with equipment they could sell.",
+      "Your first challenge: send your creator link to 3 golfers you know with equipment they could sell.",
     onboardingSecondaryShare:
-      "You can also share via Instagram Stories, WhatsApp groups, or your golf content.",
+      "Instagram Stories, WhatsApp groups, golf clubs and your creator content are all good places to share it.",
     onboardingQuickStart: "Know 3 golfers with unused clubs? Send them your link today.",
   };
 }
