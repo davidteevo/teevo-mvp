@@ -5,9 +5,26 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/format";
 import { displayNameFromProfile, type AdminUserDetail } from "@/lib/admin-users";
+import AdminUserCreatorTab, {
+  CreatorStatusBadge,
+  type CreatorStatusSummary,
+} from "./AdminUserCreatorTab";
 
-const TABS = ["Overview", "Listings", "Sales", "Purchases", "Rewards", "Activity", "Admin"] as const;
+const TABS = [
+  "Overview",
+  "Listings",
+  "Sales",
+  "Purchases",
+  "Rewards",
+  "Creator",
+  "Activity",
+  "Admin",
+] as const;
 type Tab = (typeof TABS)[number];
+
+function isTab(value: string | null | undefined): value is Tab {
+  return !!value && (TABS as readonly string[]).includes(value);
+}
 
 function formatDate(iso?: string | null) {
   if (!iso) return "—";
@@ -24,16 +41,24 @@ function formatDate(iso?: string | null) {
   }
 }
 
-export default function AdminUserDetailClient({ initialUser }: { initialUser: AdminUserDetail }) {
+export default function AdminUserDetailClient({
+  initialUser,
+  initialTab,
+}: {
+  initialUser: AdminUserDetail;
+  initialTab?: string;
+}) {
   const router = useRouter();
   const [user, setUser] = useState(initialUser);
-  const [tab, setTab] = useState<Tab>("Overview");
+  const [tab, setTab] = useState<Tab>(isTab(initialTab) ? initialTab : "Overview");
   const [menuOpen, setMenuOpen] = useState(false);
   const [flash, setFlash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [emailOpen, setEmailOpen] = useState(false);
+  const [creatorSummary, setCreatorSummary] = useState<CreatorStatusSummary | null>(null);
+  const [creatorSummaryLoading, setCreatorSummaryLoading] = useState(true);
   const [firstName, setFirstName] = useState(user.first_name ?? "");
   const [surname, setSurname] = useState(user.surname ?? "");
   const [displayName, setDisplayName] = useState(user.display_name ?? "");
@@ -51,6 +76,38 @@ export default function AdminUserDetailClient({ initialUser }: { initialUser: Ad
   const loadedTabs = useRef<Set<string>>(new Set());
   const name = displayNameFromProfile(user);
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/admin/users/${user.id}/creator?preset=all`);
+        const data = await res.json();
+        if (cancelled) return;
+        if (!res.ok) {
+          setCreatorSummary({ enrolled: false, status: null, createdAt: null, creatorId: null });
+        } else if (data.enrolled === false) {
+          setCreatorSummary({ enrolled: false, status: null, createdAt: null, creatorId: null });
+        } else {
+          setCreatorSummary({
+            enrolled: true,
+            status: data.creator.status,
+            createdAt: data.creator.createdAt,
+            creatorId: data.creator.id,
+          });
+        }
+      } catch {
+        if (!cancelled) {
+          setCreatorSummary({ enrolled: false, status: null, createdAt: null, creatorId: null });
+        }
+      } finally {
+        if (!cancelled) setCreatorSummaryLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user.id]);
+
   const refreshUser = useCallback(async () => {
     const res = await fetch(`/api/admin/users/${user.id}`);
     const data = await res.json();
@@ -59,6 +116,7 @@ export default function AdminUserDetailClient({ initialUser }: { initialUser: Ad
 
   const loadTab = useCallback(
     async (next: Tab) => {
+      if (next === "Creator" || next === "Overview") return;
       if (loadedTabs.current.has(next)) return;
       try {
         if (next === "Listings") {
@@ -188,6 +246,15 @@ export default function AdminUserDetailClient({ initialUser }: { initialUser: Ad
             >
               {user.account_status === "suspended" ? "Suspended" : "Active"}
             </span>
+            <CreatorStatusBadge
+              summary={creatorSummary}
+              userName={name}
+              loading={creatorSummaryLoading}
+              onAdd={() => {
+                setTab("Creator");
+                router.replace(`/admin/users/${user.id}?tab=Creator`, { scroll: false });
+              }}
+            />
           </div>
         </div>
         <div className="relative">
@@ -302,7 +369,12 @@ export default function AdminUserDetailClient({ initialUser }: { initialUser: Ad
               type="button"
               role="tab"
               aria-selected={tab === item}
-              onClick={() => setTab(item)}
+              onClick={() => {
+                setTab(item);
+                if (item === "Creator") {
+                  router.replace(`/admin/users/${user.id}?tab=Creator`, { scroll: false });
+                }
+              }}
               className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
                 tab === item
                   ? "bg-mowing-green text-off-white-pique"
@@ -462,6 +534,15 @@ export default function AdminUserDetailClient({ initialUser }: { initialUser: Ad
             </>
           )}
         </div>
+      )}
+
+      {tab === "Creator" && (
+        <AdminUserCreatorTab
+          userId={user.id}
+          userName={name}
+          onFlash={(msg) => setFlash(msg)}
+          onStatusChange={setCreatorSummary}
+        />
       )}
 
       {tab === "Activity" && (
