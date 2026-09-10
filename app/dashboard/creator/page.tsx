@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import type { CreatorHubPayload } from "@/lib/creator/hub";
+import type { CreatorHubActivityItem, CreatorHubPayload } from "@/lib/creator/hub";
 import { CreatorHubHero } from "@/components/creator/CreatorHubHero";
 import { CreatorRewardCelebration } from "@/components/creator/CreatorRewardCelebration";
 import { CreatorMissionCard } from "@/components/creator/CreatorMissionCard";
@@ -21,18 +21,18 @@ import { CreatorEmptyState } from "@/components/creator/CreatorEmptyState";
 import { CreatorStickyShare } from "@/components/creator/CreatorStickyShare";
 import {
   CreatorQuickNav,
-  type CreatorQuickToolId,
+  type CreatorHubSectionId,
 } from "@/components/creator/CreatorQuickNav";
 import { CreatorStickyNav } from "@/components/creator/CreatorStickyNav";
 import { CreatorEarningsCard } from "@/components/creator/CreatorEarningsCard";
+import { CreatorBrandPackCard } from "@/components/creator/CreatorBrandPackCard";
 import {
   loadSeenRewardIds,
   saveSeenRewardIds,
 } from "@/components/creator/utils";
 import { track } from "@/lib/analytics";
-import type { CreatorHubActivityItem } from "@/lib/creator/hub";
 
-const SECTION_IDS: Record<CreatorQuickToolId, string> = {
+const SECTION_IDS: Record<CreatorHubSectionId, string> = {
   share: "creator-share",
   squad: "creator-squad",
   earnings: "creator-earnings",
@@ -41,7 +41,7 @@ const SECTION_IDS: Record<CreatorQuickToolId, string> = {
   mission: "creator-mission",
 };
 
-function scrollToSection(id: CreatorQuickToolId) {
+function scrollToSection(id: CreatorHubSectionId) {
   document.getElementById(SECTION_IDS[id])?.scrollIntoView({
     behavior: "smooth",
     block: "start",
@@ -62,14 +62,23 @@ function HubSkeleton() {
 export default function CreatorHubPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [hub, setHub] = useState<CreatorHubPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [celebration, setCelebration] = useState<CreatorHubActivityItem[] | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+  const [brandPackUnavailable, setBrandPackUnavailable] = useState(false);
   const shareSentinelRef = useRef<HTMLDivElement>(null!);
   const quickNavRef = useRef<HTMLElement | null>(null);
   const trackedView = useRef(false);
+
+  useEffect(() => {
+    if (searchParams.get("brandPack") === "unavailable") {
+      setBrandPackUnavailable(true);
+      router.replace("/dashboard/creator", { scroll: false });
+    }
+  }, [searchParams, router]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -179,11 +188,28 @@ export default function CreatorHubPage() {
 
   const showOpportunities = hub.advertiseOpportunities;
   const showMission = showOpportunities && Boolean(hub.mission.title);
+  const showBrandPack = hub.brandPack?.available === true;
   const journeyHasList = hub.rewardJourney.steps.some((s) => s.key === "list");
   const journeyHasTx = hub.rewardJourney.steps.some((s) => s.key === "transact");
 
   const statusBanners = (
     <>
+      {brandPackUnavailable && (
+        <div
+          className="rounded-2xl border border-par-3-punch/30 bg-par-3-punch/10 px-4 py-3 text-sm text-mowing-green"
+          role="status"
+        >
+          <p className="font-semibold">The Brand Pack is currently unavailable.</p>
+          <p className="mt-1 text-mowing-green/80">Please check back soon.</p>
+          <button
+            type="button"
+            className="mt-2 text-sm font-medium text-mowing-green underline"
+            onClick={() => setBrandPackUnavailable(false)}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
       {hub.programmePaused && (
         <div
           className="rounded-2xl border border-golden-tee/50 bg-golden-tee/20 px-4 py-3 text-sm text-mowing-green"
@@ -252,6 +278,7 @@ export default function CreatorHubPage() {
 
         <CreatorQuickNav
           showMission={showMission}
+          showBrandPack={showBrandPack}
           onNavigate={scrollToSection}
           navRef={quickNavRef}
         />
@@ -295,6 +322,8 @@ export default function CreatorHubPage() {
             onShareCta={() => scrollToSection("share")}
           />
         )}
+
+        {showBrandPack && <CreatorBrandPackCard id="creator-brand-pack" />}
 
         <CreatorActivityFeed id="creator-activity" items={hub.activity} limit={4} />
 

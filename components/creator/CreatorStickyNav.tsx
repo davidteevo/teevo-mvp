@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { CreatorQuickToolId } from "@/components/creator/CreatorQuickNav";
+import type { CreatorHubSectionId } from "@/components/creator/CreatorQuickNav";
 import { track } from "@/lib/analytics";
 
-type Section = { id: CreatorQuickToolId; label: string; targetId: string };
+type Section = { id: CreatorHubSectionId; label: string; targetId: string };
 
 const SECTIONS: Section[] = [
   { id: "share", label: "Share", targetId: "creator-share" },
@@ -18,7 +18,7 @@ const SECTIONS: Section[] = [
 type Props = {
   showMission?: boolean;
   quickNavRef: React.RefObject<HTMLElement | null>;
-  onNavigate: (id: CreatorQuickToolId) => void;
+  onNavigate: (id: CreatorHubSectionId) => void;
 };
 
 export function CreatorStickyNav({
@@ -27,7 +27,7 @@ export function CreatorStickyNav({
   onNavigate,
 }: Props) {
   const [visible, setVisible] = useState(false);
-  const [active, setActive] = useState<CreatorQuickToolId | null>(null);
+  const [active, setActive] = useState<CreatorHubSectionId | null>(null);
   const sections = SECTIONS.filter((s) => showMission || s.id !== "mission");
 
   useEffect(() => {

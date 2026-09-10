@@ -7,6 +7,7 @@ import { creatorObjectivePreview } from "@/lib/creator/objective";
 import { formatPence } from "@/lib/pricing";
 import {
   CreatorPrimaryObjective,
+  DEFAULT_CREATOR_BRAND_PACK_URL,
   type CreatorPrimaryObjectiveValue,
   type ReferralSettings,
 } from "@/lib/referral/settings";
@@ -105,6 +106,8 @@ export default function AdminCreatorsPage() {
   const [monthlyTarget, setMonthlyTarget] = useState("10");
   const [primaryObjective, setPrimaryObjective] =
     useState<CreatorPrimaryObjectiveValue>(CreatorPrimaryObjective.LISTINGS);
+  const [brandPackEnabled, setBrandPackEnabled] = useState(true);
+  const [brandPackUrl, setBrandPackUrl] = useState(DEFAULT_CREATOR_BRAND_PACK_URL);
 
   const objectivePreview = useMemo(() => {
     const toPenceSafe = (raw: string, fallback: number) => {
@@ -135,6 +138,8 @@ export default function AdminCreatorsPage() {
       creatorSuggestedMessage: suggestedMessage,
       creatorMonthlyReferralTarget: Number(monthlyTarget) || 10,
       creatorPrimaryObjective: primaryObjective,
+      creatorBrandPackEnabled: brandPackEnabled,
+      creatorBrandPackUrl: brandPackUrl,
       creditEnabled: true,
       creditExpiryDays: null,
       referralPriority: ReferralPriority.SUPPLY,
@@ -156,6 +161,8 @@ export default function AdminCreatorsPage() {
     suggestedMessage,
     monthlyTarget,
     primaryObjective,
+    brandPackEnabled,
+    brandPackUrl,
   ]);
 
   const load = () => {
@@ -204,6 +211,12 @@ export default function AdminCreatorsPage() {
             data.creatorPrimaryObjective === CreatorPrimaryObjective.LISTINGS
             ? data.creatorPrimaryObjective
             : CreatorPrimaryObjective.LISTINGS
+        );
+        setBrandPackEnabled(data.creatorBrandPackEnabled !== false);
+        setBrandPackUrl(
+          typeof data.creatorBrandPackUrl === "string" && data.creatorBrandPackUrl.trim()
+            ? data.creatorBrandPackUrl
+            : DEFAULT_CREATOR_BRAND_PACK_URL
         );
       })
       .catch((e) => setSettingsError(e instanceof Error ? e.message : "Failed to load settings"))
@@ -333,6 +346,8 @@ export default function AdminCreatorsPage() {
           creatorMissionRewardCallout: missionRewardCallout,
           creatorSuggestedMessage: suggestedMessage,
           creatorPrimaryObjective: primaryObjective,
+          creatorBrandPackEnabled: brandPackEnabled,
+          creatorBrandPackUrl: brandPackUrl,
           creatorMonthlyReferralTarget: (() => {
             const n = Number(monthlyTarget);
             if (!Number.isInteger(n) || n < 1 || n > 1000) {
@@ -688,6 +703,38 @@ export default function AdminCreatorsPage() {
                     onChange={(e) => setMonthlyTarget(e.target.value)}
                     inputMode="numeric"
                     className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2"
+                  />
+                </label>
+
+                <div className="border-t border-par-3-punch/20 pt-3 mt-2">
+                  <p className="font-medium text-mowing-green">Creator Brand Pack</p>
+                  <p className="text-sm text-mowing-green/70 mt-0.5">
+                    External destination creators open from Creator Hub. HTTPS only. Change anytime
+                    without a deploy.
+                  </p>
+                </div>
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="mt-1"
+                    checked={brandPackEnabled}
+                    onChange={(e) => setBrandPackEnabled(e.target.checked)}
+                  />
+                  <span>
+                    <span className="font-medium text-mowing-green">Enable Brand Pack</span>
+                    <span className="block text-sm text-mowing-green/70">
+                      Show Brand Pack in Creator Hub Quick Tools and the Create with Teevo card.
+                    </span>
+                  </span>
+                </label>
+                <label className="block text-sm text-mowing-green">
+                  Creator Brand Pack URL
+                  <input
+                    value={brandPackUrl}
+                    onChange={(e) => setBrandPackUrl(e.target.value)}
+                    placeholder="https://drive.google.com/..."
+                    disabled={!brandPackEnabled}
+                    className="mt-1 w-full rounded-lg border border-mowing-green/30 px-3 py-2 disabled:opacity-60"
                   />
                 </label>
 
