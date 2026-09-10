@@ -10,7 +10,9 @@ import {
   createCreatorReferralCode,
   disableReferralCode,
   enableReferralCode,
+  isValidReferralCodeFormat,
   lookupReferralCode,
+  nextCodeCandidate,
   normalizeReferralCode,
 } from "@/lib/referral/codes";
 
@@ -148,19 +150,48 @@ export async function enrolUserAsCreator(
   }
 
   const name = (opts.name?.trim() || displayNameFromUser(user)).trim();
-  const codeInput = normalizeReferralCode(opts.code ?? defaultCodeFromName(name));
-  if (!codeInput) {
-    return { ok: false, error: "Could not derive a referral code", status: 400 };
+  const explicitCode = opts.code?.trim() ? normalizeReferralCode(opts.code) : "";
+  const baseCode = explicitCode || normalizeReferralCode(defaultCodeFromName(name)) || "CREATOR";
+
+  let created: Awaited<ReturnType<typeof createCreatorReferralCode>> | null = null;
+  if (explicitCode) {
+    // Admin-supplied code must be exact — do not invent a suffix.
+    if (!isValidReferralCodeFormat(explicitCode)) {
+      return { ok: false, error: "That code isn’t available. Try a different one.", status: 400 };
+    }
+    const existingCode = await lookupReferralCode(admin, explicitCode);
+    if (existingCode) {
+      return { ok: false, error: "That code is already in use.", status: 400 };
+    }
+    created = await createCreatorReferralCode(admin, {
+      code: explicitCode,
+      ownerUserId: opts.userId,
+    });
+  } else {
+    // Auto-enrol from user page: find a free candidate (NAME, NAME2, NAME3, …).
+    for (let attempt = 0; attempt < 80; attempt += 1) {
+      const candidate = nextCodeCandidate(baseCode, attempt);
+      if (!isValidReferralCodeFormat(candidate)) continue;
+      const existingCode = await lookupReferralCode(admin, candidate);
+      if (existingCode) continue;
+      created = await createCreatorReferralCode(admin, {
+        code: candidate,
+        ownerUserId: opts.userId,
+      });
+      if (created.ok) break;
+      if (!/already in use|duplicate|unique/i.test(created.error)) {
+        return { ok: false, error: created.error, status: 400 };
+      }
+    }
   }
-  const existingCode = await lookupReferralCode(admin, codeInput);
-  if (existingCode) {
-    return { ok: false, error: "That code is already in use.", status: 400 };
+
+  if (!created || !created.ok) {
+    return {
+      ok: false,
+      error: "Could not allocate a unique creator referral code. Try again.",
+      status: 400,
+    };
   }
-  const created = await createCreatorReferralCode(admin, {
-    code: codeInput,
-    ownerUserId: opts.userId,
-  });
-  if (!created.ok) return { ok: false, error: created.error, status: 400 };
 
   const { data, error } = await admin
     .from("creators")

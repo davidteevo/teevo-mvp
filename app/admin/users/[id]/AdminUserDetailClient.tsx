@@ -250,10 +250,6 @@ export default function AdminUserDetailClient({
               summary={creatorSummary}
               userName={name}
               loading={creatorSummaryLoading}
-              onAdd={() => {
-                setTab("Creator");
-                router.replace(`/admin/users/${user.id}?tab=Creator`, { scroll: false });
-              }}
             />
           </div>
         </div>
