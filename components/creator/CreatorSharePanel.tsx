@@ -70,17 +70,6 @@ export function CreatorSharePanel({ url, code, id, suggestedMessage }: Props) {
     }
   };
 
-  const copyForPlatform = async (channel: string, label: string) => {
-    try {
-      await navigator.clipboard.writeText(message);
-      flash(`${label}: caption + link copied`);
-      track("creator_message_copied", { channel });
-      track("creator_link_shared", { channel });
-    } catch {
-      flash("Could not copy");
-    }
-  };
-
   const whatsappHref = `https://wa.me/?text=${encodeURIComponent(message)}`;
 
   return (
@@ -100,11 +89,11 @@ export function CreatorSharePanel({ url, code, id, suggestedMessage }: Props) {
         Share my link 🚀
       </button>
 
-      <div className="mt-2 flex flex-wrap gap-2">
+      <div className="mt-2 grid grid-cols-2 gap-2">
         <button
           type="button"
           onClick={() => void copyLink()}
-          className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-mowing-green/25 bg-white px-3 py-2 text-sm font-medium text-mowing-green hover:bg-mowing-green/5"
+          className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-lg border border-mowing-green/25 bg-white px-3 py-2 text-sm font-medium text-mowing-green hover:bg-mowing-green/5"
         >
           {copiedLink ? <Check className="h-3.5 w-3.5" /> : <Link2 className="h-3.5 w-3.5" />}
           {copiedLink ? "Copied ✓" : "Copy link"}
@@ -117,25 +106,11 @@ export function CreatorSharePanel({ url, code, id, suggestedMessage }: Props) {
             track("creator_whatsapp_clicked", {});
             track("creator_link_shared", { channel: "whatsapp" });
           }}
-          className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-mowing-green/25 bg-white px-3 py-2 text-sm font-medium text-mowing-green hover:bg-mowing-green/5"
+          className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-lg border border-mowing-green/25 bg-white px-3 py-2 text-sm font-medium text-mowing-green hover:bg-mowing-green/5"
         >
           <WhatsAppIcon className="h-3.5 w-3.5" />
           WhatsApp
         </a>
-        <button
-          type="button"
-          onClick={() => void copyForPlatform("instagram", "Instagram")}
-          className="inline-flex min-h-[40px] items-center rounded-lg border border-mowing-green/25 bg-white px-3 py-2 text-sm font-medium text-mowing-green hover:bg-mowing-green/5"
-        >
-          Instagram
-        </button>
-        <button
-          type="button"
-          onClick={() => void copyForPlatform("tiktok", "TikTok")}
-          className="inline-flex min-h-[40px] items-center rounded-lg border border-mowing-green/25 bg-white px-3 py-2 text-sm font-medium text-mowing-green hover:bg-mowing-green/5"
-        >
-          TikTok
-        </button>
       </div>
 
       {feedback && (
