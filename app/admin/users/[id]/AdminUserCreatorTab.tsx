@@ -161,36 +161,15 @@ export type CreatorStatusSummary = {
 export function CreatorStatusBadge({
   summary,
   userName,
-  onAdd,
   loading,
 }: {
   summary: CreatorStatusSummary | null;
   userName: string;
-  onAdd: () => void;
   loading?: boolean;
 }) {
-  if (loading || !summary) {
-    return (
-      <span className="mt-2 ml-2 inline-flex rounded-full bg-par-3-punch/20 px-2.5 py-0.5 text-xs font-semibold text-mowing-green/60">
-        Creator…
-      </span>
-    );
-  }
-  if (!summary.enrolled) {
-    return (
-      <span className="mt-2 ml-2 inline-flex flex-wrap items-center gap-2">
-        <span className="inline-flex rounded-full bg-par-3-punch/25 px-2.5 py-0.5 text-xs font-semibold text-mowing-green/80">
-          Not a Creator
-        </span>
-        <button
-          type="button"
-          onClick={onAdd}
-          className="text-xs font-medium text-par-3-punch underline"
-        >
-          Add to Creator Programme
-        </button>
-      </span>
-    );
+  // Only show when the user is (or was) a creator — no "Not a Creator" badge.
+  if (loading || !summary || !summary.enrolled) {
+    return null;
   }
   const isActive = summary.status === "active";
   return (
@@ -287,7 +266,7 @@ export default function AdminUserCreatorTab({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
       });
-      const json = await res.json();
+      const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json.error ?? "Failed to add creator");
       track("admin_creator_added", { user_id: userId, creator_id: json.creatorId });
       setAddOpen(false);
@@ -422,6 +401,7 @@ export default function AdminUserCreatorTab({
             confirmLabel="Add Creator"
             busy={busy}
             onConfirm={() => void enrol()}
+            error={error}
           >
             <p className="font-medium text-mowing-green">{userName}</p>
             <p className="mt-2 text-sm text-mowing-green/80">
@@ -973,6 +953,7 @@ function ConfirmDialog({
   confirmLabel,
   busy,
   danger,
+  error,
 }: {
   title: string;
   children: ReactNode;
@@ -981,12 +962,18 @@ function ConfirmDialog({
   confirmLabel: string;
   busy?: boolean;
   danger?: boolean;
+  error?: string | null;
 }) {
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-xl">
         <h3 className="text-lg font-semibold text-mowing-green">{title}</h3>
         <div className="mt-3">{children}</div>
+        {error && (
+          <p className="mt-3 text-sm text-amber-800" role="alert">
+            {error}
+          </p>
+        )}
         <div className="mt-5 flex justify-end gap-2">
           <button type="button" className="text-sm px-3 py-1.5" onClick={onClose} disabled={busy}>
             Cancel
