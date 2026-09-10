@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Settings } from "lucide-react";
 import { formatPence } from "@/lib/pricing";
@@ -31,8 +31,25 @@ type CreateSuccess = {
   message?: string;
 };
 
+type UserMatch = {
+  id: string;
+  email: string;
+  firstName: string | null;
+  surname: string | null;
+  displayName: string | null;
+  accountStatus: string | null;
+  alreadyCreator: boolean;
+  creatorId: string | null;
+  suggestedCreatorName: string;
+};
+
 function poundsFromPence(pence: number): string {
   return (pence / 100).toFixed(2);
+}
+
+function personLabel(m: UserMatch): string {
+  const parts = [m.firstName, m.surname].filter(Boolean).join(" ").trim();
+  return parts || m.displayName || m.email;
 }
 
 export default function AdminCreatorsPage() {
@@ -46,6 +63,13 @@ export default function AdminCreatorsPage() {
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState<CreateSuccess | null>(null);
+
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [lookupMatches, setLookupMatches] = useState<UserMatch[]>([]);
+  const [lookupMessage, setLookupMessage] = useState<string | null>(null);
+  const [linkedUser, setLinkedUser] = useState<UserMatch | null>(null);
+  const [nameTouched, setNameTouched] = useState(false);
+  const lookupSeq = useRef(0);
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsLoading, setSettingsLoading] = useState(true);
@@ -123,6 +147,83 @@ export default function AdminCreatorsPage() {
     loadSettings();
   }, []);
 
+  const clearLinkedUser = useCallback(() => {
+    setLinkedUser(null);
+    setLookupMatches([]);
+    setLookupMessage(null);
+  }, []);
+
+  const applyLinkedUser = useCallback(
+    (match: UserMatch) => {
+      setLinkedUser(match);
+      setEmail(match.email);
+      setLookupMatches([]);
+      setLookupMessage(null);
+      if (!nameTouched || !name.trim()) {
+        if (match.suggestedCreatorName) setName(match.suggestedCreatorName);
+      }
+    },
+    [name, nameTouched]
+  );
+
+  const runEmailLookup = useCallback(async (raw: string) => {
+    const q = raw.trim().toLowerCase();
+    if (q.length < 3) {
+      setLookupMatches([]);
+      setLookupMessage(null);
+      setLookupLoading(false);
+      return;
+    }
+    const seq = ++lookupSeq.current;
+    setLookupLoading(true);
+    try {
+      const res = await fetch(
+        `/api/admin/referrals/creators/lookup?email=${encodeURIComponent(q)}`
+      );
+      const data = await res.json().catch(() => ({}));
+      if (seq !== lookupSeq.current) return;
+      if (!res.ok) {
+        setLookupMatches([]);
+        setLookupMessage(data.error ?? "Lookup failed");
+        return;
+      }
+      const matches = (data.matches ?? []) as UserMatch[];
+      setLookupMatches(matches);
+      setLookupMessage(typeof data.message === "string" ? data.message : null);
+      if (data.exact && !data.exact.alreadyCreator) {
+        // Auto-link exact full-email match so create uses that account
+        setLinkedUser(data.exact as UserMatch);
+        if (!nameTouched || !name.trim()) {
+          const suggested = (data.exact as UserMatch).suggestedCreatorName;
+          if (suggested) setName(suggested);
+        }
+        setLookupMatches([]);
+      } else if (data.exact?.alreadyCreator) {
+        setLinkedUser(data.exact as UserMatch);
+        setLookupMatches([]);
+      }
+    } catch {
+      if (seq !== lookupSeq.current) return;
+      setLookupMatches([]);
+      setLookupMessage("Lookup failed");
+    } finally {
+      if (seq === lookupSeq.current) setLookupLoading(false);
+    }
+  }, [name, nameTouched]);
+
+  useEffect(() => {
+    if (linkedUser && email.trim().toLowerCase() === linkedUser.email.toLowerCase()) {
+      return;
+    }
+    if (linkedUser && email.trim().toLowerCase() !== linkedUser.email.toLowerCase()) {
+      setLinkedUser(null);
+    }
+    const t = window.setTimeout(() => {
+      void runEmailLookup(email);
+    }, 350);
+    return () => window.clearTimeout(t);
+  }, [email, linkedUser, runEmailLookup]);
+
   const openRewardSettings = () => {
     setSettingsSaved(false);
     setSettingsError(null);
@@ -184,6 +285,10 @@ export default function AdminCreatorsPage() {
 
   const create = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (linkedUser?.alreadyCreator) {
+      setError("This Teevo user is already registered as a creator.");
+      return;
+    }
     setSaving(true);
     setError(null);
     setSuccess(null);
@@ -216,6 +321,8 @@ export default function AdminCreatorsPage() {
       setSocialHandle("");
       setSocialPlatform("");
       setNotes("");
+      setNameTouched(false);
+      clearLinkedUser();
       load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create");
@@ -516,21 +623,125 @@ export default function AdminCreatorsPage() {
 
       <form onSubmit={(e) => void create(e)} className="mt-6 rounded-xl border border-par-3-punch/20 bg-white p-4 space-y-3 max-w-lg">
         <h2 className="font-semibold text-mowing-green">Add creator</h2>
-        <input
-          required
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Creator/brand name"
-          className="w-full rounded-lg border border-mowing-green/30 px-3 py-2 text-sm"
-        />
-        <input
-          required
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          className="w-full rounded-lg border border-mowing-green/30 px-3 py-2 text-sm"
-        />
+        <p className="text-sm text-mowing-green/70">
+          Start with email. Existing Teevo users can be selected and linked; new emails will be invited.
+        </p>
+
+        <div>
+          <label className="block text-sm font-medium text-mowing-green mb-1" htmlFor="creator-email">
+            Email
+          </label>
+          <input
+            id="creator-email"
+            required
+            type="email"
+            autoComplete="off"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (linkedUser && e.target.value.trim().toLowerCase() !== linkedUser.email.toLowerCase()) {
+                setLinkedUser(null);
+              }
+            }}
+            placeholder="Email"
+            className="w-full rounded-lg border border-mowing-green/30 px-3 py-2 text-sm"
+          />
+          {lookupLoading && (
+            <p className="mt-1 text-xs text-mowing-green/60">Looking up Teevo users…</p>
+          )}
+          {lookupMatches.length > 0 && !linkedUser && (
+            <ul className="mt-2 rounded-lg border border-par-3-punch/25 bg-off-white-pique divide-y divide-par-3-punch/15 overflow-hidden">
+              {lookupMatches.map((m) => (
+                <li key={m.id}>
+                  <button
+                    type="button"
+                    onClick={() => applyLinkedUser(m)}
+                    className="w-full text-left px-3 py-2.5 hover:bg-par-3-punch/10 transition-colors"
+                  >
+                    <p className="text-sm font-semibold text-mowing-green">{personLabel(m)}</p>
+                    <p className="text-xs text-mowing-green/70">{m.email}</p>
+                    {m.alreadyCreator ? (
+                      <p className="mt-0.5 text-xs text-divot-pink font-medium">Already a creator</p>
+                    ) : (
+                      <p className="mt-0.5 text-xs text-par-3-punch font-medium">Select to link</p>
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {!lookupLoading && lookupMessage && !linkedUser && lookupMatches.length === 0 && (
+            <p className="mt-1 text-xs text-mowing-green/70">{lookupMessage}</p>
+          )}
+          {linkedUser && (
+            <div
+              className={`mt-2 rounded-lg border px-3 py-2.5 text-sm ${
+                linkedUser.alreadyCreator
+                  ? "border-divot-pink/40 bg-divot-pink/10 text-mowing-green"
+                  : "border-par-3-punch/30 bg-par-3-punch/10 text-mowing-green"
+              }`}
+            >
+              {linkedUser.alreadyCreator ? (
+                <>
+                  <p className="font-semibold">Already a creator</p>
+                  <p className="mt-0.5 text-mowing-green/80">
+                    {personLabel(linkedUser)} ({linkedUser.email}) is already linked to a creator
+                    account.
+                    {linkedUser.creatorId && (
+                      <>
+                        {" "}
+                        <Link
+                          href={`/admin/referrals/creators/${linkedUser.creatorId}`}
+                          className="underline text-par-3-punch"
+                        >
+                          View creator
+                        </Link>
+                      </>
+                    )}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="font-semibold">Existing Teevo user — will be linked</p>
+                  <p className="mt-0.5 text-mowing-green/80">
+                    {personLabel(linkedUser)} · {linkedUser.email}
+                    {linkedUser.accountStatus ? ` · ${linkedUser.accountStatus}` : ""}
+                  </p>
+                  <p className="mt-0.5 text-xs text-mowing-green/60">
+                    Their Teevo profile will not be overwritten. Creator/brand name below is for the
+                    creator programme only.
+                  </p>
+                </>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  clearLinkedUser();
+                }}
+                className="mt-2 text-xs font-semibold text-par-3-punch hover:underline"
+              >
+                Clear selection
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-mowing-green mb-1" htmlFor="creator-name">
+            Creator/brand name
+          </label>
+          <input
+            id="creator-name"
+            required
+            value={name}
+            onChange={(e) => {
+              setNameTouched(true);
+              setName(e.target.value);
+            }}
+            placeholder="Creator/brand name"
+            className="w-full rounded-lg border border-mowing-green/30 px-3 py-2 text-sm"
+          />
+        </div>
         <input
           value={code}
           onChange={(e) => setCode(e.target.value)}
@@ -558,10 +769,14 @@ export default function AdminCreatorsPage() {
         />
         <button
           type="submit"
-          disabled={saving}
+          disabled={saving || Boolean(linkedUser?.alreadyCreator)}
           className="rounded-lg bg-mowing-green text-off-white-pique px-4 py-2 text-sm font-medium disabled:opacity-70"
         >
-          {saving ? "Saving…" : "Create"}
+          {saving
+            ? "Saving…"
+            : linkedUser && !linkedUser.alreadyCreator
+              ? "Link as creator"
+              : "Create"}
         </button>
       </form>
 
