@@ -2,13 +2,13 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
  * Users who must never consume Founder spots.
+ * Admin-created sellers/creators are eligible when spots remain.
  */
 export function isExcludedFromFounderAllocation(user: {
   role?: string | null;
   created_by_admin?: boolean | null;
 }): boolean {
   if (user.role === "admin") return true;
-  if (user.created_by_admin === true) return true;
   return false;
 }
 

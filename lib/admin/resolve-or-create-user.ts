@@ -1,6 +1,7 @@
 import { randomBytes } from "crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { sendEmail } from "@/lib/email";
+import { allocateFoundingMemberIfEligible } from "@/lib/founder/allocate";
 import { generateDisplayNameFromFirstName } from "@/lib/public-seller-name";
 import { getAppUrl } from "@/lib/app-env";
 
@@ -32,6 +33,7 @@ export type ResolveOrCreateUserResult =
 /**
  * Find public.users by email, or create auth + public user (admin invite pattern).
  * Never emails a plaintext password; uses recovery / set-password when creating.
+ * Newly created (and linked) non-admin users receive a Founder number when spots remain.
  */
 export async function resolveOrCreateUserByEmail(
   admin: SupabaseClient,
@@ -51,6 +53,13 @@ export async function resolveOrCreateUserByEmail(
   const first_name = opts.firstName?.trim() || null;
   const surname = opts.surname?.trim() || null;
 
+  const succeed = async (
+    result: Extract<ResolveOrCreateUserResult, { ok: true }>
+  ): Promise<ResolveOrCreateUserResult> => {
+    await allocateFoundingMemberIfEligible(admin, result.userId);
+    return result;
+  };
+
   const { data: existing } = await admin
     .from("users")
     .select("id, email, account_status")
@@ -59,7 +68,7 @@ export async function resolveOrCreateUserByEmail(
     .maybeSingle();
 
   if (existing?.id) {
-    return {
+    return succeed({
       ok: true,
       userId: existing.id,
       email: existing.email ?? email,
@@ -67,7 +76,7 @@ export async function resolveOrCreateUserByEmail(
       invited: false,
       linkedExisting: true,
       accountStatus: (existing.account_status as string | null) ?? "active",
-    };
+    });
   }
 
   const tempPassword = generateTempPassword();
@@ -95,7 +104,7 @@ export async function resolveOrCreateUserByEmail(
           .eq("id", match.id)
           .maybeSingle();
         if (pubUser) {
-          return {
+          return succeed({
             ok: true,
             userId: match.id,
             email,
@@ -103,7 +112,7 @@ export async function resolveOrCreateUserByEmail(
             invited: false,
             linkedExisting: true,
             accountStatus: (pubUser.account_status as string | null) ?? "active",
-          };
+          });
         }
         const now = new Date().toISOString();
         await admin.from("users").insert({
@@ -127,7 +136,7 @@ export async function resolveOrCreateUserByEmail(
             payload: { admin_notes: opts.adminNotes, existing_auth: true, source: "creator" },
           });
         }
-        return {
+        return succeed({
           ok: true,
           userId: match.id,
           email,
@@ -135,7 +144,7 @@ export async function resolveOrCreateUserByEmail(
           invited: false,
           linkedExisting: false,
           accountStatus: "active",
-        };
+        });
       }
     }
     return { ok: false, error: createError.message ?? "Failed to create user", status: 500 };
@@ -241,7 +250,7 @@ export async function resolveOrCreateUserByEmail(
     });
   }
 
-  return {
+  return succeed({
     ok: true,
     userId: newUserId,
     email,
@@ -251,5 +260,5 @@ export async function resolveOrCreateUserByEmail(
     warning,
     accountStatus: "active",
     activationUrl,
-  };
+  });
 }
