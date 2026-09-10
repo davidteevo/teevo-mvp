@@ -19,7 +19,7 @@ describe("buildCreatorObjectiveCopy", () => {
     expect(copy.exampleReward).toBe("10 successful listings = £100");
     expect(copy.exampleRewardAmount).toBe("£100");
     expect(copy.focusCta).toBe("Start generating listings");
-    expect(copy.incentiveTitle).toBe("£10 PER SUCCESSFUL LISTING");
+    expect(copy.incentiveTitle).toBe("£10 per successful listing");
     expect(copy.onboardingFirstAction).toContain("3 golfers");
     expect(copy.onboardingQuickStart).toContain("unused clubs");
   });
@@ -74,7 +74,7 @@ describe("buildCreatorObjectiveCopy", () => {
     );
     expect(copy.enabled).toBe(false);
     expect(copy.focusHeadline).toBe("Help get more great equipment onto Teevo");
-    expect(copy.incentiveTitle).toBe("HELP BUILD THE TEEVO MARKETPLACE");
+    expect(copy.incentiveTitle).toBe("Help build the Teevo marketplace");
   });
 });
 
