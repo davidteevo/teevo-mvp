@@ -191,9 +191,15 @@ export default function AdminCreatorDetailPage() {
             </div>
             <Link
               href={`/admin/users/${creator.user.id}`}
-              className="inline-block mt-2 text-par-3-punch underline"
+              className="inline-block mt-2 text-par-3-punch underline mr-4"
             >
               View User
+            </Link>
+            <Link
+              href={`/admin/users/${creator.user.id}?tab=Creator`}
+              className="inline-block mt-2 text-par-3-punch underline"
+            >
+              Creator insights on user
             </Link>
           </dl>
         ) : (

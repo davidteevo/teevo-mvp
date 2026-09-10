@@ -69,6 +69,8 @@ export type AdminUserListRow = {
   purchase_count: number;
   sale_count: number;
   credit_pence: number;
+  /** null = not enrolled in Creator Programme */
+  creator_status: "active" | "paused" | "disabled" | null;
 };
 
 export async function enrichAdminUserList(
@@ -95,19 +97,22 @@ export async function enrichAdminUserList(
     string,
     { amount_pence: number; status: string; expires_at?: string | null }[]
   >();
+  const creatorByUser = new Map<string, "active" | "paused" | "disabled">();
 
   if (ids.length > 0) {
-    const [{ data: listings }, { data: txs }, { data: credits }] = await Promise.all([
-      admin.from("listings").select("user_id, status, archived_at").in("user_id", ids),
-      admin
-        .from("transactions")
-        .select("buyer_id, seller_id, status, order_state")
-        .or(`buyer_id.in.(${ids.join(",")}),seller_id.in.(${ids.join(",")})`),
-      admin
-        .from("credit_transactions")
-        .select("user_id, amount_pence, status, expires_at")
-        .in("user_id", ids),
-    ]);
+    const [{ data: listings }, { data: txs }, { data: credits }, { data: creators }] =
+      await Promise.all([
+        admin.from("listings").select("user_id, status, archived_at").in("user_id", ids),
+        admin
+          .from("transactions")
+          .select("buyer_id, seller_id, status, order_state")
+          .or(`buyer_id.in.(${ids.join(",")}),seller_id.in.(${ids.join(",")})`),
+        admin
+          .from("credit_transactions")
+          .select("user_id, amount_pence, status, expires_at")
+          .in("user_id", ids),
+        admin.from("creators").select("user_id, status").in("user_id", ids),
+      ]);
 
     for (const l of listings ?? []) {
       const uid = l.user_id as string;
@@ -126,6 +131,11 @@ export async function enrichAdminUserList(
       const arr = creditByUser.get(uid) ?? [];
       arr.push(c);
       creditByUser.set(uid, arr);
+    }
+    for (const c of creators ?? []) {
+      if (!c.user_id) continue;
+      const status = c.status as "active" | "paused" | "disabled";
+      creatorByUser.set(c.user_id as string, status);
     }
   }
 
@@ -148,6 +158,7 @@ export async function enrichAdminUserList(
       purchase_count: purchaseCount.get(u.id) ?? 0,
       sale_count: saleCount.get(u.id) ?? 0,
       credit_pence: creditBalanceFromRows(creditByUser.get(u.id) ?? []),
+      creator_status: creatorByUser.get(u.id) ?? null,
     };
   });
 }

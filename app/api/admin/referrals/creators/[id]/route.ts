@@ -1,253 +1,47 @@
 import { NextResponse } from "next/server";
 import { resolveOrCreateUserByEmail, isValidEmail } from "@/lib/admin/resolve-or-create-user";
+import {
+  getCreatorAdminInsights,
+  parseCreatorInsightsRange,
+} from "@/lib/creator/admin-insights";
 import { sendCreatorOnboardingEmail } from "@/lib/creator/onboarding-email";
 import { logAdminAction, requireAdmin } from "@/lib/referral/admin-auth";
-import { disableReferralCode } from "@/lib/referral/codes";
-import { ReferralRewardType } from "@/lib/referral/types";
-import { getAvailableCreditPence } from "@/lib/referral/credit";
+import { disableReferralCode, enableReferralCode } from "@/lib/referral/codes";
 
 export const dynamic = "force-dynamic";
 
-const CREATOR_REWARD_TYPES = [
-  ReferralRewardType.CREATOR_NEW_USER_REWARD,
-  ReferralRewardType.CREATOR_LISTING_REWARD,
-  ReferralRewardType.CREATOR_TRANSACTION_REWARD,
-  ReferralRewardType.CREATOR_COMMISSION,
-];
-
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireAdmin();
     if ("error" in auth) return auth.error;
     const { id } = await params;
+    const { searchParams } = new URL(request.url);
+    const range = parseCreatorInsightsRange({
+      preset: searchParams.get("preset") ?? "all",
+      from: searchParams.get("from"),
+      to: searchParams.get("to"),
+    });
 
-    const { data: creator, error } = await auth.admin
-      .from("creators")
-      .select(
-        "id, user_id, name, social_handle, social_url, referral_code_id, commission_pence, status, notes, created_at, updated_at, referral_codes(code, status), users:user_id(id, email, account_status, first_name, surname)"
-      )
-      .eq("id", id)
-      .maybeSingle();
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    if (!creator) return NextResponse.json({ error: "Creator not found" }, { status: 404 });
+    const insights = await getCreatorAdminInsights(auth.admin, id, range);
+    if (!insights) return NextResponse.json({ error: "Creator not found" }, { status: 404 });
 
-    const codeRel = creator.referral_codes as unknown as
-      | { code?: string; status?: string }
-      | { code?: string; status?: string }[]
-      | null;
-    const codeObj = Array.isArray(codeRel) ? codeRel[0] : codeRel;
-    const userRel = creator.users as unknown as
-      | {
-          id?: string;
-          email?: string;
-          account_status?: string;
-          first_name?: string;
-          surname?: string;
-        }
-      | {
-          id?: string;
-          email?: string;
-          account_status?: string;
-          first_name?: string;
-          surname?: string;
-        }[]
-      | null;
-    const userObj = Array.isArray(userRel) ? userRel[0] : userRel;
-
-    const { data: referrals } = await auth.admin
-      .from("referrals")
-      .select(
-        "id, referred_user_id, attributed_at, created_at, users:referred_user_id(id, email, first_name, surname, display_name)"
-      )
-      .eq("creator_id", id)
-      .order("created_at", { ascending: false });
-
-    const referralIds = (referrals ?? []).map((r) => r.id);
-    const { data: rewards } = referralIds.length
-      ? await auth.admin
-          .from("referral_rewards")
-          .select(
-            "id, referral_id, reward_type, amount_pence, status, related_transaction_id, related_listing_id, created_at, approved_at, paid_at"
-          )
-          .in("referral_id", referralIds)
-          .in("reward_type", CREATOR_REWARD_TYPES)
-          .order("created_at", { ascending: false })
-      : { data: [] as {
-          id: string;
-          referral_id: string;
-          reward_type: string;
-          amount_pence: number;
-          status: string;
-          related_transaction_id: string | null;
-          related_listing_id: string | null;
-          created_at: string;
-          approved_at: string | null;
-          paid_at: string | null;
-        }[] };
-
-    const rewardsByRef = new Map<string, typeof rewards>();
-    for (const rw of rewards ?? []) {
-      const list = rewardsByRef.get(rw.referral_id) ?? [];
-      list.push(rw);
-      rewardsByRef.set(rw.referral_id, list);
-    }
-
-    const referredUserByRef = new Map<string, { id: string; label: string; email: string | null }>();
-    for (const r of referrals ?? []) {
-      const u = r.users as unknown as
-        | {
-            id?: string;
-            email?: string;
-            first_name?: string;
-            surname?: string;
-            display_name?: string;
-          }
-        | {
-            id?: string;
-            email?: string;
-            first_name?: string;
-            surname?: string;
-            display_name?: string;
-          }[]
-        | null;
-      const user = Array.isArray(u) ? u[0] : u;
-      const label =
-        user?.display_name ||
-        [user?.first_name, user?.surname].filter(Boolean).join(" ") ||
-        user?.email ||
-        r.referred_user_id.slice(0, 8);
-      referredUserByRef.set(r.id, {
-        id: r.referred_user_id,
-        label,
-        email: user?.email ?? null,
-      });
-    }
-
-    let newUserCount = 0;
-    let listingCount = 0;
-    let transactionCount = 0;
-    let newUserPence = 0;
-    let listingPence = 0;
-    let transactionPence = 0;
-    let legacyCommissionPence = 0;
-    let totalCreditPence = 0;
-
-    for (const rw of rewards ?? []) {
-      const countable = rw.status === "approved" || rw.status === "paid" || rw.status === "pending";
-      if (!countable) continue;
-      totalCreditPence += rw.amount_pence;
-      if (rw.reward_type === ReferralRewardType.CREATOR_NEW_USER_REWARD) {
-        newUserCount += 1;
-        newUserPence += rw.amount_pence;
-      } else if (rw.reward_type === ReferralRewardType.CREATOR_LISTING_REWARD) {
-        listingCount += 1;
-        listingPence += rw.amount_pence;
-      } else if (rw.reward_type === ReferralRewardType.CREATOR_TRANSACTION_REWARD) {
-        transactionCount += 1;
-        transactionPence += rw.amount_pence;
-      } else if (rw.reward_type === ReferralRewardType.CREATOR_COMMISSION) {
-        legacyCommissionPence += rw.amount_pence;
-      }
-    }
-
-    const availableCreditPence = creator.user_id
-      ? await getAvailableCreditPence(auth.admin, creator.user_id)
-      : 0;
-
+    // Preserve legacy shape used by Admin Creators detail page, plus full insights.
     return NextResponse.json({
-      creator: {
-        id: creator.id,
-        name: creator.name,
-        socialHandle: creator.social_handle,
-        socialUrl: creator.social_url,
-        code: codeObj?.code ?? null,
-        codeStatus: codeObj?.status ?? null,
-        status: creator.status,
-        notes: creator.notes,
-        createdAt: creator.created_at,
-        teevoAccountRequired: !creator.user_id,
-        user: creator.user_id
-          ? {
-              id: creator.user_id,
-              email: userObj?.email ?? null,
-              accountStatus: userObj?.account_status ?? "active",
-              firstName: userObj?.first_name ?? null,
-              surname: userObj?.surname ?? null,
-            }
-          : null,
-      },
-      performance: {
-        referredUsers: (referrals ?? []).length,
-        successfulListings: listingCount,
-        successfulTransactions: transactionCount,
-        totalRewardsEarnedPence: totalCreditPence,
-        availableCreditPence,
-        breakdown: [
-          { rewardType: "new_user", qualifyingEvents: newUserCount, earningsPence: newUserPence },
-          { rewardType: "listing", qualifyingEvents: listingCount, earningsPence: listingPence },
-          {
-            rewardType: "transaction",
-            qualifyingEvents: transactionCount,
-            earningsPence: transactionPence,
-          },
-          ...(legacyCommissionPence > 0 ||
-          (rewards ?? []).some((r) => r.reward_type === ReferralRewardType.CREATOR_COMMISSION)
-            ? [
-                {
-                  rewardType: "legacy_commission",
-                  qualifyingEvents: (rewards ?? []).filter(
-                    (r) => r.reward_type === ReferralRewardType.CREATOR_COMMISSION
-                  ).length,
-                  earningsPence: legacyCommissionPence,
-                },
-              ]
-            : []),
-        ],
-      },
-      referredUsers: (referrals ?? []).map((r) => {
-        const user = referredUserByRef.get(r.id);
-        const rws = rewardsByRef.get(r.id) ?? [];
-        const hasSignup = rws.some(
-          (rw) => rw.reward_type === ReferralRewardType.CREATOR_NEW_USER_REWARD
-        );
-        const hasListing = rws.some(
-          (rw) => rw.reward_type === ReferralRewardType.CREATOR_LISTING_REWARD
-        );
-        const hasTx = rws.some(
-          (rw) => rw.reward_type === ReferralRewardType.CREATOR_TRANSACTION_REWARD
-        );
-        const earned = rws
-          .filter((rw) => rw.status === "approved" || rw.status === "paid" || rw.status === "pending")
-          .reduce((sum, rw) => sum + rw.amount_pence, 0);
-        return {
-          referralId: r.id,
-          userId: r.referred_user_id,
-          label: user?.label ?? r.referred_user_id.slice(0, 8),
-          email: user?.email ?? null,
-          joinedAt: r.attributed_at ?? r.created_at,
-          signedUp: true,
-          firstListing: hasListing,
-          firstTransaction: hasTx,
-          signupReward: hasSignup,
-          rewardsGeneratedPence: earned,
-        };
-      }),
-      rewardHistory: (rewards ?? []).map((rw) => {
-        const user = referredUserByRef.get(rw.referral_id);
-        return {
-          id: rw.id,
-          date: rw.approved_at ?? rw.created_at,
-          referredUserId: user?.id ?? null,
-          referredUserLabel: user?.label ?? "—",
-          rewardType: rw.reward_type,
-          amountPence: rw.amount_pence,
-          status: rw.status,
-          reference: rw.related_transaction_id ?? rw.related_listing_id ?? rw.id,
-        };
-      }),
+      creator: insights.creator,
+      performance: insights.performance,
+      referredUsers: insights.referredUsers,
+      rewardHistory: insights.rewardHistory,
+      programme: insights.programme,
+      performanceInRange: insights.performanceInRange,
+      funnel: insights.funnel,
+      trend: insights.trend,
+      attributedListings: insights.attributedListings,
+      attributedTransactions: insights.attributedTransactions,
+      auditTrail: insights.auditTrail,
+      range: insights.range,
     });
   } catch (e) {
     return NextResponse.json(
@@ -346,6 +140,8 @@ export async function PATCH(
 
     if (body.disableCode || body.status === "disabled") {
       await disableReferralCode(auth.admin, existing.referral_code_id);
+    } else if (body.status === "active") {
+      await enableReferralCode(auth.admin, existing.referral_code_id);
     }
 
     // First-time link only (was unlinked → now has user_id).

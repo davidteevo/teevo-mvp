@@ -198,3 +198,14 @@ export async function disableReferralCode(
     .eq("id", codeId);
   if (error) throw new Error(error.message);
 }
+
+export async function enableReferralCode(
+  admin: SupabaseClient,
+  codeId: string
+): Promise<void> {
+  const { error } = await admin
+    .from("referral_codes")
+    .update({ status: "active", updated_at: new Date().toISOString() })
+    .eq("id", codeId);
+  if (error) throw new Error(error.message);
+}

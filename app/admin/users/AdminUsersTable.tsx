@@ -91,6 +91,9 @@ export default function AdminUsersTable({
   }, [initialUsers]);
 
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "suspended">("all");
+  const [creatorFilter, setCreatorFilter] = useState<
+    "all" | "creators" | "non_creators" | "former"
+  >("all");
   const [foundingFilter, setFoundingFilter] = useState(false);
   const [hasListingsFilter, setHasListingsFilter] = useState(false);
   const [hasSalesFilter, setHasSalesFilter] = useState(false);
@@ -104,6 +107,15 @@ export default function AdminUsersTable({
         if (!hay.includes(q)) return false;
       }
       if (statusFilter !== "all" && (u.account_status ?? "active") !== statusFilter) return false;
+      if (creatorFilter === "creators" && u.creator_status !== "active") return false;
+      if (creatorFilter === "non_creators" && u.creator_status != null) return false;
+      if (
+        creatorFilter === "former" &&
+        u.creator_status !== "paused" &&
+        u.creator_status !== "disabled"
+      ) {
+        return false;
+      }
       if (foundingFilter && u.founding_seller_rank == null) return false;
       if (hasListingsFilter && (u.listing_count ?? 0) === 0) return false;
       if (hasSalesFilter && (u.sale_count ?? 0) === 0) return false;
@@ -117,6 +129,7 @@ export default function AdminUsersTable({
     sortKey,
     sortAsc,
     statusFilter,
+    creatorFilter,
     foundingFilter,
     hasListingsFilter,
     hasSalesFilter,
@@ -329,6 +342,16 @@ export default function AdminUsersTable({
           <option value="active">Active</option>
           <option value="suspended">Suspended</option>
         </select>
+        <select
+          value={creatorFilter}
+          onChange={(e) => setCreatorFilter(e.target.value as typeof creatorFilter)}
+          className="rounded-lg border border-mowing-green/20 px-2 py-1"
+        >
+          <option value="all">All users</option>
+          <option value="creators">Creators</option>
+          <option value="non_creators">Non-creators</option>
+          <option value="former">Former creators</option>
+        </select>
         {[
           ["Founding members", foundingFilter, setFoundingFilter],
           ["Has listings", hasListingsFilter, setHasListingsFilter],
@@ -351,6 +374,7 @@ export default function AdminUsersTable({
             <tr className="border-b border-par-3-punch/20 bg-mowing-green/5">
               <th className="px-4 py-3 text-sm font-semibold text-mowing-green">User</th>
               <SortHeaderButton columnKey="role" label="Account" activeKey={sortKey} asc={sortAsc} onSort={handleSort} />
+              <th className="px-4 py-3 text-sm font-semibold text-mowing-green">Creator</th>
               <th className="px-4 py-3 text-sm font-semibold text-mowing-green">Marketplace</th>
               <th className="px-4 py-3 text-sm font-semibold text-mowing-green">Credit</th>
               <SortHeaderButton columnKey="joined" label="Joined" activeKey={sortKey} asc={sortAsc} onSort={handleSort} />
@@ -385,6 +409,33 @@ export default function AdminUsersTable({
                 <td className="px-4 py-3 text-sm text-mowing-green/90">
                   {(u.account_status ?? "active") === "suspended" ? "Suspended" : "Active"}
                   {u.founding_seller_rank != null ? ` · Founder #${u.founding_seller_rank}` : ""}
+                </td>
+                <td className="px-4 py-3 text-sm">
+                  {u.creator_status === "active" ? (
+                    <button
+                      type="button"
+                      className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-900 hover:underline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/admin/users/${u.id}?tab=Creator`);
+                      }}
+                    >
+                      Creator
+                    </button>
+                  ) : u.creator_status === "paused" || u.creator_status === "disabled" ? (
+                    <button
+                      type="button"
+                      className="rounded-full bg-par-3-punch/25 px-2 py-0.5 text-xs font-semibold text-mowing-green/80 hover:underline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/admin/users/${u.id}?tab=Creator`);
+                      }}
+                    >
+                      Former
+                    </button>
+                  ) : (
+                    <span className="text-mowing-green/40 text-xs">—</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-sm text-mowing-green/90">
                   {u.active_listing_count}/{u.listing_count} listings · {u.purchase_count} buys · {u.sale_count} sales
