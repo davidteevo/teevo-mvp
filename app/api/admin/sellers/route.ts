@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
+import { allocateFoundingMemberIfEligible } from "@/lib/founder/allocate";
 import { generateDisplayNameFromFirstName } from "@/lib/public-seller-name";
 import { getAppUrl } from "@/lib/app-env";
 
@@ -120,6 +121,7 @@ export async function POST(request: Request) {
             target_id: match.id,
             payload: { admin_notes, existing_auth: true },
           });
+          await allocateFoundingMemberIfEligible(admin, match.id);
           return NextResponse.json({ user_id: match.id, invited: false });
         }
       }
@@ -204,6 +206,7 @@ export async function POST(request: Request) {
         target_id: newUserId,
         payload: { admin_notes },
       });
+      await allocateFoundingMemberIfEligible(admin, newUserId);
       return NextResponse.json({
         user_id: newUserId,
         invited: false,
@@ -249,6 +252,7 @@ export async function POST(request: Request) {
         target_id: newUserId,
         payload: { admin_notes },
       });
+      await allocateFoundingMemberIfEligible(admin, newUserId);
       return NextResponse.json({
         user_id: newUserId,
         invited: false,
@@ -284,6 +288,7 @@ export async function POST(request: Request) {
       payload: { admin_notes },
     });
 
+    await allocateFoundingMemberIfEligible(admin, newUserId);
     return NextResponse.json({ user_id: newUserId, invited: true });
   } catch (e) {
     console.error("POST /api/admin/sellers error:", e);

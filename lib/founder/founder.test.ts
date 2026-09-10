@@ -36,9 +36,9 @@ describe("founder copy", () => {
 });
 
 describe("founder eligibility", () => {
-  it("excludes admin and admin-created sellers", () => {
+  it("excludes admins only; admin-created sellers remain eligible", () => {
     expect(isExcludedFromFounderAllocation({ role: "admin" })).toBe(true);
-    expect(isExcludedFromFounderAllocation({ role: "seller", created_by_admin: true })).toBe(true);
+    expect(isExcludedFromFounderAllocation({ role: "seller", created_by_admin: true })).toBe(false);
     expect(isExcludedFromFounderAllocation({ role: "seller", created_by_admin: false })).toBe(false);
   });
 });
