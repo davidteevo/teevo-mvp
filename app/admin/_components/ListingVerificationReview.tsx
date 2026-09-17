@@ -7,6 +7,7 @@ import type { ListingVerificationDetail } from "@/lib/admin-action-centre-data";
 import { readActionResponse } from "./actionResult";
 import { ClubDetailsTable } from "@/components/listing/ClubDetailsDisplay";
 import type { Listing } from "@/types/database";
+import { DownloadListingPhotosButton } from "@/app/admin/listings/[id]/DownloadListingPhotosButton";
 
 const QUICK_COMMENTS = [
   "Please add more detail to the description.",
@@ -136,7 +137,7 @@ export function ListingVerificationReview({
         </p>
       )}
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 items-start">
         <button
           type="button"
           disabled={!!busy}
@@ -161,6 +162,11 @@ export function ListingVerificationReview({
         >
           {busy === "reject" ? "Rejecting…" : "Reject listing"}
         </button>
+        <DownloadListingPhotosButton
+          listingId={listing.id}
+          photoCount={listing.imageUrls.length}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-mowing-green/40 text-mowing-green px-4 py-2 text-sm font-medium hover:bg-mowing-green/10 disabled:opacity-60"
+        />
       </div>
     </div>
   );
