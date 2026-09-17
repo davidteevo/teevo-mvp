@@ -6,9 +6,11 @@ import { Download } from "lucide-react";
 export function DownloadListingPhotosButton({
   listingId,
   photoCount,
+  className,
 }: {
   listingId: string;
   photoCount: number;
+  className?: string;
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,16 +54,22 @@ export function DownloadListingPhotosButton({
     }
   };
 
+  const label =
+    photoCount > 0 ? `Download all photos (${photoCount})` : "Download all photos";
+
   return (
     <div className="space-y-1">
       <button
         type="button"
         onClick={onDownload}
         disabled={busy}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-mowing-green/40 text-mowing-green px-3 py-1.5 text-xs font-medium hover:bg-mowing-green/10 disabled:opacity-60"
+        className={
+          className ??
+          "inline-flex items-center gap-1.5 rounded-lg border border-mowing-green/40 text-mowing-green px-3 py-1.5 text-xs font-medium hover:bg-mowing-green/10 disabled:opacity-60"
+        }
       >
         <Download className="h-3.5 w-3.5" aria-hidden />
-        {busy ? "Preparing zip…" : `Download all photos (${photoCount})`}
+        {busy ? "Preparing zip…" : label}
       </button>
       {error && (
         <p className="text-xs text-divot-pink" role="alert">
