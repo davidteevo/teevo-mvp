@@ -39,6 +39,19 @@ function u32(n: number): Uint8Array {
   return b;
 }
 
+/** Concatenate byte chunks without spreading Uint8Array (TS target-safe). */
+function concatBytes(chunks: Uint8Array[]): Uint8Array {
+  let total = 0;
+  for (const chunk of chunks) total += chunk.length;
+  const out = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    out.set(chunk, offset);
+    offset += chunk.length;
+  }
+  return out;
+}
+
 export type ZipStoreEntry = {
   name: string;
   data: Uint8Array;
@@ -56,42 +69,42 @@ export function buildZipStore(entries: ZipStoreEntry[]): Uint8Array {
     const crc = crc32(data);
     const size = data.length;
 
-    const localHeader = new Uint8Array([
-      ...u32(0x04034b50),
-      ...u16(20),
-      ...u16(0),
-      ...u16(0),
-      ...u16(0),
-      ...u16(0),
-      ...u32(crc),
-      ...u32(size),
-      ...u32(size),
-      ...u16(nameBytes.length),
-      ...u16(0),
-      ...nameBytes,
+    const localHeader = concatBytes([
+      u32(0x04034b50),
+      u16(20),
+      u16(0),
+      u16(0),
+      u16(0),
+      u16(0),
+      u32(crc),
+      u32(size),
+      u32(size),
+      u16(nameBytes.length),
+      u16(0),
+      nameBytes,
     ]);
 
     parts.push(localHeader, data);
 
-    const centralHeader = new Uint8Array([
-      ...u32(0x02014b50),
-      ...u16(20),
-      ...u16(20),
-      ...u16(0),
-      ...u16(0),
-      ...u16(0),
-      ...u16(0),
-      ...u32(crc),
-      ...u32(size),
-      ...u32(size),
-      ...u16(nameBytes.length),
-      ...u16(0),
-      ...u16(0),
-      ...u16(0),
-      ...u16(0),
-      ...u32(0),
-      ...u32(offset),
-      ...nameBytes,
+    const centralHeader = concatBytes([
+      u32(0x02014b50),
+      u16(20),
+      u16(20),
+      u16(0),
+      u16(0),
+      u16(0),
+      u16(0),
+      u32(crc),
+      u32(size),
+      u32(size),
+      u16(nameBytes.length),
+      u16(0),
+      u16(0),
+      u16(0),
+      u16(0),
+      u32(0),
+      u32(offset),
+      nameBytes,
     ]);
     central.push(centralHeader);
 
@@ -99,29 +112,16 @@ export function buildZipStore(entries: ZipStoreEntry[]): Uint8Array {
   }
 
   const centralSize = central.reduce((sum, c) => sum + c.length, 0);
-  const end = new Uint8Array([
-    ...u32(0x06054b50),
-    ...u16(0),
-    ...u16(0),
-    ...u16(entries.length),
-    ...u16(entries.length),
-    ...u32(centralSize),
-    ...u32(offset),
-    ...u16(0),
+  const end = concatBytes([
+    u32(0x06054b50),
+    u16(0),
+    u16(0),
+    u16(entries.length),
+    u16(entries.length),
+    u32(centralSize),
+    u32(offset),
+    u16(0),
   ]);
 
-  const total =
-    parts.reduce((sum, p) => sum + p.length, 0) + centralSize + end.length;
-  const out = new Uint8Array(total);
-  let pos = 0;
-  for (const p of parts) {
-    out.set(p, pos);
-    pos += p.length;
-  }
-  for (const c of central) {
-    out.set(c, pos);
-    pos += c.length;
-  }
-  out.set(end, pos);
-  return out;
+  return concatBytes([...parts, ...central, end]);
 }
