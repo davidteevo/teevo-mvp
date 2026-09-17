@@ -1,6 +1,7 @@
 import { getListingImageUrl, publicListingImages, sortListingImages } from "@/lib/listing-images";
 import { VERIFICATION_LISTINGS_BUCKET } from "@/lib/listing-photos/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { DownloadListingPhotosButton } from "./DownloadListingPhotosButton";
 
 type Img = {
   storage_path: string;
@@ -59,8 +60,12 @@ export async function AdminListingPhotos({
     return acc;
   }, {});
 
+  const totalPhotos = sorted.length;
+
   return (
     <div className="space-y-6">
+      <DownloadListingPhotosButton listingId={listingId} photoCount={totalPhotos} />
+
       <div>
         <h2 className="text-sm font-semibold text-mowing-green/70 uppercase tracking-wide">
           Listing photos ({publicImages.length})
@@ -123,7 +128,9 @@ export async function AdminListingPhotos({
           <p className="mt-2 text-sm text-mowing-green/60">No internal verification photos on this listing.</p>
         ) : null}
       </div>
-      <p className="text-xs text-mowing-green/60">Click images to open full size. Listing id {listingId.slice(0, 8)}…</p>
+      <p className="text-xs text-mowing-green/60">
+        Click images to open full size, or download all as a zip. Listing id {listingId.slice(0, 8)}…
+      </p>
     </div>
   );
 }
