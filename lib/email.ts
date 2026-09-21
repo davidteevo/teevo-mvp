@@ -21,6 +21,20 @@ function getResend(): Resend {
 
 export type EmailType = "transactional" | "standard" | "alert" | "creator-onboarding";
 
+/** Default yellow callout for standard emails when tip_block is omitted. */
+export const DEFAULT_STANDARD_TIP_BLOCK = [
+  `<tr style="margin:0;padding:0">`,
+  `<td data-id="__react-email-column" style="margin:0;padding:14px;background:#FFD25E;border:1px solid #49C184;border-radius:14px;margin-top:20px;font-family:'Fredoka', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif">`,
+  `<div style="margin:0;padding:0;color:#265C4B;font-weight:700;font-size:14px;margin-bottom:6px;font-family:'Fredoka', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif">`,
+  `<p style="margin:0;padding:0"><span>Quick Tip</span></p>`,
+  `</div>`,
+  `<div style="margin:0;padding:0;color:#1B1B1B;font-size:14px;line-height:22px;font-family:'Fredoka', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif">`,
+  `<p style="margin:0;padding:0"><span>Listings with strong photos and clear condition ratings sell faster.</span></p>`,
+  `</div>`,
+  `</td>`,
+  `</tr>`,
+].join("");
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
@@ -92,8 +106,17 @@ export async function sendEmail({
   attachments?: EmailAttachment[];
 }) {
   const rawHtml = loadTemplate(type);
-  const prepared: Record<string, string> = { hero_image: "", item_name: "", ...variables };
+  const prepared: Record<string, string> = {
+    hero_image: "",
+    item_name: "",
+    preheader: "",
+    ...variables,
+  };
   if (prepared.item_name) prepared.item_name = escapeHtml(prepared.item_name);
+  // Omit tip_block → default Quick Tip. Pass "" to hide the callout entirely.
+  if (type === "standard" && variables.tip_block === undefined) {
+    prepared.tip_block = DEFAULT_STANDARD_TIP_BLOCK;
+  }
   // creator-onboarding bodies are prebuilt HTML — do not convert newlines to <br>.
   if (prepared.body && type !== "creator-onboarding") {
     prepared.body = prepared.body.replace(/\r\n/g, "\n").replace(/\n/g, "<br />");
