@@ -9,7 +9,7 @@ import { fillMissionCallout } from "@/lib/creator/hub";
 import { ensureEmailSent, EmailTriggerType } from "@/lib/email-triggers";
 import { formatPoundsCompact } from "@/lib/pricing";
 import { referralShareUrl } from "@/lib/referral/codes";
-import { getReferralSettings } from "@/lib/referral/settings";
+import { getReferralSettings, type ReferralSettings } from "@/lib/referral/settings";
 import { ReferralRewardType } from "@/lib/referral/types";
 
 const ROUNDUP_HOUR_LONDON = 9;
@@ -141,6 +141,112 @@ function countable(status: string): boolean {
   return status === "approved" || status === "paid" || status === "pending";
 }
 
+const SHARE_CTA_STYLE =
+  "display:inline-block;padding:12px 20px;background:#265C4B;color:#FDFCF5;border-radius:10px;text-decoration:none;font-weight:600;";
+
+export type CreatorWeeklyRoundupEmailContent = {
+  subject: string;
+  preheader: string;
+  title: string;
+  subtitle: string;
+  body: string;
+  tip_block: string;
+  cta_link: string;
+  cta_text: string;
+};
+
+/** Ready-to-send share blurb for the no-activity weekly roundup callout. */
+export function creatorWeeklyShareMessage(shareUrl: string): string {
+  return `Got any golf clubs you don't use anymore? Teevo is a new marketplace built specifically for buying and selling golf gear. You can list them here: ${shareUrl}`;
+}
+
+/**
+ * No-activity Creator Roundup: reward-led mission email with share URL as primary CTA.
+ */
+export function buildCreatorWeeklyRoundupNoActivityEmail(opts: {
+  settings: ReferralSettings;
+  shareUrl: string;
+  hubUrl: string;
+}): CreatorWeeklyRoundupEmailContent {
+  const { settings, shareUrl, hubUrl } = opts;
+  const listingEnabled =
+    settings.creatorListingRewardEnabled && settings.creatorListingRewardPence > 0;
+  const reward = listingEnabled
+    ? formatPoundsCompact(settings.creatorListingRewardPence)
+    : null;
+  const reward5 = listingEnabled
+    ? formatPoundsCompact(settings.creatorListingRewardPence * 5)
+    : null;
+  const reward10 = listingEnabled
+    ? formatPoundsCompact(settings.creatorListingRewardPence * 10)
+    : null;
+
+  const safeShare = escapeHtml(shareUrl);
+  const safeHub = escapeHtml(hubUrl);
+  const shareMessage = escapeHtml(creatorWeeklyShareMessage(shareUrl));
+
+  const primaryCta = [
+    `<p style="margin:24px 0 8px;"><a href="${safeShare}" style="${SHARE_CTA_STYLE}">Share my Creator Link</a></p>`,
+    `<p style="margin:0 0 8px;"><a href="${safeHub}" style="color:#265C4B;font-weight:600;text-decoration:underline;">View my Creator Hub</a></p>`,
+  ].join("");
+
+  const title = reward
+    ? `Your mission this week: earn ${reward} \uD83D\uDE80`
+    : `Your mission this week \uD83D\uDE80`;
+  const subtitle =
+    "There are thousands of golf clubs sitting unused in garages, spare rooms and golf bags.";
+
+  const howYouEarn = reward
+    ? [
+        `<p><strong>\uD83C\uDFAF How you earn</strong></p>`,
+        `<p>Share your unique Creator Link with golfers who have equipment to sell.</p>`,
+        `<p>When someone joins through your link and gets their first approved listing live, you earn <strong>${escapeHtml(reward)}</strong>.</p>`,
+        `<p>1 successful referral = <strong>${escapeHtml(reward)}</strong><br/>`,
+        `5 successful referrals = <strong>${escapeHtml(reward5!)}</strong><br/>`,
+        `10 successful referrals = <strong>${escapeHtml(reward10!)}</strong></p>`,
+      ].join("")
+    : [
+        `<p><strong>\uD83C\uDFAF This week's Teevo mission</strong><br/><strong>${escapeHtml(settings.creatorMissionTitle)}</strong></p>`,
+        `<p>${escapeHtml(settings.creatorMissionBody)}</p>`,
+      ].join("");
+
+  const body = [
+    `<p>Help us get them onto Teevo — and get rewarded for it.</p>`,
+    howYouEarn,
+    primaryCta,
+    `<p><strong>Start with 3 people</strong></p>`,
+    `<p>Think of 3 golfers you know who have clubs they no longer use.</p>`,
+    `<p>Send them your link on WhatsApp, Instagram, your golf club group chat or wherever you talk golf.</p>`,
+    `<p>Don't overthink it — one message could be worth ${reward ? `<strong>${escapeHtml(reward)}</strong>` : "a reward"}.</p>`,
+  ].join("");
+
+  const tip_block = [
+    `<tr style="margin:0;padding:0">`,
+    `<td data-id="__react-email-column" style="margin:0;padding:14px;background:#FFD25E;border:1px solid #49C184;border-radius:14px;margin-top:20px;font-family:'Fredoka', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif">`,
+    `<div style="margin:0;padding:0;color:#265C4B;font-weight:700;font-size:14px;margin-bottom:6px;font-family:'Fredoka', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif">`,
+    `<p style="margin:0;padding:0"><span>\uD83D\uDCAC Copy. Send. Earn.</span></p>`,
+    `</div>`,
+    `<div style="margin:0;padding:0;color:#1B1B1B;font-size:14px;line-height:22px;font-family:'Fredoka', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif">`,
+    `<p style="margin:0;padding:0"><span>${shareMessage}</span></p>`,
+    `</div>`,
+    `</td>`,
+    `</tr>`,
+  ].join("");
+
+  return {
+    subject: reward
+      ? `Earn ${reward} by getting a golfer listing on Teevo \u26F3`
+      : `Ready for another Teevo Creator week? \u26F3`,
+    preheader: "Your Creator Link is ready. Who do you know with clubs sitting unused?",
+    title,
+    subtitle,
+    body,
+    tip_block,
+    cta_link: shareUrl,
+    cta_text: "Share my Creator Link",
+  };
+}
+
 export async function runCreatorWeeklyRoundup(
   admin: SupabaseClient,
   opts?: { force?: boolean; now?: Date }
@@ -239,22 +345,15 @@ export async function runCreatorWeeklyRoundup(
 
     const hasActivity = weekJoined > 0 || weekListed > 0 || weekTx > 0 || weekEarned > 0;
     const hubUrl = `${appUrl}/dashboard/creator`;
-    const missionTitle = escapeHtml(settings.creatorMissionTitle);
-    const missionBody = escapeHtml(settings.creatorMissionBody);
-    const callout = escapeHtml(fillMissionCallout(settings.creatorMissionRewardCallout, settings));
-    const ctaBlock = [
-      `<p style="margin:24px 0 8px;"><a href="${escapeHtml(hubUrl)}" style="display:inline-block;padding:12px 20px;background:#265C4B;color:#FDFCF5;border-radius:10px;text-decoration:none;font-weight:600;">${hasActivity ? "Open Creator Hub" : "Share my Creator Link"}</a></p>`,
-      `<p style="margin:0;"><a href="${escapeHtml(shareUrl)}">Share Teevo</a></p>`,
-    ].join("");
 
-    let title: string;
-    let subtitle: string;
-    let body: string;
+    let subject: string;
+    let variables: Record<string, string>;
 
     if (hasActivity) {
-      title = `Your Teevo Creator week \u26F3`;
-      subtitle = `You earned ${formatPoundsCompact(weekEarned)} this week \uD83C\uDF89`;
-      body = [
+      const missionTitle = escapeHtml(settings.creatorMissionTitle);
+      const missionBody = escapeHtml(settings.creatorMissionBody);
+      const callout = escapeHtml(fillMissionCallout(settings.creatorMissionRewardCallout, settings));
+      const body = [
         `<p>Here's what happened:</p>`,
         `<ul>`,
         `<li>\uD83D\uDC4B <strong>${weekJoined}</strong> golfer${weekJoined === 1 ? "" : "s"} joined through you</li>`,
@@ -265,20 +364,40 @@ export async function runCreatorWeeklyRoundup(
         `<p><strong>Your month so far</strong><br/>${monthReferred} golfers referred · ${escapeHtml(formatPoundsCompact(monthEarned))} earned</p>`,
         `<p><strong>\uD83C\uDFAF This week's Teevo mission</strong><br/><strong>${missionTitle}</strong><br/>${missionBody}</p>`,
         callout ? `<p>${callout}</p>` : "",
-        ctaBlock,
+        `<p style="margin:24px 0 8px;"><a href="${escapeHtml(hubUrl)}" style="${SHARE_CTA_STYLE}">Open Creator Hub</a></p>`,
       ].join("");
+      subject = `Your Teevo Creator week — ${formatPoundsCompact(weekEarned)} earned \u26F3`;
+      variables = {
+        title: `Your Teevo Creator week \u26F3`,
+        subtitle: `You earned ${formatPoundsCompact(weekEarned)} this week \uD83C\uDF89`,
+        body,
+        preheader: `You earned ${formatPoundsCompact(weekEarned)} this week.`,
+        tip_block: "",
+        item_name: "Creator Hub",
+        order_number: weekKey,
+        hero_image: "",
+        cta_link: hubUrl,
+        cta_text: "Open Creator Hub",
+      };
     } else {
-      const listingLine =
-        settings.creatorListingRewardEnabled && settings.creatorListingRewardPence > 0
-          ? `\uD83C\uDFCC\uFE0F First approved listing = <strong>${escapeHtml(formatPoundsCompact(settings.creatorListingRewardPence))}</strong>`
-          : missionBody;
-      title = `Ready for another week? \uD83D\uDE80`;
-      subtitle = "Your Creator Link is ready to share.";
-      body = [
-        `<p><strong>\uD83C\uDFAF This week's Teevo mission</strong><br/><strong>${missionTitle}</strong></p>`,
-        `<p>${listingLine}</p>`,
-        ctaBlock,
-      ].join("");
+      const content = buildCreatorWeeklyRoundupNoActivityEmail({
+        settings,
+        shareUrl,
+        hubUrl,
+      });
+      subject = content.subject;
+      variables = {
+        title: content.title,
+        subtitle: content.subtitle,
+        body: content.body,
+        preheader: content.preheader,
+        tip_block: content.tip_block,
+        item_name: "Creator Hub",
+        order_number: weekKey,
+        hero_image: "",
+        cta_link: content.cta_link,
+        cta_text: content.cta_text,
+      };
     }
 
     const didSend = await ensureEmailSent(admin, {
@@ -287,20 +406,9 @@ export async function runCreatorWeeklyRoundup(
       referenceType: "user",
       recipientId: userId,
       to: email,
-      subject: hasActivity
-        ? `Your Teevo Creator week — ${formatPoundsCompact(weekEarned)} earned`
-        : "Ready for another Teevo Creator week?",
+      subject,
       type: "standard",
-      variables: {
-        title,
-        subtitle,
-        body,
-        item_name: "Creator Hub",
-        order_number: weekKey,
-        hero_image: "",
-        cta_link: hubUrl,
-        cta_text: hasActivity ? "Open Creator Hub" : "Share my Creator Link",
-      },
+      variables,
     });
 
     if (didSend) sent += 1;
