@@ -1,0 +1,27 @@
+{
+  "archetypes": 48,
+  "boundary_probes": 168,
+  "frozen_heads": 619,
+  "frozen_shafts": 2634,
+  "source_hashes": "PASS",
+  "fixture_keys": "PASS",
+  "production_execution": "NOT RUN"
+}
+
+test_archetype_checker_with_hand_worked_trace (test_harness.HarnessTests) ... ok
+test_bool_not_numeric (test_harness.HarnessTests) ... ok
+test_brand_filter_fit_snapshot_and_scope (test_harness.HarnessTests) ... ok
+test_every_stage_probe_detects_a_mutation (test_harness.HarnessTests) ... ok
+test_golden_arithmetic (test_harness.HarnessTests) ... ok
+test_missing_keys_rejected (test_harness.HarnessTests) ... ok
+test_nan_rejected (test_harness.HarnessTests) ... ok
+test_resolved_requirement_manual_checks (test_harness.HarnessTests) ... ok
+test_sources_and_fixtures (test_harness.HarnessTests) ... ok
+test_stage_fixture_arithmetic (test_harness.HarnessTests) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.266s
+
+OK
+
+NOT RUN: pass --adapter to connect the Teevo implementation. Use --verify for artifact validation.

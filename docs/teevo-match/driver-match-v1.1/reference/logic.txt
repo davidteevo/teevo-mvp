@@ -1,0 +1,1187 @@
+﻿Teevo Match — Driver Match Logic V1.1
+Status: Implementation baseline
+Rules version: DRIVER_MATCH_LOGIC_V1.1
+Data contract: MATCH_DRIVER_CONTRACT_V1.2
+Dataset baseline: DRIVER_V1 + SHAFT_V1 frozen 2026-10-16
+Scope: Standard Drivers only
+________________
+
+
+1. Purpose
+This document defines the deterministic logic Teevo Match V1.1 uses to convert golfer information into ranked Driver recommendations from real available inventory.
+The system must answer:
+Given what Teevo knows about this golfer, which currently available Driver configurations are most plausibly suited to them, and why?
+The Match unit is:
+Golfer × Driver Head × Loft × Shaft × Listing Configuration
+V1 is deliberately conservative.
+It does not claim to:
+* replace a launch-monitor fitting;
+* diagnose a golf swing;
+* predict exact launch, spin, dispersion or distance;
+* guarantee that a club will improve performance;
+* identify one objectively “perfect” Driver.
+Its objective is narrower and commercially more useful:
+reduce the amount of guessing required when buying golf equipment, particularly second-hand equipment.
+________________
+
+
+2. Source Documents and Authority
+V1.1 authority order:
+1. Teevo Product Principles & Operating Framework.
+2. Teevo Match — Driver Intelligence Data Contract V1.2.
+3. Frozen Teevo Driver Dataset V1 — Heads and Shafts, freeze 2026-10-16.
+4. Teevo Match — Product Strategy & MVP Scope.
+5. Teevo Match — Data & Intelligence Architecture.
+6. Teevo Match — Driver Classification Rubric V1 and Shaft Classification Rubric V1.
+7. Teevo Equipment Intelligence — Final V1 Dataset Schemas and Data Schema & Enrichment Standard.
+8. Teevo Match — Driver Intelligence Specification V1 where it does not conflict with the newer contract or frozen datasets.
+
+
+The archived Teevo Match — Driver Decision Matrix V1 NOT IN USE is explicitly non-authoritative and must not be used for implementation decisions.
+Teevo Match — Driver Scoring Model V1 is a historical supporting artefact only. This V1.1 Match Logic owns executable scoring behaviour.
+Where this document conflicts with Data Contract V1.2, the data contract wins for field names, eligibility semantics, NULL behaviour and output structure.
+Where this document conflicts with the frozen datasets, the frozen dataset values and eligibility gates win.
+3. Core Product Principles
+Driver Match V1 must obey six principles.
+3.1 Deterministic before probabilistic
+The same golfer profile, rules version, intelligence version and inventory configuration must generate the same Fit result.
+No LLM determines which club is suitable.
+An LLM may later explain a deterministic result in natural language.
+3.2 Configuration matters
+Teevo does not recommend only a Driver model.
+A Ping G430 Max head with an unsuitable loft or shaft may be a worse Match than another head configured appropriately.
+3.3 Unknown does not mean bad
+Missing equipment data does not score zero.
+Where a dimension cannot legitimately be assessed:
+* remove that dimension from Fit calculation;
+* re-normalise the remaining active weights;
+* reduce Confidence.
+3.4 Fit is separate from Confidence
+A club can be:
+Strong Fit + Medium Confidence
+because the known characteristics look appropriate but some evidence is missing.
+Confidence must never be disguised as Fit.
+3.5 Fit is separate from marketplace attractiveness
+Price, seller, condition, listing freshness and commercial considerations must not change equipment Fit Score.
+They may influence marketplace presentation after equipment suitability has been established.
+3.6 Teevo must prefer no recommendation to a misleading recommendation
+If current inventory contains no Driver above the recommendation threshold, Teevo should say so.
+Do not weaken the fitting logic simply to populate a results screen.
+That empty state is useful marketplace data and can create a matched-inventory alert opportunity.
+________________
+
+
+4. Decision Pipeline
+Every Match session must follow this order:
+1. Normalise golfer inputs
+↓
+2. Derive golfer equipment requirements
+↓
+3. Apply model and listing eligibility gates
+↓
+4. Resolve the effective listing configuration
+↓
+5. Score each active fitting dimension
+↓
+6. Calculate Fit Score
+↓
+7. Apply critical mismatch guardrails and Match ceilings
+↓
+8. Calculate Confidence separately
+↓
+9. Assign consumer Match tier
+↓
+10. Rank eligible inventory
+↓
+11. Generate controlled reason codes
+↓
+12. Persist recommendation and downstream outcomes
+No later stage should silently rewrite the output of an earlier stage.
+________________
+
+
+5. Golfer Inputs Used in V1
+V1.1 consumes the raw fields defined by MATCH_DRIVER_CONTRACT_V1.2.
+
+
+Required to complete marketplace Match:
+• handedness.
+
+
+High-value fitting inputs:
+• measured driver club speed where known;
+• carry distance as a fallback speed proxy;
+• typical start direction;
+• typical curvature;
+• miss severity;
+• typical trajectory;
+• strike consistency;
+• one primary objective.
+
+
+Supporting inputs:
+• handicap;
+• current driver, loft, shaft and raw flex where known;
+• current-club satisfaction;
+• strike pattern.
+
+
+Marketplace-only input:
+• budget_max_gbp. Budget never changes Fit Score.
+
+
+Optional measured telemetry:
+• ball speed;
+• launch angle;
+• spin rate;
+• attack angle.
+
+
+V1.1 does not add a questionnaire step solely for tempo. It also does not ask the golfer to choose technical intents such as PRESERVE / OPTIMISE / CORRECT; that intent is derived internally.
+V1.1 uses one primary objective only. Do not create hidden secondary-goal weighting.
+6. Evidence Hierarchy
+When golfer information conflicts, use this priority:
+1. Validated launch-monitor measurements when supplied through LAUNCH_MONITOR, MANUAL_PRO or MIXED input.
+2. Measured driver club speed.
+3. Directly reported ball-flight and strike behaviour.
+4. Explicit primary objective.
+5. Resolved current equipment plus current-club satisfaction.
+6. Carry-distance inference.
+7. Handicap.
+8. Generic fitting heuristics.
+
+
+A lower-ranked signal must not override stronger direct evidence merely because it produces a cleaner recommendation.
+Questionnaire-only trajectory must never be converted into a spin requirement.
+For initial V1.1 production, head_spin_target and shaft_spin_target remain UNRESOLVED unless a separately versioned launch-monitor calibration table is enabled. Teevo must not import an OEM-specific “optimal spin” table and treat it as universal truth.
+7. Requirement Representation
+The Requirements Engine must emit exactly the golfer-side contract defined in MATCH_DRIVER_CONTRACT_V1.2:
+• handedness;
+• recommendation_intent;
+• head_launch_target;
+• head_spin_target;
+• forgiveness_requirement;
+• stability_requirement;
+• directional_target_numeric;
+• directional_requirement;
+• workability_preference;
+• driver_subtype_allowed;
+• preferred_loft_min_deg;
+• preferred_loft_max_deg;
+• shaft_weight_min_g;
+• shaft_weight_max_g;
+• shaft_flex_min_value;
+• shaft_flex_max_value;
+• shaft_launch_target;
+• shaft_spin_target;
+• shaft_torque_target_deg;
+• requirement_confidence;
+• conflict_flags.
+
+
+The Fit scorer must read this normalised object, not raw questionnaire answers.
+Budget and marketplace economics are deliberately absent from this object.
+8. Baseline Requirements
+Before golfer-specific evidence:
+Forgiveness requirement = 3.
+Stability requirement = 3.
+Workability preference = 2.
+Direction = UNRESOLVED.
+Head launch = UNRESOLVED.
+Head spin = UNRESOLVED.
+Shaft launch = UNRESOLVED.
+Shaft spin = UNRESOLVED.
+driver_subtype_allowed = STANDARD for V1.1.
+
+
+Forgiveness, stability and workability may move in 0.5 increments and are clamped to 1–5.
+Direction is represented internally on -2…+2 only when directional evidence exists:
+-2 strong fade assist; -1 fade assist; 0 neutral; +1 draw assist; +2 strong draw assist.
+
+
+Launch uses the same -2…+2 ladder only when launch evidence exists:
+-2 low; -1 mid-low; 0 mid; +1 mid-high; +2 high.
+
+
+Critically, missing directional or launch evidence does not become NEUTRAL or MID. The dimension stays UNRESOLVED and is omitted from Fit scoring.
+9. Handicap Modifier
+Handicap is deliberately weak supporting evidence.
+
+
+0–5: workability +0.5.
+6–12: no modifier.
+13–20: forgiveness +0.25; stability +0.25.
+21–30: forgiveness +0.5; stability +0.5; workability -0.25.
+31+: forgiveness +0.75; stability +0.75; workability -0.5.
+Unknown: no modifier.
+
+
+Handicap must never independently determine driver archetype, launch/spin target, shaft flex, directional bias or loft.
+Direct strike consistency and ball-flight evidence outrank handicap.
+10. Strike Consistency Modifier
+Use the contract values HIGH, MEDIUM, LOW, UNKNOWN.
+
+
+HIGH consistency:
+• forgiveness -0.5;
+• stability -0.5;
+• workability +0.5.
+
+
+MEDIUM:
+• no modifier.
+
+
+LOW consistency:
+• forgiveness +1;
+• stability +1.5;
+• workability -0.5.
+
+
+UNKNOWN:
+• no modifier and reduce golfer-evidence Confidence.
+
+
+If strike_pattern = VARIABLE, add a further +0.5 forgiveness and +0.5 stability, capped at 5.
+Heel/toe/high/low strike locations are captured for future calibration but are not independently translated into V1.1 head or shaft prescriptions.
+11. Miss Direction Logic
+V1.1 represents ball flight as start direction + curvature + severity. Do not collapse this back into a single LEFT / RIGHT / BOTH field.
+
+
+Step 1 — convert absolute ball flight into golfer-relative directional support.
+Positive values mean DRAW support. Negative values mean FADE support.
+
+
+For a RIGHT-handed golfer:
+• start RIGHT = +0.5; start LEFT = -0.5;
+• curvature RIGHT = +1.5; curvature LEFT = -1.5.
+
+
+For a LEFT-handed golfer the signs reverse:
+• start LEFT = +0.5; start RIGHT = -0.5;
+• curvature LEFT = +1.5; curvature RIGHT = -1.5.
+
+
+CENTRE and STRAIGHT contribute 0.
+UNKNOWN contributes 0 but lowers directional requirement confidence.
+
+
+Step 2 — raw_direction = start_component + curvature_component.
+
+
+Step 3 — apply miss severity:
+SMALL × 0.67.
+MODERATE × 1.00.
+LARGE × 1.33.
+UNKNOWN × 1.00.
+
+
+directional_target_numeric = clamp(raw_direction × severity_multiplier, -2, +2).
+
+
+This distinguishes, for example, a right-handed pull-fade from a push-slice: both can finish right, but the push-slice creates stronger draw-support need.
+
+
+Miss-derived modifiers when a directional miss exists:
+SMALL: forgiveness +0.25; stability +0.25.
+MODERATE: forgiveness +0.5; stability +0.5.
+LARGE: forgiveness +0.75; stability +1.0.
+
+
+VARIABLE curvature is a two-way miss:
+• directional target = UNRESOLVED;
+• forgiveness +1;
+• stability +1.5;
+• reduce directional confidence.
+
+
+If start direction is VARIABLE but curvature is stable, use the curvature component only and reduce directional confidence.
+Consumer explanations describe support, never guaranteed correction.
+12. Trajectory Logic
+Typical trajectory is direct self-reported evidence, but weaker than measured launch data.
+
+
+LOW: head launch +1; preferred loft +0.5°; shaft launch +0.5.
+MID: head launch 0; no loft shift; shaft launch 0.
+HIGH: head launch -1; preferred loft -0.5°; shaft launch -0.5.
+UNKNOWN: no launch signal; no loft shift; launch remains UNRESOLVED unless another valid signal exists.
+
+
+Self-reported trajectory never creates a spin target.
+13. Primary Objective Logic
+FORGIVENESS: forgiveness +1.5; stability +1; workability -0.5.
+ACCURACY: stability +1.5; forgiveness +0.5.
+REDUCE_RIGHT_MISS: right-handed direction +1.5; left-handed direction -1.5.
+REDUCE_LEFT_MISS: right-handed direction -1.5; left-handed direction +1.5.
+HIGHER_FLIGHT: head launch +1.5; loft +0.5°; shaft launch +0.5.
+LOWER_FLIGHT: head launch -1.5; loft -0.5°; shaft launch -0.5.
+CONTROL: workability +1.5; stability +1; forgiveness -0.25.
+DISTANCE: no automatic launch, loft, spin, flex or low-spin-head change.
+UNKNOWN: no modifier.
+
+
+A distance goal alone must never be translated into lower loft, lower spin, stiffer shaft or a players head.
+14. Direction and Input Conflict Handling
+Direct ball-flight evidence outranks the stated directional objective.
+
+
+When both exist:
+combined_direction = clamp(miss_direction_signal + 0.5 × objective_direction_signal, -2, +2).
+
+
+If miss and objective signals have opposite signs and both have absolute magnitude ≥1:
+• add DIRECTION_INPUT_CONFLICT;
+• reduce directional requirement confidence by one band;
+• preserve the observed miss as the stronger contributor.
+
+
+For launch, trajectory and objective signals may combine, but contradictory signals add LAUNCH_INPUT_CONFLICT and reduce launch requirement confidence.
+Conflicts normally reduce Confidence rather than Fit. Do not force a clean categorical target when evidence genuinely disagrees.
+15. Swing Speed and Shaft Flex Region
+Measured driver speed is authoritative over carry.
+
+
+Frozen normalized flex values:
+0 L; 1 A/R2 territory; 1.5 R1; 2 R; 2.5 SR; 3 S; 3.5 S+/SX; 4 X; 5 TX; 6 TXX.
+
+
+Broad V1.1 preferred regions:
+<80 mph: 0–2.
+80–89 mph: 1–2.5.
+90–99 mph: 2–3.
+100–109 mph: 2.5–4.
+110+ mph: 3–5.
+
+
+These are compatibility regions, not universal fitting truth.
+MATCH_ELIGIBLE proprietary flexes that remain UNMAPPED_TO_NORMALISED_FLEX stay eligible; flex scoring is omitted and Confidence reduced. Never force them into L/A/R/S/X.
+16. Carry Fallback
+Where swing speed is unknown:
+Typical Driver carry
+	Broad flex region
+	<180 yd
+	Soft–Regular
+	180–199
+	Regular
+	200–219
+	Regular
+	220–259
+	Regular–Stiff
+	260–279
+	Stiff
+	280+
+	Stiff–X
+	Carry-derived shaft recommendations receive lower Confidence than measured swing speed.
+If both speed and carry exist but imply materially different regions:
+* use swing speed for shaft requirement;
+* flag the conflict;
+* reduce golfer Confidence.
+Do not average the two values.
+________________
+
+
+17. Shaft Weight Requirement
+Initial preferred actual-weight ranges:
+<80 mph: 40–55g.
+80–89 mph: 45–60g.
+90–99 mph: 50–65g.
+100–109 mph: 55–70g.
+110+ mph: 60–75g.
+
+
+These are soft preference regions, never hard gates.
+Use actual_weight_g only. Do not substitute weight_class when exact mass is unavailable.
+V1.1 does not add a tempo question solely to shift shaft weight.
+18. Preferred Loft Range
+Speed-based starting ranges:
+<80 mph: 10.5–12.5°.
+80–89 mph: 10–12°.
+90–99 mph: 9–11.5°.
+100–109 mph: 8.5–10.5°.
+110+ mph: 8–10.5°.
+
+
+Carry may select the equivalent speed band when measured speed is absent.
+Apply trajectory/objective loft modifiers, but cap total questionnaire-derived movement from the speed baseline at ±1°.
+
+
+If current driver is resolved and satisfaction is HIGH or MEDIUM, keep derived loft territory within approximately ±1° of current loft unless stronger measured evidence exists.
+If satisfaction is LOW / recommendation_intent = CORRECT, do not let an unsuitable current loft anchor the new recommendation.
+
+
+If speed and carry are unknown but a satisfactory current loft is known, use current loft ±1° and reduce Confidence.
+If speed, carry and a usable current-loft anchor are all unavailable, loft = UNRESOLVED and omit loft scoring.
+19. Recommendation Intent and Current Equipment
+recommendation_intent is derived internally:
+• current driver unresolved or satisfaction UNKNOWN → UNANCHORED;
+• satisfaction HIGH → PRESERVE;
+• satisfaction MEDIUM → OPTIMISE;
+• satisfaction LOW → CORRECT.
+
+
+PRESERVE: use confidently known current equipment to anchor requirement derivation on dimensions the golfer is not explicitly trying to change. Preserve equipment territory, not brand/model/generation.
+OPTIMISE: keep satisfactory characteristics stable while shifting dimensions tied to the primary objective.
+CORRECT: do not anchor fitting requirements to the current driver except where a direct measured value remains independently useful.
+UNANCHORED: derive requirements from the golfer profile without a current-equipment anchor.
+
+
+Current equipment does not receive a separate continuity bonus in Fit Score; that would double-count evidence already used in requirement derivation.
+Same-brand preference is never inferred.
+20. Candidate Hard Eligibility Gates
+A listing must pass every applicable gate before full Driver Match scoring.
+
+
+Head/model gates:
+• category = DRIVER;
+• driver_subtype = STANDARD for V1.1;
+• intelligence_version = DRIVER_V1;
+• match_eligible = TRUE;
+• canonical catalogue_key resolved;
+• rules_conformity != NON_CONFORMING.
+
+
+Shaft gates:
+• exact shaft_key resolves uniquely;
+• shaft match_eligibility = MATCH_ELIGIBLE;
+• OEM/aftermarket identity is not substituted silently;
+• proprietary flex may remain eligible even when match_flex_mapping_status = UNMAPPED_TO_NORMALISED_FLEX.
+
+
+Listing gates:
+• publicly purchasable;
+• matches golfer handedness;
+• usable stated/effective loft;
+• head resolves to the Match-eligible catalogue_key;
+• shaft resolves to the Match-eligible shaft_key.
+
+
+Unresolved exact shaft identity is a hard exclusion from full Teevo Match V1.1. It may remain visible in ordinary Browse or a future clearly-labelled head-only experience, but cannot receive Best Match / Best Value / Budget Option.
+MINI drivers remain outside standard V1.1 Match.
+21. Budget
+Budget is a marketplace preference, never a Fit input or Fit gate.
+BEST_MATCH may sit above budget; if so, label the amount above the golfer's preferred budget.
+BEST_VALUE and BUDGET_OPTION use budget in marketplace presentation as defined in Match Ranking.
+Never lower the minimum Match threshold because cheaper inventory is weak.
+22. Effective Listing Loft
+This is a material improvement over earlier heuristic handling.
+The completed Driver dataset now contains structured hosel information, including:
+* hosel_loft_adjustment_type
+* hosel_loft_setting_min_deg
+* hosel_loft_setting_max_deg
+* hosel_loft_settings
+* legacy loft_adjustment_min_deg
+* legacy loft_adjustment_max_deg
+Therefore verified loft adjustability must be consumed by Driver Match V1.
+NONE
+Only the actual listing loft is reachable.
+DELTA_RANGE
+Calculate reachable loft from:
+listing nominal loft + verified adjustment delta
+Prefer the dedicated structured setting fields where populated.
+Where they are not populated, the researched legacy:
+loft_adjustment_min_deg
+loft_adjustment_max_deg
+may be used.
+Example:
+Listing loft = 10.5°
+Verified range = -1° to +1°
+Reachable loft interval:
+9.5–11.5°
+PUBLISHED_SETTINGS
+Use the researched absolute published loft settings or published absolute min/max.
+Example:
+9° | 9.5° | 10° | 10.5° | 11° | 11.5° | 12°
+These are absolute settings.
+They must not be added to the listing loft as deltas.
+FACE_ANGLE_ONLY
+Do not change effective loft.
+Use only the listing's stated loft for V1.
+Do not infer loft changes from face-angle adjustment.
+LIE_ONLY
+Do not change effective loft.
+UNKNOWN
+Do not infer an adjustment range.
+Use the listing's stated loft only.
+Reduce configuration Confidence if adjustability would materially affect the recommendation.
+Important guardrail
+Never parse weight_configuration_notes or free text at Match runtime to invent a loft range.
+Only structured, researched fields may affect scoring.
+________________
+
+
+23. Adjustable Weighting and Direction
+Movable weights and head adjustability are valuable equipment characteristics but do not receive direct Fit points in V1.
+Why:
+A correctly configured fixed Driver should not rank below an adjustable Driver solely because the second product has more settings.
+Similarly, the Driver's researched directional_bias describes its validated/default head tendency.
+V1 must not assume:
+“Movable weight available” = DRAW
+or:
+“Adjustable hosel” = FADE-capable.
+Unless Teevo later models individual weight/hosel settings as structured configuration states, movable-weight descriptions remain informational.
+This prevents unstructured manufacturer-specific adjustment systems contaminating V1 Match logic.
+________________
+
+
+24. Scoring Architecture
+V1.1 nominal Fit weights:
+Forgiveness 15
+Stability 15
+Directional support 13
+Head launch 10
+Head spin 6
+Workability 5
+Effective loft 14
+Shaft flex 10
+Shaft actual weight 5
+Shaft launch 4
+Shaft spin 3
+Total 100
+
+
+Head/shaft spin are inactive in questionnaire-only V1.1 and are removed/reweighted unless a separately versioned validated spin-target calibration is enabled.
+Current equipment is not a separate Fit dimension.
+Adjustability is not a quality bonus; it matters only where it changes a configuration Teevo can legitimately evaluate.
+
+
+These are calibration priors, not scientific claims. Head and loft remain dominant; shaft dimensions remain meaningful without pretending shaft labels alone determine outcome.
+25. Equipment Evidence Reliability
+Only evidence used in an active Fit dimension receives scoring reliability.
+
+
+HIGH = 1.0
+MEDIUM = 0.85
+LOW = 0.5
+UNRESOLVED = 0
+UNKNOWN field = 0
+
+
+A zero-reliability dimension is omitted from numerator and denominator.
+Evidence reliability controls how strongly an uncertain equipment characteristic can influence Fit; overall Confidence separately communicates how much Teevo trusts the recommendation as a whole.
+26. Fit Formula
+For every active scoring dimension:
+weighted contribution = nominal weight × evidence reliability × dimension score
+Then:
+Fit Score = sum(weighted contributions) / sum(active weights × evidence reliability)
+Scale to 0–100.
+Therefore missing dimensions are re-normalised rather than scored zero.
+This is critical.
+A Driver with unknown spin is not automatically worse than one with researched spin when the golfer has no legitimate spin requirement.
+________________
+
+
+27. Forgiveness and Stability Scoring
+Forgiveness and Stability are minimum-need dimensions.
+If the Driver meets or exceeds the golfer requirement, score = 100.
+
+
+Shortfall curve:
+gap 0 = 100
+gap 1 = 80
+gap 2 = 55
+gap 3 = 30
+gap 4+ = 0
+
+
+Linearly interpolate 0.5 steps.
+Excess forgiveness/stability is not penalised. Genuine trade-offs are represented by separate researched characteristics rather than a “too forgiving” penalty.
+28. Workability Scoring
+Workability is also treated as a minimum-need characteristic.
+Use the same minimum-need scoring curve as Forgiveness and Stability.
+Do not penalise a Driver merely for offering more workability than requested.
+Any real trade-off should already appear in independently researched Stability/Forgiveness characteristics.
+This avoids double-counting the same product design trade-off.
+________________
+
+
+29. Directional Support Scoring
+Convert the Driver's researched directional bias to its numeric value:
+STRONG_FADE = -2
+FADE = -1
+NEUTRAL = 0
+DRAW = +1
+STRONG_DRAW = +2
+Calculate:
+direction_gap = absolute(driver_direction - golfer_direction_target)
+Use:
+Gap
+	Score
+	0
+	100
+	1
+	85
+	2
+	60
+	3
+	35
+	4
+	15
+	For fractional golfer targets, linearly interpolate.
+A neutral Driver can therefore remain a reasonable recommendation to a golfer requiring modest directional support.
+Teevo should not over-prioritise draw-biased Drivers solely because a golfer reports one right miss.
+________________
+
+
+30. Head Launch and Spin Scoring
+Head launch scale:
+LOW -2
+MID_LOW -1
+MID 0
+MID_HIGH +1
+HIGH +2
+
+
+If head_launch_target is active, score absolute gap:
+0 = 100
+1 = 85
+2 = 65
+3 = 40
+4 = 20
+Interpolate fractional targets.
+
+
+Head spin uses the same five-point ordinal scale only when head_spin_target is legitimately active:
+LOW -2; MID_LOW -1; MID 0; MID_HIGH +1; HIGH +2.
+TUNABLE or UNKNOWN is not guessed; omit head-spin scoring unless the evaluated configuration legitimately resolves it.
+31. Loft Scoring
+Determine the minimum degree-distance between:
+the listing's verified reachable loft set/range
+and:
+the golfer's preferred loft range.
+Call this:
+loft_gap_deg
+Score:
+Minimum gap
+	Score
+	Inside target
+	100
+	≤0.5°
+	90
+	≤1.0°
+	75
+	≤1.5°
+	55
+	>1.5°
+	30
+	A fixed 10.5° Driver already inside the preferred range and an adjustable Driver capable of reaching 10.5° both receive 100.
+Adjustability itself earns no bonus.
+Where adjustment is required to enter the preferred range, generate:
+LOFT_ADJUSTABLE_INTO_TARGET
+rather than:
+LOFT_WITHIN_TARGET
+This improves explanation without distorting Fit.
+________________
+
+
+32. Shaft Flex Compatibility
+If match_flex_mapping_status = MAPPED, calculate minimum distance between match_flex_value and the golfer's preferred [shaft_flex_min_value, shaft_flex_max_value] region.
+
+
+Distance 0 = 100
+≤0.5 = 90
+≤1 = 75
+≤1.5 = 55
+≤2 = 35
+>2 = 0
+
+
+If a shaft is MATCH_ELIGIBLE but UNMAPPED_TO_NORMALISED_FLEX:
+• keep it eligible;
+• omit flex scoring;
+• reduce Confidence;
+• record SHAFT_FLEX_UNMAPPED.
+
+
+Never infer a normalized flex from the raw printed label at runtime when the frozen dataset deliberately left it unmapped.
+33. Shaft Weight Scoring
+Use actual_weight_g only.
+
+
+Distance from preferred range:
+inside range = 100
+≤5g outside = 85
+≤10g outside = 65
+≤15g outside = 40
+>15g outside = 20
+
+
+If actual_weight_g is NULL or match_weight_confidence is UNRESOLVED / NOT_APPLICABLE, omit weight scoring and reduce Confidence where weight would otherwise be relevant.
+Do not score weight_class as though it were exact mass.
+34. Shaft Launch and Spin Scoring
+Shaft launch uses the LOW…HIGH ordinal scale and the same gap curve as head launch, but at lower nominal weight.
+Only score when shaft_launch_target is active and match_launch_resolution_status = RESOLVED.
+
+
+Shaft spin is scored only when shaft_spin_target is legitimately active and spin_profile is known.
+LOW_MID is normalised to -1.5 for DRIVER_MATCH_LOGIC_V1.1 only; this mapping is versioned and does not rewrite the frozen source value.
+
+
+Torque, bend point, tip/mid/butt profile, feel and loading profile remain intelligence but are not independently scored in V1.1. They are candidates for calibration once Teevo has outcome data.
+35. Current-Equipment Anchoring — No Continuity Score
+V1.1 does not use a separate continuity score.
+Current-equipment evidence has already shaped the golfer requirement vector through recommendation_intent and requirement derivation.
+
+
+Adding continuity points after that would double-count the same evidence and could cause a familiar-but-wrong club to outrank a better fit.
+
+
+Persist current equipment and derived intent for explanation and future calibration, but award no Fit points for same-brand, same-model, same-generation or simple similarity.
+36. Critical Mismatch Guardrails
+A weighted average must not hide one materially unsuitable configuration.
+
+
+Mapped shaft flex:
+• distance >2 from preferred region → suppress from active recommendation;
+• distance >1.5 and ≤2 → maximum Match band = GOOD_MATCH.
+
+
+Effective loft:
+• closest verified reachable loft >2.5° outside preferred range → suppress;
+• >1.5° and ≤2.5° outside → maximum Match band = GOOD_MATCH.
+
+
+Directional bias:
+• directional gap ≥4 → suppress;
+• directional gap ≥3 → maximum Match band = GOOD_MATCH.
+
+
+Combined launch mismatch:
+If both head launch and resolved shaft launch oppose an active launch target by gap ≥3, maximum Match band = GOOD_MATCH.
+
+
+Unresolved exact shaft identity is not a ceiling: it is already a hard gate.
+
+
+LOW overall Confidence does not rewrite Match Score or Match band. Fit and Confidence remain separate. LOW-confidence candidates cannot receive BEST_MATCH, BEST_VALUE or BUDGET_OPTION presentation labels in V1.1.
+
+
+Persist raw_fit_score, ceiling/suppression reasons, final match_band and confidence separately.
+37. Recommendation Thresholds
+Internal Fit Score → consumer Match band:
+85–100 = EXCELLENT_MATCH
+75–84.99 = VERY_GOOD_MATCH
+65–74.99 = GOOD_MATCH
+<65 = DO_NOT_ACTIVELY_RECOMMEND
+
+
+A critical mismatch ceiling may lower the final band below the raw numeric score.
+Do not expose the internal number as a probability or lead V1 UX with “91% Match”. The numeric score exists for ranking, QA and calibration; the qualitative band is the primary consumer claim.
+38. Confidence Calculation
+Confidence answers “How much evidence supports this recommendation?” It does not answer “How good is the fit?”
+
+
+Golfer Evidence Confidence — 45%.
+Start at 100:
+• no measured club speed but carry available: -10;
+• neither speed nor carry: -25;
+• start direction UNKNOWN: -4;
+• curvature UNKNOWN: -6;
+• miss severity UNKNOWN when a miss is otherwise described: -3;
+• trajectory UNKNOWN: -6;
+• strike consistency UNKNOWN: -6;
+• primary objective UNKNOWN: -8;
+• handicap unknown: -2;
+• material directional conflict: -10;
+• material launch/current-equipment conflict: -5;
+• input_confidence MEDIUM: -5;
+• input_confidence LOW: -15.
+
+
+Equipment Intelligence Confidence — 35%.
+Active-dimension weighted average:
+HIGH 100; MEDIUM 80; LOW 50; UNRESOLVED 0.
+
+
+Listing Configuration Confidence — 20%.
+Start at 100:
+• MATCH_ELIGIBLE flex unmapped to normalized flex: -10;
+• actual shaft weight unavailable when relevant: -5;
+• shaft launch unresolved when relevant: -5;
+• loft adjustment relies on valid legacy delta rather than explicit settings: -5;
+• relevant adjustable-hosel numeric behaviour UNKNOWN: -5.
+
+
+Do not reduce Confidence for price, condition, seller, listing age or commercial considerations.
+
+
+overall_confidence_score = 0.45 × golfer + 0.35 × equipment + 0.20 × listing.
+HIGH = 80–100.
+MEDIUM = 60–79.99.
+LOW <60.
+
+
+Persist numeric Confidence internally; expose the category by default.
+39. Match Ranking
+Stage A — equipment fit ranking:
+1. final Match band;
+2. internal Fit Score descending;
+3. Confidence descending.
+
+
+Stage B — marketplace presentation. Price never changes equipment Fit Score.
+
+
+BEST_MATCH:
+• highest-ranked live candidate with HIGH or MEDIUM Confidence;
+• ignores budget for selection, but clearly flags if above budget.
+
+
+BEST_VALUE:
+• at least VERY_GOOD_MATCH;
+• HIGH or MEDIUM Confidence;
+• Fit Score within 7 points of BEST_MATCH;
+• choose the lowest-priced candidate in that near-best-fit pool;
+• if budget exists, prefer candidates at/below budget;
+• only show a distinct BEST_VALUE label when it saves at least max(£20, 10%) versus BEST_MATCH.
+
+
+BUDGET_OPTION:
+• at least GOOD_MATCH;
+• HIGH or MEDIUM Confidence;
+• choose the lowest-priced qualifying live candidate;
+• if budget exists, it must be at/below budget.
+
+
+Presentation options are unique by listing_id. If labels resolve to the same listing, show it once or omit the redundant label rather than forcing three cards.
+If only one or two distinct qualifying options exist, show one or two.
+Commercial margin, seller preference and stock-clearing goals never promote a materially poorer fit.
+40. Head Profiles
+Fields such as:
+* MAX_FORGIVENESS
+* STANDARD
+* DRAW_BIASED
+* LOW_SPIN
+* PLAYERS
+* HIGH_LAUNCH
+are useful for:
+* explanation;
+* result grouping;
+* QA;
+* semantic retrieval;
+* future personalization.
+They should not be independently scored in V1.
+The underlying dimensions already capture their fitting relevance.
+Otherwise Teevo would double-count the same evidence.
+Example:
+A MAX_FORGIVENESS head already receives its Fit behaviour through researched Forgiveness and Stability.
+It should not receive another arbitrary “MAX head bonus.”
+________________
+
+
+41. Adjustability Score
+The Driver intelligence dataset contains a 1–5 Adjustability score.
+Do not include it directly in Fit Score.
+Use structured adjustability only where it changes the configuration Teevo can legitimately evaluate, primarily effective loft in V1.
+This distinction matters:
+Adjustability is capability. Suitability is fit.
+A fixed Driver in exactly the correct specification may be more suitable than an extremely adjustable Driver in the wrong configuration.
+________________
+
+
+42. Rules Conformity
+NON_CONFORMING
+→ hard Match exclusion.
+CONFORMING
+→ eligible subject to all other rules.
+UNKNOWN
+→ no automatic Fit penalty or exclusion where match_eligible = TRUE.
+Teevo must not dynamically guess conformity from brand, age, COR claims or free text.
+The researched dataset owns this decision.
+________________
+
+
+43. match_eligible
+match_eligible is the final model-level operational gate produced by the Equipment Intelligence dataset.
+If:
+match_eligible = FALSE
+the model must not enter standard Driver Match V1.
+This currently covers more than non-conformity. It also protects Match from:
+* unresolved model identities;
+* ambiguous conforming/non-conforming variants;
+* insufficient evidence;
+* unresolved generation data;
+* other research QA failures.
+This is preferable to recreating those research decisions inside application logic.
+________________
+
+
+44. Missing Data Behaviour
+Missing handicap:
+Continue; very small Confidence reduction.
+
+
+Missing measured speed but carry known:
+Use carry fallback; reduce Confidence.
+
+
+Missing speed and carry:
+Do not invent flex, weight or speed-based loft requirements. Omit those dimensions unless current equipment provides a defensible anchor; materially reduce Confidence.
+
+
+Missing start direction and/or curvature:
+Use the remaining valid component if sufficient; otherwise direction = UNRESOLVED and omit directional scoring. Never default to NEUTRAL.
+
+
+Missing trajectory:
+Use an explicit flight objective if present; otherwise launch = UNRESOLVED and omit head/shaft launch scoring. Never default to MID.
+
+
+Missing current driver:
+No Fit penalty; recommendation_intent = UNANCHORED.
+
+
+Exact shaft identity unresolved:
+Hard exclusion from full Match.
+
+
+Exact shaft resolved but normalized flex unmapped:
+Remain eligible; omit flex scoring; reduce Confidence; add SHAFT_FLEX_UNMAPPED.
+
+
+Missing actual shaft weight:
+Omit weight scoring; reduce Confidence if relevant.
+
+
+Missing resolved shaft launch:
+Omit shaft-launch scoring.
+
+
+Missing listing loft, handedness, canonical head identity or Match-eligible shaft identity:
+Hard exclusion from full Match.
+45. Controlled Positive Reason Codes
+V1.1 controlled positive reasons:
+HIGH_FORGIVENESS_MATCH
+STABILITY_MATCH
+RIGHT_MISS_SUPPORT
+LEFT_MISS_SUPPORT
+TWO_WAY_MISS_STABILITY_SUPPORT
+DIRECTIONAL_PROFILE_MATCH
+HEAD_LAUNCH_MATCH
+HEAD_SPIN_MATCH
+LOFT_WITHIN_TARGET
+LOFT_ADJUSTABLE_INTO_TARGET
+SHAFT_FLEX_MATCH
+SHAFT_WEIGHT_MATCH
+SHAFT_LAUNCH_MATCH
+SHAFT_SPIN_MATCH
+CURRENT_DRIVER_TERRITORY_PRESERVED
+CONTROL_PROFILE_MATCH
+VALUE_SAVING_WITHIN_NEAR_BEST_FIT
+
+
+Consumer UX should surface approximately 2–4 genuinely meaningful reasons selected from the strongest supported contributors.
+46. Controlled Consideration Codes
+Controlled considerations:
+SHAFT_FLEX_UNMAPPED
+SHAFT_WEIGHT_UNKNOWN
+SHAFT_LAUNCH_UNKNOWN
+HEAD_FIELD_LOW_CONFIDENCE
+SWING_SPEED_INFERRED_FROM_CARRY
+SWING_SPEED_UNKNOWN
+DIRECTION_INPUT_CONFLICT
+LAUNCH_INPUT_CONFLICT
+LOFT_EVIDENCE_CONFLICT
+LOFT_OUTSIDE_TARGET
+SHAFT_FLEX_MISMATCH
+OPPOSITE_DIRECTIONAL_BIAS
+ADJUSTABLE_HOSEL_RANGE_UNKNOWN
+CURRENT_DRIVER_UNRESOLVED
+CURRENT_EQUIPMENT_ANCHOR_LOW_EVIDENCE
+OVER_PREFERRED_BUDGET
+
+
+Considerations explain uncertainty or trade-offs without corrupting Fit Score.
+Use wording such as “Very Good Match — one thing to consider,” not a false numeric probability.
+47. Explanation Rules
+Explanation must be generated from structured outputs.
+Good:
+“This head gives you the high forgiveness and stability your strike pattern suggests you need. Its 10.5° loft also sits inside your preferred range.”
+Good:
+“The head suits your typical right miss, and the adjustable hosel means this specific club can be configured into your preferred loft range.”
+Good:
+“The head looks very suitable, but we only know the shaft flex rather than the exact shaft specification, so Match confidence is Medium.”
+Avoid unsupported claims such as:
+“This will add 15 yards.”
+“This will fix your slice.”
+“This shaft is perfect for you.”
+“This is the best Driver for 15-handicap golfers.”
+________________
+
+
+48. Empty and Thin Inventory Rules
+If no live listing reaches GOOD_MATCH with at least MEDIUM Confidence:
+• return no active purchase recommendation;
+• do not lower the Fit threshold;
+• capture missing desired inventory and optional matched-inventory alert intent.
+
+
+If only one or two distinct qualifying recommendations exist, show one or two.
+Do not add lower-quality filler to make the page appear complete.
+
+
+Capture which presentation slot could not be filled: BEST_MATCH, BEST_VALUE or BUDGET_OPTION.
+Unmet Match demand is proprietary marketplace intelligence: it shows which suitable configurations users want but inventory does not currently supply.
+49. Versioning and Auditability
+Every Match session persists:
+• golfer profile/version;
+• raw inputs;
+• normalised requirement vector;
+• requirement evidence/confidence;
+• contract_version = MATCH_DRIVER_CONTRACT_V1.2;
+• rules_version = DRIVER_MATCH_LOGIC_V1.1;
+• head dataset version/freeze;
+• shaft dataset version/freeze;
+• candidate listing_id;
+• catalogue_key;
+• shaft_key;
+• raw Fit Score;
+• active and omitted dimensions;
+• dimension scores;
+• applied weights/evidence reliability;
+• mismatch ceilings/suppression reasons;
+• final match_band;
+• Confidence score/category;
+• internal fit rank;
+• marketplace presentation label where assigned;
+• listing price used for presentation;
+• reason codes;
+• consideration codes.
+
+
+Historical sessions remain reproducible. Never silently replay an old recommendation with new data, rules or marketplace ranking logic.
+50. Outcome Data
+Capture at minimum:
+match_started
+match_completed
+match_results_generated
+match_listing_viewed
+match_listing_saved
+match_listing_rejected
+match_rejection_reason
+match_checkout_started
+match_purchase
+match_feedback_submitted
+The strategic data asset is not merely which Drivers score highly.
+It is eventually:
+Golfer characteristics
+× Equipment characteristics
+× Actual configuration
+× Recommendation
+× User behaviour
+× Transaction
+× Post-purchase outcome
+That is the beginning of Teevo's defensible equipment-intelligence moat.
+________________
+
+
+51. Explicit V1 Non-Rules
+Driver Match V1 must never encode the following shortcuts:
+Low handicap → low-spin Driver
+High handicap → maximum-forgiveness Driver
+Fast swing → X-stiff
+Slow swing → high-spin Driver
+High trajectory → low-spin Driver
+Low trajectory → high-spin Driver
+Distance objective → lower loft
+Distance objective → low-spin head
+Slice → strongest possible draw head
+Draw-biased head → forgiving
+Low-spin head → workable
+Newer Driver → better Match
+More adjustable → better Match
+More expensive → better Match
+Same brand as current Driver → better Match
+Every recommendation must result from independent structured dimensions.
+________________
+
+
+52. V1 Deliberately Excluded
+Do not add these to Driver Match V1:
+* TrackMan ingestion;
+* ball speed;
+* measured launch angle;
+* measured spin;
+* angle of attack;
+* club path;
+* face-to-path;
+* strike-location measurement;
+* swing-video analysis;
+* AI swing diagnosis;
+* machine-learning ranking;
+* exact expected yardage;
+* exact dispersion prediction;
+* grip fitting;
+* playing-length fitting;
+* detailed lie fitting;
+* complex shaft EI normalisation;
+* torque-based fitting;
+* automatic movable-weight configuration;
+* automatic face-angle configuration;
+* Mini Driver recommendations.
+The data architecture should allow these later without making V1 dependent on them.
+________________
+
+
+53. V1 Validation Standard
+Driver Match V1.1 is not production-ready merely because calculations run.
+
+
+Build a calibration suite of at least 40–50 golfer archetypes including:
+• slow-speed low-consistency golfer;
+• moderate-speed start-right/curve-right miss;
+• start-left/curve-right miss;
+• start-right/curve-left miss;
+• large left miss;
+• two-way/variable-curvature miss;
+• high-speed consistent golfer;
+• high-speed player still needing forgiveness;
+• low-flight and high-flight golfers;
+• control-focused golfer;
+• high/medium/low current-driver satisfaction;
+• left-handed mirrored ball-flight cases;
+• missing speed but known carry;
+• missing direction/trajectory cases;
+• proprietary MATCH_ELIGIBLE unmapped flex;
+• resolved flex but unknown weight;
+• adjustable-loft and fixed-loft drivers;
+• draw-biased, neutral and fade-biased heads;
+• no qualifying inventory;
+• one qualifying listing only;
+• multiple close-fit listings at materially different prices.
+
+
+For every profile define expected equipment territory, unsuitable territory, plausible flex/weight/loft regions, expected Confidence and ceiling/suppression behaviour.
+
+
+Run the frozen Driver V1 head/shaft universe and representative live listing configurations through DRIVER_MATCH_LOGIC_V1.1.
+Blind-review a meaningful sample with an experienced independent club fitter.
+
+
+Acceptance is not exact club agreement. It is that recommended territories are sensible, conservative, explainable and contain no materially unsuitable primary recommendation.
+Any systematic disagreement changes the rules before launch.
+54. V1 Success Metric
+The algorithm should initially be judged on two levels.
+Product validity:
+Percentage of expert-reviewed Match sessions where the recommended territory is considered credible and no top recommendation is materially unsuitable.
+Marketplace validity:
+Match users' high-intent action rate versus ordinary Browse, particularly:
+* listing views;
+* saves;
+* checkout starts;
+* purchases.
+Longer term the north-star remains:
+Match-influenced GMV
+but V1 must first prove recommendation credibility.
+________________
+
+
+55. Final Decision
+Driver Match V1.1 is a deterministic, conservative, configuration-aware implementation specification tied to MATCH_DRIVER_CONTRACT_V1.2 and the 2026-10-16 frozen datasets.
+
+
+The product loop is:
+Golfer characteristics → equipment requirements → suitable head + exact shaft + loft configuration → qualifying live inventory → Best Match / Best Value / Budget Option.
+
+
+Teevo must not claim launch-monitor precision from questionnaire data, guess through missing fields, or let price corrupt equipment Fit.
+The next engineering step is implementation as versioned application logic with a regression test harness before consumer-facing Match UX is connected.

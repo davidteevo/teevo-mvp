@@ -1,0 +1,4897 @@
+[
+  {
+    "id": "P001",
+    "stage": "band",
+    "inputs": {
+      "score": 64.99
+    },
+    "expected": {
+      "band": "DO_NOT_ACTIVELY_RECOMMEND"
+    },
+    "source": "logic §37"
+  },
+  {
+    "id": "P002",
+    "stage": "band",
+    "inputs": {
+      "score": 65
+    },
+    "expected": {
+      "band": "GOOD_MATCH"
+    },
+    "source": "logic §37"
+  },
+  {
+    "id": "P003",
+    "stage": "band",
+    "inputs": {
+      "score": 74.99
+    },
+    "expected": {
+      "band": "GOOD_MATCH"
+    },
+    "source": "logic §37"
+  },
+  {
+    "id": "P004",
+    "stage": "band",
+    "inputs": {
+      "score": 75
+    },
+    "expected": {
+      "band": "VERY_GOOD_MATCH"
+    },
+    "source": "logic §37"
+  },
+  {
+    "id": "P005",
+    "stage": "band",
+    "inputs": {
+      "score": 84.99
+    },
+    "expected": {
+      "band": "VERY_GOOD_MATCH"
+    },
+    "source": "logic §37"
+  },
+  {
+    "id": "P006",
+    "stage": "band",
+    "inputs": {
+      "score": 85
+    },
+    "expected": {
+      "band": "EXCELLENT_MATCH"
+    },
+    "source": "logic §37"
+  },
+  {
+    "id": "P007",
+    "stage": "band",
+    "inputs": {
+      "score": 100
+    },
+    "expected": {
+      "band": "EXCELLENT_MATCH"
+    },
+    "source": "logic §37"
+  },
+  {
+    "id": "P008",
+    "stage": "confidence_band",
+    "inputs": {
+      "score": 59.99
+    },
+    "expected": {
+      "confidence": "LOW"
+    },
+    "source": "logic §38"
+  },
+  {
+    "id": "P009",
+    "stage": "confidence_band",
+    "inputs": {
+      "score": 60
+    },
+    "expected": {
+      "confidence": "MEDIUM"
+    },
+    "source": "logic §38"
+  },
+  {
+    "id": "P010",
+    "stage": "confidence_band",
+    "inputs": {
+      "score": 79.99
+    },
+    "expected": {
+      "confidence": "MEDIUM"
+    },
+    "source": "logic §38"
+  },
+  {
+    "id": "P011",
+    "stage": "confidence_band",
+    "inputs": {
+      "score": 80
+    },
+    "expected": {
+      "confidence": "HIGH"
+    },
+    "source": "logic §38"
+  },
+  {
+    "id": "P012",
+    "stage": "confidence_band",
+    "inputs": {
+      "score": 100
+    },
+    "expected": {
+      "confidence": "HIGH"
+    },
+    "source": "logic §38"
+  },
+  {
+    "id": "P013",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "minimum",
+      "gap": 0
+    },
+    "expected": {
+      "score": 100
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P014",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "minimum",
+      "gap": 0.5
+    },
+    "expected": {
+      "score": 90
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P015",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "minimum",
+      "gap": 1
+    },
+    "expected": {
+      "score": 80
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P016",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "minimum",
+      "gap": 1.5
+    },
+    "expected": {
+      "score": 67.5
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P017",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "minimum",
+      "gap": 2
+    },
+    "expected": {
+      "score": 55
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P018",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "minimum",
+      "gap": 3
+    },
+    "expected": {
+      "score": 30
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P019",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "minimum",
+      "gap": 4
+    },
+    "expected": {
+      "score": 0
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P020",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "direction",
+      "gap": 0
+    },
+    "expected": {
+      "score": 100
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P021",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "direction",
+      "gap": 0.5
+    },
+    "expected": {
+      "score": 92.5
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P022",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "direction",
+      "gap": 1
+    },
+    "expected": {
+      "score": 85
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P023",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "direction",
+      "gap": 2
+    },
+    "expected": {
+      "score": 60
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P024",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "direction",
+      "gap": 3
+    },
+    "expected": {
+      "score": 35
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P025",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "direction",
+      "gap": 4
+    },
+    "expected": {
+      "score": 15
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P026",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "launch",
+      "gap": 0
+    },
+    "expected": {
+      "score": 100
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P027",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "launch",
+      "gap": 0.5
+    },
+    "expected": {
+      "score": 92.5
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P028",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "launch",
+      "gap": 1
+    },
+    "expected": {
+      "score": 85
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P029",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "launch",
+      "gap": 2
+    },
+    "expected": {
+      "score": 65
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P030",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "launch",
+      "gap": 3
+    },
+    "expected": {
+      "score": 40
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P031",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "launch",
+      "gap": 4
+    },
+    "expected": {
+      "score": 20
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P032",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "loft",
+      "gap": 0
+    },
+    "expected": {
+      "score": 100
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P033",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "loft",
+      "gap": 0.5
+    },
+    "expected": {
+      "score": 90
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P034",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "loft",
+      "gap": 0.5001
+    },
+    "expected": {
+      "score": 75
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P035",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "loft",
+      "gap": 1
+    },
+    "expected": {
+      "score": 75
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P036",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "loft",
+      "gap": 1.5
+    },
+    "expected": {
+      "score": 55
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P037",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "loft",
+      "gap": 1.5001
+    },
+    "expected": {
+      "score": 30
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P038",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "flex",
+      "gap": 0
+    },
+    "expected": {
+      "score": 100
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P039",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "flex",
+      "gap": 0.5
+    },
+    "expected": {
+      "score": 90
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P040",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "flex",
+      "gap": 1
+    },
+    "expected": {
+      "score": 75
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P041",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "flex",
+      "gap": 1.5
+    },
+    "expected": {
+      "score": 55
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P042",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "flex",
+      "gap": 2
+    },
+    "expected": {
+      "score": 35
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P043",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "flex",
+      "gap": 2.0001
+    },
+    "expected": {
+      "score": 0
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P044",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "weight",
+      "gap": 0
+    },
+    "expected": {
+      "score": 100
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P045",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "weight",
+      "gap": 5
+    },
+    "expected": {
+      "score": 85
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P046",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "weight",
+      "gap": 5.001
+    },
+    "expected": {
+      "score": 65
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P047",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "weight",
+      "gap": 10
+    },
+    "expected": {
+      "score": 65
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P048",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "weight",
+      "gap": 15
+    },
+    "expected": {
+      "score": 40
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P049",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "weight",
+      "gap": 15.001
+    },
+    "expected": {
+      "score": 20
+    },
+    "source": "logic §27–34"
+  },
+  {
+    "id": "P050",
+    "stage": "aggregate",
+    "inputs": {
+      "dimensions": [
+        {
+          "weight": 15,
+          "reliability": 1,
+          "score": 100
+        },
+        {
+          "weight": 10,
+          "reliability": 0.85,
+          "score": 60
+        },
+        {
+          "weight": 6,
+          "reliability": 0,
+          "score": 0
+        }
+      ]
+    },
+    "expected": {
+      "score": 85.53191489361703
+    },
+    "source": "logic §26"
+  },
+  {
+    "id": "P051",
+    "stage": "guardrail",
+    "inputs": {
+      "dimension": "flex",
+      "gap": 1.5
+    },
+    "expected": {
+      "suppressed": false,
+      "ceiling": null
+    },
+    "source": "logic §36"
+  },
+  {
+    "id": "P052",
+    "stage": "guardrail",
+    "inputs": {
+      "dimension": "flex",
+      "gap": 1.5001
+    },
+    "expected": {
+      "suppressed": false,
+      "ceiling": "GOOD_MATCH"
+    },
+    "source": "logic §36"
+  },
+  {
+    "id": "P053",
+    "stage": "guardrail",
+    "inputs": {
+      "dimension": "flex",
+      "gap": 2
+    },
+    "expected": {
+      "suppressed": false,
+      "ceiling": "GOOD_MATCH"
+    },
+    "source": "logic §36"
+  },
+  {
+    "id": "P054",
+    "stage": "guardrail",
+    "inputs": {
+      "dimension": "flex",
+      "gap": 2.0001
+    },
+    "expected": {
+      "suppressed": true,
+      "ceiling": null
+    },
+    "source": "logic §36"
+  },
+  {
+    "id": "P055",
+    "stage": "guardrail",
+    "inputs": {
+      "dimension": "loft",
+      "gap": 1.5
+    },
+    "expected": {
+      "suppressed": false,
+      "ceiling": null
+    },
+    "source": "logic §36"
+  },
+  {
+    "id": "P056",
+    "stage": "guardrail",
+    "inputs": {
+      "dimension": "loft",
+      "gap": 1.5001
+    },
+    "expected": {
+      "suppressed": false,
+      "ceiling": "GOOD_MATCH"
+    },
+    "source": "logic §36"
+  },
+  {
+    "id": "P057",
+    "stage": "guardrail",
+    "inputs": {
+      "dimension": "loft",
+      "gap": 2.5
+    },
+    "expected": {
+      "suppressed": false,
+      "ceiling": "GOOD_MATCH"
+    },
+    "source": "logic §36"
+  },
+  {
+    "id": "P058",
+    "stage": "guardrail",
+    "inputs": {
+      "dimension": "loft",
+      "gap": 2.5001
+    },
+    "expected": {
+      "suppressed": true,
+      "ceiling": null
+    },
+    "source": "logic §36"
+  },
+  {
+    "id": "P059",
+    "stage": "guardrail",
+    "inputs": {
+      "dimension": "direction",
+      "gap": 2.9999
+    },
+    "expected": {
+      "suppressed": false,
+      "ceiling": null
+    },
+    "source": "logic §36"
+  },
+  {
+    "id": "P060",
+    "stage": "guardrail",
+    "inputs": {
+      "dimension": "direction",
+      "gap": 3
+    },
+    "expected": {
+      "suppressed": false,
+      "ceiling": "GOOD_MATCH"
+    },
+    "source": "logic §36"
+  },
+  {
+    "id": "P061",
+    "stage": "guardrail",
+    "inputs": {
+      "dimension": "direction",
+      "gap": 3.9999
+    },
+    "expected": {
+      "suppressed": false,
+      "ceiling": "GOOD_MATCH"
+    },
+    "source": "logic §36"
+  },
+  {
+    "id": "P062",
+    "stage": "guardrail",
+    "inputs": {
+      "dimension": "direction",
+      "gap": 4
+    },
+    "expected": {
+      "suppressed": true,
+      "ceiling": null
+    },
+    "source": "logic §36"
+  },
+  {
+    "id": "P063",
+    "stage": "loft",
+    "inputs": {
+      "mode": "NONE",
+      "stated": 10.5
+    },
+    "expected": {
+      "reachable": [
+        10.5
+      ]
+    },
+    "source": "logic §22"
+  },
+  {
+    "id": "P064",
+    "stage": "loft",
+    "inputs": {
+      "mode": "DELTA_RANGE",
+      "stated": 10.5,
+      "min": -1,
+      "max": 1
+    },
+    "expected": {
+      "reachable": [
+        9.5,
+        11.5
+      ]
+    },
+    "source": "logic §22"
+  },
+  {
+    "id": "P065",
+    "stage": "loft",
+    "inputs": {
+      "mode": "PUBLISHED_SETTINGS",
+      "stated": 10.5,
+      "settings": [
+        9,
+        10,
+        12
+      ]
+    },
+    "expected": {
+      "reachable": [
+        9,
+        10,
+        12
+      ]
+    },
+    "source": "logic §22"
+  },
+  {
+    "id": "P066",
+    "stage": "loft",
+    "inputs": {
+      "mode": "PUBLISHED_SETTINGS",
+      "stated": 10.5,
+      "min": 9,
+      "max": 12
+    },
+    "expected": {
+      "reachable": [
+        9,
+        12
+      ]
+    },
+    "source": "logic §22"
+  },
+  {
+    "id": "P067",
+    "stage": "loft",
+    "inputs": {
+      "mode": "FACE_ANGLE_ONLY",
+      "stated": 10.5
+    },
+    "expected": {
+      "reachable": [
+        10.5
+      ]
+    },
+    "source": "logic §22"
+  },
+  {
+    "id": "P068",
+    "stage": "loft",
+    "inputs": {
+      "mode": "LIE_ONLY",
+      "stated": 10.5
+    },
+    "expected": {
+      "reachable": [
+        10.5
+      ]
+    },
+    "source": "logic §22"
+  },
+  {
+    "id": "P069",
+    "stage": "loft",
+    "inputs": {
+      "mode": "UNKNOWN",
+      "stated": 10.5
+    },
+    "expected": {
+      "reachable": [
+        10.5
+      ]
+    },
+    "source": "logic §22"
+  },
+  {
+    "id": "P070",
+    "stage": "marketplace",
+    "inputs": {
+      "name": "7 point inclusive and 10 percent saving",
+      "candidates": [
+        {
+          "listing_id": "a",
+          "score": 90,
+          "price_gbp": 300,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "b",
+          "score": 83,
+          "price_gbp": 270,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ],
+      "budget": null
+    },
+    "expected": {
+      "slots": {
+        "BEST_MATCH": "a",
+        "BEST_VALUE": "b",
+        "BUDGET_OPTION": "b"
+      },
+      "unique_cards": 2
+    },
+    "source": "logic §39"
+  },
+  {
+    "id": "P071",
+    "stage": "marketplace",
+    "inputs": {
+      "name": "7 points exceeded",
+      "candidates": [
+        {
+          "listing_id": "a",
+          "score": 90,
+          "price_gbp": 300,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "b",
+          "score": 82.99,
+          "price_gbp": 200,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ],
+      "budget": null
+    },
+    "expected": {
+      "slots": {
+        "BEST_MATCH": "a",
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": "b"
+      },
+      "unique_cards": 2
+    },
+    "source": "logic §39"
+  },
+  {
+    "id": "P072",
+    "stage": "marketplace",
+    "inputs": {
+      "name": "saving below max threshold",
+      "candidates": [
+        {
+          "listing_id": "a",
+          "score": 90,
+          "price_gbp": 300,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "b",
+          "score": 85,
+          "price_gbp": 280,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ],
+      "budget": null
+    },
+    "expected": {
+      "slots": {
+        "BEST_MATCH": "a",
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": "b"
+      },
+      "unique_cards": 2
+    },
+    "source": "logic §39"
+  },
+  {
+    "id": "P073",
+    "stage": "marketplace",
+    "inputs": {
+      "name": "20 pounds inclusive",
+      "candidates": [
+        {
+          "listing_id": "a",
+          "score": 90,
+          "price_gbp": 150,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "b",
+          "score": 85,
+          "price_gbp": 130,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ],
+      "budget": null
+    },
+    "expected": {
+      "slots": {
+        "BEST_MATCH": "a",
+        "BEST_VALUE": "b",
+        "BUDGET_OPTION": "b"
+      },
+      "unique_cards": 2
+    },
+    "source": "logic §39"
+  },
+  {
+    "id": "P074",
+    "stage": "marketplace",
+    "inputs": {
+      "name": "Good cannot be Best Value",
+      "candidates": [
+        {
+          "listing_id": "a",
+          "score": 80,
+          "price_gbp": 200,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "b",
+          "score": 74.99,
+          "price_gbp": 100,
+          "band": "GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ],
+      "budget": null
+    },
+    "expected": {
+      "slots": {
+        "BEST_MATCH": "a",
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": "b"
+      },
+      "unique_cards": 2
+    },
+    "source": "logic §39"
+  },
+  {
+    "id": "P075",
+    "stage": "marketplace",
+    "inputs": {
+      "name": "above budget Best Match",
+      "candidates": [
+        {
+          "listing_id": "a",
+          "score": 90,
+          "price_gbp": 300,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "b",
+          "score": 85,
+          "price_gbp": 230,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ],
+      "budget": 250
+    },
+    "expected": {
+      "slots": {
+        "BEST_MATCH": "a",
+        "BEST_VALUE": "b",
+        "BUDGET_OPTION": "b"
+      },
+      "unique_cards": 2
+    },
+    "source": "logic §39"
+  },
+  {
+    "id": "P076",
+    "stage": "marketplace",
+    "inputs": {
+      "name": "all over budget",
+      "candidates": [
+        {
+          "listing_id": "a",
+          "score": 90,
+          "price_gbp": 300,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ],
+      "budget": 200
+    },
+    "expected": {
+      "slots": {
+        "BEST_MATCH": "a",
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": null
+      },
+      "unique_cards": 1
+    },
+    "source": "logic §39"
+  },
+  {
+    "id": "P077",
+    "stage": "marketplace",
+    "inputs": {
+      "name": "low confidence excluded from badges",
+      "candidates": [
+        {
+          "listing_id": "a",
+          "score": 95,
+          "price_gbp": 300,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "LOW",
+          "suppressed": false
+        },
+        {
+          "listing_id": "b",
+          "score": 80,
+          "price_gbp": 200,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ],
+      "budget": null
+    },
+    "expected": {
+      "slots": {
+        "BEST_MATCH": "b",
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": "b"
+      },
+      "unique_cards": 1
+    },
+    "source": "logic §39"
+  },
+  {
+    "id": "P078",
+    "stage": "marketplace",
+    "inputs": {
+      "name": "poor fit cannot fill cheap slot",
+      "candidates": [
+        {
+          "listing_id": "a",
+          "score": 64.99,
+          "price_gbp": 10,
+          "band": "DO_NOT_ACTIVELY_RECOMMEND",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ],
+      "budget": null
+    },
+    "expected": {
+      "slots": {
+        "BEST_MATCH": null,
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": null
+      },
+      "unique_cards": 0
+    },
+    "source": "logic §39"
+  },
+  {
+    "id": "P079",
+    "stage": "marketplace",
+    "inputs": {
+      "name": "ceiling beats raw score",
+      "candidates": [
+        {
+          "listing_id": "a",
+          "score": 95,
+          "price_gbp": 200,
+          "band": "GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "b",
+          "score": 85,
+          "price_gbp": 300,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ],
+      "budget": null
+    },
+    "expected": {
+      "slots": {
+        "BEST_MATCH": "b",
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": "a"
+      },
+      "unique_cards": 2
+    },
+    "source": "logic §39"
+  },
+  {
+    "id": "P080",
+    "stage": "marketplace",
+    "inputs": {
+      "name": "suppressed candidate cannot reappear",
+      "candidates": [
+        {
+          "listing_id": "a",
+          "score": 95,
+          "price_gbp": 100,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": true
+        },
+        {
+          "listing_id": "b",
+          "score": 80,
+          "price_gbp": 200,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ],
+      "budget": null
+    },
+    "expected": {
+      "slots": {
+        "BEST_MATCH": "b",
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": "b"
+      },
+      "unique_cards": 1
+    },
+    "source": "logic §39"
+  },
+  {
+    "id": "P081",
+    "stage": "marketplace",
+    "inputs": {
+      "name": "empty inventory",
+      "candidates": [],
+      "budget": 200
+    },
+    "expected": {
+      "slots": {
+        "BEST_MATCH": null,
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": null
+      },
+      "unique_cards": 0
+    },
+    "source": "logic §39"
+  },
+  {
+    "id": "P082",
+    "stage": "eligibility",
+    "inputs": {
+      "category": "DRIVER",
+      "subtype": "STANDARD",
+      "head_version": "DRIVER_V1",
+      "head_eligible": true,
+      "conformity": "UNKNOWN",
+      "head_key_count": 1,
+      "shaft_key_count": 1,
+      "shaft_eligibility": "MATCH_ELIGIBLE",
+      "same_oem_variant": true,
+      "purchasable": true,
+      "handedness_matches": true,
+      "usable_loft": true,
+      "flex_mapping": "MAPPED",
+      "actual_weight_g": 60
+    },
+    "expected": {
+      "eligible": true
+    },
+    "source": "logic §20"
+  },
+  {
+    "id": "P083",
+    "stage": "eligibility",
+    "inputs": {
+      "category": "FAIRWAY",
+      "subtype": "STANDARD",
+      "head_version": "DRIVER_V1",
+      "head_eligible": true,
+      "conformity": "UNKNOWN",
+      "head_key_count": 1,
+      "shaft_key_count": 1,
+      "shaft_eligibility": "MATCH_ELIGIBLE",
+      "same_oem_variant": true,
+      "purchasable": true,
+      "handedness_matches": true,
+      "usable_loft": true,
+      "flex_mapping": "MAPPED",
+      "actual_weight_g": 60
+    },
+    "expected": {
+      "eligible": false
+    },
+    "source": "logic §20"
+  },
+  {
+    "id": "P084",
+    "stage": "eligibility",
+    "inputs": {
+      "category": "DRIVER",
+      "subtype": "MINI",
+      "head_version": "DRIVER_V1",
+      "head_eligible": true,
+      "conformity": "UNKNOWN",
+      "head_key_count": 1,
+      "shaft_key_count": 1,
+      "shaft_eligibility": "MATCH_ELIGIBLE",
+      "same_oem_variant": true,
+      "purchasable": true,
+      "handedness_matches": true,
+      "usable_loft": true,
+      "flex_mapping": "MAPPED",
+      "actual_weight_g": 60
+    },
+    "expected": {
+      "eligible": false
+    },
+    "source": "logic §20"
+  },
+  {
+    "id": "P085",
+    "stage": "eligibility",
+    "inputs": {
+      "category": "DRIVER",
+      "subtype": "STANDARD",
+      "head_version": "DRIVER_V2",
+      "head_eligible": true,
+      "conformity": "UNKNOWN",
+      "head_key_count": 1,
+      "shaft_key_count": 1,
+      "shaft_eligibility": "MATCH_ELIGIBLE",
+      "same_oem_variant": true,
+      "purchasable": true,
+      "handedness_matches": true,
+      "usable_loft": true,
+      "flex_mapping": "MAPPED",
+      "actual_weight_g": 60
+    },
+    "expected": {
+      "eligible": false
+    },
+    "source": "logic §20"
+  },
+  {
+    "id": "P086",
+    "stage": "eligibility",
+    "inputs": {
+      "category": "DRIVER",
+      "subtype": "STANDARD",
+      "head_version": "DRIVER_V1",
+      "head_eligible": false,
+      "conformity": "UNKNOWN",
+      "head_key_count": 1,
+      "shaft_key_count": 1,
+      "shaft_eligibility": "MATCH_ELIGIBLE",
+      "same_oem_variant": true,
+      "purchasable": true,
+      "handedness_matches": true,
+      "usable_loft": true,
+      "flex_mapping": "MAPPED",
+      "actual_weight_g": 60
+    },
+    "expected": {
+      "eligible": false
+    },
+    "source": "logic §20"
+  },
+  {
+    "id": "P087",
+    "stage": "eligibility",
+    "inputs": {
+      "category": "DRIVER",
+      "subtype": "STANDARD",
+      "head_version": "DRIVER_V1",
+      "head_eligible": true,
+      "conformity": "NON_CONFORMING",
+      "head_key_count": 1,
+      "shaft_key_count": 1,
+      "shaft_eligibility": "MATCH_ELIGIBLE",
+      "same_oem_variant": true,
+      "purchasable": true,
+      "handedness_matches": true,
+      "usable_loft": true,
+      "flex_mapping": "MAPPED",
+      "actual_weight_g": 60
+    },
+    "expected": {
+      "eligible": false
+    },
+    "source": "logic §20"
+  },
+  {
+    "id": "P088",
+    "stage": "eligibility",
+    "inputs": {
+      "category": "DRIVER",
+      "subtype": "STANDARD",
+      "head_version": "DRIVER_V1",
+      "head_eligible": true,
+      "conformity": "UNKNOWN",
+      "head_key_count": 0,
+      "shaft_key_count": 1,
+      "shaft_eligibility": "MATCH_ELIGIBLE",
+      "same_oem_variant": true,
+      "purchasable": true,
+      "handedness_matches": true,
+      "usable_loft": true,
+      "flex_mapping": "MAPPED",
+      "actual_weight_g": 60
+    },
+    "expected": {
+      "eligible": false
+    },
+    "source": "logic §20"
+  },
+  {
+    "id": "P089",
+    "stage": "eligibility",
+    "inputs": {
+      "category": "DRIVER",
+      "subtype": "STANDARD",
+      "head_version": "DRIVER_V1",
+      "head_eligible": true,
+      "conformity": "UNKNOWN",
+      "head_key_count": 1,
+      "shaft_key_count": 0,
+      "shaft_eligibility": "MATCH_ELIGIBLE",
+      "same_oem_variant": true,
+      "purchasable": true,
+      "handedness_matches": true,
+      "usable_loft": true,
+      "flex_mapping": "MAPPED",
+      "actual_weight_g": 60
+    },
+    "expected": {
+      "eligible": false
+    },
+    "source": "logic §20"
+  },
+  {
+    "id": "P090",
+    "stage": "eligibility",
+    "inputs": {
+      "category": "DRIVER",
+      "subtype": "STANDARD",
+      "head_version": "DRIVER_V1",
+      "head_eligible": true,
+      "conformity": "UNKNOWN",
+      "head_key_count": 1,
+      "shaft_key_count": 2,
+      "shaft_eligibility": "MATCH_ELIGIBLE",
+      "same_oem_variant": true,
+      "purchasable": true,
+      "handedness_matches": true,
+      "usable_loft": true,
+      "flex_mapping": "MAPPED",
+      "actual_weight_g": 60
+    },
+    "expected": {
+      "eligible": false
+    },
+    "source": "logic §20"
+  },
+  {
+    "id": "P091",
+    "stage": "eligibility",
+    "inputs": {
+      "category": "DRIVER",
+      "subtype": "STANDARD",
+      "head_version": "DRIVER_V1",
+      "head_eligible": true,
+      "conformity": "UNKNOWN",
+      "head_key_count": 1,
+      "shaft_key_count": 1,
+      "shaft_eligibility": "RECOGNITION_ONLY",
+      "same_oem_variant": true,
+      "purchasable": true,
+      "handedness_matches": true,
+      "usable_loft": true,
+      "flex_mapping": "MAPPED",
+      "actual_weight_g": 60
+    },
+    "expected": {
+      "eligible": false
+    },
+    "source": "logic §20"
+  },
+  {
+    "id": "P092",
+    "stage": "eligibility",
+    "inputs": {
+      "category": "DRIVER",
+      "subtype": "STANDARD",
+      "head_version": "DRIVER_V1",
+      "head_eligible": true,
+      "conformity": "UNKNOWN",
+      "head_key_count": 1,
+      "shaft_key_count": 1,
+      "shaft_eligibility": "EXCLUDED_SCOPE",
+      "same_oem_variant": true,
+      "purchasable": true,
+      "handedness_matches": true,
+      "usable_loft": true,
+      "flex_mapping": "MAPPED",
+      "actual_weight_g": 60
+    },
+    "expected": {
+      "eligible": false
+    },
+    "source": "logic §20"
+  },
+  {
+    "id": "P093",
+    "stage": "eligibility",
+    "inputs": {
+      "category": "DRIVER",
+      "subtype": "STANDARD",
+      "head_version": "DRIVER_V1",
+      "head_eligible": true,
+      "conformity": "UNKNOWN",
+      "head_key_count": 1,
+      "shaft_key_count": 1,
+      "shaft_eligibility": "QUARANTINED",
+      "same_oem_variant": true,
+      "purchasable": true,
+      "handedness_matches": true,
+      "usable_loft": true,
+      "flex_mapping": "MAPPED",
+      "actual_weight_g": 60
+    },
+    "expected": {
+      "eligible": false
+    },
+    "source": "logic §20"
+  },
+  {
+    "id": "P094",
+    "stage": "eligibility",
+    "inputs": {
+      "category": "DRIVER",
+      "subtype": "STANDARD",
+      "head_version": "DRIVER_V1",
+      "head_eligible": true,
+      "conformity": "UNKNOWN",
+      "head_key_count": 1,
+      "shaft_key_count": 1,
+      "shaft_eligibility": "MATCH_ELIGIBLE",
+      "same_oem_variant": false,
+      "purchasable": true,
+      "handedness_matches": true,
+      "usable_loft": true,
+      "flex_mapping": "MAPPED",
+      "actual_weight_g": 60
+    },
+    "expected": {
+      "eligible": false
+    },
+    "source": "logic §20"
+  },
+  {
+    "id": "P095",
+    "stage": "eligibility",
+    "inputs": {
+      "category": "DRIVER",
+      "subtype": "STANDARD",
+      "head_version": "DRIVER_V1",
+      "head_eligible": true,
+      "conformity": "UNKNOWN",
+      "head_key_count": 1,
+      "shaft_key_count": 1,
+      "shaft_eligibility": "MATCH_ELIGIBLE",
+      "same_oem_variant": true,
+      "purchasable": false,
+      "handedness_matches": true,
+      "usable_loft": true,
+      "flex_mapping": "MAPPED",
+      "actual_weight_g": 60
+    },
+    "expected": {
+      "eligible": false
+    },
+    "source": "logic §20"
+  },
+  {
+    "id": "P096",
+    "stage": "eligibility",
+    "inputs": {
+      "category": "DRIVER",
+      "subtype": "STANDARD",
+      "head_version": "DRIVER_V1",
+      "head_eligible": true,
+      "conformity": "UNKNOWN",
+      "head_key_count": 1,
+      "shaft_key_count": 1,
+      "shaft_eligibility": "MATCH_ELIGIBLE",
+      "same_oem_variant": true,
+      "purchasable": true,
+      "handedness_matches": false,
+      "usable_loft": true,
+      "flex_mapping": "MAPPED",
+      "actual_weight_g": 60
+    },
+    "expected": {
+      "eligible": false
+    },
+    "source": "logic §20"
+  },
+  {
+    "id": "P097",
+    "stage": "eligibility",
+    "inputs": {
+      "category": "DRIVER",
+      "subtype": "STANDARD",
+      "head_version": "DRIVER_V1",
+      "head_eligible": true,
+      "conformity": "UNKNOWN",
+      "head_key_count": 1,
+      "shaft_key_count": 1,
+      "shaft_eligibility": "MATCH_ELIGIBLE",
+      "same_oem_variant": true,
+      "purchasable": true,
+      "handedness_matches": true,
+      "usable_loft": false,
+      "flex_mapping": "MAPPED",
+      "actual_weight_g": 60
+    },
+    "expected": {
+      "eligible": false
+    },
+    "source": "logic §20"
+  },
+  {
+    "id": "P098",
+    "stage": "eligibility",
+    "inputs": {
+      "category": "DRIVER",
+      "subtype": "STANDARD",
+      "head_version": "DRIVER_V1",
+      "head_eligible": true,
+      "conformity": "UNKNOWN",
+      "head_key_count": 1,
+      "shaft_key_count": 1,
+      "shaft_eligibility": "MATCH_ELIGIBLE",
+      "same_oem_variant": true,
+      "purchasable": true,
+      "handedness_matches": true,
+      "usable_loft": true,
+      "flex_mapping": "UNMAPPED_TO_NORMALISED_FLEX",
+      "actual_weight_g": null
+    },
+    "expected": {
+      "eligible": true
+    },
+    "source": "logic §20"
+  },
+  {
+    "id": "P099",
+    "stage": "parse_number",
+    "inputs": {
+      "raw": ""
+    },
+    "expected": {
+      "value": null,
+      "diagnostic": false
+    },
+    "source": "logic §contract §8"
+  },
+  {
+    "id": "P100",
+    "stage": "parse_number",
+    "inputs": {
+      "raw": "not-a-number"
+    },
+    "expected": {
+      "value": null,
+      "diagnostic": true
+    },
+    "source": "logic §contract §8"
+  },
+  {
+    "id": "P101",
+    "stage": "parse_number",
+    "inputs": {
+      "raw": "49"
+    },
+    "expected": {
+      "value": 49,
+      "diagnostic": false
+    },
+    "source": "logic §contract §8"
+  },
+  {
+    "id": "P102",
+    "stage": "brand_marketplace",
+    "inputs": {
+      "name": "Missing selection means all brands",
+      "selected_brand_ids": null,
+      "known_brand_ids": [
+        "adams",
+        "ping",
+        "taylormade",
+        "callaway",
+        "benross"
+      ],
+      "candidates": [
+        {
+          "listing_id": "a",
+          "head_brand_id": "adams",
+          "score": 92,
+          "price_gbp": 180,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "p",
+          "head_brand_id": "ping",
+          "score": 90,
+          "price_gbp": 300,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "t",
+          "head_brand_id": "taylormade",
+          "score": 86,
+          "price_gbp": 260,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "c",
+          "head_brand_id": "callaway",
+          "score": 78,
+          "price_gbp": 160,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        }
+      ],
+      "budget": 300
+    },
+    "expected": {
+      "selected_brand_ids": [],
+      "scope": "ALL_BRANDS",
+      "slots": {
+        "BEST_MATCH": "a",
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": "c"
+      },
+      "unique_cards": 2,
+      "state": "RESULTS",
+      "show_all_brands_action": false,
+      "fit_snapshot": [
+        {
+          "listing_id": "a",
+          "score": 92,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "c",
+          "score": 78,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "p",
+          "score": 90,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "t",
+          "score": 86,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ]
+    },
+    "source": "BRAND_FILTER_V1.md / MATCH_MARKETPLACE_BRAND_FILTER_V1"
+  },
+  {
+    "id": "P103",
+    "stage": "brand_marketplace",
+    "inputs": {
+      "name": "Empty selection means all brands",
+      "selected_brand_ids": [],
+      "known_brand_ids": [
+        "adams",
+        "ping",
+        "taylormade",
+        "callaway",
+        "benross"
+      ],
+      "candidates": [
+        {
+          "listing_id": "a",
+          "head_brand_id": "adams",
+          "score": 92,
+          "price_gbp": 180,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "p",
+          "head_brand_id": "ping",
+          "score": 90,
+          "price_gbp": 300,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "t",
+          "head_brand_id": "taylormade",
+          "score": 86,
+          "price_gbp": 260,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "c",
+          "head_brand_id": "callaway",
+          "score": 78,
+          "price_gbp": 160,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        }
+      ],
+      "budget": 300
+    },
+    "expected": {
+      "selected_brand_ids": [],
+      "scope": "ALL_BRANDS",
+      "slots": {
+        "BEST_MATCH": "a",
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": "c"
+      },
+      "unique_cards": 2,
+      "state": "RESULTS",
+      "show_all_brands_action": false,
+      "fit_snapshot": [
+        {
+          "listing_id": "a",
+          "score": 92,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "c",
+          "score": 78,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "p",
+          "score": 90,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "t",
+          "score": 86,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ]
+    },
+    "source": "BRAND_FILTER_V1.md / MATCH_MARKETPLACE_BRAND_FILTER_V1"
+  },
+  {
+    "id": "P104",
+    "stage": "brand_marketplace",
+    "inputs": {
+      "name": "Single brand",
+      "selected_brand_ids": [
+        "ping"
+      ],
+      "known_brand_ids": [
+        "adams",
+        "ping",
+        "taylormade",
+        "callaway",
+        "benross"
+      ],
+      "candidates": [
+        {
+          "listing_id": "a",
+          "head_brand_id": "adams",
+          "score": 92,
+          "price_gbp": 180,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "p",
+          "head_brand_id": "ping",
+          "score": 90,
+          "price_gbp": 300,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "t",
+          "head_brand_id": "taylormade",
+          "score": 86,
+          "price_gbp": 260,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "c",
+          "head_brand_id": "callaway",
+          "score": 78,
+          "price_gbp": 160,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        }
+      ],
+      "budget": 300
+    },
+    "expected": {
+      "selected_brand_ids": [
+        "ping"
+      ],
+      "scope": "SELECTED_BRANDS",
+      "slots": {
+        "BEST_MATCH": "p",
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": "p"
+      },
+      "unique_cards": 1,
+      "state": "RESULTS",
+      "show_all_brands_action": false,
+      "fit_snapshot": [
+        {
+          "listing_id": "a",
+          "score": 92,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "c",
+          "score": 78,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "p",
+          "score": 90,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "t",
+          "score": 86,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ]
+    },
+    "source": "BRAND_FILTER_V1.md / MATCH_MARKETPLACE_BRAND_FILTER_V1"
+  },
+  {
+    "id": "P105",
+    "stage": "brand_marketplace",
+    "inputs": {
+      "name": "Multiple brands use OR and scoped value comparator",
+      "selected_brand_ids": [
+        "ping",
+        "taylormade"
+      ],
+      "known_brand_ids": [
+        "adams",
+        "ping",
+        "taylormade",
+        "callaway",
+        "benross"
+      ],
+      "candidates": [
+        {
+          "listing_id": "a",
+          "head_brand_id": "adams",
+          "score": 92,
+          "price_gbp": 180,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "p",
+          "head_brand_id": "ping",
+          "score": 90,
+          "price_gbp": 300,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "t",
+          "head_brand_id": "taylormade",
+          "score": 86,
+          "price_gbp": 260,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "c",
+          "head_brand_id": "callaway",
+          "score": 78,
+          "price_gbp": 160,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        }
+      ],
+      "budget": 300
+    },
+    "expected": {
+      "selected_brand_ids": [
+        "ping",
+        "taylormade"
+      ],
+      "scope": "SELECTED_BRANDS",
+      "slots": {
+        "BEST_MATCH": "p",
+        "BEST_VALUE": "t",
+        "BUDGET_OPTION": "t"
+      },
+      "unique_cards": 2,
+      "state": "RESULTS",
+      "show_all_brands_action": false,
+      "fit_snapshot": [
+        {
+          "listing_id": "a",
+          "score": 92,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "c",
+          "score": 78,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "p",
+          "score": 90,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "t",
+          "score": 86,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ]
+    },
+    "source": "BRAND_FILTER_V1.md / MATCH_MARKETPLACE_BRAND_FILTER_V1"
+  },
+  {
+    "id": "P106",
+    "stage": "brand_marketplace",
+    "inputs": {
+      "name": "No selected brand stock",
+      "selected_brand_ids": [
+        "benross"
+      ],
+      "known_brand_ids": [
+        "adams",
+        "ping",
+        "taylormade",
+        "callaway",
+        "benross"
+      ],
+      "candidates": [
+        {
+          "listing_id": "a",
+          "head_brand_id": "adams",
+          "score": 92,
+          "price_gbp": 180,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "p",
+          "head_brand_id": "ping",
+          "score": 90,
+          "price_gbp": 300,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "t",
+          "head_brand_id": "taylormade",
+          "score": 86,
+          "price_gbp": 260,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "c",
+          "head_brand_id": "callaway",
+          "score": 78,
+          "price_gbp": 160,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        }
+      ],
+      "budget": 300
+    },
+    "expected": {
+      "selected_brand_ids": [
+        "benross"
+      ],
+      "scope": "SELECTED_BRANDS",
+      "slots": {
+        "BEST_MATCH": null,
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": null
+      },
+      "unique_cards": 0,
+      "state": "NO_QUALIFYING_IN_SELECTED_BRANDS",
+      "show_all_brands_action": true,
+      "fit_snapshot": [
+        {
+          "listing_id": "a",
+          "score": 92,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "c",
+          "score": 78,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "p",
+          "score": 90,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "t",
+          "score": 86,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ]
+    },
+    "source": "BRAND_FILTER_V1.md / MATCH_MARKETPLACE_BRAND_FILTER_V1"
+  },
+  {
+    "id": "P107",
+    "stage": "brand_marketplace",
+    "inputs": {
+      "name": "Selected brand below fit threshold",
+      "selected_brand_ids": [
+        "ping"
+      ],
+      "known_brand_ids": [
+        "adams",
+        "ping",
+        "taylormade",
+        "callaway",
+        "benross"
+      ],
+      "candidates": [
+        {
+          "listing_id": "p",
+          "head_brand_id": "ping",
+          "score": 64,
+          "price_gbp": 100,
+          "band": "DO_NOT_ACTIVELY_RECOMMEND",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "a",
+          "head_brand_id": "adams",
+          "score": 92,
+          "price_gbp": 180,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        }
+      ],
+      "budget": 300
+    },
+    "expected": {
+      "selected_brand_ids": [
+        "ping"
+      ],
+      "scope": "SELECTED_BRANDS",
+      "slots": {
+        "BEST_MATCH": null,
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": null
+      },
+      "unique_cards": 0,
+      "state": "NO_QUALIFYING_IN_SELECTED_BRANDS",
+      "show_all_brands_action": true,
+      "fit_snapshot": [
+        {
+          "listing_id": "a",
+          "score": 92,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "p",
+          "score": 64,
+          "band": "DO_NOT_ACTIVELY_RECOMMEND",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ]
+    },
+    "source": "BRAND_FILTER_V1.md / MATCH_MARKETPLACE_BRAND_FILTER_V1"
+  },
+  {
+    "id": "P108",
+    "stage": "brand_marketplace",
+    "inputs": {
+      "name": "Selected brand LOW confidence",
+      "selected_brand_ids": [
+        "ping"
+      ],
+      "known_brand_ids": [
+        "adams",
+        "ping",
+        "taylormade",
+        "callaway",
+        "benross"
+      ],
+      "candidates": [
+        {
+          "listing_id": "p",
+          "head_brand_id": "ping",
+          "score": 95,
+          "price_gbp": 100,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "LOW",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "a",
+          "head_brand_id": "adams",
+          "score": 92,
+          "price_gbp": 180,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        }
+      ],
+      "budget": 300
+    },
+    "expected": {
+      "selected_brand_ids": [
+        "ping"
+      ],
+      "scope": "SELECTED_BRANDS",
+      "slots": {
+        "BEST_MATCH": null,
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": null
+      },
+      "unique_cards": 0,
+      "state": "NO_QUALIFYING_IN_SELECTED_BRANDS",
+      "show_all_brands_action": true,
+      "fit_snapshot": [
+        {
+          "listing_id": "a",
+          "score": 92,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "p",
+          "score": 95,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "LOW",
+          "suppressed": false
+        }
+      ]
+    },
+    "source": "BRAND_FILTER_V1.md / MATCH_MARKETPLACE_BRAND_FILTER_V1"
+  },
+  {
+    "id": "P109",
+    "stage": "brand_marketplace",
+    "inputs": {
+      "name": "Selected brand suppressed",
+      "selected_brand_ids": [
+        "ping"
+      ],
+      "known_brand_ids": [
+        "adams",
+        "ping",
+        "taylormade",
+        "callaway",
+        "benross"
+      ],
+      "candidates": [
+        {
+          "listing_id": "p",
+          "head_brand_id": "ping",
+          "score": 95,
+          "price_gbp": 100,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": true,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "a",
+          "head_brand_id": "adams",
+          "score": 92,
+          "price_gbp": 180,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        }
+      ],
+      "budget": 300
+    },
+    "expected": {
+      "selected_brand_ids": [
+        "ping"
+      ],
+      "scope": "SELECTED_BRANDS",
+      "slots": {
+        "BEST_MATCH": null,
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": null
+      },
+      "unique_cards": 0,
+      "state": "NO_QUALIFYING_IN_SELECTED_BRANDS",
+      "show_all_brands_action": true,
+      "fit_snapshot": [
+        {
+          "listing_id": "a",
+          "score": 92,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "p",
+          "score": 95,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": true
+        }
+      ]
+    },
+    "source": "BRAND_FILTER_V1.md / MATCH_MARKETPLACE_BRAND_FILTER_V1"
+  },
+  {
+    "id": "P110",
+    "stage": "brand_marketplace",
+    "inputs": {
+      "name": "Selected brand sold or hidden",
+      "selected_brand_ids": [
+        "ping"
+      ],
+      "known_brand_ids": [
+        "adams",
+        "ping",
+        "taylormade",
+        "callaway",
+        "benross"
+      ],
+      "candidates": [
+        {
+          "listing_id": "p",
+          "head_brand_id": "ping",
+          "score": 95,
+          "price_gbp": 100,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": false
+        },
+        {
+          "listing_id": "a",
+          "head_brand_id": "adams",
+          "score": 92,
+          "price_gbp": 180,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        }
+      ],
+      "budget": 300
+    },
+    "expected": {
+      "selected_brand_ids": [
+        "ping"
+      ],
+      "scope": "SELECTED_BRANDS",
+      "slots": {
+        "BEST_MATCH": null,
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": null
+      },
+      "unique_cards": 0,
+      "state": "NO_QUALIFYING_IN_SELECTED_BRANDS",
+      "show_all_brands_action": true,
+      "fit_snapshot": [
+        {
+          "listing_id": "a",
+          "score": 92,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "p",
+          "score": 95,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ]
+    },
+    "source": "BRAND_FILTER_V1.md / MATCH_MARKETPLACE_BRAND_FILTER_V1"
+  },
+  {
+    "id": "P111",
+    "stage": "brand_marketplace",
+    "inputs": {
+      "name": "Budget applies inside selected brands",
+      "selected_brand_ids": [
+        "ping",
+        "taylormade"
+      ],
+      "known_brand_ids": [
+        "adams",
+        "ping",
+        "taylormade",
+        "callaway",
+        "benross"
+      ],
+      "candidates": [
+        {
+          "listing_id": "a",
+          "head_brand_id": "adams",
+          "score": 92,
+          "price_gbp": 180,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "p",
+          "head_brand_id": "ping",
+          "score": 90,
+          "price_gbp": 300,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "t",
+          "head_brand_id": "taylormade",
+          "score": 86,
+          "price_gbp": 260,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "c",
+          "head_brand_id": "callaway",
+          "score": 78,
+          "price_gbp": 160,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        }
+      ],
+      "budget": 100
+    },
+    "expected": {
+      "selected_brand_ids": [
+        "ping",
+        "taylormade"
+      ],
+      "scope": "SELECTED_BRANDS",
+      "slots": {
+        "BEST_MATCH": "p",
+        "BEST_VALUE": "t",
+        "BUDGET_OPTION": null
+      },
+      "unique_cards": 2,
+      "state": "RESULTS",
+      "show_all_brands_action": false,
+      "fit_snapshot": [
+        {
+          "listing_id": "a",
+          "score": 92,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "c",
+          "score": 78,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "p",
+          "score": 90,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "t",
+          "score": 86,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ]
+    },
+    "source": "BRAND_FILTER_V1.md / MATCH_MARKETPLACE_BRAND_FILTER_V1"
+  },
+  {
+    "id": "P112",
+    "stage": "brand_marketplace",
+    "inputs": {
+      "name": "Clearing filter restores all-brand scope",
+      "selected_brand_ids": [],
+      "known_brand_ids": [
+        "adams",
+        "ping",
+        "taylormade",
+        "callaway",
+        "benross"
+      ],
+      "candidates": [
+        {
+          "listing_id": "a",
+          "head_brand_id": "adams",
+          "score": 92,
+          "price_gbp": 180,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "p",
+          "head_brand_id": "ping",
+          "score": 90,
+          "price_gbp": 300,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "t",
+          "head_brand_id": "taylormade",
+          "score": 86,
+          "price_gbp": 260,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "c",
+          "head_brand_id": "callaway",
+          "score": 78,
+          "price_gbp": 160,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        }
+      ],
+      "budget": 300
+    },
+    "expected": {
+      "selected_brand_ids": [],
+      "scope": "ALL_BRANDS",
+      "slots": {
+        "BEST_MATCH": "a",
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": "c"
+      },
+      "unique_cards": 2,
+      "state": "RESULTS",
+      "show_all_brands_action": false,
+      "fit_snapshot": [
+        {
+          "listing_id": "a",
+          "score": 92,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "c",
+          "score": 78,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "p",
+          "score": 90,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "t",
+          "score": 86,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ]
+    },
+    "source": "BRAND_FILTER_V1.md / MATCH_MARKETPLACE_BRAND_FILTER_V1"
+  },
+  {
+    "id": "P113",
+    "stage": "brand_marketplace",
+    "inputs": {
+      "name": "Candidate permutation leaves non-tied outcome unchanged",
+      "selected_brand_ids": [
+        "taylormade",
+        "ping"
+      ],
+      "known_brand_ids": [
+        "adams",
+        "ping",
+        "taylormade",
+        "callaway",
+        "benross"
+      ],
+      "candidates": [
+        {
+          "listing_id": "c",
+          "head_brand_id": "callaway",
+          "score": 78,
+          "price_gbp": 160,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "t",
+          "head_brand_id": "taylormade",
+          "score": 86,
+          "price_gbp": 260,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "p",
+          "head_brand_id": "ping",
+          "score": 90,
+          "price_gbp": 300,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "a",
+          "head_brand_id": "adams",
+          "score": 92,
+          "price_gbp": 180,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        }
+      ],
+      "budget": 300
+    },
+    "expected": {
+      "selected_brand_ids": [
+        "ping",
+        "taylormade"
+      ],
+      "scope": "SELECTED_BRANDS",
+      "slots": {
+        "BEST_MATCH": "p",
+        "BEST_VALUE": "t",
+        "BUDGET_OPTION": "t"
+      },
+      "unique_cards": 2,
+      "state": "RESULTS",
+      "show_all_brands_action": false,
+      "fit_snapshot": [
+        {
+          "listing_id": "a",
+          "score": 92,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "c",
+          "score": 78,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "p",
+          "score": 90,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "t",
+          "score": 86,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ]
+    },
+    "source": "BRAND_FILTER_V1.md / MATCH_MARKETPLACE_BRAND_FILTER_V1"
+  },
+  {
+    "id": "P114",
+    "stage": "brand_marketplace",
+    "inputs": {
+      "name": "Duplicate selection normalizes",
+      "selected_brand_ids": [
+        "ping",
+        "ping"
+      ],
+      "known_brand_ids": [
+        "adams",
+        "ping",
+        "taylormade",
+        "callaway",
+        "benross"
+      ],
+      "candidates": [
+        {
+          "listing_id": "a",
+          "head_brand_id": "adams",
+          "score": 92,
+          "price_gbp": 180,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "p",
+          "head_brand_id": "ping",
+          "score": 90,
+          "price_gbp": 300,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "t",
+          "head_brand_id": "taylormade",
+          "score": 86,
+          "price_gbp": 260,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "c",
+          "head_brand_id": "callaway",
+          "score": 78,
+          "price_gbp": 160,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        }
+      ],
+      "budget": 300
+    },
+    "expected": {
+      "selected_brand_ids": [
+        "ping"
+      ],
+      "scope": "SELECTED_BRANDS",
+      "slots": {
+        "BEST_MATCH": "p",
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": "p"
+      },
+      "unique_cards": 1,
+      "state": "RESULTS",
+      "show_all_brands_action": false,
+      "fit_snapshot": [
+        {
+          "listing_id": "a",
+          "score": 92,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "c",
+          "score": 78,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "p",
+          "score": 90,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        },
+        {
+          "listing_id": "t",
+          "score": 86,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false
+        }
+      ]
+    },
+    "source": "BRAND_FILTER_V1.md / MATCH_MARKETPLACE_BRAND_FILTER_V1"
+  },
+  {
+    "id": "P115",
+    "stage": "brand_marketplace",
+    "inputs": {
+      "name": "No inventory with all brands",
+      "selected_brand_ids": [],
+      "known_brand_ids": [
+        "adams",
+        "ping",
+        "taylormade",
+        "callaway",
+        "benross"
+      ],
+      "candidates": [],
+      "budget": 300
+    },
+    "expected": {
+      "selected_brand_ids": [],
+      "scope": "ALL_BRANDS",
+      "slots": {
+        "BEST_MATCH": null,
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": null
+      },
+      "unique_cards": 0,
+      "state": "NO_QUALIFYING_INVENTORY",
+      "show_all_brands_action": false,
+      "fit_snapshot": []
+    },
+    "source": "BRAND_FILTER_V1.md / MATCH_MARKETPLACE_BRAND_FILTER_V1"
+  },
+  {
+    "id": "P116",
+    "stage": "brand_marketplace",
+    "inputs": {
+      "name": "No inventory with brand selection",
+      "selected_brand_ids": [
+        "ping"
+      ],
+      "known_brand_ids": [
+        "adams",
+        "ping",
+        "taylormade",
+        "callaway",
+        "benross"
+      ],
+      "candidates": [],
+      "budget": 300
+    },
+    "expected": {
+      "selected_brand_ids": [
+        "ping"
+      ],
+      "scope": "SELECTED_BRANDS",
+      "slots": {
+        "BEST_MATCH": null,
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": null
+      },
+      "unique_cards": 0,
+      "state": "NO_QUALIFYING_IN_SELECTED_BRANDS",
+      "show_all_brands_action": true,
+      "fit_snapshot": []
+    },
+    "source": "BRAND_FILTER_V1.md / MATCH_MARKETPLACE_BRAND_FILTER_V1"
+  },
+  {
+    "id": "P117",
+    "stage": "brand_marketplace",
+    "inputs": {
+      "name": "Unknown brand does not silently broaden selection",
+      "selected_brand_ids": [
+        "not-a-brand"
+      ],
+      "known_brand_ids": [
+        "adams",
+        "ping",
+        "taylormade",
+        "callaway",
+        "benross"
+      ],
+      "candidates": [
+        {
+          "listing_id": "a",
+          "head_brand_id": "adams",
+          "score": 92,
+          "price_gbp": 180,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "p",
+          "head_brand_id": "ping",
+          "score": 90,
+          "price_gbp": 300,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "t",
+          "head_brand_id": "taylormade",
+          "score": 86,
+          "price_gbp": 260,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        },
+        {
+          "listing_id": "c",
+          "head_brand_id": "callaway",
+          "score": 78,
+          "price_gbp": 160,
+          "band": "VERY_GOOD_MATCH",
+          "confidence": "HIGH",
+          "suppressed": false,
+          "publicly_purchasable": true
+        }
+      ],
+      "budget": 300
+    },
+    "expected": {
+      "error": "INVALID_BRAND_SELECTION"
+    },
+    "source": "BRAND_FILTER_V1.md / MATCH_MARKETPLACE_BRAND_FILTER_V1"
+  },
+  {
+    "id": "P118",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "minimum",
+      "gap": 0.25
+    },
+    "expected": {
+      "score": 95
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P119",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "minimum",
+      "gap": 0.75
+    },
+    "expected": {
+      "score": 85
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P120",
+    "stage": "dimension",
+    "inputs": {
+      "dimension": "minimum",
+      "gap": 1.25
+    },
+    "expected": {
+      "score": 73.75
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P121",
+    "stage": "target_category",
+    "inputs": {
+      "value": null
+    },
+    "expected": {
+      "launch": "UNRESOLVED",
+      "direction": "UNRESOLVED"
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P122",
+    "stage": "target_category",
+    "inputs": {
+      "value": -2
+    },
+    "expected": {
+      "launch": "LOW",
+      "direction": "STRONG_FADE_ASSIST"
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P123",
+    "stage": "target_category",
+    "inputs": {
+      "value": -1.5
+    },
+    "expected": {
+      "launch": "LOW",
+      "direction": "STRONG_FADE_ASSIST"
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P124",
+    "stage": "target_category",
+    "inputs": {
+      "value": -1.4999
+    },
+    "expected": {
+      "launch": "MID_LOW",
+      "direction": "FADE_ASSIST"
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P125",
+    "stage": "target_category",
+    "inputs": {
+      "value": -0.5
+    },
+    "expected": {
+      "launch": "MID_LOW",
+      "direction": "FADE_ASSIST"
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P126",
+    "stage": "target_category",
+    "inputs": {
+      "value": -0.4999
+    },
+    "expected": {
+      "launch": "MID",
+      "direction": "NEUTRAL"
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P127",
+    "stage": "target_category",
+    "inputs": {
+      "value": 0
+    },
+    "expected": {
+      "launch": "MID",
+      "direction": "NEUTRAL"
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P128",
+    "stage": "target_category",
+    "inputs": {
+      "value": 0.4999
+    },
+    "expected": {
+      "launch": "MID",
+      "direction": "NEUTRAL"
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P129",
+    "stage": "target_category",
+    "inputs": {
+      "value": 0.5
+    },
+    "expected": {
+      "launch": "MID_HIGH",
+      "direction": "DRAW_ASSIST"
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P130",
+    "stage": "target_category",
+    "inputs": {
+      "value": 1.005
+    },
+    "expected": {
+      "launch": "MID_HIGH",
+      "direction": "DRAW_ASSIST"
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P131",
+    "stage": "target_category",
+    "inputs": {
+      "value": 1.4999
+    },
+    "expected": {
+      "launch": "MID_HIGH",
+      "direction": "DRAW_ASSIST"
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P132",
+    "stage": "target_category",
+    "inputs": {
+      "value": 1.5
+    },
+    "expected": {
+      "launch": "HIGH",
+      "direction": "STRONG_DRAW_ASSIST"
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P133",
+    "stage": "target_category",
+    "inputs": {
+      "value": 2
+    },
+    "expected": {
+      "launch": "HIGH",
+      "direction": "STRONG_DRAW_ASSIST"
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P134",
+    "stage": "speed_region",
+    "inputs": {
+      "speed": 79.999
+    },
+    "expected": {
+      "flex": [
+        0,
+        2
+      ],
+      "weight": [
+        40,
+        55
+      ],
+      "loft": [
+        10.5,
+        12.5
+      ]
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P135",
+    "stage": "speed_region",
+    "inputs": {
+      "speed": 80
+    },
+    "expected": {
+      "flex": [
+        1,
+        2.5
+      ],
+      "weight": [
+        45,
+        60
+      ],
+      "loft": [
+        10,
+        12
+      ]
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P136",
+    "stage": "speed_region",
+    "inputs": {
+      "speed": 89.999
+    },
+    "expected": {
+      "flex": [
+        1,
+        2.5
+      ],
+      "weight": [
+        45,
+        60
+      ],
+      "loft": [
+        10,
+        12
+      ]
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P137",
+    "stage": "speed_region",
+    "inputs": {
+      "speed": 90
+    },
+    "expected": {
+      "flex": [
+        2,
+        3
+      ],
+      "weight": [
+        50,
+        65
+      ],
+      "loft": [
+        9,
+        11.5
+      ]
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P138",
+    "stage": "speed_region",
+    "inputs": {
+      "speed": 99.999
+    },
+    "expected": {
+      "flex": [
+        2,
+        3
+      ],
+      "weight": [
+        50,
+        65
+      ],
+      "loft": [
+        9,
+        11.5
+      ]
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P139",
+    "stage": "speed_region",
+    "inputs": {
+      "speed": 100
+    },
+    "expected": {
+      "flex": [
+        2.5,
+        4
+      ],
+      "weight": [
+        55,
+        70
+      ],
+      "loft": [
+        8.5,
+        10.5
+      ]
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P140",
+    "stage": "speed_region",
+    "inputs": {
+      "speed": 109.999
+    },
+    "expected": {
+      "flex": [
+        2.5,
+        4
+      ],
+      "weight": [
+        55,
+        70
+      ],
+      "loft": [
+        8.5,
+        10.5
+      ]
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P141",
+    "stage": "speed_region",
+    "inputs": {
+      "speed": 110
+    },
+    "expected": {
+      "flex": [
+        3,
+        5
+      ],
+      "weight": [
+        60,
+        75
+      ],
+      "loft": [
+        8,
+        10.5
+      ]
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P142",
+    "stage": "carry_region",
+    "inputs": {
+      "carry": 179.999
+    },
+    "expected": {
+      "flex": [
+        0,
+        2
+      ],
+      "weight": null,
+      "loft": null
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P143",
+    "stage": "carry_region",
+    "inputs": {
+      "carry": 180
+    },
+    "expected": {
+      "flex": [
+        2,
+        2
+      ],
+      "weight": null,
+      "loft": null
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P144",
+    "stage": "carry_region",
+    "inputs": {
+      "carry": 199.999
+    },
+    "expected": {
+      "flex": [
+        2,
+        2
+      ],
+      "weight": null,
+      "loft": null
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P145",
+    "stage": "carry_region",
+    "inputs": {
+      "carry": 200
+    },
+    "expected": {
+      "flex": [
+        2,
+        2
+      ],
+      "weight": null,
+      "loft": null
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P146",
+    "stage": "carry_region",
+    "inputs": {
+      "carry": 219.999
+    },
+    "expected": {
+      "flex": [
+        2,
+        2
+      ],
+      "weight": null,
+      "loft": null
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P147",
+    "stage": "carry_region",
+    "inputs": {
+      "carry": 220
+    },
+    "expected": {
+      "flex": [
+        2,
+        3
+      ],
+      "weight": null,
+      "loft": null
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P148",
+    "stage": "carry_region",
+    "inputs": {
+      "carry": 259.999
+    },
+    "expected": {
+      "flex": [
+        2,
+        3
+      ],
+      "weight": null,
+      "loft": null
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P149",
+    "stage": "carry_region",
+    "inputs": {
+      "carry": 260
+    },
+    "expected": {
+      "flex": [
+        3,
+        3
+      ],
+      "weight": null,
+      "loft": null
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P150",
+    "stage": "carry_region",
+    "inputs": {
+      "carry": 279.999
+    },
+    "expected": {
+      "flex": [
+        3,
+        3
+      ],
+      "weight": null,
+      "loft": null
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P151",
+    "stage": "carry_region",
+    "inputs": {
+      "carry": 280
+    },
+    "expected": {
+      "flex": [
+        3,
+        4
+      ],
+      "weight": null,
+      "loft": null
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P152",
+    "stage": "requirements",
+    "inputs": {
+      "raw_inputs": {
+        "handedness": "RIGHT",
+        "handicap": 10,
+        "club_speed_mph": null,
+        "ball_speed_mph": null,
+        "launch_angle_deg": null,
+        "spin_rate_rpm": null,
+        "attack_angle_deg": null,
+        "carry_distance_yards": null,
+        "typical_trajectory": "MID",
+        "typical_start_direction": "CENTRE",
+        "typical_curvature": "STRAIGHT",
+        "miss_severity": "MODERATE",
+        "strike_pattern": "CENTRE",
+        "strike_consistency": "MEDIUM",
+        "current_driver_key": "adams|blue|2015",
+        "current_loft_deg": 10.5,
+        "current_shaft_key": null,
+        "current_flex_raw": null,
+        "current_club_satisfaction": "HIGH",
+        "primary_objective": "DISTANCE",
+        "budget_max_gbp": 250,
+        "input_source": "QUESTIONNAIRE",
+        "input_confidence": "HIGH"
+      }
+    },
+    "expected": {
+      "normalised_requirements": {
+        "handedness": "RIGHT",
+        "recommendation_intent": "PRESERVE",
+        "head_launch_target": "MID",
+        "head_launch_target_numeric": 0,
+        "head_spin_target": "UNRESOLVED",
+        "forgiveness_requirement": 3,
+        "stability_requirement": 3,
+        "directional_target_numeric": 0.0,
+        "directional_requirement": "NEUTRAL",
+        "workability_preference": 2,
+        "driver_subtype_allowed": "STANDARD",
+        "preferred_loft_min_deg": 9.5,
+        "preferred_loft_max_deg": 11.5,
+        "shaft_weight_min_g": null,
+        "shaft_weight_max_g": null,
+        "shaft_flex_min_value": null,
+        "shaft_flex_max_value": null,
+        "shaft_launch_target": "MID",
+        "shaft_launch_target_numeric": 0.0,
+        "shaft_spin_target": "UNRESOLVED",
+        "shaft_torque_target_deg": null,
+        "conflict_flags": [],
+        "requirement_confidence": {
+          "forgiveness": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "stability": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "direction": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BALL_FLIGHT"
+            ],
+            "conflict_codes": []
+          },
+          "head_launch": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "TRAJECTORY"
+            ],
+            "conflict_codes": []
+          },
+          "head_spin": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          },
+          "workability": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "loft": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "CURRENT_LOFT"
+            ],
+            "conflict_codes": []
+          },
+          "flex": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          },
+          "weight": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          },
+          "shaft_launch": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "TRAJECTORY"
+            ],
+            "conflict_codes": []
+          },
+          "shaft_spin": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          }
+        }
+      }
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P153",
+    "stage": "requirements",
+    "inputs": {
+      "raw_inputs": {
+        "handedness": "RIGHT",
+        "handicap": 10,
+        "club_speed_mph": null,
+        "ball_speed_mph": null,
+        "launch_angle_deg": null,
+        "spin_rate_rpm": null,
+        "attack_angle_deg": null,
+        "carry_distance_yards": null,
+        "typical_trajectory": "MID",
+        "typical_start_direction": "CENTRE",
+        "typical_curvature": "STRAIGHT",
+        "miss_severity": "MODERATE",
+        "strike_pattern": "CENTRE",
+        "strike_consistency": "MEDIUM",
+        "current_driver_key": "adams|blue|2015",
+        "current_loft_deg": 10.5,
+        "current_shaft_key": null,
+        "current_flex_raw": null,
+        "current_club_satisfaction": "HIGH",
+        "primary_objective": "HIGHER_FLIGHT",
+        "budget_max_gbp": 250,
+        "input_source": "QUESTIONNAIRE",
+        "input_confidence": "HIGH"
+      }
+    },
+    "expected": {
+      "normalised_requirements": {
+        "handedness": "RIGHT",
+        "recommendation_intent": "PRESERVE",
+        "head_launch_target": "HIGH",
+        "head_launch_target_numeric": 1.5,
+        "head_spin_target": "UNRESOLVED",
+        "forgiveness_requirement": 3,
+        "stability_requirement": 3,
+        "directional_target_numeric": 0.0,
+        "directional_requirement": "NEUTRAL",
+        "workability_preference": 2,
+        "driver_subtype_allowed": "STANDARD",
+        "preferred_loft_min_deg": 10.0,
+        "preferred_loft_max_deg": 12.0,
+        "shaft_weight_min_g": null,
+        "shaft_weight_max_g": null,
+        "shaft_flex_min_value": null,
+        "shaft_flex_max_value": null,
+        "shaft_launch_target": "MID_HIGH",
+        "shaft_launch_target_numeric": 0.5,
+        "shaft_spin_target": "UNRESOLVED",
+        "shaft_torque_target_deg": null,
+        "conflict_flags": [],
+        "requirement_confidence": {
+          "forgiveness": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "stability": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "direction": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BALL_FLIGHT"
+            ],
+            "conflict_codes": []
+          },
+          "head_launch": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "PRIMARY_OBJECTIVE",
+              "TRAJECTORY"
+            ],
+            "conflict_codes": []
+          },
+          "head_spin": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          },
+          "workability": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "loft": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "CURRENT_LOFT",
+              "PRIMARY_OBJECTIVE"
+            ],
+            "conflict_codes": []
+          },
+          "flex": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          },
+          "weight": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          },
+          "shaft_launch": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "PRIMARY_OBJECTIVE",
+              "TRAJECTORY"
+            ],
+            "conflict_codes": []
+          },
+          "shaft_spin": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          }
+        }
+      }
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P154",
+    "stage": "requirements",
+    "inputs": {
+      "raw_inputs": {
+        "handedness": "RIGHT",
+        "handicap": 10,
+        "club_speed_mph": 95,
+        "ball_speed_mph": null,
+        "launch_angle_deg": null,
+        "spin_rate_rpm": null,
+        "attack_angle_deg": null,
+        "carry_distance_yards": null,
+        "typical_trajectory": "MID",
+        "typical_start_direction": "CENTRE",
+        "typical_curvature": "STRAIGHT",
+        "miss_severity": "MODERATE",
+        "strike_pattern": "CENTRE",
+        "strike_consistency": "MEDIUM",
+        "current_driver_key": "adams|blue|2015",
+        "current_loft_deg": 15,
+        "current_shaft_key": null,
+        "current_flex_raw": null,
+        "current_club_satisfaction": "HIGH",
+        "primary_objective": "DISTANCE",
+        "budget_max_gbp": 250,
+        "input_source": "QUESTIONNAIRE",
+        "input_confidence": "HIGH"
+      }
+    },
+    "expected": {
+      "normalised_requirements": {
+        "handedness": "RIGHT",
+        "recommendation_intent": "PRESERVE",
+        "head_launch_target": "MID",
+        "head_launch_target_numeric": 0,
+        "head_spin_target": "UNRESOLVED",
+        "forgiveness_requirement": 3,
+        "stability_requirement": 3,
+        "directional_target_numeric": 0.0,
+        "directional_requirement": "NEUTRAL",
+        "workability_preference": 2,
+        "driver_subtype_allowed": "STANDARD",
+        "preferred_loft_min_deg": 9.0,
+        "preferred_loft_max_deg": 11.5,
+        "shaft_weight_min_g": 50,
+        "shaft_weight_max_g": 65,
+        "shaft_flex_min_value": 2,
+        "shaft_flex_max_value": 3,
+        "shaft_launch_target": "MID",
+        "shaft_launch_target_numeric": 0.0,
+        "shaft_spin_target": "UNRESOLVED",
+        "shaft_torque_target_deg": null,
+        "conflict_flags": [
+          "LOFT_EVIDENCE_CONFLICT"
+        ],
+        "requirement_confidence": {
+          "forgiveness": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "stability": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "direction": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BALL_FLIGHT"
+            ],
+            "conflict_codes": []
+          },
+          "head_launch": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "TRAJECTORY"
+            ],
+            "conflict_codes": []
+          },
+          "head_spin": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          },
+          "workability": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "loft": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "MEASURED_SPEED"
+            ],
+            "conflict_codes": [
+              "LOFT_EVIDENCE_CONFLICT"
+            ]
+          },
+          "flex": {
+            "band": "HIGH",
+            "source_codes": [
+              "MEASURED_SPEED"
+            ],
+            "conflict_codes": []
+          },
+          "weight": {
+            "band": "HIGH",
+            "source_codes": [
+              "MEASURED_SPEED"
+            ],
+            "conflict_codes": []
+          },
+          "shaft_launch": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "TRAJECTORY"
+            ],
+            "conflict_codes": []
+          },
+          "shaft_spin": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          }
+        }
+      }
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P155",
+    "stage": "requirements",
+    "inputs": {
+      "raw_inputs": {
+        "handedness": "RIGHT",
+        "handicap": 10,
+        "club_speed_mph": null,
+        "ball_speed_mph": null,
+        "launch_angle_deg": null,
+        "spin_rate_rpm": null,
+        "attack_angle_deg": null,
+        "carry_distance_yards": null,
+        "typical_trajectory": "MID",
+        "typical_start_direction": "CENTRE",
+        "typical_curvature": "STRAIGHT",
+        "miss_severity": "MODERATE",
+        "strike_pattern": "CENTRE",
+        "strike_consistency": "MEDIUM",
+        "current_driver_key": "adams|blue|2015",
+        "current_loft_deg": 10.5,
+        "current_shaft_key": null,
+        "current_flex_raw": null,
+        "current_club_satisfaction": "LOW",
+        "primary_objective": "DISTANCE",
+        "budget_max_gbp": 250,
+        "input_source": "QUESTIONNAIRE",
+        "input_confidence": "HIGH"
+      }
+    },
+    "expected": {
+      "normalised_requirements": {
+        "handedness": "RIGHT",
+        "recommendation_intent": "CORRECT",
+        "head_launch_target": "MID",
+        "head_launch_target_numeric": 0,
+        "head_spin_target": "UNRESOLVED",
+        "forgiveness_requirement": 3,
+        "stability_requirement": 3,
+        "directional_target_numeric": 0.0,
+        "directional_requirement": "NEUTRAL",
+        "workability_preference": 2,
+        "driver_subtype_allowed": "STANDARD",
+        "preferred_loft_min_deg": null,
+        "preferred_loft_max_deg": null,
+        "shaft_weight_min_g": null,
+        "shaft_weight_max_g": null,
+        "shaft_flex_min_value": null,
+        "shaft_flex_max_value": null,
+        "shaft_launch_target": "MID",
+        "shaft_launch_target_numeric": 0.0,
+        "shaft_spin_target": "UNRESOLVED",
+        "shaft_torque_target_deg": null,
+        "conflict_flags": [],
+        "requirement_confidence": {
+          "forgiveness": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "stability": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "direction": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BALL_FLIGHT"
+            ],
+            "conflict_codes": []
+          },
+          "head_launch": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "TRAJECTORY"
+            ],
+            "conflict_codes": []
+          },
+          "head_spin": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          },
+          "workability": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "loft": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          },
+          "flex": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          },
+          "weight": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          },
+          "shaft_launch": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "TRAJECTORY"
+            ],
+            "conflict_codes": []
+          },
+          "shaft_spin": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          }
+        }
+      }
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P156",
+    "stage": "requirements",
+    "inputs": {
+      "raw_inputs": {
+        "handedness": "RIGHT",
+        "handicap": 10,
+        "club_speed_mph": 95,
+        "ball_speed_mph": null,
+        "launch_angle_deg": null,
+        "spin_rate_rpm": null,
+        "attack_angle_deg": null,
+        "carry_distance_yards": null,
+        "typical_trajectory": "LOW",
+        "typical_start_direction": "CENTRE",
+        "typical_curvature": "STRAIGHT",
+        "miss_severity": "MODERATE",
+        "strike_pattern": "CENTRE",
+        "strike_consistency": "MEDIUM",
+        "current_driver_key": null,
+        "current_loft_deg": null,
+        "current_shaft_key": null,
+        "current_flex_raw": null,
+        "current_club_satisfaction": "UNKNOWN",
+        "primary_objective": "LOWER_FLIGHT",
+        "budget_max_gbp": 250,
+        "input_source": "QUESTIONNAIRE",
+        "input_confidence": "HIGH"
+      }
+    },
+    "expected": {
+      "normalised_requirements": {
+        "handedness": "RIGHT",
+        "recommendation_intent": "UNANCHORED",
+        "head_launch_target": "MID_LOW",
+        "head_launch_target_numeric": -0.5,
+        "head_spin_target": "UNRESOLVED",
+        "forgiveness_requirement": 3,
+        "stability_requirement": 3,
+        "directional_target_numeric": 0.0,
+        "directional_requirement": "NEUTRAL",
+        "workability_preference": 2,
+        "driver_subtype_allowed": "STANDARD",
+        "preferred_loft_min_deg": 9.0,
+        "preferred_loft_max_deg": 11.5,
+        "shaft_weight_min_g": 50,
+        "shaft_weight_max_g": 65,
+        "shaft_flex_min_value": 2,
+        "shaft_flex_max_value": 3,
+        "shaft_launch_target": "MID",
+        "shaft_launch_target_numeric": 0.0,
+        "shaft_spin_target": "UNRESOLVED",
+        "shaft_torque_target_deg": null,
+        "conflict_flags": [
+          "LAUNCH_INPUT_CONFLICT"
+        ],
+        "requirement_confidence": {
+          "forgiveness": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "stability": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "direction": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BALL_FLIGHT"
+            ],
+            "conflict_codes": []
+          },
+          "head_launch": {
+            "band": "LOW",
+            "source_codes": [
+              "PRIMARY_OBJECTIVE",
+              "TRAJECTORY"
+            ],
+            "conflict_codes": [
+              "LAUNCH_INPUT_CONFLICT"
+            ]
+          },
+          "head_spin": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          },
+          "workability": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "loft": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "MEASURED_SPEED",
+              "PRIMARY_OBJECTIVE",
+              "TRAJECTORY"
+            ],
+            "conflict_codes": [
+              "LAUNCH_INPUT_CONFLICT"
+            ]
+          },
+          "flex": {
+            "band": "HIGH",
+            "source_codes": [
+              "MEASURED_SPEED"
+            ],
+            "conflict_codes": []
+          },
+          "weight": {
+            "band": "HIGH",
+            "source_codes": [
+              "MEASURED_SPEED"
+            ],
+            "conflict_codes": []
+          },
+          "shaft_launch": {
+            "band": "LOW",
+            "source_codes": [
+              "PRIMARY_OBJECTIVE",
+              "TRAJECTORY"
+            ],
+            "conflict_codes": [
+              "LAUNCH_INPUT_CONFLICT"
+            ]
+          },
+          "shaft_spin": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          }
+        }
+      }
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P157",
+    "stage": "requirements",
+    "inputs": {
+      "raw_inputs": {
+        "handedness": "RIGHT",
+        "handicap": 10,
+        "club_speed_mph": 95,
+        "ball_speed_mph": null,
+        "launch_angle_deg": null,
+        "spin_rate_rpm": null,
+        "attack_angle_deg": null,
+        "carry_distance_yards": null,
+        "typical_trajectory": "MID",
+        "typical_start_direction": "UNKNOWN",
+        "typical_curvature": "UNKNOWN",
+        "miss_severity": "MODERATE",
+        "strike_pattern": "CENTRE",
+        "strike_consistency": "MEDIUM",
+        "current_driver_key": null,
+        "current_loft_deg": null,
+        "current_shaft_key": null,
+        "current_flex_raw": null,
+        "current_club_satisfaction": "UNKNOWN",
+        "primary_objective": "REDUCE_RIGHT_MISS",
+        "budget_max_gbp": 250,
+        "input_source": "QUESTIONNAIRE",
+        "input_confidence": "HIGH"
+      }
+    },
+    "expected": {
+      "normalised_requirements": {
+        "handedness": "RIGHT",
+        "recommendation_intent": "UNANCHORED",
+        "head_launch_target": "MID",
+        "head_launch_target_numeric": 0,
+        "head_spin_target": "UNRESOLVED",
+        "forgiveness_requirement": 3,
+        "stability_requirement": 3,
+        "directional_target_numeric": 1.5,
+        "directional_requirement": "STRONG_DRAW_ASSIST",
+        "workability_preference": 2,
+        "driver_subtype_allowed": "STANDARD",
+        "preferred_loft_min_deg": 9.0,
+        "preferred_loft_max_deg": 11.5,
+        "shaft_weight_min_g": 50,
+        "shaft_weight_max_g": 65,
+        "shaft_flex_min_value": 2,
+        "shaft_flex_max_value": 3,
+        "shaft_launch_target": "MID",
+        "shaft_launch_target_numeric": 0.0,
+        "shaft_spin_target": "UNRESOLVED",
+        "shaft_torque_target_deg": null,
+        "conflict_flags": [],
+        "requirement_confidence": {
+          "forgiveness": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "stability": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "direction": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "PRIMARY_OBJECTIVE"
+            ],
+            "conflict_codes": []
+          },
+          "head_launch": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "TRAJECTORY"
+            ],
+            "conflict_codes": []
+          },
+          "head_spin": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          },
+          "workability": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "loft": {
+            "band": "HIGH",
+            "source_codes": [
+              "MEASURED_SPEED"
+            ],
+            "conflict_codes": []
+          },
+          "flex": {
+            "band": "HIGH",
+            "source_codes": [
+              "MEASURED_SPEED"
+            ],
+            "conflict_codes": []
+          },
+          "weight": {
+            "band": "HIGH",
+            "source_codes": [
+              "MEASURED_SPEED"
+            ],
+            "conflict_codes": []
+          },
+          "shaft_launch": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "TRAJECTORY"
+            ],
+            "conflict_codes": []
+          },
+          "shaft_spin": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          }
+        }
+      }
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P158",
+    "stage": "requirements",
+    "inputs": {
+      "raw_inputs": {
+        "handedness": "RIGHT",
+        "handicap": 10,
+        "club_speed_mph": 95,
+        "ball_speed_mph": null,
+        "launch_angle_deg": null,
+        "spin_rate_rpm": null,
+        "attack_angle_deg": null,
+        "carry_distance_yards": null,
+        "typical_trajectory": "MID",
+        "typical_start_direction": "CENTRE",
+        "typical_curvature": "VARIABLE",
+        "miss_severity": "MODERATE",
+        "strike_pattern": "CENTRE",
+        "strike_consistency": "MEDIUM",
+        "current_driver_key": null,
+        "current_loft_deg": null,
+        "current_shaft_key": null,
+        "current_flex_raw": null,
+        "current_club_satisfaction": "UNKNOWN",
+        "primary_objective": "REDUCE_RIGHT_MISS",
+        "budget_max_gbp": 250,
+        "input_source": "QUESTIONNAIRE",
+        "input_confidence": "HIGH"
+      }
+    },
+    "expected": {
+      "normalised_requirements": {
+        "handedness": "RIGHT",
+        "recommendation_intent": "UNANCHORED",
+        "head_launch_target": "MID",
+        "head_launch_target_numeric": 0,
+        "head_spin_target": "UNRESOLVED",
+        "forgiveness_requirement": 4,
+        "stability_requirement": 4.5,
+        "directional_target_numeric": null,
+        "directional_requirement": "UNRESOLVED",
+        "workability_preference": 2,
+        "driver_subtype_allowed": "STANDARD",
+        "preferred_loft_min_deg": 9.0,
+        "preferred_loft_max_deg": 11.5,
+        "shaft_weight_min_g": 50,
+        "shaft_weight_max_g": 65,
+        "shaft_flex_min_value": 2,
+        "shaft_flex_max_value": 3,
+        "shaft_launch_target": "MID",
+        "shaft_launch_target_numeric": 0.0,
+        "shaft_spin_target": "UNRESOLVED",
+        "shaft_torque_target_deg": null,
+        "conflict_flags": [
+          "TWO_WAY_MISS"
+        ],
+        "requirement_confidence": {
+          "forgiveness": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BALL_FLIGHT",
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "stability": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BALL_FLIGHT",
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "direction": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": [
+              "TWO_WAY_MISS"
+            ]
+          },
+          "head_launch": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "TRAJECTORY"
+            ],
+            "conflict_codes": []
+          },
+          "head_spin": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          },
+          "workability": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "loft": {
+            "band": "HIGH",
+            "source_codes": [
+              "MEASURED_SPEED"
+            ],
+            "conflict_codes": []
+          },
+          "flex": {
+            "band": "HIGH",
+            "source_codes": [
+              "MEASURED_SPEED"
+            ],
+            "conflict_codes": []
+          },
+          "weight": {
+            "band": "HIGH",
+            "source_codes": [
+              "MEASURED_SPEED"
+            ],
+            "conflict_codes": []
+          },
+          "shaft_launch": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "TRAJECTORY"
+            ],
+            "conflict_codes": []
+          },
+          "shaft_spin": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          }
+        }
+      }
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P159",
+    "stage": "requirements",
+    "inputs": {
+      "raw_inputs": {
+        "handedness": "RIGHT",
+        "handicap": 10,
+        "club_speed_mph": 95,
+        "ball_speed_mph": null,
+        "launch_angle_deg": null,
+        "spin_rate_rpm": null,
+        "attack_angle_deg": null,
+        "carry_distance_yards": 280,
+        "typical_trajectory": "MID",
+        "typical_start_direction": "CENTRE",
+        "typical_curvature": "STRAIGHT",
+        "miss_severity": "MODERATE",
+        "strike_pattern": "CENTRE",
+        "strike_consistency": "MEDIUM",
+        "current_driver_key": null,
+        "current_loft_deg": null,
+        "current_shaft_key": null,
+        "current_flex_raw": null,
+        "current_club_satisfaction": "UNKNOWN",
+        "primary_objective": "DISTANCE",
+        "budget_max_gbp": 250,
+        "input_source": "QUESTIONNAIRE",
+        "input_confidence": "HIGH"
+      }
+    },
+    "expected": {
+      "normalised_requirements": {
+        "handedness": "RIGHT",
+        "recommendation_intent": "UNANCHORED",
+        "head_launch_target": "MID",
+        "head_launch_target_numeric": 0,
+        "head_spin_target": "UNRESOLVED",
+        "forgiveness_requirement": 3,
+        "stability_requirement": 3,
+        "directional_target_numeric": 0.0,
+        "directional_requirement": "NEUTRAL",
+        "workability_preference": 2,
+        "driver_subtype_allowed": "STANDARD",
+        "preferred_loft_min_deg": 9.0,
+        "preferred_loft_max_deg": 11.5,
+        "shaft_weight_min_g": 50,
+        "shaft_weight_max_g": 65,
+        "shaft_flex_min_value": 2,
+        "shaft_flex_max_value": 3,
+        "shaft_launch_target": "MID",
+        "shaft_launch_target_numeric": 0.0,
+        "shaft_spin_target": "UNRESOLVED",
+        "shaft_torque_target_deg": null,
+        "conflict_flags": [
+          "SPEED_CARRY_CONFLICT"
+        ],
+        "requirement_confidence": {
+          "forgiveness": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "stability": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "direction": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BALL_FLIGHT"
+            ],
+            "conflict_codes": []
+          },
+          "head_launch": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "TRAJECTORY"
+            ],
+            "conflict_codes": []
+          },
+          "head_spin": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          },
+          "workability": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "BASELINE",
+              "STRIKE_CONSISTENCY"
+            ],
+            "conflict_codes": []
+          },
+          "loft": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "MEASURED_SPEED"
+            ],
+            "conflict_codes": [
+              "SPEED_CARRY_CONFLICT"
+            ]
+          },
+          "flex": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "MEASURED_SPEED"
+            ],
+            "conflict_codes": [
+              "SPEED_CARRY_CONFLICT"
+            ]
+          },
+          "weight": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "MEASURED_SPEED"
+            ],
+            "conflict_codes": [
+              "SPEED_CARRY_CONFLICT"
+            ]
+          },
+          "shaft_launch": {
+            "band": "MEDIUM",
+            "source_codes": [
+              "TRAJECTORY"
+            ],
+            "conflict_codes": []
+          },
+          "shaft_spin": {
+            "band": "UNRESOLVED",
+            "source_codes": [],
+            "conflict_codes": []
+          }
+        }
+      }
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P160",
+    "stage": "confidence_aggregate",
+    "inputs": {
+      "golfer": 28,
+      "equipment": 100,
+      "listing": 100
+    },
+    "expected": {
+      "score": 67.6,
+      "confidence": "MEDIUM"
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P161",
+    "stage": "confidence_aggregate",
+    "inputs": {
+      "golfer": -10,
+      "equipment": 100,
+      "listing": 120
+    },
+    "expected": {
+      "score": 55,
+      "confidence": "LOW"
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P162",
+    "stage": "aggregate",
+    "inputs": {
+      "dimensions": []
+    },
+    "expected": {
+      "score": null,
+      "scorable": false,
+      "reason": "NO_ACTIVE_FIT_DIMENSIONS"
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P163",
+    "stage": "marketplace",
+    "inputs": {
+      "candidates": [
+        {
+          "listing_id": "z",
+          "score": 90,
+          "price_gbp": 200,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "confidence_score": 90,
+          "suppressed": false
+        },
+        {
+          "listing_id": "b",
+          "score": 90,
+          "price_gbp": 200,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "confidence_score": 95,
+          "suppressed": false
+        },
+        {
+          "listing_id": "a",
+          "score": 90,
+          "price_gbp": 200,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "confidence_score": 95,
+          "suppressed": false
+        }
+      ],
+      "budget": null
+    },
+    "expected": {
+      "slots": {
+        "BEST_MATCH": "a",
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": "a"
+      },
+      "unique_cards": 1
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P164",
+    "stage": "marketplace",
+    "inputs": {
+      "candidates": [
+        {
+          "listing_id": "a",
+          "score": 90,
+          "price_gbp": 200,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "confidence_score": 95,
+          "suppressed": false
+        },
+        {
+          "listing_id": "b",
+          "score": 90,
+          "price_gbp": 200,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "confidence_score": 95,
+          "suppressed": false
+        },
+        {
+          "listing_id": "z",
+          "score": 90,
+          "price_gbp": 200,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "confidence_score": 90,
+          "suppressed": false
+        }
+      ],
+      "budget": null
+    },
+    "expected": {
+      "slots": {
+        "BEST_MATCH": "a",
+        "BEST_VALUE": null,
+        "BUDGET_OPTION": "a"
+      },
+      "unique_cards": 1
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P165",
+    "stage": "merge_labels",
+    "inputs": {
+      "slots": {
+        "BEST_MATCH": "a",
+        "BEST_VALUE": "b",
+        "BUDGET_OPTION": "b"
+      }
+    },
+    "expected": {
+      "cards": [
+        {
+          "listing_id": "a",
+          "labels": [
+            "BEST_MATCH"
+          ]
+        },
+        {
+          "listing_id": "b",
+          "labels": [
+            "BEST_VALUE",
+            "BUDGET_OPTION"
+          ]
+        }
+      ],
+      "unfilled_slots": []
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P166",
+    "stage": "money_saving",
+    "inputs": {
+      "best_price_pence": 20001,
+      "candidate_price_pence": 18001
+    },
+    "expected": {
+      "qualifies": false
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P167",
+    "stage": "money_saving",
+    "inputs": {
+      "best_price_pence": 20001,
+      "candidate_price_pence": 18000
+    },
+    "expected": {
+      "qualifies": true
+    },
+    "source": "RULES_V1_2.md"
+  },
+  {
+    "id": "P168",
+    "stage": "identity_resolution",
+    "inputs": {
+      "matches": [
+        {
+          "key": "eligible",
+          "eligibility": "MATCH_ELIGIBLE"
+        },
+        {
+          "key": "recognition",
+          "eligibility": "RECOGNITION_ONLY"
+        }
+      ]
+    },
+    "expected": {
+      "resolved_key": null,
+      "eligible": false,
+      "reason": "AMBIGUOUS_IDENTITY"
+    },
+    "source": "RULES_V1_2.md"
+  }
+]

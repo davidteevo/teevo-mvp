@@ -1,0 +1,38 @@
+{
+  "archetypes": 48,
+  "boundary_probes": 168,
+  "frozen_heads": 619,
+  "frozen_shafts": 2634,
+  "source_hashes": "PASS",
+  "fixture_keys": "PASS",
+  "production_execution": "NOT RUN",
+  "contract_version": "MATCH_DRIVER_CONTRACT_V1.3",
+  "logic_version": "DRIVER_MATCH_LOGIC_V1.2",
+  "marketplace_policy_version": "MATCH_MARKETPLACE_BRAND_FILTER_V1",
+  "harness_self_tests": {
+    "tests": 10,
+    "status": "PASS",
+    "stage_fixture_checks": 168,
+    "deliberate_stage_mutations_rejected": 168,
+    "manual_requirement_assertions": "PASS",
+    "note": "Package sanity checks include fixture-authoring helpers; not independent production engine validation."
+  },
+  "unconnected_runner": {
+    "exit_code": 2,
+    "status": "NOT RUN without actual adapter"
+  },
+  "specification_decisions_pending": [],
+  "specification_decisions_resolved": [
+    "D01",
+    "D02",
+    "D03",
+    "D04",
+    "D05",
+    "D06",
+    "D07"
+  ],
+  "independent_fitter_review": "NOT RUN",
+  "application_RLS_UI_integration": "NOT RUN",
+  "production_readiness": "NOT SIGNED OFF",
+  "handoff": "Phase 1 only: pure engine, immutable ingestion, actual-function adapter"
+}

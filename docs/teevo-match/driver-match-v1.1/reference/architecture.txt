@@ -1,0 +1,98 @@
+﻿Teevo Match — Data & Intelligence Architecture
+
+
+Architectural Decision
+Teevo Match should sit on top of the existing Teevo marketplace. Reuse the existing listings inventory, listing display components, watchlist and checkout flow. Add a thin Match-specific profile, session, intelligence, scoring and outcome layer.
+Do not create a second inventory system or a duplicate search/catalogue stack.
+
+
+Existing Teevo Assets
+Supabase Auth maps to public.users. Existing golf fields include handicap and handedness.
+The listings table is the single inventory source. Driver listings already carry configuration-level fields including handedness, loft/degree, shaft, shaft flex, length and related specification fields.
+The club catalogue is currently CSV-backed and does not yet provide a stable relational club-model foreign key.
+Existing listing discovery/filtering, ListingCard/ListingGrid, watchlist, listing detail and checkout flows should be reused.
+The existing events table and analytics track() path should be extended rather than replaced.
+
+
+Key Architectural Separation
+Golfer identity and ordinary profile data remain separate from Match-specific fitting data.
+Driver model intelligence is separate from the listing. It describes the underlying model’s capabilities.
+Shaft intelligence is separate from both the model and the listing and should be keyed by a stable shaft identity where possible.
+The listing represents the actual sellable configuration and availability.
+Match combines these layers at query/scoring time.
+
+
+Canonical Equipment Identity
+Introduce a stable catalogue_key for Match-supported driver models even before a full club_models relational migration.
+Example conceptual format: ping|g430-max|2023.
+Canonical identity should map existing listing brand/model/year data onto a single Teevo intelligence key and prevent casing, naming and typo variants from breaking the intelligence join.
+
+
+Recommended Match Data Layer
+match_golfer_profiles: one persistent fitting-oriented profile per user where appropriate; seeded from users for existing fields but not dumped onto public.users.
+match_sessions: records each Match attempt, including anonymous sessions where the user starts before login, category, answers, derived requirements, status and rules version.
+match_interactions: structured outcome records connecting session, user, listing, score/rank, action and feedback.
+Driver intelligence V1: versioned application/config data keyed by catalogue_key; promote to a dedicated table once the schema and content stabilise.
+Shaft intelligence: enrich the existing shaft CSV with structured performance characteristics and provenance.
+
+
+Conceptual Data Flow
+users → seed known golfer traits → match_golfer_profiles.
+match_golfer_profiles + session answers → Requirements Engine.
+driver intelligence + shaft intelligence + live listing configuration → deterministic Match scoring.
+Ranked Match DTO → existing ListingCard/listing detail/watchlist/checkout.
+Match events + match_interactions → outcome dataset for future calibration.
+
+
+Candidate Inventory
+Match should use the same public/purchasable rules as existing marketplace discovery, but candidate retrieval needs a higher/configurable limit than the current browse cap.
+V1 primary results should prefer verified and purchasable Driver inventory. Coming Soon/pending inventory can be added later as a clearly secondary state.
+Hard candidate requirements: Driver category, handedness, availability, canonical model mapping, usable loft and usable shaft flex.
+
+
+Retailer Inventory
+Match should remain inventory-source agnostic. Retailer stock should ultimately enter the same listings inventory with source/seller metadata rather than use a separate recommendation system.
+Do not block Match V1 on full retailer schema or real-time integrations. Add retailer/source flags when real partner ingest is ready.
+
+
+Scoring Ownership
+V1 scoring should live in application logic, not machine learning and not an LLM. TypeScript/application code is preferable initially because fitting rules will change frequently and must be easy to version, test and audit.
+Persist the scoring/rules version used for every session.
+
+
+LLM Boundary
+ChatGPT/OpenAI is not required for V1 fitting decisions.
+Future valid uses include natural-language input extraction, adaptive questioning and recommendation explanation.
+An LLM must consume structured decision outputs and reason codes rather than freely rank inventory from prose.
+
+
+API Shape
+Conceptual endpoint: POST /api/match/drivers.
+Inputs: session/profile answers and relevant user context.
+Processing: derive requirements → fetch eligible candidate listings → join driver/shaft intelligence → calculate Fit and Confidence → apply Match ceilings → return ranked result DTOs plus reason codes.
+Checkout remains the existing marketplace checkout path.
+
+
+Security & RLS
+Match golfer data must be user-scoped under RLS when persisted to an authenticated account.
+Anonymous sessions must not expose another user’s Match data.
+Match must reuse existing public listing-read rules and must not weaken listing RLS or marketplace security.
+
+
+Analytics
+Extend the existing analytics allowlist for Match-specific funnel events rather than introducing a separate product analytics database.
+Useful events: match_started, match_profile_completed, match_results_generated, match_listing_viewed, match_listing_saved, match_checkout_started, match_purchase, match_rejected and match_feedback_submitted.
+match_interactions should hold structured recommendation outcome data where event properties alone are insufficient.
+
+
+Versioning
+Persist profile_version, requirements/rules_version, driver_intelligence_version and shaft_intelligence_version where applicable.
+Recommendations must remain reproducible after intelligence data or scoring weights change.
+
+
+Technical Risks to Manage
+Historical listing incompleteness; fragile brand/model string joins; free-text shaft identity; candidate-volume limits; ambiguous adjustable-loft configuration; mixing metadata completeness with Fit; retailer schema arriving too early; and accidental duplication of browse/search logic.
+
+
+Implementation Principle
+Extend existing architecture before inventing new systems. Reuse existing components, preserve mobile responsiveness and marketplace behaviour, keep scoring deterministic, protect RLS, and test browse/sell/buy/watchlist/checkout flows whenever Match changes shared listing logic.

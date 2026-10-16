@@ -1,0 +1,11 @@
+{
+  "archetypes": 48,
+  "boundary_probes": 168,
+  "frozen_heads": 619,
+  "frozen_shafts": 2634,
+  "source_hashes": "PASS",
+  "fixture_keys": "PASS",
+  "production_execution": "PASS \u2014 production-function assertions only; fitter/integration release gates remain",
+  "failures": [],
+  "pending_decisions": []
+}

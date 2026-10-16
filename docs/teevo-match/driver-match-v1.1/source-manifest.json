@@ -1,0 +1,88 @@
+{
+  "contract_version": "MATCH_DRIVER_CONTRACT_V1.3",
+  "logic_version": "DRIVER_MATCH_LOGIC_V1.2",
+  "dataset_freeze": "2026-10-16",
+  "sources": [
+    {
+      "name": "logic",
+      "file": "reference/logic.txt",
+      "sha256": "88359c259e3c64e08e7119ae04bbe72c96612fe2bd0e9e82dd76589376665aa7",
+      "url": "https://docs.google.com/document/d/1ovD2By7sEz-Vzz0aMHeHVWK90kdfUfZ3sSNTM7z09Y0/edit",
+      "retrieved_date": "2026-10-16",
+      "authority": "live specified source; no archived content"
+    },
+    {
+      "name": "contract",
+      "file": "reference/contract.txt",
+      "sha256": "7c116f7b4166b86bfa4e3200bc36acaa559eff558e077a35f520175e2a25fed4",
+      "url": "https://docs.google.com/document/d/1zJS-uVElhfEES6_9fKvRMGj0ARtHHbmAYsKsckcmqFE/edit",
+      "retrieved_date": "2026-10-16",
+      "authority": "live specified source; no archived content"
+    },
+    {
+      "name": "architecture",
+      "file": "reference/architecture.txt",
+      "sha256": "54bf97ee1d8c39c56de61bc5d0809f8daed488b958e087b0f1fec290fb450c94",
+      "url": "https://docs.google.com/document/d/1GViaXpzn7mJuakiRXTtZ0BXVITr8FsAYw3OdxbZlrGs/edit",
+      "retrieved_date": "2026-10-16",
+      "authority": "live specified source; no archived content"
+    },
+    {
+      "name": "principles",
+      "file": "reference/principles.txt",
+      "sha256": "d8f25adacc365ddf1f829cb563bdc6cbca548fe9088064768891b96fb103349d",
+      "url": "https://docs.google.com/document/d/10n5SY_PXm1vJ3u0s63fO0hIRB_LLrltNif4hLAnr83k/edit",
+      "retrieved_date": "2026-10-16",
+      "authority": "live specified source; no archived content"
+    },
+    {
+      "name": "heads",
+      "file": "reference/heads.json",
+      "sha256": "417ab13d6fde85da02e7ae0111419e31bbfc863661744b9781ff85b23720ee17",
+      "url": "https://docs.google.com/spreadsheets/d/13-J2gwRk_z1KBXaCUZXxWVw4dWeHV1xRnPsm6oWIAVg/edit",
+      "retrieved_date": "2026-10-16",
+      "authority": "live specified source; no archived content"
+    },
+    {
+      "name": "shafts",
+      "file": "reference/shafts.json",
+      "sha256": "4d2c84deb891beaf9e06830f6dc83eb6e336bba942808129644c31e699e6c146",
+      "url": "https://docs.google.com/spreadsheets/d/1UHM2PPbC_xwWTZ1FPHlXmkfcsrdA6IZvsqfH-XiFWvI/edit",
+      "retrieved_date": "2026-10-16",
+      "authority": "live specified source; no archived content"
+    }
+  ],
+  "counts": {
+    "heads": 619,
+    "eligible_heads": 610,
+    "shafts": 2634,
+    "eligible_shafts": 2394
+  },
+  "excluded_archive_folder": "14Q5hALvWMnCjFiT7kx8jL1oCgih9odd5",
+  "marketplace_addendum": {
+    "version": "MATCH_MARKETPLACE_BRAND_FILTER_V1",
+    "file": "BRAND_FILTER_V1.md",
+    "sha256": "9acee1ac1af102003c318d10c5df1d03996ab3936682405c95d6181a679a88a1",
+    "approved": "Founder approval in this conversation, 2026-10-16",
+    "live_sections": {
+      "contract": 17,
+      "logic": 56,
+      "architecture": "Brand filter and availability \u2014 marketplace addendum V1"
+    },
+    "baseline_reference_snapshots": "Preserved before this addendum; use alongside BRAND_FILTER_V1.md"
+  },
+  "resolved_decisions": [
+    "D01",
+    "D02",
+    "D03",
+    "D04",
+    "D05",
+    "D06",
+    "D07"
+  ],
+  "rules_amendment": {
+    "file": "RULES_V1_2.md",
+    "sha256": "394cdc2ecfb8dc83d99d2ad4530bbb97d22dbb4f0cac01c3e110967dd220c95e",
+    "precedence": "Overrides conflicting baseline source rules; frozen data unchanged"
+  }
+}

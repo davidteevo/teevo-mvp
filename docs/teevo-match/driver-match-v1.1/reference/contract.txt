@@ -1,0 +1,271 @@
+﻿Teevo Match — Driver Intelligence Data Contract V1
+Contract version: MATCH_DRIVER_CONTRACT_V1.2
+Dataset baseline: DRIVER_V1 + SHAFT_V1 — frozen 16 October 2026
+Status: Implementation baseline. Scoring weights are intentionally out of scope for this contract.
+
+
+1. Purpose
+This contract defines the stable interface between Teevo’s frozen Driver V1 equipment intelligence and the Driver Match engine. It specifies what data Match may consume, how missing or uncertain values behave, which fields are eligibility gates versus scoring inputs, and the structure that recommendations must return.
+The contract is deliberately deterministic and auditable. It does not define final recommendation weights, machine-learning behaviour, or marketplace ranking economics.
+
+
+2. Frozen source datasets
+* Driver heads snapshot: Teevo Driver Dataset V1 — Heads — FROZEN 2026-10-16.
+* Driver head raw tab: club-catalogue-match-research. Driver subset = 619 DRIVER_V1 rows; 610 match_eligible = TRUE and 9 = FALSE.
+* Driver shafts snapshot: Teevo Driver Dataset V1 — Shafts — FROZEN 2026-10-16.
+* Driver shaft raw tab: shafts-catalogue-match-research. Total = 2,634 populated variants; 2,394 MATCH_ELIGIBLE, 123 EXCLUDED_SCOPE, 111 RECOGNITION_ONLY, 6 QUARANTINED.
+* Source-region rule: UK/EU/USA evidence takes precedence when Asian-market specifications conflict. Match must not recreate precision removed during research.
+* V1 is immutable for implementation. Data corrections are logged and released through a controlled V1.1/V2 process.
+
+
+3. Core contract invariants
+* Eligibility and suitability are separate. Hard gates determine whether an item may enter the candidate set; scoring only ranks eligible candidates.
+* Unknown is not bad. NULL, blank and UNKNOWN values are treated as unavailable evidence, not as a zero-quality characteristic.
+* Do not infer missing exact specifications from weight class, marketing family, neighbouring flexes, Asian-only data, or similarly named identities.
+* A missing scoring component causes that component to be omitted and the remaining score to be reweighted. It must not silently become a zero score.
+* Recommendation confidence is separate from Match Score. Suitability expresses fit; confidence expresses how well the available inputs and equipment evidence support that fit.
+* All recommendation events must record dataset version, contract version and logic version so historical recommendations can be reproduced.
+
+
+4. Raw golfer input contract
+The user-facing questionnaire and any launch-monitor import may supply some or all of the following. These are raw observations, not direct equipment scores. A normalisation layer converts fitting-relevant inputs into the internal requirement vector in Section 5. Marketplace-only inputs such as budget remain outside Fit scoring.
+* handedness — enum | required to complete Match | RIGHT, LEFT. Used for listing eligibility and golfer-relative interpretation of ball flight.
+* handicap — number | optional | 0–54. Supporting evidence only; never a primary fitting rule.
+* club_speed_mph — number | optional | measured driver clubhead speed in mph.
+* ball_speed_mph — number | optional | measured driver ball speed in mph.
+* launch_angle_deg — number | optional | measured launch angle.
+* spin_rate_rpm — number | optional | measured backspin.
+* attack_angle_deg — number | optional | measured attack angle; positive = upward.
+* carry_distance_yards — number | optional | observed driver carry; fallback speed proxy when club speed is unavailable.
+* typical_trajectory — enum | optional | LOW, MID, HIGH, UNKNOWN.
+* typical_start_direction — enum | optional | LEFT, CENTRE, RIGHT, VARIABLE, UNKNOWN.
+* typical_curvature — enum | optional | LEFT, STRAIGHT, RIGHT, VARIABLE, UNKNOWN.
+* miss_severity — ordinal | optional | SMALL, MODERATE, LARGE, UNKNOWN.
+* strike_pattern — enum | optional | HEEL, TOE, HIGH_FACE, LOW_FACE, CENTRE, VARIABLE, UNKNOWN.
+* strike_consistency — ordinal | optional | LOW, MEDIUM, HIGH, UNKNOWN.
+* current_driver_key — string | optional | resolved catalogue_key when recognised.
+* current_loft_deg — number | optional.
+* current_shaft_key — string | optional | resolved shaft_key when recognised.
+* current_flex_raw — string | optional | retain the user’s raw label; do not force-map unsupported proprietary flexes.
+* current_club_satisfaction — enum | optional | HIGH, MEDIUM, LOW, UNKNOWN.
+* primary_objective — enum | optional | FORGIVENESS, ACCURACY, REDUCE_RIGHT_MISS, REDUCE_LEFT_MISS, DISTANCE, HIGHER_FLIGHT, LOWER_FLIGHT, CONTROL, UNKNOWN. V1 uses one primary objective only.
+* budget_max_gbp — number | optional | marketplace constraint only; it must never alter equipment Fit Score.
+* input_source — enum | required | QUESTIONNAIRE, LAUNCH_MONITOR, MANUAL_PRO, MIXED.
+* input_confidence — enum | required | LOW, MEDIUM, HIGH.
+Validation rule: Match may run with sparse golfer data, but the normalisation layer must explicitly mark unresolved requirements rather than manufacture values. Handedness is the only questionnaire field required to complete marketplace matching because it is a physical listing constraint.
+UX rule: do not ask golfers to diagnose technical face-to-path relationships or choose PRESERVE / OPTIMISE / CORRECT. Prefer simple ball-flight illustrations and plain-language questions. Recommendation intent is derived internally from current-equipment evidence, satisfaction and the primary objective. UNKNOWN/skip must remain valid for non-required fields.
+
+
+
+
+5. Normalised golfer requirement vector
+The matching engine consumes this internal representation. It is derived from raw golfer inputs and is the only golfer-side structure the Fit scorer should read. Budget and other marketplace economics are deliberately excluded.
+* handedness — enum | RIGHT, LEFT.
+* recommendation_intent — enum | PRESERVE, OPTIMISE, CORRECT, UNANCHORED. Derived internally; not a user-facing technical question.
+* head_launch_target — enum | LOW, MID_LOW, MID, MID_HIGH, HIGH, ANY, UNRESOLVED.
+* head_spin_target — enum | LOW, MID_LOW, MID, MID_HIGH, HIGH, ANY, UNRESOLVED.
+* forgiveness_requirement — number 1–5 in 0.5 increments or NULL.
+* stability_requirement — number 1–5 in 0.5 increments or NULL.
+* directional_target_numeric — number from -2 to +2 or NULL. Negative = fade support; positive = draw support; interpretation is golfer-relative after handedness normalisation.
+* directional_requirement — enum | STRONG_FADE_ASSIST, FADE_ASSIST, NEUTRAL, DRAW_ASSIST, STRONG_DRAW_ASSIST, ANY, UNRESOLVED.
+* workability_preference — number 1–5 in 0.5 increments or NULL.
+* driver_subtype_allowed — enum | STANDARD, MINI, BOTH. V1 product default = STANDARD.
+* preferred_loft_min_deg — number or NULL.
+* preferred_loft_max_deg — number or NULL.
+* shaft_weight_min_g — number or NULL.
+* shaft_weight_max_g — number or NULL.
+* shaft_flex_min_value — number or NULL.
+* shaft_flex_max_value — number or NULL.
+* shaft_launch_target — enum | LOW, MID_LOW, MID, MID_HIGH, HIGH, ANY, UNRESOLVED.
+* shaft_spin_target — enum | LOW, MID_LOW, MID, MID_HIGH, HIGH, ANY, UNRESOLVED.
+* shaft_torque_target_deg — number or NULL; optional and never inferred solely from speed or flex.
+* requirement_confidence — object containing confidence for each derived requirement.
+* conflict_flags — array of controlled codes where direct inputs disagree or a conservative fallback was required.
+
+
+6. Driver head consumption contract
+6.1 Identity and eligibility fields
+* catalogue_key — string | required | canonical head identity used by Match and marketplace joins.
+* brand, model, variant, display_name, release_year — identity/display metadata; non-scoring.
+* driver_subtype — STANDARD or MINI | candidate filter when golfer requirements restrict subtype.
+* intelligence_version — must equal DRIVER_V1 for V1 ingestion.
+* match_eligible — boolean hard gate. Only TRUE may enter candidate generation.
+* rules_conformity — diagnostic/safety metadata. match_eligible remains the authoritative V1 gate.
+* review_status and overall_evidence_confidence — diagnostic/confidence inputs; they do not override match_eligible.
+6.2 Head scoring fields
+* forgiveness — integer 1–5 or NULL.
+* stability — integer 1–5 or NULL.
+* launch_tendency — LOW, MID_LOW, MID, MID_HIGH, HIGH, UNKNOWN or NULL.
+* spin_tendency — LOW, MID_LOW, MID, MID_HIGH, HIGH, TUNABLE, UNKNOWN or NULL.
+* directional_bias — NEUTRAL, DRAW, STRONG_DRAW, FADE, UNKNOWN or NULL.
+* workability — integer 1–5 or NULL.
+* adjustability — integer 1–5 or NULL.
+* primary_head_profile — categorical profile used as an explanatory/feature signal; not a substitute for the atomic scoring fields above.
+* secondary_head_profiles — pipe-delimited source representation; ingestion converts to string array.
+* loft_options — pipe-delimited source representation; ingestion converts each numeric loft to number[].
+* adjustable_hosel — boolean or NULL.
+* hosel_loft_adjustment_type — NONE, DELTA_RANGE, PUBLISHED_SETTINGS, FACE_ANGLE_ONLY, LIE_ONLY, UNKNOWN.
+* loft_adjustment_min_deg and loft_adjustment_max_deg — numeric deltas only where supported by source semantics.
+* hosel_loft_setting_min_deg, hosel_loft_setting_max_deg and hosel_loft_settings — use only when published settings are available.
+* lie_adjustability and movable_weights — boolean/UNKNOWN/NULL; optional feature-value inputs, not default quality bonuses.
+
+
+7. Driver shaft consumption contract
+7.1 Identity and eligibility fields
+* shaft_key — string | required | canonical physical variant identity.
+* manufacturer, family, model, display_name, generation — identity/display metadata.
+* oem_variant and oem_brand — identity/disambiguation metadata. OEM-specific variants must not be collapsed into aftermarket identities.
+* match_eligibility — hard gate. Only MATCH_ELIGIBLE may enter shaft candidate generation.
+* intelligence_version — expected SHAFT_V1 for researched V1 rows. Ten frozen TENSEI 1K Pro Core Black rows are blank but are RECOGNITION_ONLY and therefore cannot enter Match.
+* overall_evidence_confidence and review_status — confidence/diagnostic fields, not direct suitability scores.
+7.2 Shaft scoring fields
+* actual_weight_g — number or NULL. Preferred weight input for scoring.
+* weight_class — source category/identity aid. Do not substitute for actual_weight_g when exact mass is missing.
+* torque_deg — number or NULL. Optional scoring input only when directly supported.
+* raw_length_in — number or NULL. Compatibility/implementation metadata; not a default fit score.
+* launch_profile — LOW, MID_LOW, MID, MID_HIGH, HIGH, UNKNOWN or NULL.
+* spin_profile — LOW, LOW_MID, MID_LOW, MID, MID_HIGH, HIGH, UNKNOWN or NULL. LOW_MID remains a distinct frozen source enum until a versioned normalisation explicitly maps it.
+* tip_profile, mid_profile, butt_profile — SOFT, MID, FIRM, VERY_FIRM, UNKNOWN or NULL.
+* bend_point — LOW, MID_LOW, MID, MID_HIGH, HIGH, UNKNOWN or NULL.
+* loading_profile — SMOOTH, SMOOTH_TO_MODERATE, MODERATE, MODERATE_TO_AGGRESSIVE, AGGRESSIVE, BROAD, UNKNOWN or NULL.
+* match_flex_value and match_flex_label — normalised flex representation when mapping exists.
+* match_flex_mapping_status — MAPPED, UNMAPPED_TO_NORMALISED_FLEX, NOT_APPLICABLE.
+* match_flex_confidence — HIGH, MEDIUM, UNRESOLVED or NULL.
+* match_launch_resolution_status — RESOLVED, SOURCE_CONFLICT, NO_PUBLISHED_CATEGORY, RESEARCH_GAP, NOT_APPLICABLE.
+* match_weight_confidence — HIGH, MEDIUM, UNRESOLVED, NOT_APPLICABLE.
+Flex rule: an otherwise MATCH_ELIGIBLE shaft with UNMAPPED_TO_NORMALISED_FLEX may remain eligible. The flex subscore is omitted/reweighted; proprietary or combo flexes must not be forced into L/A/R/S/X.
+
+
+8. Ingestion and NULL behaviour
+* Blank source cells are normalised to JSON null unless the field’s source enum explicitly uses UNKNOWN.
+* UNKNOWN is preserved as an explicit source state but is treated as unavailable for numeric suitability comparison.
+* Pipe-delimited multi-value fields are parsed into arrays; original raw text may be retained for traceability.
+* Booleans are normalised to true/false/null. The string UNKNOWN becomes null for boolean decision logic while remaining available in raw provenance.
+* Numeric parsing failures must fail validation for that field and produce null plus a diagnostic; never coerce malformed values to zero.
+* When a scoring component is unavailable, omit it and renormalise the remaining component weights. Record the omitted component in the recommendation trace.
+* A candidate must be rejected only by an explicit hard gate, not because optional fields are missing.
+
+
+9. Hard gates versus scoring
+9.1 Head hard gates
+* match_eligible must be true.
+* intelligence_version must be DRIVER_V1 for this implementation baseline.
+* driver_subtype must be allowed by the golfer requirement vector when subtype is restricted.
+* Any future physical/listing compatibility gate must be explicit and versioned.
+9.2 Shaft hard gates
+* match_eligibility must equal MATCH_ELIGIBLE.
+* The candidate identity must resolve uniquely to one shaft_key.
+* OEM/aftermarket identity rules must prevent a different physical variant being substituted silently.
+* Missing flex, launch, spin, torque or sectional profile data is not by itself a hard exclusion when match_eligibility remains MATCH_ELIGIBLE.
+9.3 Scoring domains
+* Head: launch fit, spin fit, forgiveness, stability, directional fit, workability preference, loft capability and adjustability value.
+* Shaft: actual weight fit, flex fit when mapped, launch fit, spin fit, torque fit when available, and optional profile characteristics when evidence supports them.
+* Combination: head × shaft interaction, golfer objective, current-equipment delta, and data-confidence adjustment.
+* Exact weights and interaction rules belong to Driver Match Logic V1, not this data contract.
+
+
+10. Recommendation output contract
+Core Match returns fit-ranked equipment identities. Marketplace/value ranking is a separate downstream layer: price and other commercial variables must never change the internal Match Score.
+* request_id — unique recommendation event identifier.
+* generated_at — ISO-8601 timestamp.
+* dataset_version — object containing driver_head = DRIVER_V1 freeze 2026-10-16 and shaft = SHAFT_V1 freeze 2026-10-16.
+* contract_version — MATCH_DRIVER_CONTRACT_V1.2.
+* logic_version — versioned Match scoring implementation identifier.
+* normalised_requirements — the Section 5 requirement vector used for scoring.
+* recommendations — array ordered by internal equipment-fit ranking before marketplace/value logic.
+* recommendation.rank_internal — integer starting at 1; backend fit rank, not necessarily the final marketplace display order.
+* recommendation.head_key — catalogue_key.
+* recommendation.shaft_key — shaft_key.
+* recommendation.recommended_loft_deg — number or null.
+* recommendation.match_score_internal — numeric suitability score on the implementation’s declared scale. Retained for ranking, QA and experimentation; not the primary user-facing V1 claim.
+* recommendation.match_band — EXCELLENT_MATCH, VERY_GOOD_MATCH or GOOD_MATCH for surfaced recommendations. Band thresholds are defined and versioned in Driver Match Logic, not in this data contract.
+* recommendation.confidence — LOW, MEDIUM or HIGH; separate from fit score and match band.
+* recommendation.primary_reasons — concise array of positive fit reasons.
+* recommendation.tradeoffs — concise array of meaningful compromises.
+* recommendation.uncertain_factors — evidence/input gaps that materially reduce confidence.
+* recommendation.omitted_components — scoring dimensions omitted because required evidence was unavailable.
+* recommendation.marketplace_matches — optional live-listing array populated by the marketplace integration layer, not by core fit scoring.
+* presentation_options — optional marketplace-generated array for BEST_MATCH, BEST_VALUE and BUDGET_OPTION. These labels may change display order but cannot change equipment fit scores.
+
+
+
+
+11. Example structured output
+{
+  "request_id": "match_...",
+  "dataset_version": {"head":"DRIVER_V1_2026-10-16","shaft":"SHAFT_V1_2026-10-16"},
+  "contract_version": "MATCH_DRIVER_CONTRACT_V1.2",
+  "logic_version": "DRIVER_MATCH_LOGIC_V1",
+  "recommendations": [
+    {
+      "rank_internal": 1,
+      "head_key": "...",
+      "shaft_key": "...",
+      "recommended_loft_deg": 10.5,
+      "match_score_internal": 91,
+      "match_band": "EXCELLENT_MATCH",
+      "confidence": "HIGH",
+      "primary_reasons": [],
+      "tradeoffs": [],
+      "uncertain_factors": [],
+      "omitted_components": [],
+      "marketplace_matches": [{"listing_id":"...","price_gbp":229,"condition":"..."}]
+    }
+  ],
+  "presentation_options": [
+    {"label":"BEST_MATCH","recommendation_rank_internal":1,"listing_id":"..."},
+    {"label":"BEST_VALUE","recommendation_rank_internal":2,"listing_id":"..."},
+    {"label":"BUDGET_OPTION","recommendation_rank_internal":3,"listing_id":"..."}
+  ]
+}
+
+
+12. Traceability and observability
+* Persist raw golfer inputs, normalised requirements, candidate counts before/after each hard gate, component scores, omitted components, final score and confidence.
+* Persist the exact head_key and shaft_key rather than only display names.
+* Persist dataset, contract and logic versions on every recommendation event.
+* A future data correction must not alter an historical recommendation silently; replay uses the frozen version recorded on the event.
+* Log data-contract validation errors separately from recommendation-quality failures.
+
+
+13. Marketplace integration boundary
+* Core Match determines suitable equipment identities and fit ranking. Marketplace matching then intersects those identities with live Teevo listings.
+* Listing price, condition, seller rating/trust, delivery speed and commercial ranking must not change the underlying equipment fit score.
+* Marketplace ranking runs only after a minimum fit/recommendation threshold has been applied. A cheaper poor fit must never be promoted as a value or budget recommendation.
+* BEST_MATCH means the strongest available equipment fit among live purchasable inventory. Marketplace tie-breakers may distinguish materially equivalent options, but must not overwrite the underlying fit ranking.
+* BEST_VALUE means a strong-fit option above the minimum recommendation threshold that offers a better price-versus-fit trade-off. The value formula must be versioned and auditable.
+* BUDGET_OPTION means the lowest-priced live option that still clears the minimum recommendation threshold. It is not simply the cheapest driver available.
+* User-facing V1 should lead with qualitative Match bands such as Excellent Match, Very Good Match and Good Match. The internal numeric Match Score remains available for ranking, QA and experimentation but is not the primary user-facing claim.
+* Equivalent-model or substitute logic must be explicit, versioned and traceable; never substitute a similarly named head or shaft by fuzzy text alone.
+* If the exact recommendation is unavailable, the product may show ranked eligible alternatives while preserving the original fit rationale and clearly identifying the trade-off.
+
+
+
+
+14. Versioning and controlled change
+* V1 frozen datasets are read-only implementation inputs.
+* A discovered issue is logged with evidence, affected keys and estimated recommendation impact.
+* Only material issues that prevent or distort defensible Match behaviour justify reopening research.
+* Approved data changes are released as V1.1 or V2; logic-only changes increment logic_version without rewriting the frozen dataset.
+* Schema changes increment the data-contract version.
+
+
+15. Acceptance criteria for implementation handoff
+* The ingestion layer validates both frozen datasets against this contract and rejects schema drift.
+* Only eligible heads and shafts can enter candidate generation.
+* No missing optional field can silently become a zero score.
+* All omitted scoring dimensions are traceable.
+* Every recommendation is reproducible from stored input + dataset version + contract version + logic version.
+* The engine can return a valid recommendation with sparse inputs while lowering confidence appropriately.
+* The output can be joined deterministically to Teevo marketplace inventory by catalogue_key and shaft_key.
+* Ball-flight miss inputs are captured as independent start direction, curvature and severity fields; the product does not require golfers to understand technical shot-shape terminology.
+* Price, condition, seller trust, delivery and other marketplace variables cannot modify the internal equipment fit score.
+* Only equipment above the minimum recommendation threshold can be surfaced as Best Match, Best Value or Budget Option.
+* User-facing V1 recommendations use qualitative Match bands as the primary fit signal; the numeric Match Score remains internal for ranking, testing and traceability.
+* Best Match, Best Value and Budget Option selections are reproducible from the stored Match result, live-listing inputs and the versioned marketplace-ranking logic.
+
+
+
+
+16. Next engineering artefact
+Driver Match Logic V1 should now define the deterministic mapping from normalised golfer requirements to hard filters, component scores, head × shaft interaction rules, score reweighting, confidence calculation and ranked recommendation generation. That logic must consume this contract without reaching back into uncontracted research fields.

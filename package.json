@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "match:adapter:build": "npx --yes esbuild scripts/teevo-match-test-adapter.ts --bundle --platform=node --format=esm --outfile=scripts/teevo-match-test-adapter.bundle.mjs",
+    "match:harness": "npm run match:adapter:build && python3 docs/teevo-match/driver-match-v1.1/harness.py --adapter \"node scripts/teevo-match-test-adapter.mjs\""
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.0",
@@ -36,6 +38,7 @@
     "eslint-config-next": "14.2.18",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14",
+    "tsx": "^4.19.2",
     "typescript": "^5",
     "vitest": "^3.2.4"
   }
