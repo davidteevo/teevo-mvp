@@ -142,6 +142,11 @@ const ALLOWED_EVENTS = [
   "serial_not_found_selected",
   "photo_flow_completed",
   "photo_flow_abandoned",
+  // Teevo Match admin preview only (not public Match conversion funnel)
+  "match_questionnaire_started",
+  "match_questionnaire_completed",
+  "match_recommendations_viewed",
+  "match_listing_clicked",
 ] as const;
 
 export type AllowedEventName = (typeof ALLOWED_EVENTS)[number];

@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { RadioCards } from "@/components/listing/club-specs/RadioCards";
+import { track } from "@/lib/analytics";
 import {
   answersToApiPayload,
   EMPTY_MATCH_ANSWERS,
@@ -19,6 +20,8 @@ const STEPS = [
   "Current club",
 ] as const;
 
+const ADMIN_PREVIEW_PROPS = { surface: "admin_preview" as const };
+
 export function MatchQuestionnaire() {
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -28,6 +31,7 @@ export function MatchQuestionnaire() {
 
   useEffect(() => {
     setAnswers(loadMatchAnswers());
+    track("match_questionnaire_started", ADMIN_PREVIEW_PROPS);
   }, []);
 
   function patch(p: Partial<MatchQuestionnaireAnswers>) {
@@ -75,6 +79,10 @@ export function MatchQuestionnaire() {
         "teevo_match_admin_results_v1",
         JSON.stringify(data.result)
       );
+      track("match_questionnaire_completed", {
+        ...ADMIN_PREVIEW_PROPS,
+        mode: data.result?.mode ?? null,
+      });
       router.push("/admin/match/results");
     });
   }

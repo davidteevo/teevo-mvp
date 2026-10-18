@@ -99,7 +99,13 @@ Catalogue recommendations are **model-level suitability only**. They do not prov
 
 ## Analytics
 
-Checkpoint A/B admin preview must not emit consumer conversion events that contaminate future Match→purchase metrics.
+Admin preview may emit allowlisted Match funnel events only from admin UI:
+`match_questionnaire_started`, `match_questionnaire_completed`,
+`match_recommendations_viewed`, `match_listing_clicked`.
+
+All fire with `surface: "admin_preview"`. Do **not** emit consumer purchase /
+checkout conversion events from Match preview that would contaminate future
+Match→purchase metrics.
 
 ## Versions
 

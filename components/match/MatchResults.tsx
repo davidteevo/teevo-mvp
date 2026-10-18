@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { track } from "@/lib/analytics";
 import type { CatalogueRecommendResult } from "@/lib/match/catalogue-types";
+
+const ADMIN_PREVIEW_PROPS = { surface: "admin_preview" as const };
 
 export function MatchResults() {
   const [result, setResult] = useState<CatalogueRecommendResult | null>(null);
@@ -10,7 +13,15 @@ export function MatchResults() {
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem("teevo_match_admin_results_v1");
-      if (raw) setResult(JSON.parse(raw) as CatalogueRecommendResult);
+      if (raw) {
+        const parsed = JSON.parse(raw) as CatalogueRecommendResult;
+        setResult(parsed);
+        track("match_recommendations_viewed", {
+          ...ADMIN_PREVIEW_PROPS,
+          mode: parsed.mode,
+          named_count: parsed.recommendations?.length ?? 0,
+        });
+      }
     } catch {
       setResult(null);
     }
@@ -187,6 +198,14 @@ export function MatchResults() {
                       <a
                         href={`/listing/${row.item.source_listing_id}`}
                         className="font-semibold text-mowing-green underline"
+                        onClick={() =>
+                          track("match_listing_clicked", {
+                            ...ADMIN_PREVIEW_PROPS,
+                            catalogue_key: rec.catalogue_key,
+                            listing_id: row.item.source_listing_id,
+                            attach_mode: row.attach_mode,
+                          })
+                        }
                       >
                         £{(row.item.price_minor / 100).toFixed(2)}
                       </a>
