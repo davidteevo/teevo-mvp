@@ -1,6 +1,5 @@
 import { matchBandFromScore, BAND_RANK } from "../bands";
 import {
-  directionBiasToNumeric,
   evidenceReliability,
   launchTendencyToNumeric,
 } from "../category";
@@ -24,44 +23,20 @@ import {
 import { sortedSetValues } from "../util";
 import { aggregateFit } from "./aggregate";
 import {
-  scoreDirection,
   scoreFlex,
   scoreLaunch,
   scoreLoft,
-  scoreMinimumNeed,
   scoreWeight,
 } from "./curves";
+import { activeDim, inactiveDim, numField } from "./dim-helpers";
+import { scoreHeadCharacteristicDimensions } from "./head-dimensions";
 
 function num(v: unknown): number | null {
-  if (v == null || v === "") return null;
-  const n = typeof v === "number" ? v : Number(v);
-  return Number.isFinite(n) ? n : null;
+  return numField(v);
 }
 
-function inactive(
-  name: DimensionName,
-  reason: string
-): DimensionTrace {
-  return {
-    active: false,
-    nominal_weight: DIMENSION_WEIGHTS[name],
-    reliability: 0,
-    score: null,
-    omission_reason: reason,
-  };
-}
-
-function activeDim(
-  name: DimensionName,
-  reliability: number,
-  score: number
-): DimensionTrace {
-  return {
-    active: true,
-    nominal_weight: DIMENSION_WEIGHTS[name],
-    reliability,
-    score,
-  };
+function inactive(name: DimensionName, reason: string): DimensionTrace {
+  return inactiveDim(name, reason);
 }
 
 type LoftPlan = {
@@ -90,10 +65,10 @@ export function planListingLoft(
     settings = settingsRaw.map(Number).filter((n) => Number.isFinite(n));
   }
 
-  const structuredMin = num(head.hosel_loft_setting_min_deg);
-  const structuredMax = num(head.hosel_loft_setting_max_deg);
-  const legacyMin = num(head.loft_adjustment_min_deg);
-  const legacyMax = num(head.loft_adjustment_max_deg);
+  const structuredMin = numField(head.hosel_loft_setting_min_deg);
+  const structuredMax = numField(head.hosel_loft_setting_max_deg);
+  const legacyMin = numField(head.loft_adjustment_min_deg);
+  const legacyMax = numField(head.loft_adjustment_max_deg);
   const hasStructured =
     (settings != null && settings.length > 0) ||
     (structuredMin != null && structuredMax != null);
@@ -188,65 +163,18 @@ export function scoreCandidate(input: {
     };
   }
 
-  const dims = {} as Record<DimensionName, DimensionTrace>;
+  const headChars = scoreHeadCharacteristicDimensions(req, head);
+  const dims = {
+    ...headChars.dimensions,
+  } as Record<DimensionName, DimensionTrace>;
   const gaps: Record<string, number | null> = {
     flex: null,
     loft: null,
-    direction: null,
-    head_launch: null,
+    direction: headChars.gaps.direction,
+    head_launch: headChars.gaps.head_launch,
     shaft_launch: null,
   };
 
-  // forgiveness / stability / workability
-  for (const [name, reqVal, headField, confField] of [
-    ["forgiveness", req.forgiveness_requirement, "forgiveness", "forgiveness_confidence"],
-    ["stability", req.stability_requirement, "stability", "stability_confidence"],
-    ["workability", req.workability_preference, "workability", "workability_confidence"],
-  ] as const) {
-    const eq = num(head[headField]);
-    const rel = evidenceReliability(String(head[confField] || ""));
-    if (reqVal == null || eq == null || rel <= 0) {
-      dims[name] = inactive(
-        name,
-        reqVal == null ? "REQUIREMENT_UNRESOLVED" : "EQUIPMENT_EVIDENCE_UNRESOLVED"
-      );
-    } else {
-      const gap = Math.max(0, reqVal - eq);
-      dims[name] = activeDim(name, rel, scoreMinimumNeed(gap));
-    }
-  }
-
-  // direction
-  if (req.directional_target_numeric == null) {
-    dims.direction = inactive("direction", "REQUIREMENT_UNRESOLVED");
-  } else {
-    const bias = directionBiasToNumeric(String(head.directional_bias || ""));
-    const rel = evidenceReliability(String(head.directional_bias_confidence || ""));
-    if (bias == null || rel <= 0) {
-      dims.direction = inactive("direction", "EQUIPMENT_EVIDENCE_UNRESOLVED");
-    } else {
-      const gap = Math.abs(bias - req.directional_target_numeric);
-      gaps.direction = gap;
-      dims.direction = activeDim("direction", rel, scoreDirection(gap));
-    }
-  }
-
-  // head launch
-  if (req.head_launch_target === "UNRESOLVED" || req.head_launch_target_numeric == null) {
-    dims.head_launch = inactive("head_launch", "REQUIREMENT_UNRESOLVED");
-  } else {
-    const val = launchTendencyToNumeric(String(head.launch_tendency || ""));
-    const rel = evidenceReliability(String(head.launch_confidence || ""));
-    if (val == null || rel <= 0) {
-      dims.head_launch = inactive("head_launch", "EQUIPMENT_EVIDENCE_UNRESOLVED");
-    } else {
-      const gap = Math.abs(val - req.head_launch_target_numeric);
-      gaps.head_launch = gap;
-      dims.head_launch = activeDim("head_launch", rel, scoreLaunch(gap));
-    }
-  }
-
-  dims.head_spin = inactive("head_spin", "SPIN_INACTIVE_V1");
   dims.shaft_spin = inactive("shaft_spin", "SPIN_INACTIVE_V1");
 
   // loft

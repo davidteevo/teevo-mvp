@@ -19,6 +19,7 @@ import {
   Tag,
   Users,
   UsersRound,
+  Target,
   Wrench,
 } from "lucide-react";
 
@@ -58,7 +59,10 @@ const GROUPS: {
     label: "System",
     icon: Wrench,
     chipClass: "bg-mowing-green/10",
-    links: [{ href: "/admin/settings", label: "Settings", icon: Settings }],
+    links: [
+      { href: "/admin/match", label: "Match preview", icon: Target },
+      { href: "/admin/settings", label: "Settings", icon: Settings },
+    ],
   },
 ];
 

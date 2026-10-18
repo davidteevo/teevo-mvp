@@ -964,13 +964,8 @@ function canonicalHeadBrandId(head) {
   return canonicalBrandId(brand) ?? void 0;
 }
 
-// lib/match/scoring/candidate.ts
-function num(v) {
-  if (v == null || v === "") return null;
-  const n = typeof v === "number" ? v : Number(v);
-  return Number.isFinite(n) ? n : null;
-}
-function inactive(name, reason) {
+// lib/match/scoring/dim-helpers.ts
+function inactiveDim(name, reason) {
   return {
     active: false,
     nominal_weight: DIMENSION_WEIGHTS[name],
@@ -987,6 +982,73 @@ function activeDim(name, reliability, score) {
     score
   };
 }
+function numField(v) {
+  if (v == null || v === "") return null;
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+
+// lib/match/scoring/head-dimensions.ts
+function scoreHeadCharacteristicDimensions(req, head) {
+  const dims = {};
+  const gaps = {
+    direction: null,
+    head_launch: null
+  };
+  for (const [name, reqVal, headField, confField] of [
+    ["forgiveness", req.forgiveness_requirement, "forgiveness", "forgiveness_confidence"],
+    ["stability", req.stability_requirement, "stability", "stability_confidence"],
+    ["workability", req.workability_preference, "workability", "workability_confidence"]
+  ]) {
+    const eq = numField(head[headField]);
+    const rel = evidenceReliability(String(head[confField] || ""));
+    if (reqVal == null || eq == null || rel <= 0) {
+      dims[name] = inactiveDim(
+        name,
+        reqVal == null ? "REQUIREMENT_UNRESOLVED" : "EQUIPMENT_EVIDENCE_UNRESOLVED"
+      );
+    } else {
+      const gap = Math.max(0, reqVal - eq);
+      dims[name] = activeDim(name, rel, scoreMinimumNeed(gap));
+    }
+  }
+  if (req.directional_target_numeric == null) {
+    dims.direction = inactiveDim("direction", "REQUIREMENT_UNRESOLVED");
+  } else {
+    const bias = directionBiasToNumeric(String(head.directional_bias || ""));
+    const rel = evidenceReliability(String(head.directional_bias_confidence || ""));
+    if (bias == null || rel <= 0) {
+      dims.direction = inactiveDim("direction", "EQUIPMENT_EVIDENCE_UNRESOLVED");
+    } else {
+      const gap = Math.abs(bias - req.directional_target_numeric);
+      gaps.direction = gap;
+      dims.direction = activeDim("direction", rel, scoreDirection(gap));
+    }
+  }
+  if (req.head_launch_target === "UNRESOLVED" || req.head_launch_target_numeric == null) {
+    dims.head_launch = inactiveDim("head_launch", "REQUIREMENT_UNRESOLVED");
+  } else {
+    const val = launchTendencyToNumeric(String(head.launch_tendency || ""));
+    const rel = evidenceReliability(String(head.launch_confidence || ""));
+    if (val == null || rel <= 0) {
+      dims.head_launch = inactiveDim("head_launch", "EQUIPMENT_EVIDENCE_UNRESOLVED");
+    } else {
+      const gap = Math.abs(val - req.head_launch_target_numeric);
+      gaps.head_launch = gap;
+      dims.head_launch = activeDim("head_launch", rel, scoreLaunch(gap));
+    }
+  }
+  dims.head_spin = inactiveDim("head_spin", "SPIN_INACTIVE_V1");
+  return { dimensions: dims, gaps };
+}
+
+// lib/match/scoring/candidate.ts
+function num(v) {
+  return numField(v);
+}
+function inactive(name, reason) {
+  return inactiveDim(name, reason);
+}
 function planListingLoft(head, stated) {
   const mode = String(head.hosel_loft_adjustment_type || "NONE").toUpperCase();
   const settingsRaw = head.hosel_loft_settings;
@@ -996,10 +1058,10 @@ function planListingLoft(head, stated) {
   } else if (Array.isArray(settingsRaw)) {
     settings = settingsRaw.map(Number).filter((n) => Number.isFinite(n));
   }
-  const structuredMin = num(head.hosel_loft_setting_min_deg);
-  const structuredMax = num(head.hosel_loft_setting_max_deg);
-  const legacyMin = num(head.loft_adjustment_min_deg);
-  const legacyMax = num(head.loft_adjustment_max_deg);
+  const structuredMin = numField(head.hosel_loft_setting_min_deg);
+  const structuredMax = numField(head.hosel_loft_setting_max_deg);
+  const legacyMin = numField(head.loft_adjustment_min_deg);
+  const legacyMax = numField(head.loft_adjustment_max_deg);
   const hasStructured = settings != null && settings.length > 0 || structuredMin != null && structuredMax != null;
   const hasLegacy = legacyMin != null && legacyMax != null;
   let min;
@@ -1073,58 +1135,17 @@ function scoreCandidate(input) {
       exclusion_reasons: ["UNUSABLE_LOFT"]
     };
   }
-  const dims = {};
+  const headChars = scoreHeadCharacteristicDimensions(req, head);
+  const dims = {
+    ...headChars.dimensions
+  };
   const gaps = {
     flex: null,
     loft: null,
-    direction: null,
-    head_launch: null,
+    direction: headChars.gaps.direction,
+    head_launch: headChars.gaps.head_launch,
     shaft_launch: null
   };
-  for (const [name, reqVal, headField, confField] of [
-    ["forgiveness", req.forgiveness_requirement, "forgiveness", "forgiveness_confidence"],
-    ["stability", req.stability_requirement, "stability", "stability_confidence"],
-    ["workability", req.workability_preference, "workability", "workability_confidence"]
-  ]) {
-    const eq = num(head[headField]);
-    const rel = evidenceReliability(String(head[confField] || ""));
-    if (reqVal == null || eq == null || rel <= 0) {
-      dims[name] = inactive(
-        name,
-        reqVal == null ? "REQUIREMENT_UNRESOLVED" : "EQUIPMENT_EVIDENCE_UNRESOLVED"
-      );
-    } else {
-      const gap = Math.max(0, reqVal - eq);
-      dims[name] = activeDim(name, rel, scoreMinimumNeed(gap));
-    }
-  }
-  if (req.directional_target_numeric == null) {
-    dims.direction = inactive("direction", "REQUIREMENT_UNRESOLVED");
-  } else {
-    const bias = directionBiasToNumeric(String(head.directional_bias || ""));
-    const rel = evidenceReliability(String(head.directional_bias_confidence || ""));
-    if (bias == null || rel <= 0) {
-      dims.direction = inactive("direction", "EQUIPMENT_EVIDENCE_UNRESOLVED");
-    } else {
-      const gap = Math.abs(bias - req.directional_target_numeric);
-      gaps.direction = gap;
-      dims.direction = activeDim("direction", rel, scoreDirection(gap));
-    }
-  }
-  if (req.head_launch_target === "UNRESOLVED" || req.head_launch_target_numeric == null) {
-    dims.head_launch = inactive("head_launch", "REQUIREMENT_UNRESOLVED");
-  } else {
-    const val = launchTendencyToNumeric(String(head.launch_tendency || ""));
-    const rel = evidenceReliability(String(head.launch_confidence || ""));
-    if (val == null || rel <= 0) {
-      dims.head_launch = inactive("head_launch", "EQUIPMENT_EVIDENCE_UNRESOLVED");
-    } else {
-      const gap = Math.abs(val - req.head_launch_target_numeric);
-      gaps.head_launch = gap;
-      dims.head_launch = activeDim("head_launch", rel, scoreLaunch(gap));
-    }
-  }
-  dims.head_spin = inactive("head_spin", "SPIN_INACTIVE_V1");
   dims.shaft_spin = inactive("shaft_spin", "SPIN_INACTIVE_V1");
   let loftPlan = null;
   let statedOutsideActiveTarget = false;
@@ -1445,6 +1466,52 @@ function runMatchSession(input) {
     versions: matchAdapterVersions()
   };
 }
+
+// lib/shippo.ts
+var SHIPPO_API_TOKEN = process.env.SHIPPO_API_TOKEN;
+var SHIPPO_DPD_CARRIER_ACCOUNT_IDS = process.env.SHIPPO_DPD_CARRIER_ACCOUNT_ID ? process.env.SHIPPO_DPD_CARRIER_ACCOUNT_ID.split(",").map((s) => s.trim()).filter(Boolean) : null;
+var ShippingService = {
+  DPD_NEXT_DAY: "DPD_NEXT_DAY",
+  DPD_SHIP_TO_SHOP: "DPD_SHIP_TO_SHOP"
+};
+var ALLOWLISTED_SERVICELEVEL_TOKENS = {
+  [ShippingService.DPD_NEXT_DAY]: [
+    "dpd_uk_next_day",
+    "dpd_uk_door_to_door_next_day",
+    "dpd_uk_nextday"
+  ],
+  [ShippingService.DPD_SHIP_TO_SHOP]: [
+    "dpd_uk_ship_to_shop",
+    "dpd_uk_pickup",
+    "dpd_uk_parcelshop"
+  ]
+};
+var ParcelPreset = {
+  GOLF_DRIVER: "GOLF_DRIVER",
+  IRON_SET: "IRON_SET",
+  PUTTER: "PUTTER",
+  SMALL_ITEM: "SMALL_ITEM"
+};
+var PARCEL_PRESET_DIMENSIONS = {
+  [ParcelPreset.GOLF_DRIVER]: { length_cm: 120, width_cm: 20, height_cm: 15, weight_kg: 2.5 },
+  [ParcelPreset.IRON_SET]: { length_cm: 105, width_cm: 30, height_cm: 20, weight_kg: 6.5 },
+  [ParcelPreset.PUTTER]: { length_cm: 95, width_cm: 20, height_cm: 15, weight_kg: 2 },
+  [ParcelPreset.SMALL_ITEM]: { length_cm: 50, width_cm: 30, height_cm: 15, weight_kg: 2 }
+};
+function getParcelForPreset(preset) {
+  const valid = Object.values(ParcelPreset);
+  const key = preset && valid.includes(preset) ? preset : ParcelPreset.SMALL_ITEM;
+  const d = PARCEL_PRESET_DIMENSIONS[key];
+  return {
+    length: String(d.length_cm),
+    width: String(d.width_cm),
+    height: String(d.height_cm),
+    distanceUnit: "cm",
+    weight: String(d.weight_kg),
+    massUnit: "kg"
+  };
+}
+var DEFAULT_PARCEL = getParcelForPreset(ParcelPreset.SMALL_ITEM);
 
 // scripts/teevo-match-test-adapter.ts
 async function readStdin() {

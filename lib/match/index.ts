@@ -36,8 +36,42 @@ export {
   validateBrandSelection,
 } from "./brands";
 export { scoreCandidate, planListingLoft } from "./scoring/candidate";
+export {
+  scoreHeadCharacteristicDimensions,
+  countResolvedCatalogueRequirementDims,
+  countEvidenceBackedCatalogueRequirementDims,
+  countActiveCatalogueDims,
+  CATALOGUE_HEAD_DIMENSIONS,
+} from "./scoring/head-dimensions";
+export {
+  scoreCatalogueHead,
+  rankCatalogueHeads,
+  cataloguePresentationConfidence,
+  collectQualifyingCatalogueHeads,
+  lacksMeaningfulHeadDifferentiation,
+  compareCataloguePresentationOrder,
+} from "./scoring/catalogue-head";
 export { runMatchSession } from "./pipeline";
+export { validateMatchQuestionnaireInputs } from "./app/validate-inputs";
+export { runCatalogueRecommendation } from "./app/run-recommendation";
+export { buildShaftGuidance } from "./app/shaft-guidance";
+export {
+  explainCatalogueHead,
+  buildCharacteristicGuidance,
+} from "./app/explain";
+export { matchReferenceDirectory } from "./app/intelligence-path";
+export { attachInventoryToCatalogueRecommendations } from "./app/inventory-attach";
+export {
+  mapTeevoListingToInventoryItem,
+  loadTeevoDriverListingsForMatch,
+} from "./inventory/teevo-listings";
 export type * from "./types";
+export type * from "./catalogue-types";
+export type * from "./inventory/types";
+export {
+  CATALOGUE_MIN_INDEPENDENT_ACTIVE_DIMS,
+  CATALOGUE_RECOMMENDATION_KIND,
+} from "./catalogue-types";
 export type {
   ReadonlyHeadRecord,
   ReadonlyShaftRecord,
