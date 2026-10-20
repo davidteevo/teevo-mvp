@@ -3,7 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { MatchRefinementPanel } from "@/components/match/MatchRefinementPanel";
+import { RecommendationHeadCard } from "@/components/match/results/RecommendationHeadCard";
+import { ResultsHeading } from "@/components/match/results/ResultsHeading";
 import { track } from "@/lib/analytics";
+import {
+  EQUAL_HEAD_SCORE_MESSAGE,
+  namedHeadsScoredEqually,
+} from "@/lib/match/app/present-head-card";
 import type { CatalogueRecommendResult } from "@/lib/match/catalogue-types";
 
 const ADMIN_PREVIEW_PROPS = { surface: "admin_preview" as const };
@@ -45,16 +51,7 @@ export function MatchResults() {
   const g = result.characteristic_guidance;
   const shaft = result.shaft_guidance;
   const named = result.mode === "NAMED_HEADS" ? result.recommendations : [];
-  const hasIncompleteCoverage = named.some(
-    (r) => r.active_catalogue_dim_count < 5
-  );
-  const hasEqualFitAmongNamed = named.some((a, i) =>
-    named.slice(i + 1).some(
-      (b) =>
-        a.catalogue_match_band === b.catalogue_match_band &&
-        a.catalogue_fit_score === b.catalogue_fit_score
-    )
-  );
+  const hasEqualFitAmongNamed = namedHeadsScoredEqually(named);
   const olderAboveNewer = named.some((rec, i) =>
     named.slice(i + 1).some((later) => {
       const older = rec.release_year;
@@ -70,142 +67,50 @@ export function MatchResults() {
   );
 
   return (
-    <div className="max-w-2xl space-y-6">
-      <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-par-3-punch">
-          Admin preview · not purchasable offers
-        </p>
-        <h1 className="text-2xl font-semibold text-mowing-green mt-1">
-          Equipment recommendations
-        </h1>
-        <p className="text-sm text-mowing-green/70 mt-1">
-          Mode: {result.mode.replace(/_/g, " ").toLowerCase()}.
-        </p>
-        <div className="mt-3 rounded-xl border border-par-3-punch/40 bg-par-3-punch/5 px-3 py-2 text-sm text-mowing-green">
-          <p className="font-semibold">
-            Assessed head characteristics only — not a complete club fitting
+    <div className="max-w-3xl space-y-6">
+      {result.mode === "NAMED_HEADS" ? (
+        <>
+          <ResultsHeading />
+          <ul className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            {result.recommendations.map((rec, i) => (
+              <li key={rec.catalogue_key} className="min-w-0">
+                <RecommendationHeadCard
+                  score={rec}
+                  explanation={result.explanations[i]}
+                  requirements={result.normalised_requirements}
+                />
+              </li>
+            ))}
+          </ul>
+          {hasEqualFitAmongNamed ? (
+            <p className="text-sm text-mowing-green/80">{EQUAL_HEAD_SCORE_MESSAGE}</p>
+          ) : null}
+        </>
+      ) : (
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wide text-par-3-punch">
+            Admin preview · not purchasable offers
           </p>
-          <p className="mt-1 text-mowing-green/80">
-            Catalogue Fit scores model-level head characteristics that could be
-            assessed from your answers. Loft and shaft suitability are not
-            included. Recommendations do not prove a handedness, loft or shaft
-            configuration exists. UK-market presence is not proof of live
-            inventory. Confirm on real stock before buying.
+          <h1 className="text-2xl font-semibold text-mowing-green mt-1">
+            Equipment recommendations
+          </h1>
+          <p className="text-sm text-mowing-green/70 mt-1">
+            Mode: {result.mode.replace(/_/g, " ").toLowerCase()}.
           </p>
+          <div className="mt-3 rounded-xl border border-par-3-punch/40 bg-par-3-punch/5 px-3 py-2 text-sm text-mowing-green">
+            <p className="font-semibold">
+              Assessed head characteristics only — not a complete club fitting
+            </p>
+            <p className="mt-1 text-mowing-green/80">
+              Catalogue Fit scores model-level head characteristics that could be
+              assessed from your answers. Loft and shaft suitability are not
+              included. Recommendations do not prove a handedness, loft or shaft
+              configuration exists. UK-market presence is not proof of live
+              inventory. Confirm on real stock before buying.
+            </p>
+          </div>
         </div>
-        {hasEqualFitAmongNamed ? (
-          <div className="mt-3 rounded-xl border border-par-3-punch/50 bg-par-3-punch/10 px-3 py-2 text-sm text-mowing-green">
-            <p className="font-semibold">Similar Fit scores</p>
-            <p className="mt-1 text-mowing-green/80">
-              These clubs have similar Fit scores on the available
-              characteristics. List order is not a stronger technical Fit.
-              Shaft and loft are not included in catalogue scoring.
-            </p>
-          </div>
-        ) : null}
-        {hasIncompleteCoverage ? (
-          <div className="mt-3 rounded-xl border border-par-3-punch/50 bg-par-3-punch/10 px-3 py-2 text-sm text-mowing-green">
-            <p className="font-semibold">Incomplete characteristic coverage</p>
-            <p className="mt-1 text-mowing-green/80">
-              At least one named head was ranked with fewer than five active
-              catalogue dimensions. Read the Uncertainty notes on each card
-              before treating names as fully evidenced.
-            </p>
-          </div>
-        ) : null}
-        {olderAboveNewer ? (
-          <div className="mt-3 rounded-xl border border-par-3-punch/50 bg-par-3-punch/10 px-3 py-2 text-sm text-mowing-green">
-            <p className="font-semibold">Fitter review — older model ranks above newer</p>
-            <p className="mt-1 text-mowing-green/80">
-              Fit scores are unchanged. An older release year appears above a
-              newer head in this list — confirm suitability with an independent
-              fitter before external golfer testing.
-            </p>
-          </div>
-        ) : null}
-      </div>
-
-      {result.mode === "NAMED_HEADS" &&
-        result.recommendations.map((rec, i) => {
-          const exp = result.explanations[i];
-          const yearLabel =
-            rec.release_year != null && Number.isFinite(rec.release_year)
-              ? String(rec.release_year)
-              : "Year unknown";
-          const incomplete = rec.active_catalogue_dim_count < 5;
-          return (
-            <article
-              key={rec.catalogue_key}
-              className="rounded-xl border border-mowing-green/15 bg-white p-4 space-y-2"
-            >
-              <p className="text-xs font-medium text-par-3-punch">
-                Suitability · {rec.catalogue_match_band?.replace(/_/g, " ")} ·{" "}
-                {rec.head_recommendation_confidence} confidence
-              </p>
-              <p className="text-xs text-mowing-green/70">
-                Assessed on {rec.active_catalogue_dim_count} of 5 head
-                characteristics · loft and shaft not scored
-              </p>
-              <h2 className="text-lg font-semibold text-mowing-green">
-                {rec.display_name ||
-                  [rec.brand, rec.model].filter(Boolean).join(" ")}
-              </h2>
-              <p className="text-sm font-semibold text-mowing-green">
-                Release year: {yearLabel}
-              </p>
-              <p className="text-sm text-mowing-green/80">
-                {exp?.suitability_summary}
-              </p>
-              {exp?.reasons?.length ? (
-                <ul className="list-disc pl-5 text-sm text-mowing-green/80 space-y-1">
-                  {exp.reasons.map((r) => (
-                    <li key={r}>{r}</li>
-                  ))}
-                </ul>
-              ) : null}
-              {exp?.trade_offs?.length ? (
-                <div>
-                  <p className="text-xs font-semibold text-mowing-green/60 uppercase">
-                    Trade-offs
-                  </p>
-                  <ul className="list-disc pl-5 text-sm text-mowing-green/70">
-                    {exp.trade_offs.map((t) => (
-                      <li key={t}>{t}</li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-              {exp?.uncertainty?.length || incomplete ? (
-                <div
-                  className={
-                    incomplete
-                      ? "rounded-lg border border-par-3-punch/40 bg-par-3-punch/5 px-3 py-2"
-                      : undefined
-                  }
-                >
-                  <p className="text-xs font-semibold text-par-3-punch uppercase">
-                    Uncertainty
-                  </p>
-                  <ul className="list-disc pl-5 text-sm text-mowing-green/80 space-y-1 mt-1">
-                    {(exp?.uncertainty ?? []).map((u) => (
-                      <li key={u}>{u}</li>
-                    ))}
-                    {incomplete &&
-                    !(exp?.uncertainty ?? []).some((u) =>
-                      u.includes("of 5 characteristic")
-                    ) ? (
-                      <li>
-                        Only {rec.active_catalogue_dim_count} of 5 characteristic
-                        dimensions were active — treat this ranking cautiously.
-                        Loft and shaft were not scored.
-                      </li>
-                    ) : null}
-                  </ul>
-                </div>
-              ) : null}
-            </article>
-          );
-        })}
+      )}
 
       {/* Guidance refine + optional post-recovery refine (secondary to named cards). */}
       <MatchRefinementPanel result={result} onResult={setResult} />
@@ -346,6 +251,12 @@ export function MatchResults() {
 
       <details className="text-xs text-mowing-green/60">
         <summary className="cursor-pointer font-semibold">Admin audit</summary>
+        {olderAboveNewer ? (
+          <p className="mt-2">
+            An older release year appears above a newer head. Fit scores are
+            unchanged.
+          </p>
+        ) : null}
         <pre className="mt-2 overflow-x-auto whitespace-pre-wrap rounded-lg bg-mowing-green/5 p-3">
           {JSON.stringify(
             {

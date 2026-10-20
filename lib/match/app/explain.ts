@@ -18,6 +18,25 @@ function bandPhrase(band: string | null | undefined): string {
   }
 }
 
+/**
+ * Reason sentences explainCatalogueHead actually emits.
+ * Presentation matches these with exact equality. It does not search inside them.
+ */
+export const CATALOGUE_HEAD_REASON = {
+  FORGIVENESS:
+    "Forgiveness characteristic is consistent with the support level suggested by your inputs (model-level only).",
+  STABILITY:
+    "Stability characteristic is consistent with the consistency needs indicated (model-level only).",
+  WORKABILITY:
+    "Workability characteristic is consistent with your stated preference (model-level only).",
+  DIRECTION:
+    "Published directional bias is consistent with the start/curve pattern you described — not a guarantee of shot shape.",
+  LAUNCH:
+    "Published launch tendency is consistent with your flight preference — loft on a real club still matters.",
+} as const;
+
+export type CatalogueHeadReasonCode = keyof typeof CATALOGUE_HEAD_REASON;
+
 export type ExplainCatalogueOptions = {
   /** True when returned named cards share the same band + exact Fit. */
   equalFitAmongNamed?: boolean;
@@ -56,17 +75,13 @@ export function explainCatalogueHead(
   const dims = score.dimensions;
 
   if (dims.forgiveness?.active) {
-    reasons.push(
-      "Forgiveness characteristic is consistent with the support level suggested by your inputs (model-level only)."
-    );
+    reasons.push(CATALOGUE_HEAD_REASON.FORGIVENESS);
   } else if (req.forgiveness_requirement != null) {
     pinnedUncertainty.push("Forgiveness evidence for this head is incomplete.");
   }
 
   if (dims.stability?.active) {
-    reasons.push(
-      "Stability characteristic is consistent with the consistency needs indicated (model-level only)."
-    );
+    reasons.push(CATALOGUE_HEAD_REASON.STABILITY);
   }
 
   if (dims.workability?.active) {
@@ -75,16 +90,12 @@ export function explainCatalogueHead(
         "Workability may be a compromise relative to forgiveness-oriented needs."
       );
     } else {
-      reasons.push(
-        "Workability characteristic is consistent with your stated preference (model-level only)."
-      );
+      reasons.push(CATALOGUE_HEAD_REASON.WORKABILITY);
     }
   }
 
   if (dims.direction?.active) {
-    reasons.push(
-      "Published directional bias is consistent with the start/curve pattern you described — not a guarantee of shot shape."
-    );
+    reasons.push(CATALOGUE_HEAD_REASON.DIRECTION);
   } else if (req.directional_target_numeric != null) {
     pinnedUncertainty.push(
       "Directional bias evidence is incomplete for this head."
@@ -96,9 +107,7 @@ export function explainCatalogueHead(
   }
 
   if (dims.head_launch?.active) {
-    reasons.push(
-      "Published launch tendency is consistent with your flight preference — loft on a real club still matters."
-    );
+    reasons.push(CATALOGUE_HEAD_REASON.LAUNCH);
   } else if (
     req.head_launch_target !== "UNRESOLVED" &&
     req.head_launch_target_numeric != null
