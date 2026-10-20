@@ -147,6 +147,10 @@ const ALLOWED_EVENTS = [
   "match_questionnaire_completed",
   "match_recommendations_viewed",
   "match_listing_clicked",
+  "match_refinement_offered",
+  "match_refinement_answered",
+  "match_refinement_recovered",
+  "match_refinement_skipped",
 ] as const;
 
 export type AllowedEventName = (typeof ALLOWED_EVENTS)[number];

@@ -41,16 +41,48 @@ export {
   countResolvedCatalogueRequirementDims,
   countEvidenceBackedCatalogueRequirementDims,
   countActiveCatalogueDims,
+  isMaterialHeadLaunchRequirement,
+  hasUnresolvedLaunchEquipmentEvidence,
   CATALOGUE_HEAD_DIMENSIONS,
 } from "./scoring/head-dimensions";
 export {
   scoreCatalogueHead,
   rankCatalogueHeads,
+  selectCatalogueShortlist,
   cataloguePresentationConfidence,
   collectQualifyingCatalogueHeads,
   lacksMeaningfulHeadDifferentiation,
   compareCataloguePresentationOrder,
+  catalogueFitsEqual,
+  sameCatalogueFitTier,
 } from "./scoring/catalogue-head";
+export {
+  MATCH_HEAD_CONFIG_OVERLAY_VERSION,
+  loadHeadConfigOverlay,
+  familyKeyFor,
+  isRecommendationEligible,
+  dedupeByRecommendationFamily,
+} from "./head-config-overlay";
+export type {
+  HeadConfigOverlay,
+  HeadConfigOverlayIndex,
+  HeadConfigOverlayMember,
+  FamilyDedupeResult,
+} from "./head-config-overlay";
+export {
+  MATCH_UK_HEAD_RELEVANCE_VERSION,
+  UK_MARKET_CODE_GB,
+  loadUkHeadRelevanceOverlay,
+  isUkMarketRecommendationEligible,
+  deriveUkRecommendationEligibility,
+  ukHoldReasonFor,
+} from "./uk-head-relevance";
+export type {
+  UkHeadRelevanceIndex,
+  UkHeadRelevanceMember,
+  UkMarketStatus,
+  UkMarketReviewState,
+} from "./uk-head-relevance";
 export { runMatchSession } from "./pipeline";
 export { validateMatchQuestionnaireInputs } from "./app/validate-inputs";
 export { runCatalogueRecommendation } from "./app/run-recommendation";
@@ -59,6 +91,28 @@ export {
   explainCatalogueHead,
   buildCharacteristicGuidance,
 } from "./app/explain";
+export {
+  selectRefinement,
+  selectOptionalPostRecoveryQuestion,
+  applyRefinementAnswer,
+  isInformativeRefinementAnswer,
+  REFINEMENT_MAX_B_STEPS,
+} from "./app/refinement-policy";
+export type {
+  RefinementDecision,
+  RefinementPathway,
+  RefinementQuestion,
+  RefinementQuestionId,
+  SelectRefinementOptions,
+} from "./app/refinement-policy";
+export {
+  commitRefinementProgress,
+  mergeOfferedKey,
+  preferFresherRefineState,
+  fingerprintAnswers,
+  EMPTY_REFINEMENT_STATE,
+} from "./app/refinement-session";
+export type { MatchRefinementState } from "./app/refinement-session";
 export { matchReferenceDirectory } from "./app/intelligence-path";
 export { attachInventoryToCatalogueRecommendations } from "./app/inventory-attach";
 export {

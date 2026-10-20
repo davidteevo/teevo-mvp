@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { MatchRefinementPanel } from "@/components/match/MatchRefinementPanel";
 import { track } from "@/lib/analytics";
 import type { CatalogueRecommendResult } from "@/lib/match/catalogue-types";
 
@@ -47,6 +48,13 @@ export function MatchResults() {
   const hasIncompleteCoverage = named.some(
     (r) => r.active_catalogue_dim_count < 5
   );
+  const hasEqualFitAmongNamed = named.some((a, i) =>
+    named.slice(i + 1).some(
+      (b) =>
+        a.catalogue_match_band === b.catalogue_match_band &&
+        a.catalogue_fit_score === b.catalogue_fit_score
+    )
+  );
   const olderAboveNewer = named.some((rec, i) =>
     named.slice(i + 1).some((later) => {
       const older = rec.release_year;
@@ -74,13 +82,27 @@ export function MatchResults() {
           Mode: {result.mode.replace(/_/g, " ").toLowerCase()}.
         </p>
         <div className="mt-3 rounded-xl border border-par-3-punch/40 bg-par-3-punch/5 px-3 py-2 text-sm text-mowing-green">
-          <p className="font-semibold">Model-level only — not a purchase offer</p>
+          <p className="font-semibold">
+            Assessed head characteristics only — not a complete club fitting
+          </p>
           <p className="mt-1 text-mowing-green/80">
-            Catalogue Fit does not score loft or shaft. Recommendations do not
-            prove a handedness, loft or shaft configuration exists. Confirm on
-            real inventory before buying.
+            Catalogue Fit scores model-level head characteristics that could be
+            assessed from your answers. Loft and shaft suitability are not
+            included. Recommendations do not prove a handedness, loft or shaft
+            configuration exists. UK-market presence is not proof of live
+            inventory. Confirm on real stock before buying.
           </p>
         </div>
+        {hasEqualFitAmongNamed ? (
+          <div className="mt-3 rounded-xl border border-par-3-punch/50 bg-par-3-punch/10 px-3 py-2 text-sm text-mowing-green">
+            <p className="font-semibold">Similar Fit scores</p>
+            <p className="mt-1 text-mowing-green/80">
+              These clubs have similar Fit scores on the available
+              characteristics. List order is not a stronger technical Fit.
+              Shaft and loft are not included in catalogue scoring.
+            </p>
+          </div>
+        ) : null}
         {hasIncompleteCoverage ? (
           <div className="mt-3 rounded-xl border border-par-3-punch/50 bg-par-3-punch/10 px-3 py-2 text-sm text-mowing-green">
             <p className="font-semibold">Incomplete characteristic coverage</p>
@@ -119,6 +141,10 @@ export function MatchResults() {
               <p className="text-xs font-medium text-par-3-punch">
                 Suitability · {rec.catalogue_match_band?.replace(/_/g, " ")} ·{" "}
                 {rec.head_recommendation_confidence} confidence
+              </p>
+              <p className="text-xs text-mowing-green/70">
+                Assessed on {rec.active_catalogue_dim_count} of 5 head
+                characteristics · loft and shaft not scored
               </p>
               <h2 className="text-lg font-semibold text-mowing-green">
                 {rec.display_name ||
@@ -181,6 +207,9 @@ export function MatchResults() {
           );
         })}
 
+      {/* Guidance refine + optional post-recovery refine (secondary to named cards). */}
+      <MatchRefinementPanel result={result} onResult={setResult} />
+
       {(result.mode === "CHARACTERISTIC_GUIDANCE" ||
         result.mode === "NO_DEFENSIBLE_HEADS") && (
         <div className="rounded-xl border border-par-3-punch/30 bg-white p-4 space-y-2">
@@ -189,7 +218,10 @@ export function MatchResults() {
           </h2>
           <p className="text-sm text-mowing-green/80">
             {result.mode === "CHARACTERISTIC_GUIDANCE"
-              ? "Not enough independent head-fit evidence for named rankings yet."
+              ? result.audit.insufficient_evidence_reason ===
+                "NO_MEANINGFUL_HEAD_DIFFERENTIATION"
+                ? "Too many leading heads share similar incomplete Fit evidence for Teevo to name a shortlist confidently."
+                : "Not enough independent head-fit evidence for named rankings yet."
               : "No catalogue heads cleared the defensive gates for this session."}
           </p>
           <ul className="list-disc pl-5 text-sm text-mowing-green/80 space-y-1">

@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { RadioCards } from "@/components/listing/club-specs/RadioCards";
 import { track } from "@/lib/analytics";
+import { clearRefinementState } from "@/lib/match/app/refinement-session";
 import {
   answersToApiPayload,
   EMPTY_MATCH_ANSWERS,
@@ -79,6 +80,7 @@ export function MatchQuestionnaire() {
         "teevo_match_admin_results_v1",
         JSON.stringify(data.result)
       );
+      clearRefinementState();
       track("match_questionnaire_completed", {
         ...ADMIN_PREVIEW_PROPS,
         mode: data.result?.mode ?? null,
