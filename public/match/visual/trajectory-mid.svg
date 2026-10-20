@@ -1,0 +1,11 @@
+<svg width="120" height="72" viewBox="0 0 120 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="120" height="72" fill="#E5E5E5"/>
+<g id="Diagram / trajectory_mid">
+<g id="Editable SVG artwork">
+<path id="Vector" d="M5 61H115" stroke="#AAC8B6" stroke-width="2.5"/>
+<path id="Vector_2" d="M12 62C14.2091 62 16 60.2091 16 58C16 55.7909 14.2091 54 12 54C9.79086 54 8 55.7909 8 58C8 60.2091 9.79086 62 12 62Z" fill="white" stroke="#265C4B" stroke-width="1.4"/>
+<path id="Golf shot flight / trajectory_mid / late apex" d="M12 58C31 52 52 25 78 25C91 25 102 42 108 58" stroke="#265C4B" stroke-width="3.3"/>
+<path id="Vector_3" d="M108 61.5C109.933 61.5 111.5 59.933 111.5 58C111.5 56.067 109.933 54.5 108 54.5C106.067 54.5 104.5 56.067 104.5 58C104.5 59.933 106.067 61.5 108 61.5Z" fill="#49C184"/>
+</g>
+</g>
+</svg>

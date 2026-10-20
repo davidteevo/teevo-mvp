@@ -46,6 +46,11 @@ export function loadMatchAnswers(): MatchQuestionnaireAnswers {
   }
 }
 
+export function clearMatchQuestionnaireAnswers(): void {
+  if (typeof window === "undefined") return;
+  sessionStorage.removeItem(MATCH_QUESTIONNAIRE_STORAGE_KEY);
+}
+
 export function saveMatchAnswers(answers: MatchQuestionnaireAnswers): void {
   if (typeof window === "undefined") return;
   sessionStorage.setItem(
@@ -54,6 +59,10 @@ export function saveMatchAnswers(answers: MatchQuestionnaireAnswers): void {
   );
 }
 
+/**
+ * Fitting payload only. Step 2's measurement choice and inactive drafts
+ * live outside this object and must not be added here.
+ */
 export function answersToApiPayload(
   a: MatchQuestionnaireAnswers
 ): Record<string, unknown> {

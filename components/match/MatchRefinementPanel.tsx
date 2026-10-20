@@ -3,7 +3,26 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { RadioCards } from "@/components/listing/club-specs/RadioCards";
+import { VisualChoiceGroup } from "@/components/match/visual/VisualChoiceGroup";
+import {
+  curvatureStraightOptionalVisualOptions,
+  curvatureVariableClarifyVisualOptions,
+  curvatureVisualOptions,
+} from "@/components/match/visual/curvatureOptions";
+import { startDirectionVisualOptions } from "@/components/match/visual/startDirectionOptions";
+import { trajectoryVisualOptions } from "@/components/match/visual/trajectoryOptions";
 import { track } from "@/lib/analytics";
+import type {
+  CurvatureEnum,
+  StartDirectionEnum,
+  TrajectoryEnum,
+} from "@/lib/match/app/visual-option-maps";
+import {
+  CURVATURE_PATHWAY_C_LABELS,
+  CURVATURE_UNKNOWN_REFINE_LABELS,
+  CURVATURE_VARIABLE_CLARIFY_LABELS,
+  START_DIRECTION_REFINE_LABELS,
+} from "@/lib/match/app/visual-option-maps";
 import type { CatalogueRecommendResult } from "@/lib/match/catalogue-types";
 import {
   applyRefinementAnswer,
@@ -27,6 +46,11 @@ import {
   saveMatchAnswers,
   type MatchQuestionnaireAnswers,
 } from "@/lib/match/app/session-storage";
+import {
+  loadStep2Draft,
+  proposePathwayCMeasurement,
+  saveStep2Draft,
+} from "@/lib/match/app/step2-measurement";
 
 const ADMIN_PREVIEW_PROPS = { surface: "admin_preview" as const };
 const RESULTS_KEY = "teevo_match_admin_results_v1";
@@ -75,6 +99,79 @@ function toRecord(a: MatchQuestionnaireAnswers): Record<string, unknown> {
 function fromRecord(r: Record<string, unknown>): MatchQuestionnaireAnswers {
   const cur = loadMatchAnswers();
   return { ...cur, ...(r as Partial<MatchQuestionnaireAnswers>) };
+}
+
+function RefinementChoiceControl({
+  question,
+  choice,
+  onChange,
+}: {
+  question: RefinementQuestion;
+  choice: string;
+  onChange: (v: string) => void;
+}) {
+  if (question.id === "typical_trajectory") {
+    return (
+      <VisualChoiceGroup
+        label={question.prompt}
+        value={(choice || "") as TrajectoryEnum | ""}
+        onChange={onChange}
+        options={trajectoryVisualOptions()}
+      />
+    );
+  }
+  if (question.id === "typical_start_direction") {
+    return (
+      <VisualChoiceGroup
+        label={question.prompt}
+        value={(choice || "") as StartDirectionEnum | ""}
+        onChange={onChange}
+        options={startDirectionVisualOptions(START_DIRECTION_REFINE_LABELS)}
+      />
+    );
+  }
+  if (question.id === "typical_curvature_unknown") {
+    return (
+      <VisualChoiceGroup
+        label={question.prompt}
+        value={(choice || "") as CurvatureEnum | ""}
+        onChange={onChange}
+        options={curvatureVisualOptions(CURVATURE_UNKNOWN_REFINE_LABELS)}
+      />
+    );
+  }
+  if (question.id === "typical_curvature_variable_clarify") {
+    return (
+      <VisualChoiceGroup
+        label={question.prompt}
+        value={(choice || "") as CurvatureEnum | ""}
+        onChange={onChange}
+        options={curvatureVariableClarifyVisualOptions(
+          CURVATURE_VARIABLE_CLARIFY_LABELS
+        )}
+      />
+    );
+  }
+  if (question.id === "typical_curvature_straight_optional") {
+    return (
+      <VisualChoiceGroup
+        label={question.prompt}
+        value={
+          (choice || "") as "KEEP" | "LEFT" | "RIGHT" | "UNKNOWN" | ""
+        }
+        onChange={onChange}
+        options={curvatureStraightOptionalVisualOptions()}
+      />
+    );
+  }
+  return (
+    <RadioCards
+      label={question.prompt}
+      value={choice}
+      onChange={onChange}
+      options={optionsFor(question)}
+    />
+  );
 }
 
 function optionsFor(q: RefinementQuestion): {
@@ -363,13 +460,17 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
       setError(null);
 
       const committedRefine = preferLatestRefine(refine);
-      const proposedAnswers: MatchQuestionnaireAnswers = {
-        ...answers,
-        handicap: cHandicap.trim(),
-        club_speed_mph: cSpeed.trim(),
-        typical_trajectory: cTraj || "UNKNOWN",
-        typical_curvature: cCurve || "UNKNOWN",
-      };
+      const planned = proposePathwayCMeasurement(
+        answers,
+        {
+          handicap: cHandicap.trim(),
+          club_speed_mph: cSpeed.trim(),
+          typical_trajectory: cTraj || "UNKNOWN",
+          typical_curvature: cCurve || "UNKNOWN",
+        },
+        loadStep2Draft()
+      );
+      const proposedAnswers = planned.answers;
 
       track("match_refinement_answered", {
         ...ADMIN_PREVIEW_PROPS,
@@ -392,6 +493,7 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
       }
 
       saveMatchAnswers(proposedAnswers);
+      saveStep2Draft(planned.draft);
       setAnswers(proposedAnswers);
       const next = commitRefinementProgress({
         previous: committedRefine,
@@ -458,28 +560,17 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
             placeholder="Leave blank if you don’t know"
           />
         </label>
-        <RadioCards
+        <VisualChoiceGroup
           label="Typical ball flight (helpful)"
-          value={cTraj || "UNKNOWN"}
+          value={(cTraj || "UNKNOWN") as TrajectoryEnum}
           onChange={(v) => setCTraj(v === "UNKNOWN" ? "" : v)}
-          options={[
-            { value: "LOW", title: "Low" },
-            { value: "MID", title: "Mid" },
-            { value: "HIGH", title: "High" },
-            { value: "UNKNOWN", title: "Not sure" },
-          ]}
+          options={trajectoryVisualOptions()}
         />
-        <RadioCards
+        <VisualChoiceGroup
           label="Typical shot curve (helpful)"
-          value={cCurve || "UNKNOWN"}
+          value={(cCurve || "UNKNOWN") as CurvatureEnum}
           onChange={(v) => setCCurve(v === "UNKNOWN" ? "" : v)}
-          options={[
-            { value: "LEFT", title: "Curves left" },
-            { value: "STRAIGHT", title: "Mostly straight" },
-            { value: "RIGHT", title: "Curves right" },
-            { value: "VARIABLE", title: "Varies / both ways" },
-            { value: "UNKNOWN", title: "Not sure" },
-          ]}
+          options={curvatureVisualOptions(CURVATURE_PATHWAY_C_LABELS)}
         />
         {error ? (
           <p className="text-sm text-par-3-punch" role="alert">
@@ -552,11 +643,10 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
           </div>
         ) : (
           <>
-            <RadioCards
-              label={question.prompt}
-              value={choice}
+            <RefinementChoiceControl
+              question={question}
+              choice={choice}
               onChange={setChoice}
-              options={optionsFor(question)}
             />
             {error ? (
               <p className="text-sm text-par-3-punch" role="alert">
@@ -588,7 +678,6 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
   }
 
   const question = decision.question!;
-  const opts = optionsFor(question);
   // Avoid duplicating the STRAIGHT optional headline in the body.
   const showGenericBody =
     question.id !== "typical_curvature_straight_optional";
@@ -609,11 +698,10 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
           One more detail could help us narrow them down.
         </p>
       ) : null}
-      <RadioCards
-        label={question.prompt}
-        value={choice}
+      <RefinementChoiceControl
+        question={question}
+        choice={choice}
         onChange={setChoice}
-        options={opts}
       />
       {question.requiresObjectiveConfirm &&
       choice &&

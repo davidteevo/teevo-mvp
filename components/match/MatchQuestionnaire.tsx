@@ -3,15 +3,39 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { RadioCards } from "@/components/listing/club-specs/RadioCards";
+import { Step2Measurement } from "@/components/match/Step2Measurement";
+import { VisualChoiceGroup } from "@/components/match/visual/VisualChoiceGroup";
+import { curvatureVisualOptions } from "@/components/match/visual/curvatureOptions";
+import { startDirectionVisualOptions } from "@/components/match/visual/startDirectionOptions";
+import { strikePatternVisualOptions } from "@/components/match/visual/strikePatternOptions";
+import { trajectoryVisualOptions } from "@/components/match/visual/trajectoryOptions";
 import { track } from "@/lib/analytics";
 import { clearRefinementState } from "@/lib/match/app/refinement-session";
 import {
   answersToApiPayload,
+  clearMatchQuestionnaireAnswers,
   EMPTY_MATCH_ANSWERS,
   loadMatchAnswers,
   saveMatchAnswers,
   type MatchQuestionnaireAnswers,
 } from "@/lib/match/app/session-storage";
+import {
+  clearStep2Draft,
+  commitStep2Measurement,
+  EMPTY_STEP2_DRAFT,
+  hydrateStep2,
+  loadStep2Draft,
+  saveStep2Draft,
+  step2ContinueError,
+  type Step2Draft,
+} from "@/lib/match/app/step2-measurement";
+import type {
+  CurvatureEnum,
+  StartDirectionEnum,
+  StrikeHandedness,
+  StrikePatternEnum,
+  TrajectoryEnum,
+} from "@/lib/match/app/visual-option-maps";
 
 const STEPS = [
   "Handedness",
@@ -27,17 +51,54 @@ export function MatchQuestionnaire() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<MatchQuestionnaireAnswers>(EMPTY_MATCH_ANSWERS);
+  const [step2Draft, setStep2Draft] = useState<Step2Draft>(EMPTY_STEP2_DRAFT);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
-    setAnswers(loadMatchAnswers());
+    const fresh =
+      new URLSearchParams(window.location.search).get("fresh") === "1";
+    if (fresh) {
+      clearMatchQuestionnaireAnswers();
+      clearStep2Draft();
+      clearRefinementState();
+      setAnswers({ ...EMPTY_MATCH_ANSWERS });
+      setStep2Draft({ ...EMPTY_STEP2_DRAFT });
+      setStep(0);
+      router.replace("/admin/match/questionnaire");
+    } else {
+      const hydrated = hydrateStep2(loadMatchAnswers(), loadStep2Draft());
+      setAnswers(hydrated.answers);
+      setStep2Draft(hydrated.draft);
+      saveMatchAnswers(hydrated.answers);
+      saveStep2Draft(hydrated.draft);
+    }
     track("match_questionnaire_started", ADMIN_PREVIEW_PROPS);
-  }, []);
+  }, [router]);
+
+  function startAgain() {
+    clearMatchQuestionnaireAnswers();
+    clearStep2Draft();
+    clearRefinementState();
+    setAnswers({ ...EMPTY_MATCH_ANSWERS });
+    setStep2Draft({ ...EMPTY_STEP2_DRAFT });
+    setStep(0);
+    setError(null);
+  }
 
   function patch(p: Partial<MatchQuestionnaireAnswers>) {
     setAnswers((prev) => {
       const next = { ...prev, ...p };
+      saveMatchAnswers(next);
+      return next;
+    });
+  }
+
+  function applyStep2Draft(nextDraft: Step2Draft) {
+    setStep2Draft(nextDraft);
+    saveStep2Draft(nextDraft);
+    setAnswers((prev) => {
+      const next = commitStep2Measurement(prev, nextDraft);
       saveMatchAnswers(next);
       return next;
     });
@@ -49,6 +110,13 @@ export function MatchQuestionnaire() {
       setError("Handedness is required.");
       return;
     }
+    if (step === 1) {
+      const measurementError = step2ContinueError(step2Draft);
+      if (measurementError) {
+        setError(measurementError);
+        return;
+      }
+    }
     if (step < STEPS.length - 1) setStep((s) => s + 1);
     else submit();
   }
@@ -59,13 +127,15 @@ export function MatchQuestionnaire() {
   }
 
   function submit() {
+    const committed = commitStep2Measurement(answers, step2Draft);
     startTransition(async () => {
       setError(null);
-      saveMatchAnswers(answers);
+      setAnswers(committed);
+      saveMatchAnswers(committed);
       const res = await fetch("/api/admin/match/recommend", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answers: answersToApiPayload(answers) }),
+        body: JSON.stringify({ answers: answersToApiPayload(committed) }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -135,67 +205,36 @@ export function MatchQuestionnaire() {
         )}
 
         {step === 1 && (
-          <>
-            <Field
-              label="Driver clubhead speed (mph)"
-              hint="Skip if unknown"
-              value={answers.club_speed_mph}
-              onChange={(v) => patch({ club_speed_mph: v })}
-              inputMode="decimal"
-            />
-            <Field
-              label="Typical driver carry (yards)"
-              hint="Used only if speed is unknown"
-              value={answers.carry_distance_yards}
-              onChange={(v) => patch({ carry_distance_yards: v })}
-              inputMode="decimal"
-            />
-            <Field
-              label="Handicap"
-              hint="Optional"
-              value={answers.handicap}
-              onChange={(v) => patch({ handicap: v })}
-              inputMode="decimal"
-            />
-          </>
+          <Step2Measurement
+            draft={step2Draft}
+            handicap={answers.handicap}
+            onDraft={applyStep2Draft}
+            onHandicap={(handicap) => patch({ handicap })}
+          />
         )}
 
         {step === 2 && (
           <>
-            <RadioCards
+            <VisualChoiceGroup
               label="Typical ball flight height"
-              value={answers.typical_trajectory}
+              hint="Choose the flight you see most often — not the one you want."
+              value={answers.typical_trajectory as TrajectoryEnum | ""}
               onChange={(v) => patch({ typical_trajectory: v })}
-              options={[
-                { value: "LOW", title: "Low" },
-                { value: "MID", title: "Mid" },
-                { value: "HIGH", title: "High" },
-                { value: "UNKNOWN", title: "Not sure" },
-              ]}
+              options={trajectoryVisualOptions()}
             />
-            <RadioCards
+            <VisualChoiceGroup
               label="Typical start direction (your view)"
-              value={answers.typical_start_direction}
+              hint="Where does your ball first travel from the tee?"
+              value={answers.typical_start_direction as StartDirectionEnum | ""}
               onChange={(v) => patch({ typical_start_direction: v })}
-              options={[
-                { value: "LEFT", title: "Left" },
-                { value: "CENTRE", title: "Centre" },
-                { value: "RIGHT", title: "Right" },
-                { value: "VARIABLE", title: "Varies" },
-                { value: "UNKNOWN", title: "Not sure" },
-              ]}
+              options={startDirectionVisualOptions()}
             />
-            <RadioCards
+            <VisualChoiceGroup
               label="Typical curve"
-              value={answers.typical_curvature}
+              hint="Which way does the ball bend through the air?"
+              value={answers.typical_curvature as CurvatureEnum | ""}
               onChange={(v) => patch({ typical_curvature: v })}
-              options={[
-                { value: "LEFT", title: "Curves left" },
-                { value: "STRAIGHT", title: "Mostly straight" },
-                { value: "RIGHT", title: "Curves right" },
-                { value: "VARIABLE", title: "Varies" },
-                { value: "UNKNOWN", title: "Not sure" },
-              ]}
+              options={curvatureVisualOptions()}
             />
             <RadioCards
               label="How big is the miss when it goes offline?"
@@ -224,19 +263,14 @@ export function MatchQuestionnaire() {
                 { value: "UNKNOWN", title: "Not sure" },
               ]}
             />
-            <RadioCards
+            <VisualChoiceGroup
               label="Typical strike pattern"
-              value={answers.strike_pattern}
+              hint="Where on the driver face do you usually make contact?"
+              value={answers.strike_pattern as StrikePatternEnum | ""}
               onChange={(v) => patch({ strike_pattern: v })}
-              options={[
-                { value: "CENTRE", title: "Centre" },
-                { value: "HEEL", title: "Heel" },
-                { value: "TOE", title: "Toe" },
-                { value: "HIGH_FACE", title: "High on face" },
-                { value: "LOW_FACE", title: "Low on face" },
-                { value: "VARIABLE", title: "Varies a lot" },
-                { value: "UNKNOWN", title: "Not sure" },
-              ]}
+              options={strikePatternVisualOptions(
+                (answers.handedness || "RIGHT") as StrikeHandedness
+              )}
             />
             <RadioCards
               label="Main goal with a new driver"
@@ -304,7 +338,7 @@ export function MatchQuestionnaire() {
         <button
           type="button"
           onClick={next}
-          disabled={pending}
+          disabled={pending || (step === 1 && step2ContinueError(step2Draft) != null)}
           className="min-h-[48px] flex-1 rounded-xl bg-mowing-green text-sm font-semibold text-off-white-pique disabled:opacity-60"
         >
           {pending
@@ -314,6 +348,14 @@ export function MatchQuestionnaire() {
               : "Continue"}
         </button>
       </div>
+      <button
+        type="button"
+        onClick={startAgain}
+        disabled={pending}
+        className="mt-3 min-h-[48px] text-sm font-semibold text-mowing-green underline disabled:opacity-40"
+      >
+        Start again
+      </button>
     </div>
   );
 }

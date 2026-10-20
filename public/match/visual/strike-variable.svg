@@ -1,0 +1,16 @@
+<svg width="120" height="72" viewBox="0 0 120 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="120" height="72" fill="#E5E5E5"/>
+<g id="Clubface / VARIABLE">
+<g id="Editable driver face vector">
+<path id="Vector" d="M85 6H35C22.8497 6 13 15.8497 13 28V45C13 57.1503 22.8497 67 35 67H85C97.1503 67 107 57.1503 107 45V28C107 15.8497 97.1503 6 85 6Z" fill="#F0F8F1" stroke="#265C4B" stroke-width="2.5"/>
+<g id="Group">
+<g id="Vector_2">
+<path d="M27 18H93H27ZM21 30H99H21ZM20 42H100H20ZM25 54H95H25Z" fill="black"/>
+<path d="M27 18H93M21 30H99M20 42H100M25 54H95" stroke="#AFCEBC" stroke-width="1.6"/>
+</g>
+</g>
+<path id="Vector_3" d="M35 33C39.4183 33 43 29.4183 43 25C43 20.5817 39.4183 17 35 17C30.5817 17 27 20.5817 27 25C27 29.4183 30.5817 33 35 33Z" fill="#FFD25E" stroke="#265C4B" stroke-width="2.3"/>
+<path id="Vector_4" d="M84 53C88.4183 53 92 49.4183 92 45C92 40.5817 88.4183 37 84 37C79.5817 37 76 40.5817 76 45C76 49.4183 79.5817 53 84 53Z" fill="#FFD25E" stroke="#265C4B" stroke-width="2.3"/>
+</g>
+</g>
+</svg>

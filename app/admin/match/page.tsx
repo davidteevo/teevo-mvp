@@ -15,7 +15,7 @@ export default function AdminMatchPage() {
         Inventory attachment is Checkpoint B.
       </p>
       <Link
-        href="/admin/match/questionnaire"
+        href="/admin/match/questionnaire?fresh=1"
         className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-mowing-green px-5 text-sm font-semibold text-off-white-pique"
       >
         Start questionnaire
