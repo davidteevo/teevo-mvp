@@ -1,3 +1,9 @@
+// lib/match/uk-head-relevance.ts
+var MATCH_UK_HEAD_RELEVANCE_VERSION = "MATCH_UK_HEAD_RELEVANCE_V1";
+
+// lib/match/head-config-overlay.ts
+var MATCH_HEAD_CONFIG_OVERLAY_VERSION = "MATCH_HEAD_CONFIG_OVERLAY_V1";
+
 // lib/match/versions.ts
 var MATCH_CONTRACT_VERSION = "MATCH_DRIVER_CONTRACT_V1.3";
 var MATCH_LOGIC_VERSION = "DRIVER_MATCH_LOGIC_V1.2";
@@ -9,7 +15,9 @@ function matchAdapterVersions() {
     contract: MATCH_CONTRACT_VERSION,
     logic: MATCH_LOGIC_VERSION,
     heads: MATCH_HEADS_VERSION,
-    shafts: MATCH_SHAFTS_VERSION
+    shafts: MATCH_SHAFTS_VERSION,
+    head_config_overlay: MATCH_HEAD_CONFIG_OVERLAY_VERSION,
+    uk_head_relevance: MATCH_UK_HEAD_RELEVANCE_VERSION
   };
 }
 

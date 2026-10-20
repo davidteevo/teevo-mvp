@@ -6,7 +6,12 @@ import {
 } from "../catalogue-types";
 import { clampConfidence, reliabilityToEquipmentPoints } from "../confidence";
 import { applyGuardrails } from "../guardrails";
+import {
+  dedupeByRecommendationFamily,
+  type HeadConfigOverlayIndex,
+} from "../head-config-overlay";
 import type { ReadonlyHeadRecord } from "../intelligence/load";
+import type { UkHeadRelevanceIndex } from "../uk-head-relevance";
 import {
   DIMENSION_NAMES,
   DIMENSION_WEIGHTS,
@@ -20,8 +25,24 @@ import { inactiveDim } from "./dim-helpers";
 import {
   CATALOGUE_HEAD_DIMENSIONS,
   countActiveCatalogueDims,
+  hasUnresolvedLaunchEquipmentEvidence,
+  isMaterialHeadLaunchRequirement,
   scoreHeadCharacteristicDimensions,
 } from "./head-dimensions";
+
+function presentationCharsFromHead(head: ReadonlyHeadRecord): {
+  directional_bias: string | null;
+  primary_head_profile: string | null;
+  launch_tendency: string | null;
+} {
+  const asStr = (v: unknown): string | null =>
+    typeof v === "string" && v.trim() ? v.trim() : null;
+  return {
+    directional_bias: asStr(head.directional_bias),
+    primary_head_profile: asStr(head.primary_head_profile),
+    launch_tendency: asStr(head.launch_tendency),
+  };
+}
 
 function isCatalogueEligibleHead(head: ReadonlyHeadRecord): boolean {
   return (
@@ -84,6 +105,7 @@ export function scoreCatalogueHead(input: {
         ? Number(yearRaw)
         : NaN;
   const release_year = Number.isFinite(yearNum) ? yearNum : null;
+  const presentation_chars = presentationCharsFromHead(head);
 
   const base = {
     kind: CATALOGUE_RECOMMENDATION_KIND,
@@ -92,6 +114,7 @@ export function scoreCatalogueHead(input: {
     model,
     display_name: display,
     release_year,
+    presentation_chars,
     scope_disclaimer: "MODEL_LEVEL_SUITABILITY_ONLY" as const,
     guardrail_gaps: {
       direction: null as number | null,
@@ -312,25 +335,46 @@ export function collectQualifyingCatalogueHeads(
 }
 
 /**
- * PHASE_2A.md differentiation gate — see docs for (A)/(B).
- * Reuses Fit scores and active-dim counts only.
+ * Exact Fit equality for catalogue presentation / B2.1 tiers.
+ * Matches existing Phase 2A rule: IEEE equality only (no epsilon).
  */
-export function lacksMeaningfulHeadDifferentiation(
-  stats: Pick<
-    CatalogueRankStats,
-    | "qualifying_heads"
-    | "distinct_fit_scores"
-    | "max_active_catalogue_dims"
-    | "top_fit_share_count"
-  >
+export function catalogueFitsEqual(
+  a: number | null | undefined,
+  b: number | null | undefined
 ): boolean {
-  if (stats.qualifying_heads <= 0) return false;
-  if (stats.max_active_catalogue_dims >= 5) return false;
-  const flatPool =
-    stats.distinct_fit_scores === 1 && stats.max_active_catalogue_dims < 5;
-  const crowdedTop =
-    stats.max_active_catalogue_dims < 5 && stats.top_fit_share_count > 3;
-  return flatPool || crowdedTop;
+  if (a == null || b == null) return false;
+  return a === b;
+}
+
+/** Same band + exact Fit — the top suitability tier after presentation sort. */
+export function sameCatalogueFitTier(
+  a: CatalogueHeadScore,
+  b: CatalogueHeadScore
+): boolean {
+  return (
+    a.catalogue_match_band === b.catalogue_match_band &&
+    catalogueFitsEqual(a.catalogue_fit_score, b.catalogue_fit_score)
+  );
+}
+
+/**
+ * B2.1 differentiation gate on post-family top-tied families (mixed-coverage safe).
+ * - ≤3 families share top Fit tier → allow
+ * - >3 top-tied AND every top-tied winner has ≥5 active dims → allow (disclose ties)
+ * - >3 top-tied AND any top-tied winner has <5 active dims → block
+ *
+ * Does **not** use distinct_fits > 1 as an allow condition.
+ * Does **not** let one fully covered family unlock incomplete peers (uses min, not max).
+ * Coverage is assessed on top-tied families only (lower ranks cannot inflate it).
+ */
+export function lacksMeaningfulHeadDifferentiation(input: {
+  top_tied_family_count: number;
+  top_tied_min_active_dims: number;
+}): boolean {
+  if (input.top_tied_family_count <= 0) return false;
+  if (input.top_tied_family_count <= 3) return false;
+  if (input.top_tied_min_active_dims >= 5) return false;
+  return true;
 }
 
 /** Presentation sort only — never mutates Fit scores. */
@@ -351,27 +395,193 @@ export function compareCataloguePresentationOrder(
   return a.catalogue_key.localeCompare(b.catalogue_key);
 }
 
+/**
+ * Soft equal-Fit ordering within a tied tier only (does not change global comparator).
+ * Prefer more complete assessed coverage, then year, then key.
+ */
+function compareEqualFitSoftPreference(
+  a: CatalogueHeadScore,
+  b: CatalogueHeadScore
+): number {
+  const da = a.active_catalogue_dim_count;
+  const db = b.active_catalogue_dim_count;
+  if (db !== da) return db - da;
+  const ya = a.release_year ?? 0;
+  const yb = b.release_year ?? 0;
+  if (yb !== ya) return yb - ya;
+  return a.catalogue_key.localeCompare(b.catalogue_key);
+}
+
+/** Active-dim signature for soft diversity among equal-Fit peers. */
+function activeCharacteristicSignature(h: CatalogueHeadScore): string {
+  const chars = h.presentation_chars;
+  const parts: string[] = [];
+  if (h.dimensions.direction?.active && chars?.directional_bias) {
+    parts.push(`dir:${chars.directional_bias}`);
+  }
+  if (h.dimensions.head_launch?.active && chars?.launch_tendency) {
+    parts.push(`launch:${chars.launch_tendency}`);
+  }
+  if (chars?.primary_head_profile) {
+    parts.push(`profile:${chars.primary_head_profile}`);
+  }
+  return parts.join("|") || h.catalogue_key;
+}
+
+/**
+ * Soft diversity among exact Fit/band ties: prefer evidence completeness and
+ * assessed-characteristic variety, but still allow similar independent models
+ * up to `limit`. Never promotes a lower Fit for diversity.
+ */
+export function selectCatalogueShortlist(
+  familyWinners: CatalogueHeadScore[],
+  limit: number
+): CatalogueHeadScore[] {
+  const cap = Math.max(0, limit);
+  if (familyWinners.length === 0 || cap === 0) return [];
+  if (familyWinners.length <= cap) return familyWinners.slice();
+
+  const top = familyWinners[0];
+  const topTier = familyWinners
+    .filter((h) => sameCatalogueFitTier(h, top))
+    .slice()
+    .sort(compareEqualFitSoftPreference);
+  const rest = familyWinners.filter((h) => !sameCatalogueFitTier(h, top));
+
+  const selected: CatalogueHeadScore[] = [];
+  const pool = topTier.slice();
+  const usedSignatures = new Set<string>();
+
+  while (selected.length < cap && pool.length > 0) {
+    let pickIdx = 0;
+    if (selected.length > 0) {
+      const diverseIdx = pool.findIndex(
+        (c) => !usedSignatures.has(activeCharacteristicSignature(c))
+      );
+      // Soft preference only — if every remaining peer shares a signature,
+      // still take pool[0] (marketplace discovery of independent models).
+      if (diverseIdx >= 0) pickIdx = diverseIdx;
+    }
+    const picked = pool.splice(pickIdx, 1)[0];
+    selected.push(picked);
+    usedSignatures.add(activeCharacteristicSignature(picked));
+  }
+
+  if (selected.length >= cap) return selected.slice(0, cap);
+  return [...selected, ...rest].slice(0, cap);
+}
+
+export type CatalogueRankFamilyStats = {
+  qualifying_heads_before_family_dedupe: number;
+  qualifying_families_after_dedupe: number;
+  family_duplicates_suppressed: number;
+  recommendations_returned: number;
+  top_tied_family_count: number;
+  top_tied_max_active_dims: number;
+  top_tied_min_active_dims: number;
+  heads_held_config_overlay: number;
+  heads_held_uk_market: number;
+  heads_uk_market_eligible: number;
+};
+
 export function rankCatalogueHeads(
   scored: CatalogueHeadScore[],
-  limit = 3
+  limit = 3,
+  overlay?: HeadConfigOverlayIndex | null,
+  ukOverlay?: UkHeadRelevanceIndex | null,
+  requirements?: NormalisedRequirements | null
 ): {
   recommendations: CatalogueHeadScore[];
   stats: CatalogueRankStats;
+  family_stats: CatalogueRankFamilyStats;
   differentiation_blocked: boolean;
 } {
   const { qualifying, stats } = collectQualifyingCatalogueHeads(scored);
-  if (lacksMeaningfulHeadDifferentiation(stats)) {
+  // Material launch filter: before family dedupe and B2.1 (not after).
+  const launchFiltered =
+    requirements && isMaterialHeadLaunchRequirement(requirements)
+      ? qualifying.filter((h) => !hasUnresolvedLaunchEquipmentEvidence(h))
+      : qualifying;
+  const ordered = launchFiltered
+    .slice()
+    .sort(compareCataloguePresentationOrder);
+  // Config + UK eligibility, then family dedupe across the full pool, before B2.1.
+  const deduped = dedupeByRecommendationFamily(
+    ordered,
+    overlay ?? null,
+    Number.POSITIVE_INFINITY,
+    ukOverlay
+  );
+  const familyWinners = deduped.recommendations;
+
+  const family_stats_base: CatalogueRankFamilyStats = {
+    qualifying_heads_before_family_dedupe:
+      deduped.qualifying_heads_before_family_dedupe,
+    qualifying_families_after_dedupe: deduped.qualifying_families_after_dedupe,
+    family_duplicates_suppressed: deduped.family_duplicates_suppressed,
+    recommendations_returned: 0,
+    top_tied_family_count: 0,
+    top_tied_max_active_dims: 0,
+    top_tied_min_active_dims: 0,
+    heads_held_config_overlay: deduped.heads_held_config_overlay,
+    heads_held_uk_market: deduped.heads_held_uk_market,
+    heads_uk_market_eligible: deduped.heads_uk_market_eligible,
+  };
+
+  if (familyWinners.length === 0) {
     return {
       recommendations: [],
       stats,
+      family_stats: family_stats_base,
+      differentiation_blocked: false,
+    };
+  }
+
+  const top = familyWinners[0];
+  const topTier = familyWinners.filter((h) => sameCatalogueFitTier(h, top));
+  const top_tied_family_count = topTier.length;
+  const top_tied_max_active_dims = topTier.reduce(
+    (m, h) => Math.max(m, h.active_catalogue_dim_count),
+    0
+  );
+  const top_tied_min_active_dims = topTier.reduce(
+    (m, h) => Math.min(m, h.active_catalogue_dim_count),
+    Number.POSITIVE_INFINITY
+  );
+
+  const family_stats: CatalogueRankFamilyStats = {
+    ...family_stats_base,
+    top_tied_family_count,
+    top_tied_max_active_dims,
+    top_tied_min_active_dims:
+      top_tied_family_count > 0 ? top_tied_min_active_dims : 0,
+  };
+
+  // Audit: top_fit_share_count reports distinct top-tied *families* (B2.1).
+  stats.top_fit_share_count = top_tied_family_count;
+
+  if (
+    lacksMeaningfulHeadDifferentiation({
+      top_tied_family_count,
+      top_tied_min_active_dims: family_stats.top_tied_min_active_dims,
+    })
+  ) {
+    return {
+      recommendations: [],
+      stats,
+      family_stats,
       differentiation_blocked: true,
     };
   }
 
-  const ordered = qualifying.slice().sort(compareCataloguePresentationOrder);
+  const recommendations = selectCatalogueShortlist(familyWinners, limit);
   return {
-    recommendations: ordered.slice(0, Math.max(0, limit)),
+    recommendations,
     stats,
+    family_stats: {
+      ...family_stats,
+      recommendations_returned: recommendations.length,
+    },
     differentiation_blocked: false,
   };
 }

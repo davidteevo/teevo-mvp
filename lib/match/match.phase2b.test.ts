@@ -6,7 +6,9 @@ import {
   CATALOGUE_RECOMMENDATION_KIND,
   loadMatchIntelligence,
   mapTeevoListingToInventoryItem,
+  normalizeRequirements,
   runCatalogueRecommendation,
+  scoreCandidate,
 } from "@/lib/match";
 import type { CatalogueHeadScore } from "@/lib/match/catalogue-types";
 import type { MatchInventoryItem } from "@/lib/match/inventory/types";
@@ -196,6 +198,7 @@ describe("Phase 2A Checkpoint B — inventory attach", () => {
 
   it("empty inventory does not fail catalogue recommendations", () => {
     const result = runCatalogueRecommendation({
+      skipUkMarketGate: true,
       answers: RICH,
       intelligence: intel,
       inventory: [],
@@ -208,27 +211,122 @@ describe("Phase 2A Checkpoint B — inventory attach", () => {
     expect(result.audit.inventory_items_attached).toBe(0);
   });
 
-  it("full listing Match badge only when Phase 1 scoring succeeds", () => {
-    const shaft = intel.matchEligibleShafts[0];
-    const headKey =
-      Object.keys(intel.headsByKey).find((k) => {
-        const h = intel.headsByKey[k];
-        return (
-          String(h.match_eligible).toUpperCase() === "TRUE" &&
-          String(h.driver_subtype || "").toUpperCase() === "STANDARD"
-        );
-      }) ?? String(intel.eligibleHeads[0].catalogue_key);
+  it("attaches exact-key UNIQUE head inventory", () => {
+    const key = "ping|g430-sft|2023";
+    const attachments = attachInventoryToCatalogueRecommendations({
+      recommendations: [stubRec(key)],
+      inventory: [
+        baseItem({
+          source_listing_id: "L-exact",
+          head_key: key,
+          identity: {
+            head_resolution: "UNIQUE",
+            shaft_resolution: "UNRESOLVED",
+            evidence: ["exact"],
+          },
+        }),
+      ],
+      requirements: { ...req, handedness: "RIGHT" },
+      intelligence: intel,
+      golferConfidence: 80,
+    });
+    expect(attachments[0].items).toHaveLength(1);
+    expect(attachments[0].items[0].item.head_key).toBe(key);
+    expect(attachments[0].items[0].item.identity.head_resolution).toBe("UNIQUE");
+  });
+
+  it("attaches matching LEFT and RIGHT handedness", () => {
+    const key = "ping|g430-sft|2023";
+    const right = attachInventoryToCatalogueRecommendations({
+      recommendations: [stubRec(key)],
+      inventory: [
+        baseItem({
+          source_listing_id: "L-right",
+          head_key: key,
+          listed_config: {
+            brand: "PING",
+            model: "G430 SFT",
+            handedness: "RIGHT",
+            stated_loft_deg: 10.5,
+            shaft_label: null,
+            shaft_flex_raw: null,
+          },
+        }),
+      ],
+      requirements: { ...req, handedness: "RIGHT" },
+      intelligence: intel,
+      golferConfidence: 80,
+    });
+    expect(right[0].items).toHaveLength(1);
+
+    const left = attachInventoryToCatalogueRecommendations({
+      recommendations: [stubRec(key)],
+      inventory: [
+        baseItem({
+          source_listing_id: "L-left-ok",
+          head_key: key,
+          listed_config: {
+            brand: "PING",
+            model: "G430 SFT",
+            handedness: "LEFT",
+            stated_loft_deg: 10.5,
+            shaft_label: null,
+            shaft_flex_raw: null,
+          },
+        }),
+      ],
+      requirements: { ...req, handedness: "LEFT" },
+      intelligence: intel,
+      golferConfidence: 80,
+    });
+    expect(left[0].items).toHaveLength(1);
+  });
+
+  it("hard-asserts FULL_LISTING_MATCH when Phase 1 scoring succeeds", () => {
+    const headKey = "adams|blue|2015";
+    const head = intel.headsByKey[headKey];
+    const requirements = normalizeRequirements(RICH, intel.headsByKey);
+    let shaftKey: string | null = null;
+    for (const shaft of intel.matchEligibleShafts) {
+      const scored = scoreCandidate({
+        listing: {
+          listing_id: "probe",
+          head_key: headKey,
+          shaft_key: String(shaft.shaft_key),
+          handedness: "RIGHT",
+          stated_loft_deg: 10.5,
+          publicly_purchasable: true,
+          price_gbp: 200,
+        },
+        requirements,
+        head,
+        shaft,
+        golferConfidence: 80,
+      });
+      if (
+        !scored.excluded &&
+        scored.scorable &&
+        scored.raw_fit_score != null &&
+        scored.match_band &&
+        scored.confidence &&
+        !scored.suppressed
+      ) {
+        shaftKey = String(shaft.shaft_key);
+        break;
+      }
+    }
+    expect(shaftKey).toBeTruthy();
 
     const attachments = attachInventoryToCatalogueRecommendations({
       recommendations: [stubRec(headKey)],
       inventory: [
         baseItem({
-          source_listing_id: "L-full",
+          source_listing_id: "L-full-hard",
           head_key: headKey,
-          shaft_key: String(shaft.shaft_key),
+          shaft_key: shaftKey,
           listed_config: {
-            brand: "X",
-            model: "Y",
+            brand: "Adams",
+            model: "Blue",
             handedness: "RIGHT",
             stated_loft_deg: 10.5,
             shaft_label: "Test Shaft",
@@ -241,47 +339,57 @@ describe("Phase 2A Checkpoint B — inventory attach", () => {
           },
         }),
       ],
-      requirements: {
-        handedness: "RIGHT",
-        recommendation_intent: "UNANCHORED",
-        head_launch_target: "MID",
-        head_launch_target_numeric: 0,
-        head_spin_target: "UNRESOLVED",
-        forgiveness_requirement: 3,
-        stability_requirement: 3,
-        directional_target_numeric: 0,
-        directional_requirement: "NEUTRAL",
-        workability_preference: 2,
-        driver_subtype_allowed: "STANDARD",
-        preferred_loft_min_deg: 9,
-        preferred_loft_max_deg: 12,
-        shaft_weight_min_g: null,
-        shaft_weight_max_g: null,
-        shaft_flex_min_value: null,
-        shaft_flex_max_value: null,
-        shaft_launch_target: "UNRESOLVED",
-        shaft_launch_target_numeric: null,
-        shaft_spin_target: "UNRESOLVED",
-        shaft_torque_target_deg: null,
-        conflict_flags: [],
-        requirement_confidence:
-          {} as NormalisedRequirements["requirement_confidence"],
-      },
+      requirements,
       intelligence: intel,
       golferConfidence: 80,
     });
 
     const row = attachments[0].items[0];
-    expect(row).toBeTruthy();
-    // May be FULL or HEAD_ONLY depending on shaft eligibility / scoring;
-    // never invent a badge without listing_match.
-    if (row.attach_mode === "FULL_LISTING_MATCH") {
-      expect(row.listing_match).not.toBeNull();
-      expect(row.unverified_shaft).toBe(false);
-      expect(row.listing_match?.match_band).toBeTruthy();
-    } else {
-      expect(row.listing_match).toBeNull();
-    }
+    expect(row.attach_mode).toBe("FULL_LISTING_MATCH");
+    expect(row.listing_match).not.toBeNull();
+    expect(row.unverified_shaft).toBe(false);
+    expect(row.listing_match?.match_band).toBeTruthy();
+  });
+
+  it("skips non-purchasable inventory mapped as UNAVAILABLE", () => {
+    const key = "ping|g430-sft|2023";
+    const attachments = attachInventoryToCatalogueRecommendations({
+      recommendations: [stubRec(key)],
+      inventory: [
+        baseItem({
+          source_listing_id: "L-not-buyable",
+          head_key: key,
+          availability_status: "UNAVAILABLE",
+        }),
+      ],
+      requirements: { ...req, handedness: "RIGHT" },
+      intelligence: intel,
+      golferConfidence: 80,
+    });
+    expect(attachments[0].items).toHaveLength(0);
+
+    const mapped = mapTeevoListingToInventoryItem(
+      {
+        id: "sold-row",
+        user_id: "u1",
+        brand: "PING",
+        model: "G430 SFT",
+        title: "PING G430 SFT",
+        handed: "right",
+        degree: "10.5",
+        degree_numeric: 10.5,
+        shaft: null,
+        shaft_flex: null,
+        condition: "Good",
+        price: 19900,
+        status: "sold",
+        archived_at: null,
+        buying_paused: false,
+        availability_confirmation_status: null,
+      },
+      intel
+    );
+    expect(mapped.availability_status).toBe("UNAVAILABLE");
   });
 
   it("never assigns a full listing Match badge to head-only rows", () => {
@@ -392,6 +500,7 @@ describe("Phase 2A Checkpoint B — inventory attach", () => {
 
   it("catalogue recommendations survive inventory loader failure (empty fallback)", () => {
     const result = runCatalogueRecommendation({
+      skipUkMarketGate: true,
       answers: RICH,
       intelligence: intel,
       // Simulates API catch → inventory = []

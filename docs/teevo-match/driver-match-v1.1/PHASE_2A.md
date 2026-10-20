@@ -33,26 +33,32 @@ If (1) passes but no head clears (2)/(3) → mode `NO_DEFENSIBLE_HEADS`.
 
 **Independence note:** Dimensions are counted as independent Fit components (separate equipment fields). This is a Phase 2A presentation gate, not a Logic V1.2 weight change.
 
-## Meaningful head differentiation gate (deterministic)
+## Meaningful head differentiation gate (deterministic) — B2.1
 
 Direction and/or head_launch being unresolved does **not** by itself suppress named recommendations.
 
 After building the qualifying set `Q` (heads that pass gates 2–3 above):
 
 1. If `|Q| = 0` → `NO_DEFENSIBLE_HEADS`.
-2. Let `distinct_fits` = the set of exact `catalogue_fit_score` values in `Q` (IEEE equality; no epsilon).
-3. Let `max_active` = maximum `active_catalogue_dim_count` among heads in `Q`.
-4. Let `top_fit` = maximum `catalogue_fit_score` in `Q`.
-5. Let `top_fit_share_count` = number of heads in `Q` with `catalogue_fit_score === top_fit` (exact).
+2. Sort with presentation order (band → Fit desc → year → key). Fit ties use **exact** IEEE equality (no epsilon).
+3. Deduplicate by recommendation family across the **full** ordered pool (held overlay members skipped).
+4. Let `F` = selectable family winners in presentation order.
+5. Top Fit tier = members of `F` sharing the top winner’s band + exact Fit.
+6. Let `top_tied_family_count` = `|top tier|`.
+7. Let `top_tied_min_active_dims` = minimum `active_catalogue_dim_count` among **top-tier families only** (lower-ranked families cannot inflate coverage; one fully covered peer cannot unlock incomplete peers).
+8. Let `top_tied_max_active_dims` = maximum among the same top tier (audit only).
 
-**No meaningful differentiation** when `|Q| > 0` and either:
+**No credible tied shortlist** when:
 
-- **(A)** `|distinct_fits| = 1` **and** `max_active < 5` — entire qualifying pool is a single Fit with incomplete characteristic coverage; or
-- **(B)** `max_active < 5` **and** `top_fit_share_count > 3` — incomplete coverage and the top Fit is shared by more than three heads, so the displayed top-3 would be presentation-ordered clones rather than Fit-differentiated picks.
+- `top_tied_family_count > 3` **and** `top_tied_min_active_dims < 5`
 
-Rationale (reuses existing scores / active-dim counts only — no new curves or weights): unresolved direction or launch alone does **not** suppress names; suppression requires a flat or top-crowded Fit landscape under incomplete characteristic coverage.
+Otherwise named recommendations are allowed (≤3 after slice), including:
 
-When `|distinct_fits| = 1` and `max_active = 5`, named heads **are** allowed (full characteristic coverage; presentation tie-break among true clones).
+- ≤3 families sharing the top Fit under incomplete coverage; or
+- >3 top-tied families when **every** top-tied winner has ≥5 active dims (disclose ties; presentation order is not a stronger technical Fit).
+
+Do **not** allow naming merely because `distinct_fits > 1` elsewhere in the pool.
+Do **not** allow crowded ties when only the maximum (rather than every) top-tied winner has full coverage.
 
 Audit code: `NO_MEANINGFUL_HEAD_DIFFERENTIATION`.
 
@@ -61,9 +67,10 @@ Audit code: `NO_MEANINGFUL_HEAD_DIFFERENTIATION`.
 | Profile class | Expected mode |
 |---|---|
 | Sparse (handedness only) | `CHARACTERISTIC_GUIDANCE` (evidence-backed dims gate) |
-| Sparse incomplete flight/speed with many equal top Fits on ≤4 active dims | `CHARACTERISTIC_GUIDANCE` via (A) or (B) |
-| Rich (speed + flight + miss pattern, 5 active dims) | `NAMED_HEADS` |
-| Borderline (e.g. direction unresolved, launch active) | `NAMED_HEADS` if not (A)/(B); else guidance |
+| Sparse incomplete with >3 top-tied families on ≤4 active dims | `CHARACTERISTIC_GUIDANCE` via B2.1 |
+| ≤3 top-tied families (even with 4 active dims) | `NAMED_HEADS` with tie disclosure when Fits equal |
+| Rich (speed + flight + miss pattern, 5 active dims on top tier) | `NAMED_HEADS` |
+| Borderline (e.g. direction unresolved, launch active) | `NAMED_HEADS` if B2.1 allows; else guidance |
 
 ## Presentation ranking (Fit unchanged)
 

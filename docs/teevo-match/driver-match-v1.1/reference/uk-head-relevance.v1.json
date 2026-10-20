@@ -1,0 +1,5578 @@
+{
+  "overlay_version": "MATCH_UK_HEAD_RELEVANCE_V1",
+  "intelligence_heads_ref": "DRIVER_V1_2026-10-16",
+  "source_register_ref": "UK_HEAD_RELEVANCE_CSV:UK_HEAD_RELEVANCE.csv",
+  "members": [
+    {
+      "catalogue_key": "adams|blue|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "adams|speedline-9064ls-dfs|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "adams|speedline-9064ls|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "adams|speedline-9088-ul-draw|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "adams|speedline-9088-ul|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "adams|speedline-f11-draw|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "adams|speedline-f11|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "adams|speedline-fast-12-draw|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "adams|speedline-fast-12-ls|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "adams|speedline-fast-12|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "adams|speedline-super-ls|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "adams|speedline-super-s|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "adams|speedline-tech|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "adams|xtd|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "ben-hogan|gs53|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "ben-sayers|m8|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "benross|aero-xf|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "benross|aero-x|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "benross|br-pro|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "benross|delta-xt|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "benross|delta-x|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "benross|delta|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "benross|evolution-r|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "benross|hot-speed-10|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "benross|hot-speed-2|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "benross|hot-speed|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "benross|htx-compressor-type-r|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "benross|htx-compressor|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "benross|htx-type-r|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "benross|htx|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "benross|max-speed-10|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "benross|max-speed-2|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "benross|max-speed|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "benross|quad-speed-hot|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "benross|quad-speed-max|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "benross|quad-speed-rip|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "benross|rip-speed-10|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "benross|rip-speed-2|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "benross|rip-speed|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "benross|rs-max|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "benross|rs|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "bridgestone|b-limited-415|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "bridgestone|b-limited-b1ls|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "bridgestone|b-limited-b1|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "bridgestone|b-limited-bx-tour-max|2026",
+      "market_code": "GB",
+      "uk_market_status": "REGION_RESTRICTED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": false,
+      "hold_reason": "REGION_RESTRICTED",
+      "evidence_class": "REGION_RESTRICTED"
+    },
+    {
+      "catalogue_key": "bridgestone|b-limited-bx1-star-tour|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "bridgestone|b1st|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "bridgestone|b1|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "bridgestone|b2ht|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "bridgestone|b2|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "bridgestone|b3-dd|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "bridgestone|b3-sd|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "bridgestone|b3max-d|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "bridgestone|b3max|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "bridgestone|bx1ls|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "bridgestone|bx1st|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "bridgestone|bx2ht|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "bridgestone|j40-430|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "bridgestone|j40-445|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "bridgestone|j715|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "bridgestone|j815|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "bridgestone|jgr|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "bridgestone|tour-b-jgr|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "bridgestone|tour-b-xd-3|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "bridgestone|tour-b-xd-5|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "bridgestone|tour-b-xd-7|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "callaway|big-bertha-alpha-815-dbd|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "callaway|big-bertha-alpha-815|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|big-bertha-alpha-816-dbd|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "callaway|big-bertha-alpha|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|big-bertha-b21|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|big-bertha-fusion|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|big-bertha-v-series|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|big-bertha|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|big-bertha|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|diablo-octane-black-tour|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|diablo-octane-black|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|elyte-max-fast|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "callaway|elyte-mini|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|elyte-triple-diamond|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|elyte-x|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|elyte|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|epic-flash-sub-zero|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|epic-flash|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|epic-max-ls|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|epic-max|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|epic-speed|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|ft-optiforce-440|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|ft-optiforce-460|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "callaway|great-big-bertha-epic-sub-zero|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|great-big-bertha-epic|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|great-big-bertha|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "callaway|mavrik-max|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|mavrik-sub-zero|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|mavrik|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|paradym-ai-smoke-max-d|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|paradym-ai-smoke-max-fast|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|paradym-ai-smoke-max|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|paradym-ai-smoke-triple-diamond|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|paradym-triple-diamond|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|paradym-x|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|paradym|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|quantum-max-d|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|quantum-max-fast|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|quantum-max|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|quantum-mini|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|quantum-triple-diamond-max|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|quantum-triple-diamond|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|razr-fit-tour-authentic|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "callaway|razr-fit-xtreme|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|razr-fit|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|razr-hawk-tour|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|razr-hawk|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|razr-x-black|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "callaway|rogue-draw|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|rogue-st-max-d|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|rogue-st-max-ls|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|rogue-st-max|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|rogue-st-triple-diamond-ls|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|rogue-sub-zero|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|rogue|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|x-hot-pro|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|x-hot|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|x2-hot-pro|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|x2-hot|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|xr-16-pro|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|xr-16-sub-zero|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|xr-16|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|xr-pro|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "callaway|xr-speed|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "callaway|xr|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cleveland|588-custom|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cleveland|cg-black-custom|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "cleveland|cg-black|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "cleveland|cg-black|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "cleveland|classic-270|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cleveland|classic-290|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cleveland|classic-tour|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "cleveland|classic-xl-custom|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "cleveland|classic-xl|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cleveland|hibore-xl-lite|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "cleveland|hibore-xl|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cleveland|launcher-hb-turbo-draw|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cleveland|launcher-hb-turbo|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cleveland|launcher-hb|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "cleveland|launcher-sl290|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cleveland|launcher-tl310|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "cleveland|launcher-xl-2-draw|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "cleveland|launcher-xl-2|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "cleveland|launcher-xl-lite-draw|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "cleveland|launcher-xl-lite|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cleveland|launcher-xl270-draw|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cleveland|launcher-xl270|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "cleveland|launcher-xl|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|aerojet-ls|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|aerojet-max|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|aerojet|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|amp-cell-pro|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|amp-cell|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "cobra|amp-offset|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|amp|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "cobra|bio-cell-plus|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|bio-cell-pro|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "cobra|bio-cell|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "cobra|darkspeed-ls|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "cobra|darkspeed-max|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "cobra|darkspeed-x|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "cobra|ds-adapt-ls|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|ds-adapt-max-d|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "cobra|ds-adapt-max-k|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "cobra|ds-adapt-x|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|fly-z-plus|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|fly-z-xl|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|fly-z|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|king-f6-plus|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|king-f6|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|king-f7-plus|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|king-f7|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|king-f8-plus|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|king-f8|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "cobra|king-f9-speedback|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "cobra|king-ltd-black|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "cobra|king-ltd-pro|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "cobra|king-ltdx-ls|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|king-ltdx-max|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|king-ltdx|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|king-ltd|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "cobra|king-radspeed-xb|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|king-radspeed-xd|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|king-radspeed|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|king-speedzone-xtreme|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|king-speedzone|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "cobra|king-tec-mini|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "cobra|max|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|optm-ls|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|optm-max-d|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "cobra|optm-max-k|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|optm-x|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "cobra|s3-max|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "cobra|s3|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "cobra|zl-encore|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "epon|af-157|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "forgan|f100|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "honma|be-zeal-525|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "honma|be-zeal-535|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "honma|beres-07|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "honma|beres-08|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "honma|beres-09|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "honma|beres-10|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "honma|beres-c-01|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "honma|beres-e-01|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "honma|beres-e-03|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "honma|beres-e-05|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "honma|beres-e-06|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "honma|beres-nx|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "honma|beres-s-01|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "honma|beres-s-02|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "honma|beres-s-03|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "honma|beres-s-05|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "honma|beres-s-06|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "honma|t-world-gs|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "honma|tr20-440|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "honma|tr20-460|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "honma|tw717-430|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "honma|tw717-455|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "honma|tw717-460|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "honma|tw727-430|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "honma|tw727-455s|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "honma|tw727-455|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "honma|tw727-460|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "honma|tw737-445|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "honma|tw737-450|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "honma|tw737-455|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "honma|tw737-460|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "honma|tw747-455|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "honma|tw747-460|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "honma|tw757-type-d-plus|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "honma|tw757-type-d|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "honma|tw757-type-s|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "honma|tw767-ls|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "honma|tw767-max|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "honma|tw767|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "honma|tw777-360-ti|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "honma|tw777-max|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "honma|tw777|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "honma|xp-1|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "john-letters|t9-plus|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "katana|voltio-iv|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "katana|voltio-ninja-880hi|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "krank|formula-fire|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "krank|formula-x-extreme|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "lynx|predator|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "macgregor|v-foil-speed|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "majesty|prestigio-13|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "majesty|prestigio-xi|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "majesty|royale|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "maltby|ke4-tour-tc|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "mizuno|gt180|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "mizuno|jpx-850|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "mizuno|jpx-900|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "mizuno|jpx-ez|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "mizuno|jpx-ez|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "mizuno|jpx-one-select|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "mizuno|jpx-one|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "mizuno|jpx800|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "mizuno|mp-650|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "mizuno|st-g-220|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "mizuno|st-g-440|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "mizuno|st-max-230|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "mizuno|st-x-220|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "mizuno|st-x-230|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "mizuno|st-x|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "mizuno|st-z-220|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "mizuno|st-z-230|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "mizuno|st-z|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "mizuno|st180|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "mizuno|st190g|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "mizuno|st190|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "mizuno|st200g|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "mizuno|st200x|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "mizuno|st200|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "nike|sq-machspeed-black-round|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "nike|sq-machspeed-black-square|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "nike|vapor-flex-440|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "nike|vapor-flex|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "nike|vapor-fly-pro|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "nike|vapor-fly|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "nike|vapor-pro|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "nike|vapor-speed|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "nike|vr-pro-limited-edition-forged|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "nike|vr-pro|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "nike|vr-s-covert-2-0-tour|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "nike|vr-s-covert-2-0|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "nike|vr-s-covert-tour|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "nike|vr-s-covert|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "nike|vr-s|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "onoff|aka|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "onoff|kuro|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "orlimar|escape-hl|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "ping|anser|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "ping|g-le4|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "ping|g-ls-tec|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "ping|g-sf-tec|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "ping|g20|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "ping|g25|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "ping|g30-ls-tec|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "ping|g30-sf-tec|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "ping|g30|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "ping|g400-lst|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "ping|g400-max|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "ping|g400-sft|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "ping|g400|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "ping|g410-lst|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "ping|g410-plus|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "ping|g410-sft|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "ping|g425-lst|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "ping|g425-max|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "ping|g425-sft|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "ping|g430-lst|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "ping|g430-max-10k|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "ping|g430-max-hl|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "NEEDS_REVIEW",
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "ping|g430-max|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "ping|g430-sft|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "ping|g440-k-hl|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "ping|g440-k|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "ping|g440-lst|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "ping|g440-max-hl|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "NEEDS_REVIEW",
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "ping|g440-max|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "ping|g440-sft|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "ping|g|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "powerbilt|air-force-one-dfx-high-moi|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "powerbilt|air-force-one-dfx-tour|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "powerbilt|tps-supertech|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "prgr|rs-d|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "prgr|rs-f|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "prgr|rs-f|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "prgr|rs|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "prgr|rs|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "pxg|0211-z|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "pxg|0211|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "pxg|0211|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "pxg|0311-black-ops-tour-1|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "pxg|0311-black-ops-ultra-lite|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "pxg|0311-black-ops|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "pxg|0311-gen5|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "pxg|0311-gen6|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "pxg|0311-xf-gen5|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "pxg|0311-xf-gen6|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "pxg|0811-lx-gen1|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "pxg|0811-x-gen1|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "pxg|0811-x-gen2|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "pxg|0811-x-gen4|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "pxg|0811-x-plus-prototype|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "pxg|0811-x-prototype|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "pxg|0811-xf-gen1|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "pxg|0811-xf-gen2|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "pxg|0811-xf-gen4|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "pxg|0811-xt-gen4|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "pxg|0811|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "pxg|lightning-max-10k-plus|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "pxg|lightning-max-lite|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "pxg|lightning-tour-mid|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "pxg|lightning-tour|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "pxg|secret-weapon-mini|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "ram|fx|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "robin|the|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "ryoma|d-1-maxima-type-d|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "ryoma|d-1-maxima-type-g|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "ryoma|d-1-maxima-type-v|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "ryoma|maxima-iii-special-tuning|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "ryoma|maxima-iii-type-d|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "ryoma|maxima-iii-type-v|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "srixon|z-tx-tour-p-420|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "srixon|z-tx|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "srixon|z525|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "srixon|z545|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "srixon|z565-tg|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "srixon|z565|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "srixon|z585|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "srixon|z725-limited-model|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "srixon|z725|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "srixon|z745|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "srixon|z765-limited-model|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "srixon|z765|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "srixon|z785|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "srixon|z925|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "srixon|z945|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "srixon|zx5-ls-mk-ii|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "srixon|zx5-mk-ii|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "srixon|zx5|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "srixon|zx7-mk-ii|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "srixon|zx7|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "srixon|zxi-ls|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "srixon|zxi-max|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "srixon|zxi-rkt-ls|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "srixon|zxi-rkt-max|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "srixon|zxi-rkt-tr|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "srixon|zxi-rkt|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "srixon|zxi-tr|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "srixon|zxi|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "stix|perform|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "strata|plus|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "sub-70|849d|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "taylormade|300-mini|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|aeroburner-mini|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "taylormade|aeroburner|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|brnr-mini|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|burner-superfast-2-0|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|jetspeed|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "taylormade|m1-430|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|m1-440|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|m1-460|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "taylormade|m1-460|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "taylormade|m2-d-type|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "taylormade|m2|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|m2|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|m3-440|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "taylormade|m3-460|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|m4-d-type|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "taylormade|m4|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|m5-tour|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "taylormade|m5|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "taylormade|m6-d-type|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|m6|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|original-one-mini|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "taylormade|qi10-ls|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "taylormade|qi10-max-hl|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "taylormade|qi10-max|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|qi10|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|qi35-ls|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|qi35-max-lite|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|qi35-max|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|qi35|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|qi4d-ls|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|qi4d-max-lite|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "taylormade|qi4d-max|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "taylormade|qi4d|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "taylormade|r11s|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|r11|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "taylormade|r15-430|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "taylormade|r15-460|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|r1|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|r7-quad-mini|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|rbz-stage-2-tour|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "taylormade|rbz-stage-2|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|rocketballz-bonded|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "taylormade|rocketballz-tour|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|rocketballz|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "taylormade|sim-max-d|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|sim-max|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "taylormade|sim2-max-d|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "taylormade|sim2-max|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|sim2|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "taylormade|sim|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|sldr-430|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "taylormade|sldr-s-mini|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "taylormade|sldr-s|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|sldr|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "taylormade|stealth-2-hd|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "taylormade|stealth-2-plus|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|stealth-2|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|stealth-hd|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|stealth-plus|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "taylormade|stealth|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "titleist|910d2|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "titleist|910d3|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "titleist|913d2|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "titleist|913d3|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "titleist|915d2|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "titleist|915d3|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "titleist|915d4|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "titleist|917d2|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "titleist|917d3|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "titleist|gt1|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "titleist|gt280-mini|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "titleist|gt2|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "titleist|gt3|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "titleist|gt4|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "titleist|gts2|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "titleist|gts300-mini|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "titleist|gts3|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "titleist|gts4|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "titleist|ts1|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "titleist|ts2|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "titleist|ts3|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "titleist|ts4|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "titleist|tsi1|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "titleist|tsi2|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "titleist|tsi3|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "titleist|tsi4|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "titleist|tsr1|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "titleist|tsr2|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "titleist|tsr3|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "titleist|tsr4|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "tommy-armour|845-max|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "top-flite|xl|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-c721|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-c722|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-c723|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-c725|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-e722|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-e723|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-e725|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-e8-beta|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-e8|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-ex10|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-ex9-tour|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-ex9|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-exs-220|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-exs-pro|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-exs|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-lite|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-ls|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-max|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-mini|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-pro-721|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-xcg5|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-xcg6|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-xcg7-beta|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-xcg7|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|exotics-xj1|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|hot-launch-2-adjustable|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|hot-launch-2-offset|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|hot-launch-3-offset|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|hot-launch-3|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|hot-launch-4-offset|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|hot-launch-4|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|hot-launch-adjustable|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|hot-launch-c521|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "tour-edge|hot-launch-c522|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|hot-launch-c523|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|hot-launch-c524|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|hot-launch-draw|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|hot-launch-e521|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|hot-launch-e522|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|hot-launch-e523|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|hot-launch-e524|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|hot-launch-e525|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|hot-launch-max-d|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "tour-edge|hot-launch-max|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "tour-edge|hot-launch-x525|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "vice-golf|vgd01-plus|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "vice-golf|vgd01|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "wilson|c300|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "wilson|cortex|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "wilson|d-100|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "wilson|d200|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "wilson|d300|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "wilson|d7|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "wilson|d9|2021",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "wilson|dxi-superlight|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "wilson|dxi|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "wilson|dynapwr-carbon|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "wilson|dynapwr-carbon|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "wilson|dynapwr-ls|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "wilson|dynapwr-max-plus|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "wilson|dynapwr-max|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "wilson|dynapwr-titanium|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "wilson|fg-tour-f5|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "wilson|fg-tour-m3|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "wilson|launch-pad-2|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "wilson|launch-pad|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "wilson|triton|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "xxio|xxio-10|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "xxio|xxio-11|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "xxio|xxio-12|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "xxio|xxio-13|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "xxio|xxio-14-plus|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "xxio|xxio-14|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "xxio|xxio-7|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "xxio|xxio-8|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "xxio|xxio-9|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "xxio|xxio-prime-10|2019",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "xxio|xxio-prime-11|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "xxio|xxio-prime-12|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "xxio|xxio-prime-13|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "xxio|xxio-prime-7|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "xxio|xxio-prime-8|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "xxio|xxio-prime-9|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "xxio|xxio-x|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "xxio|xxio-x|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "xxio|xxio-x|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "yamaha|inpres-drivestar-type-d|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yamaha|inpres-drivestar-type-s|2025",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yamaha|inpres-drivestar|2023",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yamaha|rmx-01|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yamaha|rmx-01|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yamaha|rmx-02|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yamaha|rmx-02|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yamaha|rmx-116|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yamaha|rmx-118|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yamaha|rmx-120|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yamaha|rmx-216|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "yamaha|rmx-218|2018",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "yamaha|rmx-220|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "yamaha|rmx-dd-1|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yamaha|rmx-dd-2|2026",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yamaha|rmx-tourmodel|2014",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yamaha|rmx-tourmodel|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yamaha|rmx-vd-m|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yamaha|rmx-vd-r|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yamaha|rmx-vd-x|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yamaha|rmx-vd59|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yamaha|rmx-vd|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yonex|ezone-420|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yonex|ezone-450|2011",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yonex|ezone-gt-425|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yonex|ezone-gt-435|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yonex|ezone-gt-450|2022",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yonex|ezone-gt-455|2020",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yonex|ezone-gt-type-d|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yonex|ezone-gt-type-s|2024",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "yonex|ezone-gt|2017",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yonex|ezone-sd|2012",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "yonex|ezone-tri-g|2015",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "yonex|ezone-xpg-type-hd|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_UNVERIFIED",
+      "market_review_state": "NEEDS_REVIEW",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED",
+      "evidence_class": "UK_UNVERIFIED"
+    },
+    {
+      "catalogue_key": "yonex|ezone-xpg|2016",
+      "market_code": "GB",
+      "uk_market_status": "UK_ESTABLISHED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_ESTABLISHED"
+    },
+    {
+      "catalogue_key": "yonex|ezone-xp|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    },
+    {
+      "catalogue_key": "yonex|i-ezone|2013",
+      "market_code": "GB",
+      "uk_market_status": "UK_OBSERVED",
+      "market_review_state": "REVIEWED",
+      "recommendation_eligible": true,
+      "hold_reason": null,
+      "evidence_class": "UK_OBSERVED"
+    }
+  ]
+}

@@ -106,6 +106,42 @@ export function scoreHeadCharacteristicDimensions(
   return { dimensions: dims, gaps };
 }
 
+/**
+ * True when head launch is an explicit, evidence-backed, material golfer need.
+ * Reuses requirement_confidence source_codes (TRAJECTORY / PRIMARY_OBJECTIVE)
+ * and rejects MID-only / LOW-confidence / unresolved cases.
+ * Used for pre-dedupe UNKNOWN-launch filtering — not a Fit weight.
+ */
+export function isMaterialHeadLaunchRequirement(
+  req: NormalisedRequirements
+): boolean {
+  if (
+    req.head_launch_target === "UNRESOLVED" ||
+    req.head_launch_target_numeric == null
+  ) {
+    return false;
+  }
+  const entry = req.requirement_confidence?.head_launch;
+  if (!entry || entry.band === "UNRESOLVED" || entry.band === "LOW") {
+    return false;
+  }
+  const sources = entry.source_codes || [];
+  const hasFlightObjective = sources.includes("PRIMARY_OBJECTIVE");
+  const hasNonNeutralTrajectory =
+    sources.includes("TRAJECTORY") &&
+    Math.abs(req.head_launch_target_numeric) > 0;
+  return hasFlightObjective || hasNonNeutralTrajectory;
+}
+
+/** Head launch inactive solely because equipment launch evidence is unresolved. */
+export function hasUnresolvedLaunchEquipmentEvidence(
+  score: { dimensions: Record<string, { active?: boolean; omission_reason?: string }> }
+): boolean {
+  const dim = score.dimensions?.head_launch;
+  if (!dim || dim.active) return false;
+  return dim.omission_reason === "EQUIPMENT_EVIDENCE_UNRESOLVED";
+}
+
 /** Count resolved catalogue-scorable requirement dimensions. */
 export function countResolvedCatalogueRequirementDims(
   req: NormalisedRequirements

@@ -2,6 +2,8 @@ import {
   CATALOGUE_MIN_INDEPENDENT_ACTIVE_DIMS,
   type CatalogueRecommendResult,
 } from "../catalogue-types";
+import type { HeadConfigOverlayIndex } from "../head-config-overlay";
+import { loadHeadConfigOverlay } from "../head-config-overlay";
 import type { MatchInventoryItem } from "../inventory/types";
 import type { MatchIntelligence } from "../intelligence/load";
 import {
@@ -16,9 +18,12 @@ import {
   countEvidenceBackedCatalogueRequirementDims,
   countResolvedCatalogueRequirementDims,
 } from "../scoring/head-dimensions";
+import type { UkHeadRelevanceIndex } from "../uk-head-relevance";
+import { loadUkHeadRelevanceOverlay } from "../uk-head-relevance";
 import { matchAdapterVersions } from "../versions";
 import { buildCharacteristicGuidance, explainCatalogueHead } from "./explain";
 import { attachInventoryToCatalogueRecommendations } from "./inventory-attach";
+import { matchReferenceDirectory } from "./intelligence-path";
 import { buildShaftGuidance } from "./shaft-guidance";
 import { validateMatchQuestionnaireInputs } from "./validate-inputs";
 
@@ -38,6 +43,16 @@ function emptyAudit(
     distinct_fit_scores: 0,
     max_active_catalogue_dims: 0,
     top_fit_share_count: 0,
+    qualifying_heads_before_family_dedupe: 0,
+    qualifying_families_after_dedupe: 0,
+    family_duplicates_suppressed: 0,
+    recommendations_returned: 0,
+    top_tied_family_count: 0,
+    top_tied_max_active_dims: 0,
+    top_tied_min_active_dims: 0,
+    heads_held_config_overlay: 0,
+    heads_held_uk_market: 0,
+    heads_uk_market_eligible: 0,
     inventory_items_considered: 0,
     inventory_items_attached: 0,
     ...patch,
@@ -49,6 +64,20 @@ export function runCatalogueRecommendation(input: {
   intelligence: MatchIntelligence;
   /** Checkpoint B: optional Teevo inventory already mapped to contract. */
   inventory?: MatchInventoryItem[];
+  /** Optional overlay; defaults to reference head-config-overlay.v1.json. */
+  headConfigOverlay?: HeadConfigOverlayIndex | null;
+  /**
+   * UK market overlay. Defaults to loading reference uk-head-relevance.v1.json.
+   * Pass explicitly for tests. Omitting UK (undefined default load) fails closed
+   * to guidance if the overlay is missing/invalid — never recommends unverified heads.
+   * Pass a concrete index to apply UK gating; pass the sentinel skip only in
+   * unit tests via `skipUkMarketGate`.
+   */
+  ukHeadRelevance?: UkHeadRelevanceIndex | null;
+  /** When true, skip UK gate (unit tests only). Production never sets this. */
+  skipUkMarketGate?: boolean;
+  /** Override reference directory used when loading the default overlay. */
+  referenceDirectory?: string;
 }): CatalogueRecommendResult {
   const inventory = input.inventory ?? [];
   const versions = {
@@ -59,6 +88,64 @@ export function runCatalogueRecommendation(input: {
         ? ("PHASE_2A_CHECKPOINT_B" as const)
         : ("NONE" as const),
   };
+
+  const referenceDirectory =
+    input.referenceDirectory ?? matchReferenceDirectory();
+
+  const overlay =
+    input.headConfigOverlay === undefined
+      ? loadHeadConfigOverlay(referenceDirectory, input.intelligence)
+      : input.headConfigOverlay;
+
+  let ukOverlay: UkHeadRelevanceIndex | null | undefined = undefined;
+  if (input.skipUkMarketGate) {
+    ukOverlay = undefined;
+  } else if (input.ukHeadRelevance !== undefined) {
+    ukOverlay = input.ukHeadRelevance;
+  } else {
+    try {
+      ukOverlay = loadUkHeadRelevanceOverlay(
+        referenceDirectory,
+        input.intelligence
+      );
+    } catch (err) {
+      const emptyReq = normalizeRequirements(
+        {
+          handedness: "RIGHT",
+          input_source: "QUESTIONNAIRE",
+          input_confidence: "LOW",
+        },
+        input.intelligence.headsByKey
+      );
+      const shaft_guidance = buildShaftGuidance(emptyReq);
+      const characteristic_guidance = buildCharacteristicGuidance(emptyReq);
+      characteristic_guidance.notes.unshift(
+        "UK market relevance overlay is unavailable or invalid. Named recommendations are withheld fail-closed."
+      );
+      console.error(
+        "[match] UK_MARKET_OVERLAY_UNAVAILABLE",
+        err instanceof Error ? err.message : String(err)
+      );
+      return {
+        mode: "CHARACTERISTIC_GUIDANCE",
+        recommendations: [],
+        explanations: [],
+        shaft_guidance,
+        characteristic_guidance,
+        inventory_attachments: [],
+        normalised_requirements: emptyReq,
+        session: {
+          resolved_catalogue_requirement_dims: 0,
+          min_required_dims: CATALOGUE_MIN_INDEPENDENT_ACTIVE_DIMS,
+          golfer_confidence: 0,
+        },
+        audit: emptyAudit("UK_MARKET_OVERLAY_UNAVAILABLE", {
+          inventory_items_considered: inventory.length,
+        }),
+        versions,
+      };
+    }
+  }
 
   const validated = validateMatchQuestionnaireInputs(input.answers);
   if (!validated.ok) {
@@ -130,8 +217,8 @@ export function runCatalogueRecommendation(input: {
     })
   );
 
-  const { recommendations, stats, differentiation_blocked } =
-    rankCatalogueHeads(scored, 3);
+  const { recommendations, stats, family_stats, differentiation_blocked } =
+    rankCatalogueHeads(scored, 3, overlay, ukOverlay, req);
 
   const auditBase = {
     heads_scored: stats.scored,
@@ -144,6 +231,18 @@ export function runCatalogueRecommendation(input: {
     distinct_fit_scores: stats.distinct_fit_scores,
     max_active_catalogue_dims: stats.max_active_catalogue_dims,
     top_fit_share_count: stats.top_fit_share_count,
+    qualifying_heads_before_family_dedupe:
+      family_stats.qualifying_heads_before_family_dedupe,
+    qualifying_families_after_dedupe:
+      family_stats.qualifying_families_after_dedupe,
+    family_duplicates_suppressed: family_stats.family_duplicates_suppressed,
+    recommendations_returned: family_stats.recommendations_returned,
+    top_tied_family_count: family_stats.top_tied_family_count,
+    top_tied_max_active_dims: family_stats.top_tied_max_active_dims,
+    top_tied_min_active_dims: family_stats.top_tied_min_active_dims,
+    heads_held_config_overlay: family_stats.heads_held_config_overlay,
+    heads_held_uk_market: family_stats.heads_held_uk_market,
+    heads_uk_market_eligible: family_stats.heads_uk_market_eligible,
     inventory_items_considered: inventory.length,
     inventory_items_attached: 0,
   };
@@ -154,7 +253,11 @@ export function runCatalogueRecommendation(input: {
       recommendations: [],
       explanations: [],
       shaft_guidance,
-      characteristic_guidance,
+      characteristic_guidance: buildCharacteristicGuidance(req, {
+        differentiationBlocked: true,
+        topTiedFamilyCount: family_stats.top_tied_family_count,
+        topTiedMinActiveDims: family_stats.top_tied_min_active_dims,
+      }),
       inventory_attachments: [],
       normalised_requirements: req,
       session: {
@@ -204,10 +307,20 @@ export function runCatalogueRecommendation(input: {
     0
   );
 
+  const hasEqualFitAmongNamed = recommendations.some((a, i) =>
+    recommendations.slice(i + 1).some(
+      (b) =>
+        a.catalogue_match_band === b.catalogue_match_band &&
+        a.catalogue_fit_score === b.catalogue_fit_score
+    )
+  );
+
   return {
     mode: "NAMED_HEADS",
     recommendations,
-    explanations: recommendations.map((r) => explainCatalogueHead(r, req)),
+    explanations: recommendations.map((r) =>
+      explainCatalogueHead(r, req, { equalFitAmongNamed: hasEqualFitAmongNamed })
+    ),
     shaft_guidance,
     characteristic_guidance,
     inventory_attachments,

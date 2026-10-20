@@ -1,0 +1,78 @@
+{
+  "overlay_version": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+  "intelligence_heads_ref": "DRIVER_V1_2026-10-16",
+  "members": [
+    {
+      "catalogue_key": "ping|g430-max|2023",
+      "recommendation_family_key": "ping|g430-max|2023",
+      "canonical_catalogue_key": "ping|g430-max|2023",
+      "build_id": "STANDARD",
+      "source_status": "VERIFIED",
+      "recommendation_eligible": true,
+      "hold_reason": null
+    },
+    {
+      "catalogue_key": "ping|g430-max-hl|2023",
+      "recommendation_family_key": "ping|g430-max|2023",
+      "canonical_catalogue_key": "ping|g430-max|2023",
+      "build_id": "HL",
+      "source_status": "VERIFIED_TECH_CONFIG_HOLD",
+      "recommendation_eligible": false,
+      "hold_reason": "HL_COMPLETE_BUILD_NOT_HEAD_ISOLATED"
+    },
+    {
+      "catalogue_key": "ping|g440-max|2025",
+      "recommendation_family_key": "ping|g440-max|2025",
+      "canonical_catalogue_key": "ping|g440-max|2025",
+      "build_id": "STANDARD",
+      "source_status": "VERIFIED",
+      "recommendation_eligible": true,
+      "hold_reason": null
+    },
+    {
+      "catalogue_key": "ping|g440-max-hl|2025",
+      "recommendation_family_key": "ping|g440-max|2025",
+      "canonical_catalogue_key": "ping|g440-max|2025",
+      "build_id": "HL",
+      "source_status": "VERIFIED_TECH_CONFIG_HOLD",
+      "recommendation_eligible": false,
+      "hold_reason": "HL_COMPLETE_BUILD_NOT_HEAD_ISOLATED"
+    },
+    {
+      "catalogue_key": "ping|g440-k|2026",
+      "recommendation_family_key": "ping|g440-k|2026",
+      "canonical_catalogue_key": "ping|g440-k|2026",
+      "build_id": "STANDARD",
+      "source_status": "VERIFIED",
+      "recommendation_eligible": true,
+      "hold_reason": null
+    },
+    {
+      "catalogue_key": "ping|g440-k-hl|2026",
+      "recommendation_family_key": "ping|g440-k|2026",
+      "canonical_catalogue_key": "ping|g440-k|2026",
+      "build_id": "HL",
+      "source_status": "VERIFIED_TECH_CONFIG_HOLD",
+      "recommendation_eligible": false,
+      "hold_reason": "HL_COMPLETE_BUILD_NOT_HEAD_ISOLATED"
+    },
+    {
+      "catalogue_key": "taylormade|qi10-max|2024",
+      "recommendation_family_key": "taylormade|qi10-max|2024",
+      "canonical_catalogue_key": "taylormade|qi10-max|2024",
+      "build_id": "STANDARD",
+      "source_status": "VERIFIED",
+      "recommendation_eligible": true,
+      "hold_reason": null
+    },
+    {
+      "catalogue_key": "taylormade|qi10-max-hl|2024",
+      "recommendation_family_key": "taylormade|qi10-max|2024",
+      "canonical_catalogue_key": "taylormade|qi10-max|2024",
+      "build_id": "HL",
+      "source_status": "VERIFIED_TECH_UK_HOLD",
+      "recommendation_eligible": false,
+      "hold_reason": "UK_UNVERIFIED"
+    }
+  ]
+}

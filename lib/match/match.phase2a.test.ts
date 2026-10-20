@@ -195,49 +195,50 @@ describe("Phase 2A — presentation tie-break (exact Fit only)", () => {
   });
 });
 
-describe("Phase 2A — meaningful differentiation gate", () => {
-  it("blocks when distinct Fits = 1 and max active dims < 5 (A)", () => {
+describe("Phase 2A — B2.1 differentiation gate", () => {
+  it("allows ≤3 top-tied families under incomplete coverage", () => {
     expect(
       lacksMeaningfulHeadDifferentiation({
-        qualifying_heads: 10,
-        distinct_fit_scores: 1,
-        max_active_catalogue_dims: 3,
-        top_fit_share_count: 10,
-      })
-    ).toBe(true);
-  });
-
-  it("blocks when partial dims and top Fit shared by >3 heads (B)", () => {
-    expect(
-      lacksMeaningfulHeadDifferentiation({
-        qualifying_heads: 50,
-        distinct_fit_scores: 14,
-        max_active_catalogue_dims: 3,
-        top_fit_share_count: 40,
-      })
-    ).toBe(true);
-  });
-
-  it("allows when distinct Fits = 1 but all 5 dims active", () => {
-    expect(
-      lacksMeaningfulHeadDifferentiation({
-        qualifying_heads: 5,
-        distinct_fit_scores: 1,
-        max_active_catalogue_dims: 5,
-        top_fit_share_count: 5,
+        top_tied_family_count: 3,
+        top_tied_min_active_dims: 4,
       })
     ).toBe(false);
   });
 
-  it("allows partial dims when top Fit is not crowded", () => {
+  it("blocks >3 top-tied families when any top-tied winner has incomplete coverage", () => {
     expect(
       lacksMeaningfulHeadDifferentiation({
-        qualifying_heads: 8,
-        distinct_fit_scores: 4,
-        max_active_catalogue_dims: 3,
-        top_fit_share_count: 2,
+        top_tied_family_count: 25,
+        top_tied_min_active_dims: 4,
+      })
+    ).toBe(true);
+  });
+
+  it("allows >3 top-tied families only when every winner has 5 dims", () => {
+    expect(
+      lacksMeaningfulHeadDifferentiation({
+        top_tied_family_count: 25,
+        top_tied_min_active_dims: 5,
       })
     ).toBe(false);
+  });
+
+  it("blocks mixed coverage where max is 5 but min is below 5", () => {
+    expect(
+      lacksMeaningfulHeadDifferentiation({
+        top_tied_family_count: 20,
+        top_tied_min_active_dims: 3,
+      })
+    ).toBe(true);
+  });
+
+  it("does not use distinct lower tiers as an allow condition", () => {
+    expect(
+      lacksMeaningfulHeadDifferentiation({
+        top_tied_family_count: 4,
+        top_tied_min_active_dims: 4,
+      })
+    ).toBe(true);
   });
 });
 
@@ -294,6 +295,7 @@ describe("Phase 2A Checkpoint A — catalogue scoring", () => {
 
   it("sparse: handedness-only → characteristic guidance", () => {
     const result = runCatalogueRecommendation({
+      skipUkMarketGate: true,
       answers: { handedness: "RIGHT" },
       intelligence: intel,
     });
@@ -306,6 +308,7 @@ describe("Phase 2A Checkpoint A — catalogue scoring", () => {
 
   it("sparse incomplete swing: characteristic guidance via differentiation gate", () => {
     const result = runCatalogueRecommendation({
+      skipUkMarketGate: true,
       answers: SPARSE_INCOMPLETE,
       intelligence: intel,
     });
@@ -320,6 +323,7 @@ describe("Phase 2A Checkpoint A — catalogue scoring", () => {
 
   it("rich inputs → named heads with qualified explanations", () => {
     const result = runCatalogueRecommendation({
+      skipUkMarketGate: true,
       answers: RICH_ANSWERS,
       intelligence: intel,
     });
@@ -340,6 +344,7 @@ describe("Phase 2A Checkpoint A — catalogue scoring", () => {
 
   it("borderline forgiveness (direction unresolved) does not auto-suppress", () => {
     const result = runCatalogueRecommendation({
+      skipUkMarketGate: true,
       answers: BORDERLINE_FORGIVENESS,
       intelligence: intel,
     });
@@ -360,10 +365,12 @@ describe("Phase 2A Checkpoint A — catalogue scoring", () => {
 
   it("is deterministic for identical rich inputs", () => {
     const a = runCatalogueRecommendation({
+      skipUkMarketGate: true,
       answers: RICH_ANSWERS,
       intelligence: intel,
     });
     const b = runCatalogueRecommendation({
+      skipUkMarketGate: true,
       answers: RICH_ANSWERS,
       intelligence: intel,
     });
@@ -433,6 +440,7 @@ describe("Phase 2A Checkpoint A — catalogue scoring", () => {
 
   it("logs differentiation suppression reason for sparse incomplete profiles", () => {
     const result = runCatalogueRecommendation({
+      skipUkMarketGate: true,
       answers: SPARSE_INCOMPLETE,
       intelligence: intel,
     });

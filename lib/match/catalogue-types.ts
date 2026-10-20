@@ -61,6 +61,15 @@ export type CatalogueHeadScore = {
   considerations: string[];
   /** Model-level only — not a handedness/loft/config availability claim. */
   scope_disclaimer: "MODEL_LEVEL_SUITABILITY_ONLY";
+  /**
+   * Presentation-only head labels for soft equal-Fit diversity.
+   * Never used in Fit calculation.
+   */
+  presentation_chars?: {
+    directional_bias: string | null;
+    primary_head_profile: string | null;
+    launch_tendency: string | null;
+  };
 };
 
 export type CharacteristicGuidance = {
@@ -133,6 +142,16 @@ export type CatalogueRecommendResult = {
     distinct_fit_scores: number;
     max_active_catalogue_dims: number;
     top_fit_share_count: number;
+    qualifying_heads_before_family_dedupe: number;
+    qualifying_families_after_dedupe: number;
+    family_duplicates_suppressed: number;
+    recommendations_returned: number;
+    top_tied_family_count: number;
+    top_tied_max_active_dims: number;
+    top_tied_min_active_dims: number;
+    heads_held_config_overlay: number;
+    heads_held_uk_market: number;
+    heads_uk_market_eligible: number;
     inventory_items_considered: number;
     inventory_items_attached: number;
   };
@@ -141,6 +160,8 @@ export type CatalogueRecommendResult = {
     logic: string;
     heads: string;
     shafts: string;
+    head_config_overlay: string;
+    uk_head_relevance: string;
     catalogue_pathway: "PHASE_2A_CHECKPOINT_A";
     inventory_attach: "PHASE_2A_CHECKPOINT_B" | "NONE";
   };

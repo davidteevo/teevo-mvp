@@ -8,14 +8,36 @@ import type { NormalisedRequirements } from "../types";
 function bandPhrase(band: string | null | undefined): string {
   switch (band) {
     case "EXCELLENT_MATCH":
-      return "strong model-level suitability";
+      return "strong suitability on assessed head characteristics";
     case "VERY_GOOD_MATCH":
-      return "very good model-level suitability";
+      return "very good suitability on assessed head characteristics";
     case "GOOD_MATCH":
-      return "good model-level suitability";
+      return "good suitability on assessed head characteristics";
     default:
-      return "limited model-level suitability";
+      return "limited suitability on assessed head characteristics";
   }
+}
+
+export type ExplainCatalogueOptions = {
+  /** True when returned named cards share the same band + exact Fit. */
+  equalFitAmongNamed?: boolean;
+};
+
+export type CharacteristicGuidanceOptions = {
+  differentiationBlocked?: boolean;
+  topTiedFamilyCount?: number;
+  topTiedMinActiveDims?: number;
+};
+
+function pinUncertainty(lines: string[], pinned: string[], rest: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const line of [...pinned, ...rest, ...lines]) {
+    if (!line || seen.has(line)) continue;
+    seen.add(line);
+    out.push(line);
+  }
+  return out;
 }
 
 /**
@@ -24,11 +46,13 @@ function bandPhrase(band: string | null | undefined): string {
  */
 export function explainCatalogueHead(
   score: CatalogueHeadScore,
-  req: NormalisedRequirements
+  req: NormalisedRequirements,
+  options: ExplainCatalogueOptions = {}
 ): CatalogueHeadExplanation {
   const reasons: string[] = [];
   const trade_offs: string[] = [];
-  const uncertainty: string[] = [];
+  const pinnedUncertainty: string[] = [];
+  const restUncertainty: string[] = [];
   const dims = score.dimensions;
 
   if (dims.forgiveness?.active) {
@@ -36,7 +60,7 @@ export function explainCatalogueHead(
       "Forgiveness characteristic is consistent with the support level suggested by your inputs (model-level only)."
     );
   } else if (req.forgiveness_requirement != null) {
-    uncertainty.push("Forgiveness evidence for this head is incomplete.");
+    pinnedUncertainty.push("Forgiveness evidence for this head is incomplete.");
   }
 
   if (dims.stability?.active) {
@@ -62,9 +86,11 @@ export function explainCatalogueHead(
       "Published directional bias is consistent with the start/curve pattern you described — not a guarantee of shot shape."
     );
   } else if (req.directional_target_numeric != null) {
-    uncertainty.push("Directional bias evidence is incomplete for this head.");
+    pinnedUncertainty.push(
+      "Directional bias evidence is incomplete for this head."
+    );
   } else {
-    uncertainty.push(
+    restUncertainty.push(
       "Directional preference was unresolved — direction did not contribute to this catalogue Fit."
     );
   }
@@ -77,9 +103,11 @@ export function explainCatalogueHead(
     req.head_launch_target !== "UNRESOLVED" &&
     req.head_launch_target_numeric != null
   ) {
-    uncertainty.push("Launch tendency evidence is incomplete for this head.");
+    pinnedUncertainty.push(
+      "Launch tendency evidence is incomplete for this head — launch was not scored for this model."
+    );
   } else {
-    uncertainty.push(
+    restUncertainty.push(
       "Head launch preference was unresolved — launch did not contribute to this catalogue Fit."
     );
   }
@@ -90,21 +118,30 @@ export function explainCatalogueHead(
   trade_offs.push(
     "Catalogue Fit does not score loft or shaft. Preferred loft and shaft profile are guidance only."
   );
+  trade_offs.push(
+    "UK-market presence is not proof of live Teevo inventory or a purchasable configuration."
+  );
 
   if (score.active_catalogue_dim_count < 5) {
-    uncertainty.push(
-      `Only ${score.active_catalogue_dim_count} of 5 characteristic dimensions were active — treat this ranking cautiously.`
+    pinnedUncertainty.unshift(
+      `Only ${score.active_catalogue_dim_count} of 5 head characteristics were assessed — this is not a complete custom club fitting.`
+    );
+  }
+
+  if (options.equalFitAmongNamed) {
+    pinnedUncertainty.unshift(
+      "These clubs have similar Fit scores on the available characteristics. List order is not a stronger technical Fit. Shaft and loft are not included in catalogue scoring."
     );
   }
 
   if (score.head_recommendation_confidence === "MEDIUM") {
-    uncertainty.push(
+    restUncertainty.push(
       "Presentation confidence is medium — answers or equipment evidence leave uncertainty."
     );
   }
   for (const c of score.considerations) {
     if (c.endsWith("_CONFLICT")) {
-      uncertainty.push(
+      restUncertainty.push(
         `Input conflict noted: ${c.replace(/_/g, " ").toLowerCase()}.`
       );
     }
@@ -115,23 +152,53 @@ export function explainCatalogueHead(
     [score.brand, score.model].filter(Boolean).join(" ") ||
     score.catalogue_key;
 
+  const coverageNote =
+    score.active_catalogue_dim_count < 5
+      ? ` Assessed on ${score.active_catalogue_dim_count} of 5 head characteristics.`
+      : " Assessed on all 5 head characteristics available to catalogue Fit.";
+
+  const suitability_summary = options.equalFitAmongNamed
+    ? `${name} shows ${bandPhrase(score.catalogue_match_band)}.${coverageNote} Similar Fit to the other named options here — order is presentation only, not a better technical Fit. This is model-level equipment guidance, not a purchase offer and not a complete custom club fitting; loft/shaft were not scored.`
+    : `${name} shows ${bandPhrase(score.catalogue_match_band)}.${coverageNote} This is model-level equipment guidance, not a purchase offer and not a complete custom club fitting; loft/shaft were not scored.`;
+
+  const uncertainty = pinUncertainty([], pinnedUncertainty, restUncertainty);
+
   return {
     catalogue_key: score.catalogue_key,
-    suitability_summary: `${name} shows ${bandPhrase(score.catalogue_match_band)} on catalogue characteristics for your described game. This is an equipment recommendation, not a purchase offer, and loft/shaft were not scored.`,
+    suitability_summary,
     reasons: reasons.slice(0, 4),
     trade_offs: trade_offs.slice(0, 4),
-    uncertainty: uncertainty.slice(0, 4),
+    // Keep pinned missing-evidence lines; allow a slightly higher cap so they are not dropped.
+    uncertainty: uncertainty.slice(0, 6),
   };
 }
 
 export function buildCharacteristicGuidance(
-  req: NormalisedRequirements
+  req: NormalisedRequirements,
+  options: CharacteristicGuidanceOptions = {}
 ): CharacteristicGuidance {
   const notes: string[] = [
     "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
     "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims.",
     "Loft and shaft are not scored at catalogue level — confirm configuration on real inventory.",
   ];
+
+  if (options.differentiationBlocked) {
+    const tied = options.topTiedFamilyCount ?? 0;
+    const minDims = options.topTiedMinActiveDims ?? 0;
+    notes.unshift(
+      tied > 0
+        ? `Teevo cannot confidently distinguish the leading heads: about ${tied} UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as ${minDims} of 5 assessed). Named rankings are withheld rather than guessing.`
+        : "Teevo cannot confidently distinguish the leading heads on the available characteristic evidence. Named rankings are withheld rather than guessing."
+    );
+    const directionUnresolved = req.directional_target_numeric == null;
+    if (directionUnresolved) {
+      notes.push(
+        "Adding typical start direction, typical curve, or a miss-reduction goal (reduce right/left misses) often unlocks clearer differentiation — these fields are already on the questionnaire."
+      );
+    }
+  }
+
   if (req.preferred_loft_min_deg != null && req.preferred_loft_max_deg != null) {
     notes.push(
       `Preferred loft territory: about ${req.preferred_loft_min_deg}°–${req.preferred_loft_max_deg}° (confirm on an actual club).`
