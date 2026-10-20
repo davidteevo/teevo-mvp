@@ -1,0 +1,4884 @@
+{
+  "study": "PHASE_2E2_RECOMMENDATION_RECOVERY",
+  "generated_at": "2026-10-19T20:50:30.814Z",
+  "engine": "runCatalogueRecommendation (production path, UK gate on)",
+  "note": "Counterfactual answers are testing scenarios, not golfer claims.",
+  "profiles": [
+    {
+      "profile_id": "sparse_handedness_only",
+      "baseline_answers": {
+        "handedness": "RIGHT"
+      },
+      "baseline_requirements_snapshot": {
+        "directional_requirement": "UNRESOLVED",
+        "directional_target_numeric": null,
+        "head_launch_target": "UNRESOLVED",
+        "head_launch_target_numeric": null,
+        "forgiveness_requirement": 3,
+        "stability_requirement": 3,
+        "workability_preference": 2,
+        "evidence_backed_dims": 0,
+        "resolved_dims": 3,
+        "direction_confidence": {
+          "band": "UNRESOLVED",
+          "source_codes": [],
+          "conflict_codes": []
+        },
+        "head_launch_confidence": {
+          "band": "UNRESOLVED",
+          "source_codes": [],
+          "conflict_codes": []
+        }
+      },
+      "baseline": {
+        "mode": "CHARACTERISTIC_GUIDANCE",
+        "reason": "INSUFFICIENT_EVIDENCE_BACKED_REQUIREMENT_DIMS",
+        "resolved_dims": 3,
+        "evidence_backed_dims": 0,
+        "directional_target": null,
+        "directional_requirement": "UNRESOLVED",
+        "head_launch_target": "UNRESOLVED",
+        "head_launch_numeric": null,
+        "forgiveness": 3,
+        "stability": 3,
+        "workability": 2,
+        "launch_sources": [],
+        "launch_band": "UNRESOLVED",
+        "direction_sources": [],
+        "direction_band": "UNRESOLVED",
+        "qualifying_heads": 0,
+        "qualifying_families": 0,
+        "top_tied_family_count": 0,
+        "top_tied_min_active_dims": 0,
+        "top_tied_max_active_dims": 0,
+        "heads_uk_market_eligible": 0,
+        "named_count": 0,
+        "heads": [],
+        "guidance_notes_head": [
+          "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+          "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+        ]
+      },
+      "scenarios": [
+        {
+          "id": "speed_only",
+          "label": "One Q: club_speed_mph=95",
+          "questions": [
+            "club_speed_mph"
+          ],
+          "patch": {
+            "club_speed_mph": 95
+          },
+          "answers_applied": {
+            "club_speed_mph": 95
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "INSUFFICIENT_EVIDENCE_BACKED_REQUIREMENT_DIMS",
+            "resolved_dims": 3,
+            "evidence_backed_dims": 0,
+            "directional_target": null,
+            "directional_requirement": "UNRESOLVED",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 3,
+            "stability": 3,
+            "workability": 2,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [],
+            "direction_band": "UNRESOLVED",
+            "qualifying_heads": 0,
+            "qualifying_families": 0,
+            "top_tied_family_count": 0,
+            "top_tied_min_active_dims": 0,
+            "top_tied_max_active_dims": 0,
+            "heads_uk_market_eligible": 0,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "handicap_only",
+          "label": "One Q: handicap=14",
+          "questions": [
+            "handicap"
+          ],
+          "patch": {
+            "handicap": 14
+          },
+          "answers_applied": {
+            "handicap": 14
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 3,
+            "evidence_backed_dims": 2,
+            "directional_target": null,
+            "directional_requirement": "UNRESOLVED",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [],
+            "direction_band": "UNRESOLVED",
+            "qualifying_heads": 211,
+            "qualifying_families": 132,
+            "top_tied_family_count": 70,
+            "top_tied_min_active_dims": 3,
+            "top_tied_max_active_dims": 3,
+            "heads_uk_market_eligible": 132,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 70 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 3 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": true
+        },
+        {
+          "id": "objective_forgiveness",
+          "label": "One Q: primary_objective=FORGIVENESS",
+          "questions": [
+            "primary_objective"
+          ],
+          "patch": {
+            "primary_objective": "FORGIVENESS"
+          },
+          "answers_applied": {
+            "primary_objective": "FORGIVENESS"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 3,
+            "evidence_backed_dims": 3,
+            "directional_target": null,
+            "directional_requirement": "UNRESOLVED",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 4.5,
+            "stability": 4,
+            "workability": 1.5,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [],
+            "direction_band": "UNRESOLVED",
+            "qualifying_heads": 453,
+            "qualifying_families": 306,
+            "top_tied_family_count": 87,
+            "top_tied_min_active_dims": 3,
+            "top_tied_max_active_dims": 3,
+            "heads_uk_market_eligible": 306,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 87 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 3 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": true
+        },
+        {
+          "id": "trajectory_mid",
+          "label": "One Q: typical_trajectory=MID",
+          "questions": [
+            "typical_trajectory"
+          ],
+          "patch": {
+            "typical_trajectory": "MID"
+          },
+          "answers_applied": {
+            "typical_trajectory": "MID"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "INSUFFICIENT_EVIDENCE_BACKED_REQUIREMENT_DIMS",
+            "resolved_dims": 4,
+            "evidence_backed_dims": 1,
+            "directional_target": null,
+            "directional_requirement": "UNRESOLVED",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3,
+            "stability": 3,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "LOW",
+            "direction_sources": [],
+            "direction_band": "UNRESOLVED",
+            "qualifying_heads": 0,
+            "qualifying_families": 0,
+            "top_tied_family_count": 0,
+            "top_tied_min_active_dims": 0,
+            "top_tied_max_active_dims": 0,
+            "heads_uk_market_eligible": 0,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "curve_right",
+          "label": "One Q: typical_curvature=RIGHT",
+          "questions": [
+            "typical_curvature"
+          ],
+          "patch": {
+            "typical_curvature": "RIGHT"
+          },
+          "answers_applied": {
+            "typical_curvature": "RIGHT"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "INSUFFICIENT_EVIDENCE_BACKED_REQUIREMENT_DIMS",
+            "resolved_dims": 4,
+            "evidence_backed_dims": 1,
+            "directional_target": 1.5,
+            "directional_requirement": "STRONG_DRAW_ASSIST",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 3,
+            "stability": 3,
+            "workability": 2,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "LOW",
+            "qualifying_heads": 0,
+            "qualifying_families": 0,
+            "top_tied_family_count": 0,
+            "top_tied_min_active_dims": 0,
+            "top_tied_max_active_dims": 0,
+            "heads_uk_market_eligible": 0,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "min_intake_a",
+          "label": "Min intake: handicap+speed+objective DISTANCE",
+          "questions": [
+            "handicap",
+            "club_speed_mph",
+            "primary_objective"
+          ],
+          "patch": {
+            "handicap": 14,
+            "club_speed_mph": 95,
+            "primary_objective": "DISTANCE"
+          },
+          "answers_applied": {
+            "handicap": 14,
+            "club_speed_mph": 95,
+            "primary_objective": "DISTANCE"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 3,
+            "evidence_backed_dims": 2,
+            "directional_target": null,
+            "directional_requirement": "UNRESOLVED",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [],
+            "direction_band": "UNRESOLVED",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 238,
+            "top_tied_min_active_dims": 3,
+            "top_tied_max_active_dims": 3,
+            "heads_uk_market_eligible": 394,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 238 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 3 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": true
+        },
+        {
+          "id": "min_intake_b",
+          "label": "Min intake: handicap+speed+traj MID+objective DISTANCE",
+          "questions": [
+            "handicap",
+            "club_speed_mph",
+            "typical_trajectory",
+            "primary_objective"
+          ],
+          "patch": {
+            "handicap": 14,
+            "club_speed_mph": 95,
+            "typical_trajectory": "MID",
+            "primary_objective": "DISTANCE"
+          },
+          "answers_applied": {
+            "handicap": 14,
+            "club_speed_mph": 95,
+            "typical_trajectory": "MID",
+            "primary_objective": "DISTANCE"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 4,
+            "evidence_backed_dims": 3,
+            "directional_target": null,
+            "directional_requirement": "UNRESOLVED",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [],
+            "direction_band": "UNRESOLVED",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 65,
+            "top_tied_min_active_dims": 3,
+            "top_tied_max_active_dims": 4,
+            "heads_uk_market_eligible": 394,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 65 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 3 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": true
+        },
+        {
+          "id": "min_intake_c",
+          "label": "Min intake + direction REDUCE_RIGHT_MISS",
+          "questions": [
+            "handicap",
+            "club_speed_mph",
+            "typical_trajectory",
+            "primary_objective"
+          ],
+          "patch": {
+            "handicap": 14,
+            "club_speed_mph": 95,
+            "typical_trajectory": "MID",
+            "primary_objective": "REDUCE_RIGHT_MISS"
+          },
+          "answers_applied": {
+            "handicap": 14,
+            "club_speed_mph": 95,
+            "typical_trajectory": "MID",
+            "primary_objective": "REDUCE_RIGHT_MISS"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 4,
+            "directional_target": 1.5,
+            "directional_requirement": "STRONG_DRAW_ASSIST",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "PRIMARY_OBJECTIVE"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "titleist|913d2|2013",
+                "display_name": "Titleist 913D2 Driver",
+                "fit": 98.45957249070632,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2013
+              },
+              {
+                "catalogue_key": "cobra|aerojet|2023",
+                "display_name": "Cobra Aerojet Driver",
+                "fit": 98.39233753637247,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2023
+              },
+              {
+                "catalogue_key": "pxg|0211|2022",
+                "display_name": "PXG 0211 Driver (2022)",
+                "fit": 98.36860236220473,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2022
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "min_intake_full_slice",
+          "label": "Credible intake: speed+hcp+traj+curve+objective",
+          "questions": [
+            "handicap",
+            "club_speed_mph",
+            "typical_trajectory",
+            "typical_curvature",
+            "primary_objective"
+          ],
+          "patch": {
+            "handicap": 18,
+            "club_speed_mph": 88,
+            "typical_trajectory": "MID",
+            "typical_curvature": "RIGHT",
+            "primary_objective": "FORGIVENESS"
+          },
+          "answers_applied": {
+            "handicap": 18,
+            "club_speed_mph": 88,
+            "typical_trajectory": "MID",
+            "typical_curvature": "RIGHT",
+            "primary_objective": "FORGIVENESS"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 1.5,
+            "directional_requirement": "STRONG_DRAW_ASSIST",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 4.75,
+            "stability": 4.25,
+            "workability": 1.5,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "LOW",
+            "qualifying_heads": 591,
+            "qualifying_families": 392,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 392,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "titleist|913d2|2013",
+                "display_name": "Titleist 913D2 Driver",
+                "fit": 97.06552044609666,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2013
+              },
+              {
+                "catalogue_key": "adams|xtd|2014",
+                "display_name": "Adams XTD Driver",
+                "fit": 96.08968401486989,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2014
+              },
+              {
+                "catalogue_key": "wilson|dynapwr-titanium|2023",
+                "display_name": "Wilson DYNAPWR Titanium Driver",
+                "fit": 95.67685589519651,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2023
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        }
+      ],
+      "summary": {
+        "one_question_named_count": 0,
+        "one_question_total": 5,
+        "two_question_named_count": 0,
+        "two_question_total": 0,
+        "multi_question_named_count": 2,
+        "recovering_one_q_ids": [],
+        "recovering_two_q_ids": [],
+        "recovering_multi_ids": [
+          "min_intake_c",
+          "min_intake_full_slice"
+        ]
+      }
+    },
+    {
+      "profile_id": "sparse_incomplete",
+      "baseline_answers": {
+        "handedness": "RIGHT",
+        "handicap": 14,
+        "typical_trajectory": "UNKNOWN",
+        "typical_start_direction": "UNKNOWN",
+        "typical_curvature": "UNKNOWN",
+        "miss_severity": "UNKNOWN",
+        "strike_pattern": "UNKNOWN",
+        "strike_consistency": "UNKNOWN",
+        "primary_objective": "DISTANCE",
+        "current_club_satisfaction": "UNKNOWN"
+      },
+      "baseline_requirements_snapshot": {
+        "directional_requirement": "UNRESOLVED",
+        "directional_target_numeric": null,
+        "head_launch_target": "UNRESOLVED",
+        "head_launch_target_numeric": null,
+        "forgiveness_requirement": 3.25,
+        "stability_requirement": 3.25,
+        "workability_preference": 2,
+        "evidence_backed_dims": 2,
+        "resolved_dims": 3,
+        "direction_confidence": {
+          "band": "UNRESOLVED",
+          "source_codes": [],
+          "conflict_codes": []
+        },
+        "head_launch_confidence": {
+          "band": "UNRESOLVED",
+          "source_codes": [],
+          "conflict_codes": []
+        }
+      },
+      "baseline": {
+        "mode": "CHARACTERISTIC_GUIDANCE",
+        "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+        "resolved_dims": 3,
+        "evidence_backed_dims": 2,
+        "directional_target": null,
+        "directional_requirement": "UNRESOLVED",
+        "head_launch_target": "UNRESOLVED",
+        "head_launch_numeric": null,
+        "forgiveness": 3.25,
+        "stability": 3.25,
+        "workability": 2,
+        "launch_sources": [],
+        "launch_band": "UNRESOLVED",
+        "direction_sources": [],
+        "direction_band": "UNRESOLVED",
+        "qualifying_heads": 501,
+        "qualifying_families": 332,
+        "top_tied_family_count": 217,
+        "top_tied_min_active_dims": 3,
+        "top_tied_max_active_dims": 3,
+        "heads_uk_market_eligible": 332,
+        "named_count": 0,
+        "heads": [],
+        "guidance_notes_head": [
+          "Teevo cannot confidently distinguish the leading heads: about 217 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 3 of 5 assessed). Named rankings are withheld rather than guessing.",
+          "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+        ]
+      },
+      "scenarios": [
+        {
+          "id": "speed",
+          "label": "One Q: club_speed_mph=95",
+          "questions": [
+            "club_speed_mph"
+          ],
+          "patch": {
+            "club_speed_mph": 95
+          },
+          "answers_applied": {
+            "club_speed_mph": 95
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 3,
+            "evidence_backed_dims": 2,
+            "directional_target": null,
+            "directional_requirement": "UNRESOLVED",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [],
+            "direction_band": "UNRESOLVED",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 238,
+            "top_tied_min_active_dims": 3,
+            "top_tied_max_active_dims": 3,
+            "heads_uk_market_eligible": 394,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 238 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 3 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "traj_high",
+          "label": "One Q: typical_trajectory=HIGH",
+          "questions": [
+            "typical_trajectory"
+          ],
+          "patch": {
+            "typical_trajectory": "HIGH"
+          },
+          "answers_applied": {
+            "typical_trajectory": "HIGH"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 4,
+            "evidence_backed_dims": 3,
+            "directional_target": null,
+            "directional_requirement": "UNRESOLVED",
+            "head_launch_target": "MID_LOW",
+            "head_launch_numeric": -1,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "LOW",
+            "direction_sources": [],
+            "direction_band": "UNRESOLVED",
+            "qualifying_heads": 548,
+            "qualifying_families": 368,
+            "top_tied_family_count": 12,
+            "top_tied_min_active_dims": 3,
+            "top_tied_max_active_dims": 4,
+            "heads_uk_market_eligible": 368,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 12 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 3 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "traj_unknown",
+          "label": "One Q: typical_trajectory=UNKNOWN (no change)",
+          "questions": [
+            "typical_trajectory"
+          ],
+          "patch": {
+            "typical_trajectory": "UNKNOWN"
+          },
+          "answers_applied": {
+            "typical_trajectory": "UNKNOWN"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 3,
+            "evidence_backed_dims": 2,
+            "directional_target": null,
+            "directional_requirement": "UNRESOLVED",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [],
+            "direction_band": "UNRESOLVED",
+            "qualifying_heads": 501,
+            "qualifying_families": 332,
+            "top_tied_family_count": 217,
+            "top_tied_min_active_dims": 3,
+            "top_tied_max_active_dims": 3,
+            "heads_uk_market_eligible": 332,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 217 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 3 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "curve_right",
+          "label": "One Q: typical_curvature=RIGHT",
+          "questions": [
+            "typical_curvature"
+          ],
+          "patch": {
+            "typical_curvature": "RIGHT"
+          },
+          "answers_applied": {
+            "typical_curvature": "RIGHT"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 4,
+            "evidence_backed_dims": 3,
+            "directional_target": 1.5,
+            "directional_requirement": "STRONG_DRAW_ASSIST",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "LOW",
+            "qualifying_heads": 557,
+            "qualifying_families": 373,
+            "top_tied_family_count": 6,
+            "top_tied_min_active_dims": 4,
+            "top_tied_max_active_dims": 4,
+            "heads_uk_market_eligible": 373,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 6 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 4 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "curve_unknown",
+          "label": "One Q: typical_curvature=UNKNOWN",
+          "questions": [
+            "typical_curvature"
+          ],
+          "patch": {
+            "typical_curvature": "UNKNOWN"
+          },
+          "answers_applied": {
+            "typical_curvature": "UNKNOWN"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 3,
+            "evidence_backed_dims": 2,
+            "directional_target": null,
+            "directional_requirement": "UNRESOLVED",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [],
+            "direction_band": "UNRESOLVED",
+            "qualifying_heads": 501,
+            "qualifying_families": 332,
+            "top_tied_family_count": 217,
+            "top_tied_min_active_dims": 3,
+            "top_tied_max_active_dims": 3,
+            "heads_uk_market_eligible": 332,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 217 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 3 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "start_right",
+          "label": "One Q: typical_start_direction=RIGHT",
+          "questions": [
+            "typical_start_direction"
+          ],
+          "patch": {
+            "typical_start_direction": "RIGHT"
+          },
+          "answers_applied": {
+            "typical_start_direction": "RIGHT"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 4,
+            "evidence_backed_dims": 3,
+            "directional_target": 0.5,
+            "directional_requirement": "DRAW_ASSIST",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "LOW",
+            "qualifying_heads": 505,
+            "qualifying_families": 340,
+            "top_tied_family_count": 12,
+            "top_tied_min_active_dims": 4,
+            "top_tied_max_active_dims": 4,
+            "heads_uk_market_eligible": 340,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 12 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 4 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "obj_reduce_right",
+          "label": "One Q: primary_objective=REDUCE_RIGHT_MISS",
+          "questions": [
+            "primary_objective"
+          ],
+          "patch": {
+            "primary_objective": "REDUCE_RIGHT_MISS"
+          },
+          "answers_applied": {
+            "primary_objective": "REDUCE_RIGHT_MISS"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 4,
+            "evidence_backed_dims": 3,
+            "directional_target": 1.5,
+            "directional_requirement": "STRONG_DRAW_ASSIST",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [
+              "PRIMARY_OBJECTIVE"
+            ],
+            "direction_band": "LOW",
+            "qualifying_heads": 481,
+            "qualifying_families": 322,
+            "top_tied_family_count": 6,
+            "top_tied_min_active_dims": 4,
+            "top_tied_max_active_dims": 4,
+            "heads_uk_market_eligible": 322,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 6 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 4 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "obj_higher_flight",
+          "label": "One Q: primary_objective=HIGHER_FLIGHT",
+          "questions": [
+            "primary_objective"
+          ],
+          "patch": {
+            "primary_objective": "HIGHER_FLIGHT"
+          },
+          "answers_applied": {
+            "primary_objective": "HIGHER_FLIGHT"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 4,
+            "evidence_backed_dims": 3,
+            "directional_target": null,
+            "directional_requirement": "UNRESOLVED",
+            "head_launch_target": "HIGH",
+            "head_launch_numeric": 1.5,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [
+              "PRIMARY_OBJECTIVE"
+            ],
+            "launch_band": "LOW",
+            "direction_sources": [],
+            "direction_band": "UNRESOLVED",
+            "qualifying_heads": 478,
+            "qualifying_families": 319,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 3,
+            "top_tied_max_active_dims": 3,
+            "heads_uk_market_eligible": 319,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "tour-edge|exotics-max|2026",
+                "display_name": "Tour Edge Exotics Max Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "MEDIUM",
+                "active_dims": 3,
+                "release_year": 2026
+              },
+              {
+                "catalogue_key": "benross|br-pro|2023",
+                "display_name": "Benross BR-Pro Driver",
+                "fit": 98.53448275862068,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "MEDIUM",
+                "active_dims": 4,
+                "release_year": 2023
+              },
+              {
+                "catalogue_key": "xxio|xxio-x|2022",
+                "display_name": "XXIO X Driver",
+                "fit": 98.53448275862068,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "MEDIUM",
+                "active_dims": 4,
+                "release_year": 2022
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "strike_heel",
+          "label": "One Q: strike_pattern=HEEL",
+          "questions": [
+            "strike_pattern"
+          ],
+          "patch": {
+            "strike_pattern": "HEEL"
+          },
+          "answers_applied": {
+            "strike_pattern": "HEEL"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 3,
+            "evidence_backed_dims": 2,
+            "directional_target": null,
+            "directional_requirement": "UNRESOLVED",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [],
+            "direction_band": "UNRESOLVED",
+            "qualifying_heads": 501,
+            "qualifying_families": 332,
+            "top_tied_family_count": 217,
+            "top_tied_min_active_dims": 3,
+            "top_tied_max_active_dims": 3,
+            "heads_uk_market_eligible": 332,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 217 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 3 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "two_speed_curve",
+          "label": "Two Q: speed=95 + curvature=RIGHT",
+          "questions": [
+            "club_speed_mph",
+            "typical_curvature"
+          ],
+          "patch": {
+            "club_speed_mph": 95,
+            "typical_curvature": "RIGHT"
+          },
+          "answers_applied": {
+            "club_speed_mph": 95,
+            "typical_curvature": "RIGHT"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 4,
+            "evidence_backed_dims": 3,
+            "directional_target": 1.5,
+            "directional_requirement": "STRONG_DRAW_ASSIST",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "LOW",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 6,
+            "top_tied_min_active_dims": 4,
+            "top_tied_max_active_dims": 4,
+            "heads_uk_market_eligible": 394,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 6 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 4 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "two_speed_traj",
+          "label": "Two Q: speed=95 + trajectory=HIGH",
+          "questions": [
+            "club_speed_mph",
+            "typical_trajectory"
+          ],
+          "patch": {
+            "club_speed_mph": 95,
+            "typical_trajectory": "HIGH"
+          },
+          "answers_applied": {
+            "club_speed_mph": 95,
+            "typical_trajectory": "HIGH"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 4,
+            "evidence_backed_dims": 3,
+            "directional_target": null,
+            "directional_requirement": "UNRESOLVED",
+            "head_launch_target": "MID_LOW",
+            "head_launch_numeric": -1,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [],
+            "direction_band": "UNRESOLVED",
+            "qualifying_heads": 596,
+            "qualifying_families": 392,
+            "top_tied_family_count": 11,
+            "top_tied_min_active_dims": 4,
+            "top_tied_max_active_dims": 4,
+            "heads_uk_market_eligible": 392,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 11 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 4 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "two_speed_reduce",
+          "label": "Two Q: speed=95 + REDUCE_RIGHT_MISS",
+          "questions": [
+            "club_speed_mph",
+            "primary_objective"
+          ],
+          "patch": {
+            "club_speed_mph": 95,
+            "primary_objective": "REDUCE_RIGHT_MISS"
+          },
+          "answers_applied": {
+            "club_speed_mph": 95,
+            "primary_objective": "REDUCE_RIGHT_MISS"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 4,
+            "evidence_backed_dims": 3,
+            "directional_target": 1.5,
+            "directional_requirement": "STRONG_DRAW_ASSIST",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [
+              "PRIMARY_OBJECTIVE"
+            ],
+            "direction_band": "LOW",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 6,
+            "top_tied_min_active_dims": 4,
+            "top_tied_max_active_dims": 4,
+            "heads_uk_market_eligible": 394,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 6 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 4 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "two_traj_curve",
+          "label": "Two Q: trajectory=MID + curvature=RIGHT",
+          "questions": [
+            "typical_trajectory",
+            "typical_curvature"
+          ],
+          "patch": {
+            "typical_trajectory": "MID",
+            "typical_curvature": "RIGHT"
+          },
+          "answers_applied": {
+            "typical_trajectory": "MID",
+            "typical_curvature": "RIGHT"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 4,
+            "directional_target": 1.5,
+            "directional_requirement": "STRONG_DRAW_ASSIST",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "LOW",
+            "qualifying_heads": 595,
+            "qualifying_families": 394,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "titleist|913d2|2013",
+                "display_name": "Titleist 913D2 Driver",
+                "fit": 98.45957249070632,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "MEDIUM",
+                "active_dims": 5,
+                "release_year": 2013
+              },
+              {
+                "catalogue_key": "cobra|aerojet|2023",
+                "display_name": "Cobra Aerojet Driver",
+                "fit": 98.39233753637247,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "MEDIUM",
+                "active_dims": 5,
+                "release_year": 2023
+              },
+              {
+                "catalogue_key": "pxg|0211|2022",
+                "display_name": "PXG 0211 Driver (2022)",
+                "fit": 98.36860236220473,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "MEDIUM",
+                "active_dims": 5,
+                "release_year": 2022
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        }
+      ],
+      "summary": {
+        "one_question_named_count": 1,
+        "one_question_total": 9,
+        "two_question_named_count": 1,
+        "two_question_total": 4,
+        "multi_question_named_count": 0,
+        "recovering_one_q_ids": [
+          "obj_higher_flight"
+        ],
+        "recovering_two_q_ids": [
+          "two_traj_curve"
+        ],
+        "recovering_multi_ids": []
+      }
+    },
+    {
+      "profile_id": "inconsistent_strike",
+      "baseline_answers": {
+        "handedness": "RIGHT",
+        "handicap": 21,
+        "club_speed_mph": 82,
+        "typical_trajectory": "UNKNOWN",
+        "typical_start_direction": "VARIABLE",
+        "typical_curvature": "VARIABLE",
+        "miss_severity": "LARGE",
+        "strike_pattern": "VARIABLE",
+        "strike_consistency": "LOW",
+        "primary_objective": "FORGIVENESS",
+        "current_club_satisfaction": "LOW"
+      },
+      "baseline_requirements_snapshot": {
+        "directional_requirement": "UNRESOLVED",
+        "directional_target_numeric": null,
+        "head_launch_target": "UNRESOLVED",
+        "head_launch_target_numeric": null,
+        "forgiveness_requirement": 5,
+        "stability_requirement": 5,
+        "workability_preference": 1,
+        "evidence_backed_dims": 3,
+        "resolved_dims": 3,
+        "direction_confidence": {
+          "band": "UNRESOLVED",
+          "source_codes": [],
+          "conflict_codes": [
+            "TWO_WAY_MISS"
+          ]
+        },
+        "head_launch_confidence": {
+          "band": "UNRESOLVED",
+          "source_codes": [],
+          "conflict_codes": []
+        }
+      },
+      "baseline": {
+        "mode": "CHARACTERISTIC_GUIDANCE",
+        "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+        "resolved_dims": 3,
+        "evidence_backed_dims": 3,
+        "directional_target": null,
+        "directional_requirement": "UNRESOLVED",
+        "head_launch_target": "UNRESOLVED",
+        "head_launch_numeric": null,
+        "forgiveness": 5,
+        "stability": 5,
+        "workability": 1,
+        "launch_sources": [],
+        "launch_band": "UNRESOLVED",
+        "direction_sources": [],
+        "direction_band": "UNRESOLVED",
+        "qualifying_heads": 484,
+        "qualifying_families": 320,
+        "top_tied_family_count": 125,
+        "top_tied_min_active_dims": 3,
+        "top_tied_max_active_dims": 3,
+        "heads_uk_market_eligible": 320,
+        "named_count": 0,
+        "heads": [],
+        "guidance_notes_head": [
+          "Teevo cannot confidently distinguish the leading heads: about 125 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 3 of 5 assessed). Named rankings are withheld rather than guessing.",
+          "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+        ]
+      },
+      "scenarios": [
+        {
+          "id": "traj_high",
+          "label": "One Q: typical_trajectory=HIGH",
+          "questions": [
+            "typical_trajectory"
+          ],
+          "patch": {
+            "typical_trajectory": "HIGH"
+          },
+          "answers_applied": {
+            "typical_trajectory": "HIGH"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 4,
+            "evidence_backed_dims": 4,
+            "directional_target": null,
+            "directional_requirement": "UNRESOLVED",
+            "head_launch_target": "MID_LOW",
+            "head_launch_numeric": -1,
+            "forgiveness": 5,
+            "stability": 5,
+            "workability": 1,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [],
+            "direction_band": "UNRESOLVED",
+            "qualifying_heads": 581,
+            "qualifying_families": 385,
+            "top_tied_family_count": 2,
+            "top_tied_min_active_dims": 4,
+            "top_tied_max_active_dims": 4,
+            "heads_uk_market_eligible": 385,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "callaway|rogue-st-max-ls|2022",
+                "display_name": "Callaway Rogue ST Max LS Driver",
+                "fit": 96.61016949152543,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 4,
+                "release_year": 2022
+              },
+              {
+                "catalogue_key": "taylormade|sim-max|2020",
+                "display_name": "TaylorMade SIM Max Driver",
+                "fit": 96.61016949152543,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 4,
+                "release_year": 2020
+              },
+              {
+                "catalogue_key": "xxio|xxio-14-plus|2026",
+                "display_name": "XXIO 14+ Driver",
+                "fit": 93.33333333333333,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 4,
+                "release_year": 2026
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "traj_low",
+          "label": "One Q: typical_trajectory=LOW",
+          "questions": [
+            "typical_trajectory"
+          ],
+          "patch": {
+            "typical_trajectory": "LOW"
+          },
+          "answers_applied": {
+            "typical_trajectory": "LOW"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 4,
+            "evidence_backed_dims": 4,
+            "directional_target": null,
+            "directional_requirement": "UNRESOLVED",
+            "head_launch_target": "MID_HIGH",
+            "head_launch_numeric": 1,
+            "forgiveness": 5,
+            "stability": 5,
+            "workability": 1,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [],
+            "direction_band": "UNRESOLVED",
+            "qualifying_heads": 519,
+            "qualifying_families": 344,
+            "top_tied_family_count": 31,
+            "top_tied_min_active_dims": 4,
+            "top_tied_max_active_dims": 4,
+            "heads_uk_market_eligible": 344,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 31 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 4 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "traj_mid",
+          "label": "One Q: typical_trajectory=MID",
+          "questions": [
+            "typical_trajectory"
+          ],
+          "patch": {
+            "typical_trajectory": "MID"
+          },
+          "answers_applied": {
+            "typical_trajectory": "MID"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 4,
+            "evidence_backed_dims": 4,
+            "directional_target": null,
+            "directional_requirement": "UNRESOLVED",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 5,
+            "stability": 5,
+            "workability": 1,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [],
+            "direction_band": "UNRESOLVED",
+            "qualifying_heads": 571,
+            "qualifying_families": 377,
+            "top_tied_family_count": 2,
+            "top_tied_min_active_dims": 3,
+            "top_tied_max_active_dims": 4,
+            "heads_uk_market_eligible": 377,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "taylormade|sim-max|2020",
+                "display_name": "TaylorMade SIM Max Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 4,
+                "release_year": 2020
+              },
+              {
+                "catalogue_key": "tour-edge|exotics-max|2026",
+                "display_name": "Tour Edge Exotics Max Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 3,
+                "release_year": 2026
+              },
+              {
+                "catalogue_key": "nike|vr-s-covert|2013",
+                "display_name": "Nike VR_S Covert Driver",
+                "fit": 97.06896551724138,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 4,
+                "release_year": 2013
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "traj_unknown",
+          "label": "One Q: typical_trajectory=UNKNOWN",
+          "questions": [
+            "typical_trajectory"
+          ],
+          "patch": {
+            "typical_trajectory": "UNKNOWN"
+          },
+          "answers_applied": {
+            "typical_trajectory": "UNKNOWN"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 3,
+            "evidence_backed_dims": 3,
+            "directional_target": null,
+            "directional_requirement": "UNRESOLVED",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 5,
+            "stability": 5,
+            "workability": 1,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [],
+            "direction_band": "UNRESOLVED",
+            "qualifying_heads": 484,
+            "qualifying_families": 320,
+            "top_tied_family_count": 125,
+            "top_tied_min_active_dims": 3,
+            "top_tied_max_active_dims": 3,
+            "heads_uk_market_eligible": 320,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 125 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 3 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "curve_right",
+          "label": "One Q: typical_curvature=RIGHT (was VARIABLE)",
+          "questions": [
+            "typical_curvature"
+          ],
+          "patch": {
+            "typical_curvature": "RIGHT"
+          },
+          "answers_applied": {
+            "typical_curvature": "RIGHT"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 4,
+            "evidence_backed_dims": 4,
+            "directional_target": 1.995,
+            "directional_requirement": "STRONG_DRAW_ASSIST",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 5,
+            "stability": 5,
+            "workability": 1,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "LOW",
+            "qualifying_heads": 484,
+            "qualifying_families": 320,
+            "top_tied_family_count": 2,
+            "top_tied_min_active_dims": 3,
+            "top_tied_max_active_dims": 3,
+            "heads_uk_market_eligible": 320,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "xxio|xxio-11|2020",
+                "display_name": "XXIO 11 Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 3,
+                "release_year": 2020
+              },
+              {
+                "catalogue_key": "xxio|xxio-8|2014",
+                "display_name": "XXIO 8 Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 3,
+                "release_year": 2014
+              },
+              {
+                "catalogue_key": "cleveland|launcher-xl-lite-draw|2022",
+                "display_name": "Cleveland Launcher XL Lite Draw Driver",
+                "fit": 99.9796875,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 4,
+                "release_year": 2022
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "curve_left",
+          "label": "One Q: typical_curvature=LEFT",
+          "questions": [
+            "typical_curvature"
+          ],
+          "patch": {
+            "typical_curvature": "LEFT"
+          },
+          "answers_applied": {
+            "typical_curvature": "LEFT"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 4,
+            "evidence_backed_dims": 4,
+            "directional_target": -1.995,
+            "directional_requirement": "STRONG_FADE_ASSIST",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 5,
+            "stability": 5,
+            "workability": 1,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "LOW",
+            "qualifying_heads": 497,
+            "qualifying_families": 324,
+            "top_tied_family_count": 2,
+            "top_tied_min_active_dims": 3,
+            "top_tied_max_active_dims": 3,
+            "heads_uk_market_eligible": 324,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "xxio|xxio-11|2020",
+                "display_name": "XXIO 11 Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 3,
+                "release_year": 2020
+              },
+              {
+                "catalogue_key": "xxio|xxio-8|2014",
+                "display_name": "XXIO 8 Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 3,
+                "release_year": 2014
+              },
+              {
+                "catalogue_key": "srixon|zxi-rkt-max|2026",
+                "display_name": "Srixon ZXi RKT MAX Driver",
+                "fit": 90.43173181324649,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 4,
+                "release_year": 2026
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "curve_straight",
+          "label": "One Q: typical_curvature=STRAIGHT",
+          "questions": [
+            "typical_curvature"
+          ],
+          "patch": {
+            "typical_curvature": "STRAIGHT"
+          },
+          "answers_applied": {
+            "typical_curvature": "STRAIGHT"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 4,
+            "evidence_backed_dims": 4,
+            "directional_target": 0,
+            "directional_requirement": "NEUTRAL",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 5,
+            "stability": 5,
+            "workability": 1,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "LOW",
+            "qualifying_heads": 587,
+            "qualifying_families": 391,
+            "top_tied_family_count": 67,
+            "top_tied_min_active_dims": 3,
+            "top_tied_max_active_dims": 4,
+            "heads_uk_market_eligible": 391,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 67 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 3 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "start_right",
+          "label": "One Q: typical_start_direction=RIGHT",
+          "questions": [
+            "typical_start_direction"
+          ],
+          "patch": {
+            "typical_start_direction": "RIGHT"
+          },
+          "answers_applied": {
+            "typical_start_direction": "RIGHT"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 3,
+            "evidence_backed_dims": 3,
+            "directional_target": null,
+            "directional_requirement": "UNRESOLVED",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 5,
+            "stability": 5,
+            "workability": 1,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [],
+            "direction_band": "UNRESOLVED",
+            "qualifying_heads": 484,
+            "qualifying_families": 320,
+            "top_tied_family_count": 125,
+            "top_tied_min_active_dims": 3,
+            "top_tied_max_active_dims": 3,
+            "heads_uk_market_eligible": 320,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 125 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 3 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "obj_reduce_right",
+          "label": "One Q: primary_objective=REDUCE_RIGHT_MISS",
+          "questions": [
+            "primary_objective"
+          ],
+          "patch": {
+            "primary_objective": "REDUCE_RIGHT_MISS"
+          },
+          "answers_applied": {
+            "primary_objective": "REDUCE_RIGHT_MISS"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 3,
+            "evidence_backed_dims": 3,
+            "directional_target": null,
+            "directional_requirement": "UNRESOLVED",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 5,
+            "stability": 5,
+            "workability": 1.25,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [],
+            "direction_band": "UNRESOLVED",
+            "qualifying_heads": 484,
+            "qualifying_families": 320,
+            "top_tied_family_count": 69,
+            "top_tied_min_active_dims": 3,
+            "top_tied_max_active_dims": 3,
+            "heads_uk_market_eligible": 320,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 69 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 3 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "strike_heel",
+          "label": "One Q: strike_pattern=HEEL (was VARIABLE)",
+          "questions": [
+            "strike_pattern"
+          ],
+          "patch": {
+            "strike_pattern": "HEEL"
+          },
+          "answers_applied": {
+            "strike_pattern": "HEEL"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 3,
+            "evidence_backed_dims": 3,
+            "directional_target": null,
+            "directional_requirement": "UNRESOLVED",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 5,
+            "stability": 5,
+            "workability": 1,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [],
+            "direction_band": "UNRESOLVED",
+            "qualifying_heads": 484,
+            "qualifying_families": 320,
+            "top_tied_family_count": 125,
+            "top_tied_min_active_dims": 3,
+            "top_tied_max_active_dims": 3,
+            "heads_uk_market_eligible": 320,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 125 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 3 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "two_traj_curve",
+          "label": "Two Q: trajectory=MID + curvature=RIGHT",
+          "questions": [
+            "typical_trajectory",
+            "typical_curvature"
+          ],
+          "patch": {
+            "typical_trajectory": "MID",
+            "typical_curvature": "RIGHT"
+          },
+          "answers_applied": {
+            "typical_trajectory": "MID",
+            "typical_curvature": "RIGHT"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 1.995,
+            "directional_requirement": "STRONG_DRAW_ASSIST",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 5,
+            "stability": 5,
+            "workability": 1,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "LOW",
+            "qualifying_heads": 547,
+            "qualifying_families": 362,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 362,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "adams|xtd|2014",
+                "display_name": "Adams XTD Driver",
+                "fit": 94.56466078066916,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2014
+              },
+              {
+                "catalogue_key": "taylormade|qi35-max|2025",
+                "display_name": "TaylorMade Qi35 Max Driver",
+                "fit": 93.99082969432315,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2025
+              },
+              {
+                "catalogue_key": "wilson|dynapwr-titanium|2023",
+                "display_name": "Wilson DYNAPWR Titanium Driver",
+                "fit": 93.99082969432315,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2023
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "two_traj_reduce",
+          "label": "Two Q: trajectory=HIGH + REDUCE_RIGHT_MISS",
+          "questions": [
+            "typical_trajectory",
+            "primary_objective"
+          ],
+          "patch": {
+            "typical_trajectory": "HIGH",
+            "primary_objective": "REDUCE_RIGHT_MISS"
+          },
+          "answers_applied": {
+            "typical_trajectory": "HIGH",
+            "primary_objective": "REDUCE_RIGHT_MISS"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 4,
+            "evidence_backed_dims": 4,
+            "directional_target": null,
+            "directional_requirement": "UNRESOLVED",
+            "head_launch_target": "MID_LOW",
+            "head_launch_numeric": -1,
+            "forgiveness": 5,
+            "stability": 5,
+            "workability": 1.25,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [],
+            "direction_band": "UNRESOLVED",
+            "qualifying_heads": 581,
+            "qualifying_families": 385,
+            "top_tied_family_count": 2,
+            "top_tied_min_active_dims": 4,
+            "top_tied_max_active_dims": 4,
+            "heads_uk_market_eligible": 385,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "callaway|rogue-st-max-ls|2022",
+                "display_name": "Callaway Rogue ST Max LS Driver",
+                "fit": 96.61016949152543,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 4,
+                "release_year": 2022
+              },
+              {
+                "catalogue_key": "taylormade|sim-max|2020",
+                "display_name": "TaylorMade SIM Max Driver",
+                "fit": 96.61016949152543,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 4,
+                "release_year": 2020
+              },
+              {
+                "catalogue_key": "xxio|xxio-14-plus|2026",
+                "display_name": "XXIO 14+ Driver",
+                "fit": 93.33333333333333,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 4,
+                "release_year": 2026
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "two_curve_heel",
+          "label": "Two Q: curvature=RIGHT + strike=HEEL",
+          "questions": [
+            "typical_curvature",
+            "strike_pattern"
+          ],
+          "patch": {
+            "typical_curvature": "RIGHT",
+            "strike_pattern": "HEEL"
+          },
+          "answers_applied": {
+            "typical_curvature": "RIGHT",
+            "strike_pattern": "HEEL"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 4,
+            "evidence_backed_dims": 4,
+            "directional_target": 1.995,
+            "directional_requirement": "STRONG_DRAW_ASSIST",
+            "head_launch_target": "UNRESOLVED",
+            "head_launch_numeric": null,
+            "forgiveness": 5,
+            "stability": 5,
+            "workability": 1,
+            "launch_sources": [],
+            "launch_band": "UNRESOLVED",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "LOW",
+            "qualifying_heads": 484,
+            "qualifying_families": 320,
+            "top_tied_family_count": 2,
+            "top_tied_min_active_dims": 3,
+            "top_tied_max_active_dims": 3,
+            "heads_uk_market_eligible": 320,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "xxio|xxio-11|2020",
+                "display_name": "XXIO 11 Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 3,
+                "release_year": 2020
+              },
+              {
+                "catalogue_key": "xxio|xxio-8|2014",
+                "display_name": "XXIO 8 Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 3,
+                "release_year": 2014
+              },
+              {
+                "catalogue_key": "cleveland|launcher-xl-lite-draw|2022",
+                "display_name": "Cleveland Launcher XL Lite Draw Driver",
+                "fit": 99.9796875,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 4,
+                "release_year": 2022
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        }
+      ],
+      "summary": {
+        "one_question_named_count": 4,
+        "one_question_total": 10,
+        "two_question_named_count": 3,
+        "two_question_total": 3,
+        "multi_question_named_count": 0,
+        "recovering_one_q_ids": [
+          "traj_high",
+          "traj_mid",
+          "curve_right",
+          "curve_left"
+        ],
+        "recovering_two_q_ids": [
+          "two_traj_curve",
+          "two_traj_reduce",
+          "two_curve_heel"
+        ],
+        "recovering_multi_ids": []
+      }
+    },
+    {
+      "profile_id": "mid_handicap_distance",
+      "baseline_answers": {
+        "handedness": "RIGHT",
+        "handicap": 14,
+        "club_speed_mph": 95,
+        "typical_trajectory": "MID",
+        "typical_start_direction": "CENTRE",
+        "typical_curvature": "STRAIGHT",
+        "miss_severity": "MODERATE",
+        "strike_pattern": "CENTRE",
+        "strike_consistency": "MEDIUM",
+        "primary_objective": "DISTANCE",
+        "current_club_satisfaction": "MEDIUM"
+      },
+      "baseline_requirements_snapshot": {
+        "directional_requirement": "NEUTRAL",
+        "directional_target_numeric": 0,
+        "head_launch_target": "MID",
+        "head_launch_target_numeric": 0,
+        "forgiveness_requirement": 3.25,
+        "stability_requirement": 3.25,
+        "workability_preference": 2,
+        "evidence_backed_dims": 5,
+        "resolved_dims": 5,
+        "direction_confidence": {
+          "band": "MEDIUM",
+          "source_codes": [
+            "BALL_FLIGHT"
+          ],
+          "conflict_codes": []
+        },
+        "head_launch_confidence": {
+          "band": "MEDIUM",
+          "source_codes": [
+            "TRAJECTORY"
+          ],
+          "conflict_codes": []
+        }
+      },
+      "baseline": {
+        "mode": "CHARACTERISTIC_GUIDANCE",
+        "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+        "resolved_dims": 5,
+        "evidence_backed_dims": 5,
+        "directional_target": 0,
+        "directional_requirement": "NEUTRAL",
+        "head_launch_target": "MID",
+        "head_launch_numeric": 0,
+        "forgiveness": 3.25,
+        "stability": 3.25,
+        "workability": 2,
+        "launch_sources": [
+          "TRAJECTORY"
+        ],
+        "launch_band": "MEDIUM",
+        "direction_sources": [
+          "BALL_FLIGHT"
+        ],
+        "direction_band": "MEDIUM",
+        "qualifying_heads": 596,
+        "qualifying_families": 394,
+        "top_tied_family_count": 61,
+        "top_tied_min_active_dims": 4,
+        "top_tied_max_active_dims": 5,
+        "heads_uk_market_eligible": 394,
+        "named_count": 0,
+        "heads": [],
+        "guidance_notes_head": [
+          "Teevo cannot confidently distinguish the leading heads: about 61 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 4 of 5 assessed). Named rankings are withheld rather than guessing.",
+          "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+        ]
+      },
+      "scenarios": [
+        {
+          "id": "curve_right",
+          "label": "One Q: typical_curvature=RIGHT (was STRAIGHT)",
+          "questions": [
+            "typical_curvature"
+          ],
+          "patch": {
+            "typical_curvature": "RIGHT"
+          },
+          "answers_applied": {
+            "typical_curvature": "RIGHT"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 1.5,
+            "directional_requirement": "STRONG_DRAW_ASSIST",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3.75,
+            "stability": 3.75,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "titleist|913d2|2013",
+                "display_name": "Titleist 913D2 Driver",
+                "fit": 98.45957249070632,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2013
+              },
+              {
+                "catalogue_key": "cobra|aerojet|2023",
+                "display_name": "Cobra Aerojet Driver",
+                "fit": 98.39233753637247,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2023
+              },
+              {
+                "catalogue_key": "pxg|0211|2022",
+                "display_name": "PXG 0211 Driver (2022)",
+                "fit": 98.36860236220473,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2022
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "curve_left",
+          "label": "One Q: typical_curvature=LEFT",
+          "questions": [
+            "typical_curvature"
+          ],
+          "patch": {
+            "typical_curvature": "LEFT"
+          },
+          "answers_applied": {
+            "typical_curvature": "LEFT"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": -1.5,
+            "directional_requirement": "STRONG_FADE_ASSIST",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3.75,
+            "stability": 3.75,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "mizuno|jpx-one-select|2026",
+                "display_name": "Mizuno JPX ONE SELECT Driver",
+                "fit": 98.27433628318585,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2026
+              },
+              {
+                "catalogue_key": "vice-golf|vgd01-plus|2025",
+                "display_name": "Vice Golf VGD01+ Driver",
+                "fit": 94.429422548121,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2025
+              },
+              {
+                "catalogue_key": "titleist|915d3|2014",
+                "display_name": "Titleist 915D3 Driver",
+                "fit": 94.35176579925651,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2014
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "curve_unknown",
+          "label": "One Q: typical_curvature=UNKNOWN",
+          "questions": [
+            "typical_curvature"
+          ],
+          "patch": {
+            "typical_curvature": "UNKNOWN"
+          },
+          "answers_applied": {
+            "typical_curvature": "UNKNOWN"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0,
+            "directional_requirement": "NEUTRAL",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "LOW",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 61,
+            "top_tied_min_active_dims": 4,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 61 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 4 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "start_right",
+          "label": "One Q: typical_start_direction=RIGHT",
+          "questions": [
+            "typical_start_direction"
+          ],
+          "patch": {
+            "typical_start_direction": "RIGHT"
+          },
+          "answers_applied": {
+            "typical_start_direction": "RIGHT"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0.5,
+            "directional_requirement": "DRAW_ASSIST",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3.75,
+            "stability": 3.75,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "vice-golf|vgd01-plus|2025",
+                "display_name": "Vice Golf VGD01+ Driver",
+                "fit": 98.480751604033,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2025
+              },
+              {
+                "catalogue_key": "titleist|915d3|2014",
+                "display_name": "Titleist 915D3 Driver",
+                "fit": 98.45957249070632,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2014
+              },
+              {
+                "catalogue_key": "titleist|913d2|2013",
+                "display_name": "Titleist 913D2 Driver",
+                "fit": 98.45957249070632,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2013
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "start_left",
+          "label": "One Q: typical_start_direction=LEFT",
+          "questions": [
+            "typical_start_direction"
+          ],
+          "patch": {
+            "typical_start_direction": "LEFT"
+          },
+          "answers_applied": {
+            "typical_start_direction": "LEFT"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": -0.5,
+            "directional_requirement": "FADE_ASSIST",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3.75,
+            "stability": 3.75,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "vice-golf|vgd01-plus|2025",
+                "display_name": "Vice Golf VGD01+ Driver",
+                "fit": 98.480751604033,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2025
+              },
+              {
+                "catalogue_key": "titleist|915d3|2014",
+                "display_name": "Titleist 915D3 Driver",
+                "fit": 98.45957249070632,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2014
+              },
+              {
+                "catalogue_key": "benross|hot-speed|2013",
+                "display_name": "Benross Hot Speed Driver",
+                "fit": 98.43779453345901,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2013
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "obj_reduce_right",
+          "label": "One Q: primary_objective=REDUCE_RIGHT_MISS",
+          "questions": [
+            "primary_objective"
+          ],
+          "patch": {
+            "primary_objective": "REDUCE_RIGHT_MISS"
+          },
+          "answers_applied": {
+            "primary_objective": "REDUCE_RIGHT_MISS"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0.75,
+            "directional_requirement": "DRAW_ASSIST",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT",
+              "PRIMARY_OBJECTIVE"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "titleist|913d2|2013",
+                "display_name": "Titleist 913D2 Driver",
+                "fit": 99.22978624535317,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2013
+              },
+              {
+                "catalogue_key": "cobra|aerojet|2023",
+                "display_name": "Cobra Aerojet Driver",
+                "fit": 99.19616876818623,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2023
+              },
+              {
+                "catalogue_key": "pxg|0211|2022",
+                "display_name": "PXG 0211 Driver (2022)",
+                "fit": 99.18430118110237,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2022
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "obj_reduce_left",
+          "label": "One Q: primary_objective=REDUCE_LEFT_MISS",
+          "questions": [
+            "primary_objective"
+          ],
+          "patch": {
+            "primary_objective": "REDUCE_LEFT_MISS"
+          },
+          "answers_applied": {
+            "primary_objective": "REDUCE_LEFT_MISS"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": -0.75,
+            "directional_requirement": "FADE_ASSIST",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT",
+              "PRIMARY_OBJECTIVE"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "mizuno|jpx-one-select|2026",
+                "display_name": "Mizuno JPX ONE SELECT Driver",
+                "fit": 99.13716814159292,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2026
+              },
+              {
+                "catalogue_key": "vice-golf|vgd01-plus|2025",
+                "display_name": "Vice Golf VGD01+ Driver",
+                "fit": 97.7211274060495,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2025
+              },
+              {
+                "catalogue_key": "titleist|915d3|2014",
+                "display_name": "Titleist 915D3 Driver",
+                "fit": 97.68935873605949,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2014
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "obj_forgiveness",
+          "label": "One Q: primary_objective=FORGIVENESS",
+          "questions": [
+            "primary_objective"
+          ],
+          "patch": {
+            "primary_objective": "FORGIVENESS"
+          },
+          "answers_applied": {
+            "primary_objective": "FORGIVENESS"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0,
+            "directional_requirement": "NEUTRAL",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 4.75,
+            "stability": 4.25,
+            "workability": 1.5,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 594,
+            "qualifying_families": 394,
+            "top_tied_family_count": 2,
+            "top_tied_min_active_dims": 4,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "taylormade|sim-max|2020",
+                "display_name": "TaylorMade SIM Max Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2020
+              },
+              {
+                "catalogue_key": "tour-edge|exotics-max|2026",
+                "display_name": "Tour Edge Exotics Max Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 4,
+                "release_year": 2026
+              },
+              {
+                "catalogue_key": "ping|g430-max|2023",
+                "display_name": "PING G430 Max Driver",
+                "fit": 98.65470852017937,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2023
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "obj_higher_flight",
+          "label": "One Q: primary_objective=HIGHER_FLIGHT",
+          "questions": [
+            "primary_objective"
+          ],
+          "patch": {
+            "primary_objective": "HIGHER_FLIGHT"
+          },
+          "answers_applied": {
+            "primary_objective": "HIGHER_FLIGHT"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0,
+            "directional_requirement": "NEUTRAL",
+            "head_launch_target": "HIGH",
+            "head_launch_numeric": 1.5,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [
+              "PRIMARY_OBJECTIVE",
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 392,
+            "top_tied_family_count": 2,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 392,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "xxio|xxio-x|2022",
+                "display_name": "XXIO X Driver",
+                "fit": 98.8716814159292,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2022
+              },
+              {
+                "catalogue_key": "yonex|ezone-tri-g|2015",
+                "display_name": "Yonex EZONE Tri-G Driver",
+                "fit": 98.8716814159292,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2015
+              },
+              {
+                "catalogue_key": "mizuno|jpx-one|2026",
+                "display_name": "Mizuno JPX ONE Driver",
+                "fit": 98.85650224215247,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2026
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "obj_control",
+          "label": "One Q: primary_objective=CONTROL",
+          "questions": [
+            "primary_objective"
+          ],
+          "patch": {
+            "primary_objective": "CONTROL"
+          },
+          "answers_applied": {
+            "primary_objective": "CONTROL"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0,
+            "directional_requirement": "NEUTRAL",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3,
+            "stability": 4.25,
+            "workability": 3.5,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 2,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "callaway|epic-max-ls|2021",
+                "display_name": "Callaway Epic Max LS Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2021
+              },
+              {
+                "catalogue_key": "honma|tw747-455|2018",
+                "display_name": "Honma TW747 455 Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2018
+              },
+              {
+                "catalogue_key": "mizuno|st-z-230|2023",
+                "display_name": "Mizuno ST-Z 230 Driver",
+                "fit": 99.23766816143498,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2023
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "traj_high",
+          "label": "One Q: typical_trajectory=HIGH (was MID)",
+          "questions": [
+            "typical_trajectory"
+          ],
+          "patch": {
+            "typical_trajectory": "HIGH"
+          },
+          "answers_applied": {
+            "typical_trajectory": "HIGH"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0,
+            "directional_requirement": "NEUTRAL",
+            "head_launch_target": "MID_LOW",
+            "head_launch_numeric": -1,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 392,
+            "top_tied_family_count": 11,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 392,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "tour-edge|exotics-ls|2026",
+                "display_name": "Tour Edge Exotics LS Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2026
+              },
+              {
+                "catalogue_key": "nike|vapor-pro|2015",
+                "display_name": "Nike Vapor Pro Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2015
+              },
+              {
+                "catalogue_key": "xxio|xxio-14-plus|2026",
+                "display_name": "XXIO 14+ Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2026
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "traj_low",
+          "label": "One Q: typical_trajectory=LOW",
+          "questions": [
+            "typical_trajectory"
+          ],
+          "patch": {
+            "typical_trajectory": "LOW"
+          },
+          "answers_applied": {
+            "typical_trajectory": "LOW"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0,
+            "directional_requirement": "NEUTRAL",
+            "head_launch_target": "MID_HIGH",
+            "head_launch_numeric": 1,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 392,
+            "top_tied_family_count": 64,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 392,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "callaway|quantum-max|2026",
+                "display_name": "Callaway Quantum Max Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2026
+              },
+              {
+                "catalogue_key": "mizuno|jpx-one|2026",
+                "display_name": "Mizuno JPX ONE Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2026
+              },
+              {
+                "catalogue_key": "srixon|zx5-ls-mk-ii|2022",
+                "display_name": "Srixon ZX5 LS Mk II Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2022
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "strike_heel",
+          "label": "One Q: strike_pattern=HEEL",
+          "questions": [
+            "strike_pattern"
+          ],
+          "patch": {
+            "strike_pattern": "HEEL"
+          },
+          "answers_applied": {
+            "strike_pattern": "HEEL"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0,
+            "directional_requirement": "NEUTRAL",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 61,
+            "top_tied_min_active_dims": 4,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 61 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 4 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "consistency_low",
+          "label": "One Q: strike_consistency=LOW",
+          "questions": [
+            "strike_consistency"
+          ],
+          "patch": {
+            "strike_consistency": "LOW"
+          },
+          "answers_applied": {
+            "strike_consistency": "LOW"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0,
+            "directional_requirement": "NEUTRAL",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 4.25,
+            "stability": 4.75,
+            "workability": 1.5,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 594,
+            "qualifying_families": 394,
+            "top_tied_family_count": 2,
+            "top_tied_min_active_dims": 4,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "taylormade|sim-max|2020",
+                "display_name": "TaylorMade SIM Max Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2020
+              },
+              {
+                "catalogue_key": "tour-edge|exotics-max|2026",
+                "display_name": "Tour Edge Exotics Max Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 4,
+                "release_year": 2026
+              },
+              {
+                "catalogue_key": "honma|tw747-455|2018",
+                "display_name": "Honma TW747 455 Driver",
+                "fit": 98.70689655172414,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2018
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "two_curve_heel",
+          "label": "Two Q: curvature=RIGHT + strike=HEEL",
+          "questions": [
+            "typical_curvature",
+            "strike_pattern"
+          ],
+          "patch": {
+            "typical_curvature": "RIGHT",
+            "strike_pattern": "HEEL"
+          },
+          "answers_applied": {
+            "typical_curvature": "RIGHT",
+            "strike_pattern": "HEEL"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 1.5,
+            "directional_requirement": "STRONG_DRAW_ASSIST",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3.75,
+            "stability": 3.75,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "titleist|913d2|2013",
+                "display_name": "Titleist 913D2 Driver",
+                "fit": 98.45957249070632,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2013
+              },
+              {
+                "catalogue_key": "cobra|aerojet|2023",
+                "display_name": "Cobra Aerojet Driver",
+                "fit": 98.39233753637247,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2023
+              },
+              {
+                "catalogue_key": "pxg|0211|2022",
+                "display_name": "PXG 0211 Driver (2022)",
+                "fit": 98.36860236220473,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2022
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "two_traj_curve",
+          "label": "Two Q: trajectory=HIGH + curvature=RIGHT",
+          "questions": [
+            "typical_trajectory",
+            "typical_curvature"
+          ],
+          "patch": {
+            "typical_trajectory": "HIGH",
+            "typical_curvature": "RIGHT"
+          },
+          "answers_applied": {
+            "typical_trajectory": "HIGH",
+            "typical_curvature": "RIGHT"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 1.5,
+            "directional_requirement": "STRONG_DRAW_ASSIST",
+            "head_launch_target": "MID_LOW",
+            "head_launch_numeric": -1,
+            "forgiveness": 3.75,
+            "stability": 3.75,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 595,
+            "qualifying_families": 391,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 391,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "titleist|913d2|2013",
+                "display_name": "Titleist 913D2 Driver",
+                "fit": 96.08968401486989,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2013
+              },
+              {
+                "catalogue_key": "cobra|aerojet|2023",
+                "display_name": "Cobra Aerojet Driver",
+                "fit": 95.91901066925315,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2023
+              },
+              {
+                "catalogue_key": "pxg|0211|2022",
+                "display_name": "PXG 0211 Driver (2022)",
+                "fit": 95.41584645669292,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2022
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "two_reduce_heel",
+          "label": "Two Q: REDUCE_RIGHT_MISS + strike=HEEL",
+          "questions": [
+            "primary_objective",
+            "strike_pattern"
+          ],
+          "patch": {
+            "primary_objective": "REDUCE_RIGHT_MISS",
+            "strike_pattern": "HEEL"
+          },
+          "answers_applied": {
+            "primary_objective": "REDUCE_RIGHT_MISS",
+            "strike_pattern": "HEEL"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0.75,
+            "directional_requirement": "DRAW_ASSIST",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3.25,
+            "stability": 3.25,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT",
+              "PRIMARY_OBJECTIVE"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "titleist|913d2|2013",
+                "display_name": "Titleist 913D2 Driver",
+                "fit": 99.22978624535317,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2013
+              },
+              {
+                "catalogue_key": "cobra|aerojet|2023",
+                "display_name": "Cobra Aerojet Driver",
+                "fit": 99.19616876818623,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2023
+              },
+              {
+                "catalogue_key": "pxg|0211|2022",
+                "display_name": "PXG 0211 Driver (2022)",
+                "fit": 99.18430118110237,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2022
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        }
+      ],
+      "summary": {
+        "one_question_named_count": 12,
+        "one_question_total": 14,
+        "two_question_named_count": 3,
+        "two_question_total": 3,
+        "multi_question_named_count": 0,
+        "recovering_one_q_ids": [
+          "curve_right",
+          "curve_left",
+          "start_right",
+          "start_left",
+          "obj_reduce_right",
+          "obj_reduce_left",
+          "obj_forgiveness",
+          "obj_higher_flight",
+          "obj_control",
+          "traj_high",
+          "traj_low",
+          "consistency_low"
+        ],
+        "recovering_two_q_ids": [
+          "two_curve_heel",
+          "two_traj_curve",
+          "two_reduce_heel"
+        ],
+        "recovering_multi_ids": []
+      }
+    },
+    {
+      "profile_id": "mid_handicap_carry_hint",
+      "baseline_answers": {
+        "handedness": "RIGHT",
+        "handicap": 12,
+        "club_speed_mph": 97,
+        "carry_distance_yards": 230,
+        "typical_trajectory": "MID",
+        "typical_start_direction": "CENTRE",
+        "typical_curvature": "STRAIGHT",
+        "miss_severity": "MODERATE",
+        "strike_pattern": "CENTRE",
+        "strike_consistency": "MEDIUM",
+        "primary_objective": "DISTANCE",
+        "current_club_satisfaction": "MEDIUM"
+      },
+      "baseline_requirements_snapshot": {
+        "directional_requirement": "NEUTRAL",
+        "directional_target_numeric": 0,
+        "head_launch_target": "MID",
+        "head_launch_target_numeric": 0,
+        "forgiveness_requirement": 3,
+        "stability_requirement": 3,
+        "workability_preference": 2,
+        "evidence_backed_dims": 5,
+        "resolved_dims": 5,
+        "direction_confidence": {
+          "band": "MEDIUM",
+          "source_codes": [
+            "BALL_FLIGHT"
+          ],
+          "conflict_codes": []
+        },
+        "head_launch_confidence": {
+          "band": "MEDIUM",
+          "source_codes": [
+            "TRAJECTORY"
+          ],
+          "conflict_codes": []
+        }
+      },
+      "baseline": {
+        "mode": "CHARACTERISTIC_GUIDANCE",
+        "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+        "resolved_dims": 5,
+        "evidence_backed_dims": 5,
+        "directional_target": 0,
+        "directional_requirement": "NEUTRAL",
+        "head_launch_target": "MID",
+        "head_launch_numeric": 0,
+        "forgiveness": 3,
+        "stability": 3,
+        "workability": 2,
+        "launch_sources": [
+          "TRAJECTORY"
+        ],
+        "launch_band": "MEDIUM",
+        "direction_sources": [
+          "BALL_FLIGHT"
+        ],
+        "direction_band": "MEDIUM",
+        "qualifying_heads": 596,
+        "qualifying_families": 394,
+        "top_tied_family_count": 80,
+        "top_tied_min_active_dims": 4,
+        "top_tied_max_active_dims": 5,
+        "heads_uk_market_eligible": 394,
+        "named_count": 0,
+        "heads": [],
+        "guidance_notes_head": [
+          "Teevo cannot confidently distinguish the leading heads: about 80 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 4 of 5 assessed). Named rankings are withheld rather than guessing.",
+          "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+        ]
+      },
+      "scenarios": [
+        {
+          "id": "curve_right",
+          "label": "One Q: typical_curvature=RIGHT (was STRAIGHT)",
+          "questions": [
+            "typical_curvature"
+          ],
+          "patch": {
+            "typical_curvature": "RIGHT"
+          },
+          "answers_applied": {
+            "typical_curvature": "RIGHT"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 1.5,
+            "directional_requirement": "STRONG_DRAW_ASSIST",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3.5,
+            "stability": 3.5,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "titleist|913d2|2013",
+                "display_name": "Titleist 913D2 Driver",
+                "fit": 98.45957249070632,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2013
+              },
+              {
+                "catalogue_key": "cobra|aerojet|2023",
+                "display_name": "Cobra Aerojet Driver",
+                "fit": 98.39233753637247,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2023
+              },
+              {
+                "catalogue_key": "pxg|0211|2022",
+                "display_name": "PXG 0211 Driver (2022)",
+                "fit": 98.36860236220473,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2022
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "curve_left",
+          "label": "One Q: typical_curvature=LEFT",
+          "questions": [
+            "typical_curvature"
+          ],
+          "patch": {
+            "typical_curvature": "LEFT"
+          },
+          "answers_applied": {
+            "typical_curvature": "LEFT"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": -1.5,
+            "directional_requirement": "STRONG_FADE_ASSIST",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3.5,
+            "stability": 3.5,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "mizuno|jpx-one-select|2026",
+                "display_name": "Mizuno JPX ONE SELECT Driver",
+                "fit": 98.27433628318585,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2026
+              },
+              {
+                "catalogue_key": "vice-golf|vgd01-plus|2025",
+                "display_name": "Vice Golf VGD01+ Driver",
+                "fit": 94.429422548121,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2025
+              },
+              {
+                "catalogue_key": "titleist|915d3|2014",
+                "display_name": "Titleist 915D3 Driver",
+                "fit": 94.35176579925651,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2014
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "curve_unknown",
+          "label": "One Q: typical_curvature=UNKNOWN",
+          "questions": [
+            "typical_curvature"
+          ],
+          "patch": {
+            "typical_curvature": "UNKNOWN"
+          },
+          "answers_applied": {
+            "typical_curvature": "UNKNOWN"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0,
+            "directional_requirement": "NEUTRAL",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3,
+            "stability": 3,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "LOW",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 80,
+            "top_tied_min_active_dims": 4,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 80 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 4 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "start_right",
+          "label": "One Q: typical_start_direction=RIGHT",
+          "questions": [
+            "typical_start_direction"
+          ],
+          "patch": {
+            "typical_start_direction": "RIGHT"
+          },
+          "answers_applied": {
+            "typical_start_direction": "RIGHT"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0.5,
+            "directional_requirement": "DRAW_ASSIST",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3.5,
+            "stability": 3.5,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "vice-golf|vgd01-plus|2025",
+                "display_name": "Vice Golf VGD01+ Driver",
+                "fit": 98.480751604033,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2025
+              },
+              {
+                "catalogue_key": "titleist|915d3|2014",
+                "display_name": "Titleist 915D3 Driver",
+                "fit": 98.45957249070632,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2014
+              },
+              {
+                "catalogue_key": "titleist|913d2|2013",
+                "display_name": "Titleist 913D2 Driver",
+                "fit": 98.45957249070632,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2013
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "start_left",
+          "label": "One Q: typical_start_direction=LEFT",
+          "questions": [
+            "typical_start_direction"
+          ],
+          "patch": {
+            "typical_start_direction": "LEFT"
+          },
+          "answers_applied": {
+            "typical_start_direction": "LEFT"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": -0.5,
+            "directional_requirement": "FADE_ASSIST",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3.5,
+            "stability": 3.5,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "vice-golf|vgd01-plus|2025",
+                "display_name": "Vice Golf VGD01+ Driver",
+                "fit": 98.480751604033,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2025
+              },
+              {
+                "catalogue_key": "titleist|915d3|2014",
+                "display_name": "Titleist 915D3 Driver",
+                "fit": 98.45957249070632,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2014
+              },
+              {
+                "catalogue_key": "benross|hot-speed|2013",
+                "display_name": "Benross Hot Speed Driver",
+                "fit": 98.43779453345901,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2013
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "obj_reduce_right",
+          "label": "One Q: primary_objective=REDUCE_RIGHT_MISS",
+          "questions": [
+            "primary_objective"
+          ],
+          "patch": {
+            "primary_objective": "REDUCE_RIGHT_MISS"
+          },
+          "answers_applied": {
+            "primary_objective": "REDUCE_RIGHT_MISS"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0.75,
+            "directional_requirement": "DRAW_ASSIST",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3,
+            "stability": 3,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT",
+              "PRIMARY_OBJECTIVE"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "titleist|913d2|2013",
+                "display_name": "Titleist 913D2 Driver",
+                "fit": 99.22978624535317,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2013
+              },
+              {
+                "catalogue_key": "cobra|aerojet|2023",
+                "display_name": "Cobra Aerojet Driver",
+                "fit": 99.19616876818623,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2023
+              },
+              {
+                "catalogue_key": "pxg|0211|2022",
+                "display_name": "PXG 0211 Driver (2022)",
+                "fit": 99.18430118110237,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2022
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "obj_reduce_left",
+          "label": "One Q: primary_objective=REDUCE_LEFT_MISS",
+          "questions": [
+            "primary_objective"
+          ],
+          "patch": {
+            "primary_objective": "REDUCE_LEFT_MISS"
+          },
+          "answers_applied": {
+            "primary_objective": "REDUCE_LEFT_MISS"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": -0.75,
+            "directional_requirement": "FADE_ASSIST",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3,
+            "stability": 3,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT",
+              "PRIMARY_OBJECTIVE"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 3,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "callaway|elyte-triple-diamond|2025",
+                "display_name": "Callaway ELYTE Triple Diamond Driver",
+                "fit": 99.2607047279215,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2025
+              },
+              {
+                "catalogue_key": "srixon|zxi-ls|2025",
+                "display_name": "Srixon ZXi LS Driver",
+                "fit": 99.2607047279215,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2025
+              },
+              {
+                "catalogue_key": "callaway|rogue-st-triple-diamond-ls|2022",
+                "display_name": "Callaway Rogue ST Triple Diamond LS Driver",
+                "fit": 99.2607047279215,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2022
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "obj_forgiveness",
+          "label": "One Q: primary_objective=FORGIVENESS",
+          "questions": [
+            "primary_objective"
+          ],
+          "patch": {
+            "primary_objective": "FORGIVENESS"
+          },
+          "answers_applied": {
+            "primary_objective": "FORGIVENESS"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0,
+            "directional_requirement": "NEUTRAL",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 4.5,
+            "stability": 4,
+            "workability": 1.5,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 3,
+            "top_tied_min_active_dims": 4,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "ping|g430-max|2023",
+                "display_name": "PING G430 Max Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2023
+              },
+              {
+                "catalogue_key": "tour-edge|exotics-max|2026",
+                "display_name": "Tour Edge Exotics Max Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 4,
+                "release_year": 2026
+              },
+              {
+                "catalogue_key": "taylormade|sim-max|2020",
+                "display_name": "TaylorMade SIM Max Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2020
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "obj_higher_flight",
+          "label": "One Q: primary_objective=HIGHER_FLIGHT",
+          "questions": [
+            "primary_objective"
+          ],
+          "patch": {
+            "primary_objective": "HIGHER_FLIGHT"
+          },
+          "answers_applied": {
+            "primary_objective": "HIGHER_FLIGHT"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0,
+            "directional_requirement": "NEUTRAL",
+            "head_launch_target": "HIGH",
+            "head_launch_numeric": 1.5,
+            "forgiveness": 3,
+            "stability": 3,
+            "workability": 2,
+            "launch_sources": [
+              "PRIMARY_OBJECTIVE",
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 392,
+            "top_tied_family_count": 2,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 392,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "xxio|xxio-x|2022",
+                "display_name": "XXIO X Driver",
+                "fit": 98.8716814159292,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2022
+              },
+              {
+                "catalogue_key": "yonex|ezone-tri-g|2015",
+                "display_name": "Yonex EZONE Tri-G Driver",
+                "fit": 98.8716814159292,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2015
+              },
+              {
+                "catalogue_key": "mizuno|jpx-one|2026",
+                "display_name": "Mizuno JPX ONE Driver",
+                "fit": 98.85650224215247,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2026
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "obj_control",
+          "label": "One Q: primary_objective=CONTROL",
+          "questions": [
+            "primary_objective"
+          ],
+          "patch": {
+            "primary_objective": "CONTROL"
+          },
+          "answers_applied": {
+            "primary_objective": "CONTROL"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0,
+            "directional_requirement": "NEUTRAL",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 2.75,
+            "stability": 4,
+            "workability": 3.5,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 44,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "callaway|quantum-triple-diamond-max|2026",
+                "display_name": "Callaway Quantum Triple Diamond Max Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2026
+              },
+              {
+                "catalogue_key": "taylormade|qi4d|2026",
+                "display_name": "TaylorMade Qi4D Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2026
+              },
+              {
+                "catalogue_key": "titleist|gts4|2026",
+                "display_name": "Titleist GTS4 Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2026
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "traj_high",
+          "label": "One Q: typical_trajectory=HIGH (was MID)",
+          "questions": [
+            "typical_trajectory"
+          ],
+          "patch": {
+            "typical_trajectory": "HIGH"
+          },
+          "answers_applied": {
+            "typical_trajectory": "HIGH"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0,
+            "directional_requirement": "NEUTRAL",
+            "head_launch_target": "MID_LOW",
+            "head_launch_numeric": -1,
+            "forgiveness": 3,
+            "stability": 3,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 392,
+            "top_tied_family_count": 46,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 392,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "srixon|zxi-rkt-ls|2026",
+                "display_name": "Srixon ZXi RKT LS Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2026
+              },
+              {
+                "catalogue_key": "honma|tw757-type-s|2022",
+                "display_name": "Honma TW757 Type-S Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2022
+              },
+              {
+                "catalogue_key": "tour-edge|exotics-ls|2026",
+                "display_name": "Tour Edge Exotics LS Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2026
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "traj_low",
+          "label": "One Q: typical_trajectory=LOW",
+          "questions": [
+            "typical_trajectory"
+          ],
+          "patch": {
+            "typical_trajectory": "LOW"
+          },
+          "answers_applied": {
+            "typical_trajectory": "LOW"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0,
+            "directional_requirement": "NEUTRAL",
+            "head_launch_target": "MID_HIGH",
+            "head_launch_numeric": 1,
+            "forgiveness": 3,
+            "stability": 3,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 392,
+            "top_tied_family_count": 67,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 392,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "callaway|quantum-max|2026",
+                "display_name": "Callaway Quantum Max Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2026
+              },
+              {
+                "catalogue_key": "mizuno|jpx-one|2026",
+                "display_name": "Mizuno JPX ONE Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2026
+              },
+              {
+                "catalogue_key": "srixon|zx5-ls-mk-ii|2022",
+                "display_name": "Srixon ZX5 LS Mk II Driver",
+                "fit": 100,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2022
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "strike_heel",
+          "label": "One Q: strike_pattern=HEEL",
+          "questions": [
+            "strike_pattern"
+          ],
+          "patch": {
+            "strike_pattern": "HEEL"
+          },
+          "answers_applied": {
+            "strike_pattern": "HEEL"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0,
+            "directional_requirement": "NEUTRAL",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3,
+            "stability": 3,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 80,
+            "top_tied_min_active_dims": 4,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 80 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 4 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "consistency_low",
+          "label": "One Q: strike_consistency=LOW",
+          "questions": [
+            "strike_consistency"
+          ],
+          "patch": {
+            "strike_consistency": "LOW"
+          },
+          "answers_applied": {
+            "strike_consistency": "LOW"
+          },
+          "outcome": {
+            "mode": "CHARACTERISTIC_GUIDANCE",
+            "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0,
+            "directional_requirement": "NEUTRAL",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 4,
+            "stability": 4.5,
+            "workability": 1.5,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 5,
+            "top_tied_min_active_dims": 4,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 0,
+            "heads": [],
+            "guidance_notes_head": [
+              "Teevo cannot confidently distinguish the leading heads: about 5 UK-eligible families share the top Fit tier with incomplete characteristic coverage (as few as 4 of 5 assessed). Named rankings are withheld rather than guessing.",
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers."
+            ]
+          },
+          "recovered_named": false,
+          "blocker_cleared": false
+        },
+        {
+          "id": "two_curve_heel",
+          "label": "Two Q: curvature=RIGHT + strike=HEEL",
+          "questions": [
+            "typical_curvature",
+            "strike_pattern"
+          ],
+          "patch": {
+            "typical_curvature": "RIGHT",
+            "strike_pattern": "HEEL"
+          },
+          "answers_applied": {
+            "typical_curvature": "RIGHT",
+            "strike_pattern": "HEEL"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 1.5,
+            "directional_requirement": "STRONG_DRAW_ASSIST",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3.5,
+            "stability": 3.5,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "titleist|913d2|2013",
+                "display_name": "Titleist 913D2 Driver",
+                "fit": 98.45957249070632,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2013
+              },
+              {
+                "catalogue_key": "cobra|aerojet|2023",
+                "display_name": "Cobra Aerojet Driver",
+                "fit": 98.39233753637247,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2023
+              },
+              {
+                "catalogue_key": "pxg|0211|2022",
+                "display_name": "PXG 0211 Driver (2022)",
+                "fit": 98.36860236220473,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2022
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "two_traj_curve",
+          "label": "Two Q: trajectory=HIGH + curvature=RIGHT",
+          "questions": [
+            "typical_trajectory",
+            "typical_curvature"
+          ],
+          "patch": {
+            "typical_trajectory": "HIGH",
+            "typical_curvature": "RIGHT"
+          },
+          "answers_applied": {
+            "typical_trajectory": "HIGH",
+            "typical_curvature": "RIGHT"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 1.5,
+            "directional_requirement": "STRONG_DRAW_ASSIST",
+            "head_launch_target": "MID_LOW",
+            "head_launch_numeric": -1,
+            "forgiveness": 3.5,
+            "stability": 3.5,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 392,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 392,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "titleist|913d2|2013",
+                "display_name": "Titleist 913D2 Driver",
+                "fit": 96.08968401486989,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2013
+              },
+              {
+                "catalogue_key": "cobra|aerojet|2023",
+                "display_name": "Cobra Aerojet Driver",
+                "fit": 95.91901066925315,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2023
+              },
+              {
+                "catalogue_key": "pxg|0211|2022",
+                "display_name": "PXG 0211 Driver (2022)",
+                "fit": 95.41584645669292,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2022
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        },
+        {
+          "id": "two_reduce_heel",
+          "label": "Two Q: REDUCE_RIGHT_MISS + strike=HEEL",
+          "questions": [
+            "primary_objective",
+            "strike_pattern"
+          ],
+          "patch": {
+            "primary_objective": "REDUCE_RIGHT_MISS",
+            "strike_pattern": "HEEL"
+          },
+          "answers_applied": {
+            "primary_objective": "REDUCE_RIGHT_MISS",
+            "strike_pattern": "HEEL"
+          },
+          "outcome": {
+            "mode": "NAMED_HEADS",
+            "reason": null,
+            "resolved_dims": 5,
+            "evidence_backed_dims": 5,
+            "directional_target": 0.75,
+            "directional_requirement": "DRAW_ASSIST",
+            "head_launch_target": "MID",
+            "head_launch_numeric": 0,
+            "forgiveness": 3,
+            "stability": 3,
+            "workability": 2,
+            "launch_sources": [
+              "TRAJECTORY"
+            ],
+            "launch_band": "MEDIUM",
+            "direction_sources": [
+              "BALL_FLIGHT",
+              "PRIMARY_OBJECTIVE"
+            ],
+            "direction_band": "MEDIUM",
+            "qualifying_heads": 596,
+            "qualifying_families": 394,
+            "top_tied_family_count": 1,
+            "top_tied_min_active_dims": 5,
+            "top_tied_max_active_dims": 5,
+            "heads_uk_market_eligible": 394,
+            "named_count": 3,
+            "heads": [
+              {
+                "catalogue_key": "titleist|913d2|2013",
+                "display_name": "Titleist 913D2 Driver",
+                "fit": 99.22978624535317,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2013
+              },
+              {
+                "catalogue_key": "cobra|aerojet|2023",
+                "display_name": "Cobra Aerojet Driver",
+                "fit": 99.19616876818623,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2023
+              },
+              {
+                "catalogue_key": "pxg|0211|2022",
+                "display_name": "PXG 0211 Driver (2022)",
+                "fit": 99.18430118110237,
+                "band": "EXCELLENT_MATCH",
+                "confidence": "HIGH",
+                "active_dims": 5,
+                "release_year": 2022
+              }
+            ],
+            "guidance_notes_head": [
+              "Named head rankings need enough independent head-fit evidence and meaningful Fit differentiation. Below are target characteristics derived from your answers.",
+              "Handedness filters purchasable listings later; catalogue models are not handedness-specific suitability claims."
+            ]
+          },
+          "recovered_named": true,
+          "blocker_cleared": true
+        }
+      ],
+      "summary": {
+        "one_question_named_count": 11,
+        "one_question_total": 14,
+        "two_question_named_count": 3,
+        "two_question_total": 3,
+        "multi_question_named_count": 0,
+        "recovering_one_q_ids": [
+          "curve_right",
+          "curve_left",
+          "start_right",
+          "start_left",
+          "obj_reduce_right",
+          "obj_reduce_left",
+          "obj_forgiveness",
+          "obj_higher_flight",
+          "obj_control",
+          "traj_high",
+          "traj_low"
+        ],
+        "recovering_two_q_ids": [
+          "two_curve_heel",
+          "two_traj_curve",
+          "two_reduce_heel"
+        ],
+        "recovering_multi_ids": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "baseline_commit": "1d4636beca85256c3ed3877c5a3d54bcf31fe837",
+  "staging_health": { "http": 200, "ok": true },
+  "http_auth": {
+    "unauthenticated_recommend": 401,
+    "invalid_session_recommend": 401,
+    "non_admin_recommend": "NOT_EXECUTED_NO_CREDENTIALS",
+    "admin_recommend": "NOT_EXECUTED_NO_CREDENTIALS"
+  },
+  "routes": {
+    "public_match": 404,
+    "admin_match_unauthenticated": 307
+  },
+  "regression": {
+    "unit_tests": "50/50 passed",
+    "harness_48_168": "PASS"
+  },
+  "journeys": {
+    "J1": {
+      "mode": "NAMED_HEADS",
+      "keys": ["adams|xtd|2014", "yonex|ezone-gt-type-d|2024", "bridgestone|bx2ht|2025"]
+    },
+    "J2": {
+      "mode": "NAMED_HEADS",
+      "keys": ["taylormade|qi4d|2026", "bridgestone|bx1st|2025", "tour-edge|exotics-c725|2025"]
+    },
+    "J3": {
+      "mode": "NAMED_HEADS",
+      "keys": ["tour-edge|exotics-max|2026", "taylormade|sim-max|2020", "powerbilt|air-force-one-dfx-high-moi|2014"]
+    },
+    "J4": {
+      "mode": "NAMED_HEADS",
+      "keys": ["cobra|king-ltd-pro|2016", "bridgestone|bx1ls|2025", "cobra|darkspeed-ls|2024"]
+    },
+    "J5": {
+      "mode": "CHARACTERISTIC_GUIDANCE",
+      "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+      "keys": []
+    },
+    "determinism_J1": true
+  },
+  "live_inventory": {
+    "available_drivers": 1,
+    "unique_head_key": "ping|g400-max|2018",
+    "listing_id_prefix": "48d4afa0",
+    "successful_attach": {
+      "count": 1,
+      "mode": "HEAD_ONLY",
+      "unverified_shaft": true,
+      "full_badge": false
+    },
+    "exclusions": {
+      "wrong_hand": 0,
+      "unavailable": 0,
+      "ambiguous": 0
+    }
+  },
+  "verdict": "CONDITIONAL_GO"
+}

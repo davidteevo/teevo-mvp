@@ -1,0 +1,1030 @@
+{
+  "checkpoint": "B_after_b21_min",
+  "generated_at": "2026-10-19T19:46:15.796Z",
+  "profile_count": 24,
+  "named_profile_count": 15,
+  "guidance_profile_count": 9,
+  "no_defensible_count": 0,
+  "rows": [
+    {
+      "profile_id": "beginner_forgiveness",
+      "mode": "NAMED_HEADS",
+      "reason": null,
+      "named_count": 3,
+      "heads": [
+        {
+          "catalogue_key": "tour-edge|exotics-lite|2026",
+          "display_name": "Tour Edge Exotics Lite Driver",
+          "fit": 97.41379310344827,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2026
+        },
+        {
+          "catalogue_key": "tour-edge|hot-launch-max-d|2026",
+          "display_name": "Tour Edge Hot Launch Max D Driver",
+          "fit": 97.41379310344827,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2026
+        },
+        {
+          "catalogue_key": "tour-edge|hot-launch-x525|2025",
+          "display_name": "Tour Edge Hot Launch X525 Driver",
+          "fit": 97.41379310344827,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2025
+        }
+      ],
+      "audit": {
+        "qualifying_heads": 510,
+        "qualifying_families_after_dedupe": 506,
+        "top_tied_family_count": 15,
+        "top_tied_max_active_dims": 5,
+        "top_tied_min_active_dims": 5,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "high_handicap_slice",
+      "mode": "NAMED_HEADS",
+      "reason": null,
+      "named_count": 3,
+      "heads": [
+        {
+          "catalogue_key": "adams|xtd|2014",
+          "display_name": "Adams XTD Driver",
+          "fit": 94.54925650557621,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2014
+        },
+        {
+          "catalogue_key": "yonex|ezone-gt-type-d|2024",
+          "display_name": "Yonex EZONE GT Type D Driver",
+          "fit": 94.05172413793103,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2024
+        },
+        {
+          "catalogue_key": "bridgestone|bx2ht|2025",
+          "display_name": "Bridgestone BX2HT Driver",
+          "fit": 93.97379912663756,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2025
+        }
+      ],
+      "audit": {
+        "qualifying_heads": 544,
+        "qualifying_families_after_dedupe": 540,
+        "top_tied_family_count": 1,
+        "top_tied_max_active_dims": 5,
+        "top_tied_min_active_dims": 5,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "mid_handicap_distance",
+      "mode": "CHARACTERISTIC_GUIDANCE",
+      "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+      "named_count": 0,
+      "heads": [],
+      "audit": {
+        "qualifying_heads": 596,
+        "qualifying_families_after_dedupe": 592,
+        "top_tied_family_count": 78,
+        "top_tied_max_active_dims": 5,
+        "top_tied_min_active_dims": 4,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "mid_handicap_hook",
+      "mode": "NAMED_HEADS",
+      "reason": null,
+      "named_count": 3,
+      "heads": [
+        {
+          "catalogue_key": "cobra|king-ltd-pro|2016",
+          "display_name": "Cobra King LTD Pro Driver",
+          "fit": 97.6230879541109,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2016
+        },
+        {
+          "catalogue_key": "bridgestone|bx1ls|2025",
+          "display_name": "Bridgestone BX1LS Driver",
+          "fit": 97.47844827586206,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2025
+        },
+        {
+          "catalogue_key": "mizuno|jpx-one-select|2026",
+          "display_name": "Mizuno JPX ONE SELECT Driver",
+          "fit": 95.15486725663717,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2026
+        }
+      ],
+      "audit": {
+        "qualifying_heads": 596,
+        "qualifying_families_after_dedupe": 592,
+        "top_tied_family_count": 1,
+        "top_tied_max_active_dims": 5,
+        "top_tied_min_active_dims": 5,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "low_handicap_workability",
+      "mode": "NAMED_HEADS",
+      "reason": null,
+      "named_count": 3,
+      "heads": [
+        {
+          "catalogue_key": "yamaha|rmx-120|2020",
+          "display_name": "Yamaha RMX 120 Driver",
+          "fit": 99.00584795321637,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 4,
+          "release_year": 2020
+        },
+        {
+          "catalogue_key": "honma|tw747-455|2018",
+          "display_name": "Honma TW747 455 Driver",
+          "fit": 98.88888888888889,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 4,
+          "release_year": 2018
+        },
+        {
+          "catalogue_key": "callaway|epic-max-ls|2021",
+          "display_name": "Callaway Epic Max LS Driver",
+          "fit": 98.85057471264368,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 4,
+          "release_year": 2021
+        }
+      ],
+      "audit": {
+        "qualifying_heads": 593,
+        "qualifying_families_after_dedupe": 589,
+        "top_tied_family_count": 1,
+        "top_tied_max_active_dims": 4,
+        "top_tied_min_active_dims": 4,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "low_handicap_low_spin",
+      "mode": "CHARACTERISTIC_GUIDANCE",
+      "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+      "named_count": 0,
+      "heads": [],
+      "audit": {
+        "qualifying_heads": 596,
+        "qualifying_families_after_dedupe": 592,
+        "top_tied_family_count": 51,
+        "top_tied_max_active_dims": 5,
+        "top_tied_min_active_dims": 4,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "faster_swing_high_flight",
+      "mode": "CHARACTERISTIC_GUIDANCE",
+      "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+      "named_count": 0,
+      "heads": [],
+      "audit": {
+        "qualifying_heads": 596,
+        "qualifying_families_after_dedupe": 592,
+        "top_tied_family_count": 76,
+        "top_tied_max_active_dims": 5,
+        "top_tied_min_active_dims": 4,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "slower_swing_high_launch",
+      "mode": "NAMED_HEADS",
+      "reason": null,
+      "named_count": 3,
+      "heads": [
+        {
+          "catalogue_key": "tour-edge|exotics-lite|2026",
+          "display_name": "Tour Edge Exotics Lite Driver",
+          "fit": 97.41379310344827,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2026
+        },
+        {
+          "catalogue_key": "tour-edge|hot-launch-max-d|2026",
+          "display_name": "Tour Edge Hot Launch Max D Driver",
+          "fit": 97.41379310344827,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2026
+        },
+        {
+          "catalogue_key": "tour-edge|hot-launch-x525|2025",
+          "display_name": "Tour Edge Hot Launch X525 Driver",
+          "fit": 97.41379310344827,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2025
+        }
+      ],
+      "audit": {
+        "qualifying_heads": 510,
+        "qualifying_families_after_dedupe": 506,
+        "top_tied_family_count": 15,
+        "top_tied_max_active_dims": 5,
+        "top_tied_min_active_dims": 5,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "rich_right_miss",
+      "mode": "NAMED_HEADS",
+      "reason": null,
+      "named_count": 3,
+      "heads": [
+        {
+          "catalogue_key": "ping|g430-sft|2023",
+          "display_name": "PING G430 SFT Driver",
+          "fit": 98.34146341463415,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2023
+        },
+        {
+          "catalogue_key": "cobra|amp-offset|2012",
+          "display_name": "Cobra AMP Offset Driver",
+          "fit": 98.34146341463415,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2012
+        },
+        {
+          "catalogue_key": "titleist|913d2|2013",
+          "display_name": "Titleist 913D2 Driver",
+          "fit": 96.91914498141264,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2013
+        }
+      ],
+      "audit": {
+        "qualifying_heads": 592,
+        "qualifying_families_after_dedupe": 588,
+        "top_tied_family_count": 2,
+        "top_tied_max_active_dims": 5,
+        "top_tied_min_active_dims": 5,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "borderline_forgiveness",
+      "mode": "NAMED_HEADS",
+      "reason": null,
+      "named_count": 3,
+      "heads": [
+        {
+          "catalogue_key": "tour-edge|exotics-max|2026",
+          "display_name": "Tour Edge Exotics Max Driver",
+          "fit": 100,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 3,
+          "release_year": 2026
+        },
+        {
+          "catalogue_key": "taylormade|sim-max|2020",
+          "display_name": "TaylorMade SIM Max Driver",
+          "fit": 100,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 4,
+          "release_year": 2020
+        },
+        {
+          "catalogue_key": "powerbilt|air-force-one-dfx-high-moi|2014",
+          "display_name": "PowerBilt Air Force One DFX High MOI Driver",
+          "fit": 100,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 4,
+          "release_year": 2014
+        }
+      ],
+      "audit": {
+        "qualifying_heads": 571,
+        "qualifying_families_after_dedupe": 567,
+        "top_tied_family_count": 3,
+        "top_tied_max_active_dims": 4,
+        "top_tied_min_active_dims": 3,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "incomplete_launch",
+      "mode": "NAMED_HEADS",
+      "reason": null,
+      "named_count": 3,
+      "heads": [
+        {
+          "catalogue_key": "ping|g-sf-tec|2016",
+          "display_name": "PING G SF Tec Driver",
+          "fit": 100,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 4,
+          "release_year": 2016
+        },
+        {
+          "catalogue_key": "cobra|optm-max-d|2026",
+          "display_name": "Cobra OPTM MAX-D Driver",
+          "fit": 98.2010582010582,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 4,
+          "release_year": 2026
+        },
+        {
+          "catalogue_key": "cobra|ds-adapt-max-d|2025",
+          "display_name": "Cobra DS-ADAPT MAX-D Driver",
+          "fit": 98.2010582010582,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 4,
+          "release_year": 2025
+        }
+      ],
+      "audit": {
+        "qualifying_heads": 595,
+        "qualifying_families_after_dedupe": 591,
+        "top_tied_family_count": 1,
+        "top_tied_max_active_dims": 4,
+        "top_tied_min_active_dims": 4,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "sparse_incomplete",
+      "mode": "CHARACTERISTIC_GUIDANCE",
+      "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+      "named_count": 0,
+      "heads": [],
+      "audit": {
+        "qualifying_heads": 501,
+        "qualifying_families_after_dedupe": 497,
+        "top_tied_family_count": 302,
+        "top_tied_max_active_dims": 3,
+        "top_tied_min_active_dims": 3,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "sparse_handedness_only",
+      "mode": "CHARACTERISTIC_GUIDANCE",
+      "reason": "INSUFFICIENT_EVIDENCE_BACKED_REQUIREMENT_DIMS",
+      "named_count": 0,
+      "heads": [],
+      "audit": {
+        "qualifying_heads": 0,
+        "qualifying_families_after_dedupe": 0,
+        "top_tied_family_count": 0,
+        "top_tied_max_active_dims": 0,
+        "top_tied_min_active_dims": 0,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "mid_fade_bias",
+      "mode": "NAMED_HEADS",
+      "reason": null,
+      "named_count": 3,
+      "heads": [
+        {
+          "catalogue_key": "titleist|913d2|2013",
+          "display_name": "Titleist 913D2 Driver",
+          "fit": 97.68935873605949,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2013
+        },
+        {
+          "catalogue_key": "cobra|aerojet|2023",
+          "display_name": "Cobra Aerojet Driver",
+          "fit": 97.58850630455869,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2023
+        },
+        {
+          "catalogue_key": "pxg|0211|2022",
+          "display_name": "PXG 0211 Driver (2022)",
+          "fit": 97.5529035433071,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2022
+        }
+      ],
+      "audit": {
+        "qualifying_heads": 596,
+        "qualifying_families_after_dedupe": 592,
+        "top_tied_family_count": 1,
+        "top_tied_max_active_dims": 5,
+        "top_tied_min_active_dims": 5,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "senior_slower",
+      "mode": "NAMED_HEADS",
+      "reason": null,
+      "named_count": 3,
+      "heads": [
+        {
+          "catalogue_key": "adams|xtd|2014",
+          "display_name": "Adams XTD Driver",
+          "fit": 96.08968401486989,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2014
+        },
+        {
+          "catalogue_key": "yonex|ezone-gt-type-d|2024",
+          "display_name": "Yonex EZONE GT Type D Driver",
+          "fit": 95.73275862068965,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2024
+        },
+        {
+          "catalogue_key": "bridgestone|bx2ht|2025",
+          "display_name": "Bridgestone BX2HT Driver",
+          "fit": 95.67685589519651,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2025
+        }
+      ],
+      "audit": {
+        "qualifying_heads": 561,
+        "qualifying_families_after_dedupe": 557,
+        "top_tied_family_count": 1,
+        "top_tied_max_active_dims": 5,
+        "top_tied_min_active_dims": 5,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "strong_draw_assist",
+      "mode": "NAMED_HEADS",
+      "reason": null,
+      "named_count": 3,
+      "heads": [
+        {
+          "catalogue_key": "adams|xtd|2014",
+          "display_name": "Adams XTD Driver",
+          "fit": 94.54925650557621,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2014
+        },
+        {
+          "catalogue_key": "yonex|ezone-gt-type-d|2024",
+          "display_name": "Yonex EZONE GT Type D Driver",
+          "fit": 94.05172413793103,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2024
+        },
+        {
+          "catalogue_key": "bridgestone|bx2ht|2025",
+          "display_name": "Bridgestone BX2HT Driver",
+          "fit": 93.97379912663756,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2025
+        }
+      ],
+      "audit": {
+        "qualifying_heads": 544,
+        "qualifying_families_after_dedupe": 540,
+        "top_tied_family_count": 1,
+        "top_tied_max_active_dims": 5,
+        "top_tied_min_active_dims": 5,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "mid_control",
+      "mode": "NAMED_HEADS",
+      "reason": null,
+      "named_count": 3,
+      "heads": [
+        {
+          "catalogue_key": "callaway|quantum-triple-diamond-max|2026",
+          "display_name": "Callaway Quantum Triple Diamond Max Driver",
+          "fit": 100,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2026
+        },
+        {
+          "catalogue_key": "pxg|lightning-tour-mid|2026",
+          "display_name": "PXG Lightning Tour Mid Driver",
+          "fit": 100,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2026
+        },
+        {
+          "catalogue_key": "taylormade|qi4d|2026",
+          "display_name": "TaylorMade Qi4D Driver",
+          "fit": 100,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2026
+        }
+      ],
+      "audit": {
+        "qualifying_heads": 596,
+        "qualifying_families_after_dedupe": 592,
+        "top_tied_family_count": 57,
+        "top_tied_max_active_dims": 5,
+        "top_tied_min_active_dims": 5,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "high_ball_flight",
+      "mode": "CHARACTERISTIC_GUIDANCE",
+      "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+      "named_count": 0,
+      "heads": [],
+      "audit": {
+        "qualifying_heads": 596,
+        "qualifying_families_after_dedupe": 592,
+        "top_tied_family_count": 26,
+        "top_tied_max_active_dims": 5,
+        "top_tied_min_active_dims": 4,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "low_ball_flight",
+      "mode": "CHARACTERISTIC_GUIDANCE",
+      "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+      "named_count": 0,
+      "heads": [],
+      "audit": {
+        "qualifying_heads": 596,
+        "qualifying_families_after_dedupe": 592,
+        "top_tied_family_count": 51,
+        "top_tied_max_active_dims": 5,
+        "top_tied_min_active_dims": 4,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "toe_miss_moderate",
+      "mode": "NAMED_HEADS",
+      "reason": null,
+      "named_count": 3,
+      "heads": [
+        {
+          "catalogue_key": "powerbilt|air-force-one-dfx-high-moi|2014",
+          "display_name": "PowerBilt Air Force One DFX High MOI Driver",
+          "fit": 94.35176579925651,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2014
+        },
+        {
+          "catalogue_key": "taylormade|sim-max|2020",
+          "display_name": "TaylorMade SIM Max Driver",
+          "fit": 93.75545851528385,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2020
+        },
+        {
+          "catalogue_key": "tour-edge|exotics-max|2026",
+          "display_name": "Tour Edge Exotics Max Driver",
+          "fit": 92.43386243386243,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 4,
+          "release_year": 2026
+        }
+      ],
+      "audit": {
+        "qualifying_heads": 587,
+        "qualifying_families_after_dedupe": 583,
+        "top_tied_family_count": 1,
+        "top_tied_max_active_dims": 5,
+        "top_tied_min_active_dims": 5,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "distance_seeker_unknown_satisfaction",
+      "mode": "NAMED_HEADS",
+      "reason": null,
+      "named_count": 3,
+      "heads": [
+        {
+          "catalogue_key": "pxg|0811-lx-gen1|2017",
+          "display_name": "PXG 0811 LX GEN1 Driver",
+          "fit": 98.81818181818181,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2017
+        },
+        {
+          "catalogue_key": "bridgestone|bx1st|2025",
+          "display_name": "Bridgestone BX1ST Driver",
+          "fit": 98.521409455843,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2025
+        },
+        {
+          "catalogue_key": "vice-golf|vgd01-plus|2025",
+          "display_name": "Vice Golf VGD01+ Driver",
+          "fit": 98.480751604033,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2025
+        }
+      ],
+      "audit": {
+        "qualifying_heads": 596,
+        "qualifying_families_after_dedupe": 592,
+        "top_tied_family_count": 1,
+        "top_tied_max_active_dims": 5,
+        "top_tied_min_active_dims": 5,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "inconsistent_strike",
+      "mode": "CHARACTERISTIC_GUIDANCE",
+      "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+      "named_count": 0,
+      "heads": [],
+      "audit": {
+        "qualifying_heads": 484,
+        "qualifying_families_after_dedupe": 480,
+        "top_tied_family_count": 189,
+        "top_tied_max_active_dims": 3,
+        "top_tied_min_active_dims": 3,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "mid_handicap_carry_hint",
+      "mode": "CHARACTERISTIC_GUIDANCE",
+      "reason": "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+      "named_count": 0,
+      "heads": [],
+      "audit": {
+        "qualifying_heads": 596,
+        "qualifying_families_after_dedupe": 592,
+        "top_tied_family_count": 106,
+        "top_tied_max_active_dims": 5,
+        "top_tied_min_active_dims": 4,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    },
+    {
+      "profile_id": "rich_left_start",
+      "mode": "NAMED_HEADS",
+      "reason": null,
+      "named_count": 3,
+      "heads": [
+        {
+          "catalogue_key": "yonex|ezone-gt-425|2022",
+          "display_name": "Yonex EZONE GT 425 Driver",
+          "fit": 98.99455842997325,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2022
+        },
+        {
+          "catalogue_key": "mizuno|jpx-one-select|2026",
+          "display_name": "Mizuno JPX ONE SELECT Driver",
+          "fit": 98.82654867256637,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2026
+        },
+        {
+          "catalogue_key": "prgr|rs-f|2018",
+          "display_name": "PRGR RS F Driver",
+          "fit": 98.77788018433179,
+          "band": "EXCELLENT_MATCH",
+          "confidence": "HIGH",
+          "active_dims": 5,
+          "release_year": 2018
+        }
+      ],
+      "audit": {
+        "qualifying_heads": 596,
+        "qualifying_families_after_dedupe": 592,
+        "top_tied_family_count": 1,
+        "top_tied_max_active_dims": 5,
+        "top_tied_min_active_dims": 5,
+        "family_duplicates_suppressed": 0
+      },
+      "versions": {
+        "contract": "MATCH_DRIVER_CONTRACT_V1.3",
+        "logic": "DRIVER_MATCH_LOGIC_V1.2",
+        "heads": "DRIVER_V1_2026-10-16",
+        "shafts": "SHAFT_V1_2026-10-16",
+        "head_config_overlay": "MATCH_HEAD_CONFIG_OVERLAY_V1",
+        "uk_head_relevance": "MATCH_UK_HEAD_RELEVANCE_V1",
+        "catalogue_pathway": "PHASE_2A_CHECKPOINT_A",
+        "inventory_attach": "NONE"
+      }
+    }
+  ]
+}
