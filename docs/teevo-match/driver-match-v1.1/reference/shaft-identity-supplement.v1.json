@@ -3,7 +3,7 @@
   "frozen_shafts_version": "SHAFT_V1_2026-10-16",
   "rollback": "Remove or replace this file. Protected seller phrases in lib/match/shaft-identity-policy.ts stay ambiguous when this file is absent or rejected. Do not remove that phrase list as a rollback.",
   "research_blockers": [
-    "TaylorMade non-VeloCore Ventus Blue driver shafts outside the 5 series. The 2021 booklet's VENTUS Blue 6 FW, 5 FW and 5 HY rows are fairway and hybrid shafts, not driver identities.",
+    "TaylorMade non-VeloCore Ventus Blue driver shafts outside the 5 series. The 2021 booklet's VENTUS Blue 6 FW, 5 FW and 5 HY rows are fairway and hybrid shafts, not driver identities. Fujikura's OEM stock page shows VENTUS 6-S on both an OEM shaft and an aftermarket VELOCORE shaft, so the unqualified Ventus Blue 6 S seller strings are protected phrases rather than a seventh identity.",
     "Fifth-generation Kuro Kage Silver 70. The 2021 driver table lists 60 only, so the aftermarket 70 aliases stay unique.",
     "No further OEM driver builds were inserted. A variant without a published manufacturer spec, a distinguishing construction, and a seller-facing alias stays out."
   ],

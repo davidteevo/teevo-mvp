@@ -19,9 +19,96 @@ export function normaliseShaftPhrase(value: unknown): string {
     .trim();
 }
 
+export type VelocoreTechnology = "plus" | "original" | "unspecified";
+
 /**
- * Seller descriptions that match a frozen aftermarket alias and also name a
- * TaylorMade OEM build. Spaced and compact flex spellings are both included.
+ * Read VeloCore+ before generic normalisation removes "+".
+ * "VeloCore+" and "VeloCore Plus" are the plus generation.
+ * "VeloCore" without either marker is the original generation.
+ */
+export function velocoreTechnology(value: unknown): VelocoreTechnology {
+  const raw = String(value ?? "");
+  if (!/velocore/i.test(raw)) return "unspecified";
+  if (/velocore\s*\+/i.test(raw) || /velocore\s+plus\b/i.test(raw)) {
+    return "plus";
+  }
+  return "original";
+}
+
+/**
+ * Ventus generation marker. VeloCore+ / VeloCore Plus, and the Ventus TR
+ * seller form "TR Black+", "TR Blue+", or "TR Red+", are the plus generation.
+ * Original VeloCore, and TR color names without that plus, are not.
+ */
+function labelGeneration(value: unknown): VelocoreTechnology {
+  if (velocoreTechnology(value) === "plus") return "plus";
+  const raw = String(value ?? "");
+  const ventusTrPlus =
+    /ventus/i.test(raw) && /\btr\s+(black|blue|red)\s*\+/i.test(raw);
+  if (ventusTrPlus) return "plus";
+  if (velocoreTechnology(value) === "original") return "original";
+  if (/ventus/i.test(raw) && /\btr\s+(black|blue|red)\b/i.test(raw)) {
+    return "original";
+  }
+  return "unspecified";
+}
+
+function canonicalGeneration(value: unknown): string {
+  const marked = String(value ?? "")
+    .toLowerCase()
+    .replace(/velocore\s*\+/g, " velocoreplus ")
+    .replace(/velocore\s+plus\b/g, " velocoreplus ")
+    .replace(/\btr\s+(black|blue|red)\s*\+/g, " tr $1 plus ");
+  return normaliseShaftPhrase(marked);
+}
+
+/**
+ * Compare two shaft labels without letting a plus generation equal the
+ * original generation. Generic normalisation is unchanged and is used only
+ * when neither label names one of these Ventus generations.
+ */
+export function shaftLabelsMatch(left: unknown, right: unknown): boolean {
+  const leftTech = labelGeneration(left);
+  const rightTech = labelGeneration(right);
+  if (leftTech === "plus" || rightTech === "plus") {
+    if (leftTech !== "plus" || rightTech !== "plus") return false;
+    const canonical = canonicalGeneration(left);
+    return canonical !== "" && canonical === canonicalGeneration(right);
+  }
+  if (leftTech === "original" || rightTech === "original") {
+    if (leftTech !== "original" || rightTech !== "original") return false;
+    const phrase = normaliseShaftPhrase(left);
+    return phrase !== "" && phrase === normaliseShaftPhrase(right);
+  }
+  const phrase = normaliseShaftPhrase(left);
+  return phrase !== "" && phrase === normaliseShaftPhrase(right);
+}
+
+export function sellerVelocoreTechnology(evidence: {
+  shaft?: string | null;
+  display_name?: string | null;
+  model?: string | null;
+}): VelocoreTechnology | "conflict" {
+  const techs = [evidence.shaft, evidence.display_name, evidence.model].map(
+    velocoreTechnology
+  );
+  const names = techs.filter((tech) => tech !== "unspecified");
+  if (names.includes("plus") && names.includes("original")) return "conflict";
+  if (names.includes("plus")) return "plus";
+  if (names.includes("original")) return "original";
+  return "unspecified";
+}
+
+/**
+ * Seller descriptions that cannot distinguish an OEM build from an aftermarket
+ * shaft. Spaced, compact, and hyphenated flex spellings are included.
+ *
+ * Ventus Blue 6 S is protected from Fujikura's OEM stock example
+ * (https://fujikuragolf.com/oem-shafts/): the aftermarket photo is marked
+ * VENTUS 6-S and VELOCORE, and the OEM photo is marked VENTUS 6-S without
+ * VELOCORE. No OEM driver identity is added. TaylorMade's 2021 VENTUS Blue
+ * 6 FW row is a fairway shaft, not this driver description. VeloCore and
+ * VeloCore+ labels stay outside this set.
  */
 export const PROTECTED_SHAFT_PHRASES: ReadonlySet<string> = new Set([
   "ventus blue 5s",
@@ -30,6 +117,10 @@ export const PROTECTED_SHAFT_PHRASES: ReadonlySet<string> = new Set([
   "ventus blue 5r",
   "ventus blue 5 r",
   "fujikura ventus blue 5 r",
+  "ventus blue 6s",
+  "ventus blue 6 s",
+  "fujikura ventus blue 6 s",
+  "fujikura ventus blue 6s",
   "kuro kage silver 60 r",
   "mitsubishi kuro kage silver 60 r",
   "kurokage silver 60 r",

@@ -8,7 +8,10 @@ import {
   resolveHeadIdentity,
   resolveShaftIdentity,
 } from "../identity";
-import { isProtectedShaftPhrase } from "../shaft-identity-policy";
+import {
+  isProtectedShaftPhrase,
+  velocoreTechnology,
+} from "../shaft-identity-policy";
 import type { MatchIntelligence } from "../intelligence/load";
 import type {
   MatchIdentityResolutionStatus,
@@ -109,6 +112,9 @@ export function mapTeevoListingToInventoryItem(
     );
     if (isProtectedShaftPhrase(row.shaft) && !(eligible && recognition)) {
       evidence.push("shaft_fail_closed:protected_phrase");
+    }
+    if (velocoreTechnology(row.shaft) === "original") {
+      evidence.push("shaft_fail_closed:velocore_generation");
     }
   } else if (shaftRes.resolved_key && !shaftScorable) {
     evidence.push(`shaft_identity_blocked:${shaftRes.resolved_key}`);

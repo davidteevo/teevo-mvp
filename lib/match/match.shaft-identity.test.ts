@@ -226,25 +226,190 @@ describe("shaft identity supplement", () => {
     expect(spaced.resolved_key).not.toBe("fujikura|ventus-blue|2019|5|s");
   });
 
-  it("keeps generation-specific aftermarket aliases unique", () => {
-    expect(resolveShaftIdentity({ shaft: "VENTUS Blue 6S" }, intel.shafts)).toEqual(
-      {
-        resolved_key: "fujikura|ventus-blue|2019|6|s",
-        eligible: true,
-        reason: null,
-      }
-    );
+  it("fail-closes unqualified Ventus Blue 6 S descriptions without adding an OEM identity", () => {
+    const phrases = [
+      "VENTUS Blue 6 S",
+      "VENTUS Blue 6S",
+      "VENTUS Blue 6-S",
+      "Fujikura VENTUS Blue 6 S",
+      "Fujikura VENTUS Blue 6S",
+      "Fujikura Ventus Blue 6-S",
+    ];
+    for (const phrase of phrases) {
+      const resolution = resolveShaftIdentity({ shaft: phrase }, intel.shafts);
+      expect(resolution).toEqual({
+        resolved_key: null,
+        eligible: false,
+        reason: "AMBIGUOUS_IDENTITY",
+      });
+      expect(resolution.resolved_key).not.toBe("fujikura|ventus-blue|2019|6|s");
+    }
     expect(
-      resolveShaftIdentity({ shaft: "Fujikura VENTUS Blue 6 S" }, intel.shafts)
-        .resolved_key
-    ).toBe("fujikura|ventus-blue|2019|6|s");
+      intel.shafts.some((shaft) =>
+        String(shaft.shaft_key).includes("ventus-blue") &&
+        String(shaft.shaft_key).includes("|6|") &&
+        shaft.intelligence_version === "SHAFT_IDENTITY_SUPPLEMENT_V1"
+      )
+    ).toBe(false);
+    expect(
+      resolveShaftIdentity({ shaft: "VENTUS Blue 6R" }, intel.shafts).resolved_key
+    ).toBe("fujikura|ventus-blue|2019|6|r");
+
+    const mapped = mapTeevoListingToInventoryItem(
+      listing({ id: "ventus-6s", shaft: "VENTUS Blue 6S" }),
+      intel
+    );
+    expect(mapped.availability_status).toBe("AVAILABLE");
+    expect(mapped.head_key).toBe("ping|g430-sft|2023");
+    expect(mapped.shaft_key).toBeNull();
+    expect(mapped.identity.shaft_resolution).toBe("AMBIGUOUS");
+    expect(mapped.identity.evidence).toContain("shaft_res:AMBIGUOUS_IDENTITY");
+    expect(mapped.identity.evidence.join(" ")).toContain(
+      "fujikura|ventus-blue|2019|6|s"
+    );
+    expect(mapped.identity.evidence).toContain("shaft_fail_closed:protected_phrase");
+
+    const spaced = mapTeevoListingToInventoryItem(
+      listing({
+        id: "ventus-6-s-spaced",
+        brand: "TaylorMade",
+        model: "Stealth",
+        title: "TaylorMade Stealth",
+        shaft: "VENTUS Blue 6 S",
+      }),
+      intel
+    );
+    expect(spaced.shaft_key).toBeNull();
+    expect(spaced.identity.shaft_resolution).toBe("AMBIGUOUS");
+    expect(spaced.identity.evidence).toContain("shaft_fail_closed:protected_phrase");
+
+    const [attachment] = attachInventoryToCatalogueRecommendations({
+      recommendations: [recommendation("ping|g430-sft|2023")],
+      inventory: [mapped],
+      requirements,
+      intelligence: intel,
+      golferConfidence: 80,
+    });
+    expect(attachment.items).toHaveLength(1);
+    expect(attachment.items[0].attach_mode).toBe("HEAD_ONLY");
+    expect(attachment.items[0].listing_match).toBeNull();
+    expect(attachment.items[0].unverified_shaft).toBe(true);
+  });
+
+  it("does not treat original VeloCore as VeloCore+", () => {
+    const originalPhrases = [
+      "VENTUS Blue VeloCore 6 S",
+      "Fujikura VENTUS Blue VeloCore 6 S",
+      "VENTUS Blue VeloCore 6S",
+      "VENTUS Black VeloCore 6 S",
+      "VENTUS Red VeloCore 5 S",
+      "VENTUS TR Blue VeloCore 6 S",
+    ];
+    for (const phrase of originalPhrases) {
+      const resolution = resolveShaftIdentity({ shaft: phrase }, intel.shafts);
+      expect(resolution).toEqual({
+        resolved_key: null,
+        eligible: false,
+        reason: "AMBIGUOUS_IDENTITY",
+      });
+      expect(String(resolution.resolved_key ?? "")).not.toContain("velocore-plus");
+    }
+
+    const mapped = mapTeevoListingToInventoryItem(
+      listing({ id: "original-velocore", shaft: "VENTUS Blue VeloCore 6 S" }),
+      intel
+    );
+    expect(mapped.availability_status).toBe("AVAILABLE");
+    expect(mapped.head_key).toBe("ping|g430-sft|2023");
+    expect(mapped.shaft_key).toBeNull();
+    expect(mapped.identity.shaft_resolution).toBe("AMBIGUOUS");
+    expect(mapped.identity.evidence).toContain(
+      "shaft_fail_closed:velocore_generation"
+    );
+    const taylormade = mapTeevoListingToInventoryItem(
+      listing({
+        id: "original-velocore-tm",
+        brand: "TaylorMade",
+        model: "Stealth",
+        title: "TaylorMade Stealth 2024",
+        shaft: "VENTUS Blue VeloCore 6 S",
+      }),
+      intel
+    );
+    expect(taylormade.shaft_key).toBeNull();
+    expect(taylormade.identity.shaft_resolution).toBe(mapped.identity.shaft_resolution);
+
+    const [attachment] = attachInventoryToCatalogueRecommendations({
+      recommendations: [recommendation("ping|g430-sft|2023")],
+      inventory: [mapped],
+      requirements,
+      intelligence: intel,
+      golferConfidence: 80,
+    });
+    expect(attachment.items[0].attach_mode).toBe("HEAD_ONLY");
+    expect(attachment.items[0].listing_match).toBeNull();
+
+    const plusShafts = intel.shafts.filter((shaft) =>
+      /velocore\s*\+/i.test(
+        `${shaft.display_name ?? ""}|${shaft.aliases ?? ""}`
+      )
+    );
+    expect(plusShafts.length).toBeGreaterThan(0);
+    for (const shaft of plusShafts) {
+      const labels = [
+        shaft.display_name,
+        ...String(shaft.aliases ?? "")
+          .split(/[|;,/]+/)
+          .map((part) => part.trim())
+          .filter(Boolean),
+      ];
+      for (const label of labels) {
+        if (!label) continue;
+        expect(resolveShaftIdentity({ shaft: label }, intel.shafts)).toEqual({
+          resolved_key: shaft.shaft_key,
+          eligible: true,
+          reason: null,
+        });
+        if (!/velocore\s*\+/i.test(label)) continue;
+        const original = label.replace(/velocore\s*\+/gi, "VeloCore");
+        expect(resolveShaftIdentity({ shaft: original }, intel.shafts).reason).toBe(
+          "AMBIGUOUS_IDENTITY"
+        );
+        const plusWords = label.replace(/velocore\s*\+/gi, "VeloCore Plus");
+        expect(
+          resolveShaftIdentity({ shaft: plusWords }, intel.shafts).resolved_key
+        ).toBe(shaft.shaft_key);
+      }
+    }
+  });
+
+  it("keeps generation-specific aftermarket aliases unique", () => {
     expect(
       resolveShaftIdentity({ shaft: "VENTUS Blue VeloCore+ 6 S" }, intel.shafts)
         .resolved_key
     ).toBe("fujikura|ventus-blue-velocore-plus|2024|6|s");
     expect(
-      resolveShaftIdentity({ shaft: "2024 VENTUS Blue 6 S" }, intel.shafts).eligible
-    ).toBe(true);
+      resolveShaftIdentity(
+        { shaft: "VENTUS Blue VeloCore Plus 6 S" },
+        intel.shafts
+      ).resolved_key
+    ).toBe("fujikura|ventus-blue-velocore-plus|2024|6|s");
+    const velocore = mapTeevoListingToInventoryItem(
+      listing({ id: "velocore-6s", shaft: "VENTUS Blue VeloCore+ 6 S" }),
+      intel
+    );
+    expect(velocore.shaft_key).toBe("fujikura|ventus-blue-velocore-plus|2024|6|s");
+    expect(velocore.identity.shaft_resolution).toBe("UNIQUE");
+    expect(velocore.availability_status).toBe("AVAILABLE");
+    expect(
+      resolveShaftIdentity({ shaft: "2024 VENTUS Blue 6 S" }, intel.shafts).resolved_key
+    ).toBe("fujikura|ventus-blue-velocore-plus|2024|6|s");
+    expect(
+      resolveShaftIdentity({ shaft: "VENTUS TR Black 5 S" }, intel.shafts).resolved_key
+    ).toBe("fujikura|ventus-tr-black|2022|5|s");
+    expect(
+      resolveShaftIdentity({ shaft: "VENTUS TR Black+ 5 S" }, intel.shafts).resolved_key
+    ).toBe("fujikura|ventus-tr-black-velocore-plus|2026|5|s");
     const kuro70 = resolveShaftIdentity(
       { shaft: "Kuro Kage Silver 70 S" },
       intel.shafts
@@ -254,6 +419,12 @@ describe("shaft identity supplement", () => {
     expect(
       resolveShaftIdentity({ shaft: "Ventus Blue" }, intel.shafts).reason
     ).toBe("UNRESOLVED_IDENTITY");
+    expect(
+      resolveShaftIdentity(
+        { shaft: "Paderson Velocity KVMT60 D30+" },
+        intel.shafts
+      ).reason
+    ).toBe("AMBIGUOUS_IDENTITY");
   });
 
   it("does not treat a 1 g Kuro Kage gap as conclusive, and does not infer the shaft from the head", () => {

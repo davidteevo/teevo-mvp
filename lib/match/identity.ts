@@ -6,6 +6,9 @@ import {
   isProtectedShaftPhrase,
   nominalWeightOverlapsOem,
   normaliseShaftPhrase,
+  sellerVelocoreTechnology,
+  shaftLabelsMatch,
+  velocoreTechnology,
 } from "./shaft-identity-policy";
 import { firstMapValue } from "./util";
 
@@ -193,11 +196,9 @@ export function collectShaftIdentityMatches(
     }
   }
 
-  const phrases = new Set<string>();
-  const shaftText = norm(evidence.shaft);
-  const display = norm(evidence.display_name);
-  if (shaftText) phrases.add(shaftText);
-  if (display) phrases.add(display);
+  const rawPhrases = [evidence.shaft, evidence.display_name].filter(
+    (value): value is string => typeof value === "string" && value.trim() !== ""
+  );
 
   const manuf = norm(evidence.manufacturer);
   const model = norm(evidence.model);
@@ -209,19 +210,15 @@ export function collectShaftIdentityMatches(
 
   for (const s of shafts) {
     if (!s.shaft_key) continue;
-    const sDisplay = norm(s.display_name);
-    const aliases = splitAliases(s.aliases).map(norm);
-    for (const ph of Array.from(phrases)) {
-      if ((sDisplay && sDisplay === ph) || aliases.includes(ph)) {
-        push(s);
-        break;
-      }
+    const labels = [s.display_name, ...splitAliases(s.aliases)];
+    if (rawPhrases.some((phrase) => labels.some((label) => shaftLabelsMatch(phrase, label)))) {
+      push(s);
     }
 
     // Explicit multi-field exactness may uniquely identify a variant.
+    // Model comparison keeps VeloCore and VeloCore+ apart.
     if (manuf && model && flex && weight) {
       const sManuf = norm(s.manufacturer ?? s.Brand);
-      const sModel = norm(s.model ?? s.Model);
       const sFlex = norm(s.flex);
       const sWeight =
         s.actual_weight_g != null && Number.isFinite(Number(s.actual_weight_g))
@@ -229,7 +226,7 @@ export function collectShaftIdentityMatches(
           : "";
       if (
         sManuf === manuf &&
-        sModel === model &&
+        shaftLabelsMatch(evidence.model, s.model ?? s.Model) &&
         sFlex === flex &&
         sWeight === weight
       ) {
@@ -271,6 +268,27 @@ export function resolveShaftIdentity(
     return false;
   });
   if (removedOverlap && matches.length === 0) return AMBIGUOUS;
+
+  const sellerTech = sellerVelocoreTechnology(evidence);
+  if (sellerTech === "conflict") return AMBIGUOUS;
+  if (sellerTech === "original") {
+    const originalMatches = matches.filter((match) => {
+      const shaft = shafts.find((row) => row.shaft_key === match.key);
+      if (!shaft) return false;
+      const labels = [shaft.display_name, ...splitAliases(shaft.aliases)];
+      return (
+        labels.some((label) => velocoreTechnology(label) === "original") &&
+        !labels.some((label) => velocoreTechnology(label) === "plus")
+      );
+    });
+    if (
+      originalMatches.length === 1 &&
+      matches.length === originalMatches.length
+    ) {
+      return resolveIdentity(originalMatches);
+    }
+    return AMBIGUOUS;
+  }
 
   const resolution = resolveIdentity(matches);
   const protectedPhrase =
