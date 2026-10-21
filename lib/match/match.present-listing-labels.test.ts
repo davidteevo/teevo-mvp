@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { presentAttachedListingLabels } from "@/lib/match/app/present-listing-labels";
+import {
+  presentAttachedListingLabels,
+  presentListingCommercialNotes,
+} from "@/lib/match/app/present-listing-labels";
 import type { MatchInventoryAttachedRow, MatchInventoryItem } from "@/lib/match/inventory/types";
 
 function item(id: string, priceMinor: number): MatchInventoryItem {
@@ -87,5 +90,37 @@ describe("attached listing role labels", () => {
 
   it("returns no labels when nothing qualifies", () => {
     expect(presentAttachedListingLabels([], 250).size).toBe(0);
+  });
+
+  it("states a real saving and a lower fit only for Best Value", () => {
+    const rows = [full("best", 30000, 90), full("value", 15000, 86)];
+    const labels = presentAttachedListingLabels(rows, 400);
+    const notes = presentListingCommercialNotes(rows, labels);
+    expect(notes.get("best")).toBeUndefined();
+    expect(notes.get("value")).toEqual({
+      savingGbp: 150,
+      fitVersusBestMatch: "lower",
+    });
+  });
+
+  it("does not invent a saving for a head-only listing or a higher price", () => {
+    const headOnly: MatchInventoryAttachedRow = {
+      item: item("head-only", 5000),
+      attach_mode: "HEAD_ONLY",
+      unverified_shaft: true,
+      listing_match: null,
+    };
+    const rows = [full("best", 30000, 90), headOnly];
+    const labels = presentAttachedListingLabels(rows, 400);
+    labels.set("head-only", ["BEST_VALUE"]);
+    const notes = presentListingCommercialNotes(rows, labels);
+    expect(notes.has("head-only")).toBe(false);
+
+    const dearer = [full("best", 15000, 90), full("dear", 30000, 86)];
+    const dearLabels = new Map<string, Array<"BEST_MATCH" | "BEST_VALUE">>([
+      ["best", ["BEST_MATCH"]],
+      ["dear", ["BEST_VALUE"]],
+    ]);
+    expect(presentListingCommercialNotes(dearer, dearLabels).get("dear")?.savingGbp).toBeNull();
   });
 });

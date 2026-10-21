@@ -57,8 +57,13 @@ const REASON_CODE_BY_TEXT = new Map<string, CatalogueHeadReasonCode>(
 );
 
 export type HeadCardReason = {
-  source: "recognised" | "summary" | "comparison" | "profile";
+  source: "recognised" | "summary" | "comparison" | "profile" | "benefit";
   code: CatalogueHeadReasonCode | null;
+  text: string;
+};
+
+export type HeadCardBenefit = {
+  code: CatalogueHeadReasonCode | "PROFILE";
   text: string;
 };
 
@@ -66,9 +71,9 @@ export type HeadCardReason = {
 export type HeadCardRole = "BEST_SUPPORTED" | "ALTERNATIVE" | "SIMILAR";
 
 export const HEAD_CARD_ROLE_LABEL: Record<HeadCardRole, string | null> = {
-  BEST_SUPPORTED: "Best-supported head",
-  ALTERNATIVE: "Alternative",
-  SIMILAR: null,
+  BEST_SUPPORTED: "Top Head Match",
+  ALTERNATIVE: "Alternative Head Match",
+  SIMILAR: "Similarly Suitable",
 };
 
 export type HeadCardCaveatKind =
@@ -95,6 +100,12 @@ export type PresentedHeadCard = {
   confidenceLabel: string | null;
   /** Face line, distinct from the details coverage sentence. */
   assessedLabel: string | null;
+  /** Short benefit line. Null when no golfer answer supports one. */
+  headline: string | null;
+  /** Up to two evidence-backed highlights. Empty when they would be identical. */
+  benefits: HeadCardBenefit[];
+  /** Model year for the face. The details sentence stays separate. */
+  releaseYear: number | null;
   reason: HeadCardReason | null;
   caveat: HeadCardCaveat | null;
   details: {
@@ -365,6 +376,238 @@ function caveatsFor(
   return caveats;
 }
 
+const BENEFIT_HEADLINE: Record<CatalogueHeadReasonCode, string> = {
+  FORGIVENESS: "A strong option if forgiveness is your priority.",
+  STABILITY: "A steady option if consistency matters to you.",
+  WORKABILITY: "Worth considering if you like to shape shots.",
+  DIRECTION: "Worth considering for the shot shape you described.",
+  LAUNCH: "Worth considering for the flight you described.",
+};
+
+const BENEFIT_OPENING: Record<CatalogueHeadReasonCode, string> = {
+  FORGIVENESS: "Your answers suggest forgiveness matters for your game.",
+  STABILITY: "Your answers suggest a stable head matters for your game.",
+  WORKABILITY: "Your answers suggest you want a head you can shape.",
+  DIRECTION: "Your answers suggest the shot shape you described matters.",
+  LAUNCH: "Your answers suggest the flight you described matters.",
+};
+
+const BENEFIT_NOUN: Record<CatalogueHeadReasonCode, string> = {
+  FORGIVENESS: "forgiveness",
+  STABILITY: "stability",
+  WORKABILITY: "shot shaping",
+  DIRECTION: "shot shape",
+  LAUNCH: "launch",
+};
+
+const BENEFIT_CHIP: Record<CatalogueHeadReasonCode, string> = {
+  FORGIVENESS: "Forgiving for your game",
+  STABILITY: "Stability-focused design",
+  WORKABILITY: "Supports shot shaping",
+  DIRECTION: "Matches your shot shape",
+  LAUNCH: "Suits your preferred flight",
+};
+
+const HEDGED_HEADLINE = "Worth considering, with some evidence still open.";
+
+const PROFILE_CHIP: Record<string, string> = {
+  MAX_FORGIVENESS: "Recorded high-forgiveness profile",
+  STANDARD: "Recorded standard profile",
+  LOW_SPIN: "Recorded low-spin profile",
+  DRAW_BIASED: "Recorded draw-biased profile",
+  PLAYERS: "Recorded players profile",
+  HIGH_LAUNCH: "Recorded high-launch profile",
+};
+
+function golferAsked(
+  requirements: NormalisedRequirements,
+  key: (typeof COMPARED_DIMENSIONS)[number]["key"]
+): boolean {
+  switch (key) {
+    case "forgiveness":
+      return requirements.forgiveness_requirement != null;
+    case "stability":
+      return requirements.stability_requirement != null;
+    case "workability":
+      return requirements.workability_preference != null;
+    case "direction":
+      return requirements.directional_target_numeric != null;
+    case "head_launch":
+      return (
+        requirements.head_launch_target !== "UNRESOLVED" &&
+        requirements.head_launch_target_numeric != null
+      );
+    default:
+      return false;
+  }
+}
+
+function dimensionDiffs(
+  score: CatalogueHeadScore,
+  peers: CatalogueHeadScore[],
+  key: (typeof COMPARED_DIMENSIONS)[number]["key"]
+): number[] {
+  const mine = activeDimensionScore(score, key);
+  if (mine == null) return [];
+  return peers
+    .filter((peer) => peer.catalogue_key !== score.catalogue_key)
+    .map((peer) => activeDimensionScore(peer, key))
+    .filter((value): value is number => value != null)
+    .map((peerScore) => mine - peerScore);
+}
+
+function evidenceIsThin(score: CatalogueHeadScore): boolean {
+  return (
+    score.head_recommendation_confidence !== "HIGH" ||
+    score.active_catalogue_dim_count < 5
+  );
+}
+
+type SalesCopy = {
+  headline: string;
+  pitch: string;
+  code: CatalogueHeadReasonCode;
+  benefits: HeadCardBenefit[];
+};
+
+/**
+ * Face copy from golfer answers and active head scores only.
+ * A missing answer or an inactive dimension cannot produce a benefit.
+ */
+function salesCopy(
+  score: CatalogueHeadScore,
+  peers: CatalogueHeadScore[],
+  requirements: NormalisedRequirements
+): SalesCopy | null {
+  const eligible = COMPARED_DIMENSIONS.filter(
+    (dimension) =>
+      golferAsked(requirements, dimension.key) &&
+      activeDimensionScore(score, dimension.key) != null
+  );
+  if (eligible.length === 0) return null;
+
+  const leads = eligible.filter((dimension) => {
+    const diffs = dimensionDiffs(score, peers, dimension.key);
+    return diffs.some((diff) => diff > 0) && diffs.every((diff) => diff >= 0);
+  });
+  const pool = leads.length > 0 ? leads : eligible;
+  const primary = [...pool].sort((a, b) => {
+    const gapA = Math.max(0, ...dimensionDiffs(score, peers, a.key));
+    const gapB = Math.max(0, ...dimensionDiffs(score, peers, b.key));
+    if (gapA !== gapB) return gapB - gapA;
+    const scoreA = activeDimensionScore(score, a.key) ?? 0;
+    const scoreB = activeDimensionScore(score, b.key) ?? 0;
+    if (scoreA !== scoreB) return scoreB - scoreA;
+    return (
+      COMPARED_DIMENSIONS.findIndex((dimension) => dimension.key === a.key) -
+      COMPARED_DIMENSIONS.findIndex((dimension) => dimension.key === b.key)
+    );
+  })[0];
+  if (!primary) return null;
+
+  const diffs = dimensionDiffs(score, peers, primary.key);
+  const higher = diffs.some((diff) => diff > 0) && diffs.every((diff) => diff >= 0);
+  const lower = diffs.some((diff) => diff < 0) && diffs.every((diff) => diff <= 0);
+  const allPeers = diffs.length > 0 && diffs.every((diff) => diff !== 0);
+  const tied = diffs.length === 0 || diffs.every((diff) => diff === 0);
+  const hedged = evidenceIsThin(score);
+  const noun = BENEFIT_NOUN[primary.code];
+  const opening = BENEFIT_OPENING[primary.code];
+  const who = allPeers ? "the other recommended heads" : "another recommended head";
+
+  let second: string;
+  if (tied && peers.some((peer) => peer.catalogue_key !== score.catalogue_key)) {
+    const mine = recordedProfilePhrase(score);
+    const profileDiffers =
+      mine != null &&
+      peers.some(
+        (peer) =>
+          peer.catalogue_key !== score.catalogue_key && recordedProfilePhrase(peer) !== mine
+      );
+    second = profileDiffers
+      ? `${mine?.replace(/\.$/, "")}, and the shared Fit means that description is not a ranking.`
+      : hedged
+        ? "It is similarly suited to the other recommended heads, but some of the evidence is still open."
+        : "It is similarly suited to the other recommended heads on the characteristics we could check.";
+  } else if (higher) {
+    second = hedged
+      ? `This head's assessed ${noun} is stronger than ${who}, but some of the evidence is still open.`
+      : `This head's assessed ${noun} is stronger than ${who}, so it is worth considering if that is the trait you want.`;
+  } else if (lower) {
+    second = hedged
+      ? `This head's assessed ${noun} is lighter than ${who}, and some of the evidence is still open.`
+      : `This head's assessed ${noun} is lighter than ${who}, so it is a different balance rather than a stronger match on that trait.`;
+  } else if (diffs.length > 0) {
+    second = hedged
+      ? `This head's assessed ${noun} sits between the other recommended heads, and some of the evidence is still open.`
+      : `This head's assessed ${noun} sits between the other recommended heads.`;
+  } else {
+    second = hedged
+      ? `This head's assessed ${noun} lines up with what you told us, but some of the evidence is still open.`
+      : `This head's assessed ${noun} lines up with what you told us.`;
+  }
+
+  const benefits: HeadCardBenefit[] = hedged
+    ? []
+    : eligible
+        .filter((dimension) => {
+          const mine = activeDimensionScore(score, dimension.key);
+          if (mine == null || mine < 70) return false;
+          const gaps = dimensionDiffs(score, peers, dimension.key);
+          if (gaps.length === 0) return true;
+          return gaps.some((gap) => gap > 0) && gaps.every((gap) => gap >= 0);
+        })
+        .sort((a, b) => {
+          const gapA = Math.max(0, ...dimensionDiffs(score, peers, a.key));
+          const gapB = Math.max(0, ...dimensionDiffs(score, peers, b.key));
+          return gapB - gapA;
+        })
+        .slice(0, 2)
+        .map((dimension) => ({
+          code: dimension.code,
+          text: BENEFIT_CHIP[dimension.code],
+        }));
+
+  const profileCode = score.presentation_chars?.primary_head_profile;
+  const profileChip = profileCode ? PROFILE_CHIP[profileCode] : null;
+  const profileDiffersFromPeer =
+    profileChip != null &&
+    peers.some((peer) => {
+      if (peer.catalogue_key === score.catalogue_key) return false;
+      const peerCode = peer.presentation_chars?.primary_head_profile;
+      const peerChip = peerCode ? PROFILE_CHIP[peerCode] : null;
+      return peerChip !== profileChip;
+    });
+  const profileAlreadyInPitch = recordedProfilePhrase(score)
+    ?.replace(/\.$/, "")
+    ?? "";
+  if (
+    !hedged &&
+    profileDiffersFromPeer &&
+    profileChip &&
+    benefits.length < 2 &&
+    !`${opening} ${second}`.includes(profileAlreadyInPitch)
+  ) {
+    benefits.push({ code: "PROFILE", text: profileChip });
+  }
+
+  const comparedWithPeers = diffs.length > 0;
+  const headline = hedged
+    ? HEDGED_HEADLINE
+    : tied && peers.some((peer) => peer.catalogue_key !== score.catalogue_key)
+      ? "Similarly suited to your game."
+      : higher || !comparedWithPeers
+        ? BENEFIT_HEADLINE[primary.code]
+        : "An alternative with a different balance.";
+
+  return {
+    headline,
+    pitch: `${opening} ${second}`,
+    code: primary.code,
+    benefits,
+  };
+}
+
 function otherPlainReasons(
   explanation: CatalogueHeadExplanation | undefined,
   score: CatalogueHeadScore,
@@ -389,8 +632,13 @@ export function presentHeadCard(
 ): PresentedHeadCard {
   const [caveat, ...otherCaveats] = caveatsFor(score, requirements);
   const recognised = recognisedReason(explanation, score);
-  const compared = comparisonReason(score, peers) ?? profileReason(score, peers);
-  const reason = compared ?? recognised;
+  const sales = salesCopy(score, peers, requirements);
+  const compared = sales
+    ? null
+    : (comparisonReason(score, peers) ?? profileReason(score, peers));
+  const reason: HeadCardReason | null = sales
+    ? { source: "benefit", code: sales.code, text: sales.pitch }
+    : compared ?? recognised;
   const aligned =
     explanation && explanation.catalogue_key === score.catalogue_key ? explanation : undefined;
   const year = score.release_year;
@@ -411,10 +659,19 @@ export function presentHeadCard(
         peer.catalogue_key !== score.catalogue_key &&
         recordedProfilePhrase(peer) !== profileDetail
     );
+  const technicalComparison = sales ? comparisonReason(score, peers) : null;
+  if (
+    technicalComparison &&
+    technicalComparison.text !== reason?.text &&
+    !supporting.includes(technicalComparison.text)
+  ) {
+    supporting.push(technicalComparison.text);
+  }
   if (
     profileDiffers &&
     profileDetail &&
     reason?.source !== "profile" &&
+    !reason?.text.includes(profileDetail.replace(/\.$/, "")) &&
     !supporting.includes(`${profileDetail} That catalogue description is not a Fit ranking.`)
   ) {
     supporting.push(`${profileDetail} That catalogue description is not a Fit ranking.`);
@@ -436,6 +693,9 @@ export function presentHeadCard(
     bandLabel: headSuitabilityBandLabel(score.catalogue_match_band),
     confidenceLabel: headEvidenceConfidenceLabel(score.head_recommendation_confidence),
     assessedLabel,
+    headline: sales?.headline ?? null,
+    benefits: sales?.benefits ?? [],
+    releaseYear: year != null && Number.isFinite(year) ? year : null,
     reason,
     caveat: caveat ?? null,
     details: {

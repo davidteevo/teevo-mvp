@@ -147,6 +147,8 @@ const ALLOWED_EVENTS = [
   "match_questionnaire_completed",
   "match_recommendations_viewed",
   "match_listing_clicked",
+  "match_fit_details_opened",
+  "match_model_browse_clicked",
   "match_refinement_offered",
   "match_refinement_answered",
   "match_refinement_recovered",

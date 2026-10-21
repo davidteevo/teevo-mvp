@@ -10,9 +10,9 @@ const BANDS = new Set<Band>([
 ]);
 
 export const LISTING_ROLE_LABEL = {
-  BEST_MATCH: "Best match",
-  BEST_VALUE: "Best value",
-  BUDGET_OPTION: "Budget option",
+  BEST_MATCH: "Best Match",
+  BEST_VALUE: "Best Value",
+  BUDGET_OPTION: "Budget Option",
 } as const;
 
 export type ListingRoleCode = keyof typeof LISTING_ROLE_LABEL;
@@ -59,4 +59,48 @@ export function presentAttachedListingLabels(
     labels.set(card.listing_id, card.labels as ListingRoleCode[]);
   }
   return labels;
+}
+
+export type ListingCommercialNote = {
+  /** Pounds below the Best Match price. Null unless the gap is a real saving. */
+  savingGbp: number | null;
+  fitVersusBestMatch: "lower" | "same" | "higher" | null;
+};
+
+/**
+ * Savings and fit trade-off for listings that already earned Best Value.
+ * Head-only rows and listings without that label get no note.
+ */
+export function presentListingCommercialNotes(
+  rows: MatchInventoryAttachedRow[],
+  labels: Map<string, ListingRoleCode[]>
+): Map<string, ListingCommercialNote> {
+  let best: { priceMinor: number; score: number } | null = null;
+  for (const row of rows) {
+    const roles = labels.get(row.item.source_listing_id) ?? [];
+    if (!roles.includes("BEST_MATCH")) continue;
+    if (row.attach_mode !== "FULL_LISTING_MATCH" || !row.listing_match) continue;
+    if (!Number.isFinite(row.item.price_minor)) continue;
+    if (!Number.isFinite(row.listing_match.raw_fit_score)) continue;
+    best = { priceMinor: row.item.price_minor, score: row.listing_match.raw_fit_score };
+  }
+
+  const notes = new Map<string, ListingCommercialNote>();
+  if (!best) return notes;
+
+  for (const row of rows) {
+    const id = row.item.source_listing_id;
+    const roles = labels.get(id) ?? [];
+    if (!roles.includes("BEST_VALUE")) continue;
+    if (row.attach_mode !== "FULL_LISTING_MATCH" || !row.listing_match) continue;
+    const price = row.item.price_minor;
+    const fit = row.listing_match.raw_fit_score;
+    if (!Number.isFinite(price) || !Number.isFinite(fit)) continue;
+    const savingMinor = best.priceMinor - price;
+    notes.set(id, {
+      savingGbp: savingMinor > 0 ? savingMinor / 100 : null,
+      fitVersusBestMatch: fit < best.score ? "lower" : fit > best.score ? "higher" : "same",
+    });
+  }
+  return notes;
 }

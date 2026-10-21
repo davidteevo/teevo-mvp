@@ -375,16 +375,22 @@ describe("B2a head card presentation", () => {
     const leadCard = presentHeadCard(leader, explanation("leader", { reasons: [CATALOGUE_HEAD_REASON.FORGIVENESS] }), req, peers);
     const otherCard = presentHeadCard(other, explanation("other", { reasons: [CATALOGUE_HEAD_REASON.FORGIVENESS] }), req, peers);
     expect(leadCard.role).toBe("BEST_SUPPORTED");
-    expect(leadCard.roleLabel).toBe("Best-supported head");
+    expect(leadCard.roleLabel).toBe("Top Head Match");
     expect(otherCard.role).toBe("ALTERNATIVE");
-    expect(otherCard.roleLabel).toBe("Alternative");
+    expect(otherCard.roleLabel).toBe("Alternative Head Match");
+    expect(leadCard.headline).toBe("A strong option if forgiveness is your priority.");
     expect(leadCard.reason?.text).toBe(
-      "Forgiveness scores higher on this head than on the other recommended heads."
+      "Your answers suggest forgiveness matters for your game. This head's assessed forgiveness is stronger than the other recommended heads, so it is worth considering if that is the trait you want."
     );
+    expect(otherCard.headline).toBe("An alternative with a different balance.");
     expect(otherCard.reason?.text).toBe(
-      "Forgiveness scores lower on this head than on the other recommended heads."
+      "Your answers suggest forgiveness matters for your game. This head's assessed forgiveness is lighter than the other recommended heads, so it is a different balance rather than a stronger match on that trait."
     );
-    expect(leadCard.reason?.text).not.toMatch(/will |yards|distance/i);
+    expect(leadCard.benefits).toEqual([
+      { code: "FORGIVENESS", text: "Forgiving for your game" },
+    ]);
+    expect(otherCard.benefits).toEqual([]);
+    expect(leadCard.reason?.text).not.toMatch(/will |yards|guaranteed|perfect/i);
     expect(leadCard.confidenceLabel).toBe("High evidence confidence");
     expect(leadCard.assessedLabel).toBe("5 of 5 characteristics assessed");
   });
@@ -411,8 +417,13 @@ describe("B2a head card presentation", () => {
       requirements({ forgiveness_requirement: 4 })
     );
     expect(cards.map((card) => card.role)).toEqual(["SIMILAR", "SIMILAR"]);
-    expect(cards.every((card) => card.roleLabel == null)).toBe(true);
+    expect(cards.map((card) => card.roleLabel)).toEqual([
+      "Similarly Suitable",
+      "Similarly Suitable",
+    ]);
+    expect(cards[0].headline).toBe("Similarly suited to your game.");
     expect(cards[0].reason?.text).toBe(cards[1].reason?.text);
+    expect(cards[0].benefits).toEqual([]);
     expect(cards[0].reason?.text).not.toMatch(/higher|lower|better/i);
   });
 
@@ -452,10 +463,195 @@ describe("B2a head card presentation", () => {
     expect(cards[0].role).toBe("SIMILAR");
   });
 
+  it("uses a recorded profile chip when scores match and the catalogue profile differs", () => {
+    const shared = {
+      catalogue_fit_score: 88,
+      catalogue_match_band: "EXCELLENT_MATCH" as const,
+      dimensions: { forgiveness: dim(true, 90) },
+    };
+    const lowSpin = score({
+      catalogue_key: "low",
+      ...shared,
+      presentation_chars: {
+        directional_bias: "NEUTRAL",
+        primary_head_profile: "LOW_SPIN",
+        launch_tendency: "LOW",
+      },
+    });
+    const forgiving = score({
+      catalogue_key: "max",
+      ...shared,
+      presentation_chars: {
+        directional_bias: "NEUTRAL",
+        primary_head_profile: "MAX_FORGIVENESS",
+        launch_tendency: "MID",
+      },
+    });
+    const lower = score({
+      catalogue_key: "lower",
+      catalogue_fit_score: 70,
+      catalogue_match_band: "GOOD_MATCH",
+      dimensions: { forgiveness: dim(true, 60) },
+      presentation_chars: {
+        directional_bias: "NEUTRAL",
+        primary_head_profile: "STANDARD",
+        launch_tendency: "MID",
+      },
+    });
+    const cards = presentNamedHeadCards(
+      [lowSpin, forgiving, lower],
+      [explanation("low"), explanation("max"), explanation("lower")],
+      requirements({ forgiveness_requirement: 5 })
+    );
+    expect(cards[0].reason?.text).toBe(cards[1].reason?.text);
+    expect(cards[0].reason?.text).not.toMatch(/higher|lower|better/i);
+    expect(cards[0].benefits.map((benefit) => benefit.text)).toContain(
+      "Recorded low-spin profile"
+    );
+    expect(cards[1].benefits.map((benefit) => benefit.text)).toContain(
+      "Recorded high-forgiveness profile"
+    );
+  });
+
   it("keeps a single recommendation unlabeled as a leader", () => {
     const only = score({ catalogue_key: "only", dimensions: { forgiveness: dim(true, 90) } });
     const card = presentNamedHeadCards([only], [explanation("only", { reasons: [CATALOGUE_HEAD_REASON.FORGIVENESS] })], requirements())[0];
     expect(card.role).toBeNull();
     expect(card.reason?.text).toBe("Forgiveness looks consistent with what you told us.");
+  });
+
+  it("changes the primary benefit when the golfer's answers change", () => {
+    const head = score({
+      catalogue_key: "shape",
+      dimensions: {
+        forgiveness: dim(true, 92),
+        workability: dim(true, 88),
+      },
+    });
+    const forgiving = presentHeadCard(
+      head,
+      explanation("shape"),
+      requirements({ forgiveness_requirement: 5 })
+    );
+    const workable = presentHeadCard(
+      head,
+      explanation("shape"),
+      requirements({ workability_preference: 4 })
+    );
+    expect(forgiving.headline).toBe("A strong option if forgiveness is your priority.");
+    expect(forgiving.reason?.code).toBe("FORGIVENESS");
+    expect(workable.headline).toBe("Worth considering if you like to shape shots.");
+    expect(workable.reason?.code).toBe("WORKABILITY");
+    expect(forgiving.reason?.text).not.toBe(workable.reason?.text);
+  });
+
+  it("leads with the trait that actually separates two heads", () => {
+    const forgiving = score({
+      catalogue_key: "forgiving",
+      dimensions: {
+        forgiveness: dim(true, 96),
+        workability: dim(true, 70),
+      },
+    });
+    const workable = score({
+      catalogue_key: "workable",
+      dimensions: {
+        forgiveness: dim(true, 74),
+        workability: dim(true, 95),
+      },
+    });
+    const req = requirements({
+      forgiveness_requirement: 4,
+      workability_preference: 4,
+    });
+    const cards = presentNamedHeadCards(
+      [forgiving, workable],
+      [explanation("forgiving"), explanation("workable")],
+      req
+    );
+    expect(cards[0].reason?.code).toBe("FORGIVENESS");
+    expect(cards[1].reason?.code).toBe("WORKABILITY");
+    expect(cards[0].benefits.map((benefit) => benefit.code)).toEqual(["FORGIVENESS"]);
+    expect(cards[1].benefits.map((benefit) => benefit.code)).toEqual(["WORKABILITY"]);
+    expect(cards[0].reason?.text).not.toBe(cards[1].reason?.text);
+  });
+
+  it("does not invent a benefit from a missing characteristic or an unknown flight", () => {
+    const head = score({
+      catalogue_key: "thin",
+      dimensions: {
+        forgiveness: dim(false, null),
+        head_launch: dim(true, 100),
+      },
+    });
+    const card = presentHeadCard(
+      head,
+      explanation("thin"),
+      requirements({
+        forgiveness_requirement: 5,
+        head_launch_target: "UNRESOLVED",
+        head_launch_target_numeric: null,
+      })
+    );
+    expect(card.headline).toBeNull();
+    expect(card.benefits).toEqual([]);
+    expect(card.reason?.text ?? "").not.toMatch(/forgiv|flight|launch/i);
+  });
+
+  it("keeps a medium-confidence recommendation from sounding certain", () => {
+    const head = score({
+      catalogue_key: "unsure",
+      head_recommendation_confidence: "MEDIUM",
+      active_catalogue_dim_count: 3,
+      dimensions: { forgiveness: dim(true, 96) },
+    });
+    const card = presentHeadCard(
+      head,
+      explanation("unsure", { reasons: [CATALOGUE_HEAD_REASON.FORGIVENESS] }),
+      requirements({ forgiveness_requirement: 5 }),
+      [head]
+    );
+    expect(card.headline).toBe("Worth considering, with some evidence still open.");
+    expect(card.benefits).toEqual([]);
+    expect(card.reason?.text).toMatch(/evidence is still open/i);
+    expect(card.reason?.text).not.toMatch(/guaranteed|will add|perfect|yards/i);
+  });
+
+  it("traces every benefit chip to an active dimension the golfer asked about", () => {
+    const head = score({
+      catalogue_key: "traced",
+      dimensions: {
+        forgiveness: dim(true, 90),
+        stability: dim(true, 88),
+        workability: dim(false, null),
+        direction: dim(true, 40),
+        head_launch: dim(true, 95),
+      },
+    });
+    const req = requirements({
+      forgiveness_requirement: 4,
+      stability_requirement: 4,
+      directional_target_numeric: 1,
+      head_launch_target: "MID",
+      head_launch_target_numeric: 2,
+    });
+    const card = presentHeadCard(head, explanation("traced"), req);
+    expect(card.benefits.length).toBeGreaterThan(0);
+    expect(card.benefits.length).toBeLessThanOrEqual(2);
+    for (const benefit of card.benefits) {
+      expect(benefit.text.length).toBeGreaterThan(0);
+      const key =
+        benefit.code === "FORGIVENESS"
+          ? "forgiveness"
+          : benefit.code === "STABILITY"
+            ? "stability"
+            : benefit.code === "WORKABILITY"
+              ? "workability"
+              : benefit.code === "DIRECTION"
+                ? "direction"
+                : "head_launch";
+      expect(head.dimensions[key]?.active).toBe(true);
+      expect(["DIRECTION"]).not.toContain(benefit.code);
+    }
   });
 });

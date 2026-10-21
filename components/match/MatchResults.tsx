@@ -9,6 +9,7 @@ import { track } from "@/lib/analytics";
 import {
   EQUAL_HEAD_SCORE_MESSAGE,
   namedHeadsScoredEqually,
+  presentNamedHeadCards,
 } from "@/lib/match/app/present-head-card";
 import { presentAttachedListingLabels } from "@/lib/match/app/present-listing-labels";
 import { loadMatchAnswers } from "@/lib/match/app/session-storage";
@@ -29,10 +30,41 @@ export function MatchResults() {
       if (raw) {
         const parsed = JSON.parse(raw) as CatalogueRecommendResult;
         setResult(parsed);
+        const named =
+          parsed.mode === "NAMED_HEADS" ? parsed.recommendations : [];
+        const cards =
+          parsed.mode === "NAMED_HEADS"
+            ? presentNamedHeadCards(
+                named,
+                parsed.explanations,
+                parsed.normalised_requirements
+              )
+            : [];
+        const attached =
+          parsed.mode === "NAMED_HEADS"
+            ? parsed.recommendations.flatMap(
+                (rec) =>
+                  parsed.inventory_attachments?.find(
+                    (attachment) => attachment.catalogue_key === rec.catalogue_key
+                  )?.items ?? []
+              )
+            : [];
+        const roles = presentAttachedListingLabels(
+          attached,
+          rawBudget && Number.isFinite(parsedBudget) ? parsedBudget : null
+        );
+        const listingLabelCount = (code: "BEST_MATCH" | "BEST_VALUE" | "BUDGET_OPTION") =>
+          Array.from(roles.values()).filter((labels) => labels.includes(code)).length;
         track("match_recommendations_viewed", {
           ...ADMIN_PREVIEW_PROPS,
           mode: parsed.mode,
           named_count: parsed.recommendations?.length ?? 0,
+          top_head_matches: cards.filter((card) => card.role === "BEST_SUPPORTED").length,
+          alternative_head_matches: cards.filter((card) => card.role === "ALTERNATIVE").length,
+          similarly_suitable: cards.filter((card) => card.role === "SIMILAR").length,
+          best_match_listings: listingLabelCount("BEST_MATCH"),
+          best_value_listings: listingLabelCount("BEST_VALUE"),
+          budget_option_listings: listingLabelCount("BUDGET_OPTION"),
         });
       }
     } catch {
