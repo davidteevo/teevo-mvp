@@ -208,7 +208,7 @@ export function scoreCandidate(input: {
   // flex
   if (req.shaft_flex_min_value == null || req.shaft_flex_max_value == null) {
     dims.flex = inactive("flex", "REQUIREMENT_UNRESOLVED");
-  } else if (shaft.match_flex_mapping_status === "UNMAPPED_TO_NORMALISED_FLEX") {
+  } else if (shaft.match_flex_mapping_status !== "MAPPED") {
     dims.flex = inactive("flex", "SHAFT_FLEX_UNMAPPED");
     considerations.add("SHAFT_FLEX_UNMAPPED");
   } else {
@@ -229,12 +229,18 @@ export function scoreCandidate(input: {
   } else {
     const wt = num(shaft.actual_weight_g);
     const wconf = String(shaft.match_weight_confidence || "");
-    if (wt == null || wconf === "UNRESOLVED" || wconf === "NOT_APPLICABLE") {
+    const weightReliability = evidenceReliability(wconf);
+    if (
+      wt == null ||
+      wconf === "UNRESOLVED" ||
+      wconf === "NOT_APPLICABLE" ||
+      weightReliability <= 0
+    ) {
       dims.weight = inactive("weight", "SHAFT_WEIGHT_UNKNOWN");
       considerations.add("SHAFT_WEIGHT_UNKNOWN");
     } else {
       const gap = rangeGap(wt, req.shaft_weight_min_g, req.shaft_weight_max_g);
-      dims.weight = activeDim("weight", evidenceReliability(wconf) || 1, scoreWeight(gap));
+      dims.weight = activeDim("weight", weightReliability, scoreWeight(gap));
     }
   }
 
