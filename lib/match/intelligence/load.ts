@@ -5,6 +5,7 @@ import {
   canonicalBrandId,
   type BrandRegistry,
 } from "../brands";
+import { loadShaftIdentitySupplement } from "../shaft-identity-supplement";
 import { deepFreezeRecord } from "../util";
 
 export type HeadRecord = {
@@ -96,6 +97,16 @@ export function loadMatchIntelligence(
   const frozenShafts: ReadonlyShaftRecord[] = parseTable(shaftsRaw).map((s) =>
     deepFreezeRecord(s as ShaftRecord)
   );
+  const supplement = loadShaftIdentitySupplement(
+    referenceDirectory,
+    frozenShafts
+  );
+  const resolutionShafts: ReadonlyShaftRecord[] = supplement.ok
+    ? [
+        ...frozenShafts,
+        ...supplement.identities.map((row) => deepFreezeRecord(row)),
+      ]
+    : frozenShafts;
 
   const headsByKey: Record<string, ReadonlyHeadRecord> = {};
   for (const h of frozenHeads) {
@@ -103,7 +114,7 @@ export function loadMatchIntelligence(
     if (typeof key === "string" && key) headsByKey[key] = h;
   }
   const shaftsByKey: Record<string, ReadonlyShaftRecord> = {};
-  for (const s of frozenShafts) {
+  for (const s of resolutionShafts) {
     const key = s.shaft_key;
     if (typeof key === "string" && key) shaftsByKey[key] = s;
   }
@@ -116,7 +127,7 @@ export function loadMatchIntelligence(
 
   return Object.freeze({
     heads: Object.freeze(frozenHeads),
-    shafts: Object.freeze(frozenShafts),
+    shafts: Object.freeze(resolutionShafts),
     headsByKey: Object.freeze(headsByKey),
     shaftsByKey: Object.freeze(shaftsByKey),
     eligibleHeads: Object.freeze(eligibleHeads),

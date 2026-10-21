@@ -4,6 +4,9 @@ var MATCH_UK_HEAD_RELEVANCE_VERSION = "MATCH_UK_HEAD_RELEVANCE_V1";
 // lib/match/head-config-overlay.ts
 var MATCH_HEAD_CONFIG_OVERLAY_VERSION = "MATCH_HEAD_CONFIG_OVERLAY_V1";
 
+// lib/match/shaft-identity-policy.ts
+var MATCH_SHAFT_IDENTITY_SUPPLEMENT_VERSION = "SHAFT_IDENTITY_SUPPLEMENT_V1";
+
 // lib/match/versions.ts
 var MATCH_CONTRACT_VERSION = "MATCH_DRIVER_CONTRACT_V1.3";
 var MATCH_LOGIC_VERSION = "DRIVER_MATCH_LOGIC_V1.2";
@@ -840,8 +843,8 @@ function golferEvidenceConfidence(raw, flags) {
 }
 
 // lib/match/intelligence/load.ts
-import { readFileSync } from "fs";
-import { join } from "path";
+import { readFileSync as readFileSync2 } from "fs";
+import { join as join2 } from "path";
 
 // lib/match/brands.ts
 function canonicalBrandId(brand) {
@@ -910,6 +913,82 @@ function validateBrandSelection(selected, registry) {
   };
 }
 
+// lib/match/shaft-identity-supplement.ts
+import { readFileSync } from "fs";
+import { join } from "path";
+var REQUIRED_TEXT = [
+  "shaft_key",
+  "manufacturer",
+  "oem_brand",
+  "model",
+  "display_name",
+  "generation",
+  "flex",
+  "aliases",
+  "source_1_url"
+];
+function text(value) {
+  return typeof value === "string" ? value.trim() : "";
+}
+function validateShaftIdentitySupplement(parsed, frozenShafts) {
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    return { ok: false, reason: "MALFORMED_SUPPLEMENT", identities: [] };
+  }
+  const body = parsed;
+  if (body.supplement_version !== MATCH_SHAFT_IDENTITY_SUPPLEMENT_VERSION) {
+    return { ok: false, reason: "SUPPLEMENT_VERSION_REJECTED", identities: [] };
+  }
+  if (!Array.isArray(body.identities)) {
+    return { ok: false, reason: "MALFORMED_SUPPLEMENT", identities: [] };
+  }
+  const frozenKeys = new Set(
+    frozenShafts.map((row) => row.shaft_key).filter((key) => typeof key === "string" && key.length > 0)
+  );
+  const seen = /* @__PURE__ */ new Set();
+  const identities = [];
+  for (const row of body.identities) {
+    if (!row || typeof row !== "object" || Array.isArray(row)) {
+      return { ok: false, reason: "MALFORMED_IDENTITY", identities: [] };
+    }
+    const identity = row;
+    for (const field of REQUIRED_TEXT) {
+      if (!text(identity[field])) {
+        return { ok: false, reason: "MALFORMED_IDENTITY", identities: [] };
+      }
+    }
+    if (identity.match_eligibility !== "RECOGNITION_ONLY") {
+      return { ok: false, reason: "MALFORMED_IDENTITY", identities: [] };
+    }
+    if (identity.intelligence_version !== MATCH_SHAFT_IDENTITY_SUPPLEMENT_VERSION) {
+      return { ok: false, reason: "MALFORMED_IDENTITY", identities: [] };
+    }
+    const weight = identity.actual_weight_g;
+    if (weight != null && (typeof weight !== "number" || !Number.isFinite(weight))) {
+      return { ok: false, reason: "MALFORMED_IDENTITY", identities: [] };
+    }
+    const key = text(identity.shaft_key);
+    if (seen.has(key) || frozenKeys.has(key)) {
+      return { ok: false, reason: "DUPLICATE_CANONICAL_KEY", identities: [] };
+    }
+    seen.add(key);
+    identities.push(identity);
+  }
+  return { ok: true, reason: null, identities };
+}
+function loadShaftIdentitySupplement(referenceDirectory, frozenShafts) {
+  try {
+    const parsed = JSON.parse(
+      readFileSync(
+        join(referenceDirectory, "shaft-identity-supplement.v1.json"),
+        "utf8"
+      )
+    );
+    return validateShaftIdentitySupplement(parsed, frozenShafts);
+  } catch {
+    return { ok: false, reason: "SUPPLEMENT_UNAVAILABLE", identities: [] };
+  }
+}
+
 // lib/match/intelligence/load.ts
 function parseTable(raw) {
   if (!Array.isArray(raw) || raw.length < 2 || !Array.isArray(raw[0])) {
@@ -930,10 +1009,10 @@ function isEligibleHead(h) {
 }
 function loadMatchIntelligence(referenceDirectory) {
   const headsRaw = JSON.parse(
-    readFileSync(join(referenceDirectory, "heads.json"), "utf8")
+    readFileSync2(join2(referenceDirectory, "heads.json"), "utf8")
   );
   const shaftsRaw = JSON.parse(
-    readFileSync(join(referenceDirectory, "shafts.json"), "utf8")
+    readFileSync2(join2(referenceDirectory, "shafts.json"), "utf8")
   );
   const frozenHeads = parseTable(headsRaw).map(
     (h) => deepFreezeRecord(h)
@@ -941,13 +1020,21 @@ function loadMatchIntelligence(referenceDirectory) {
   const frozenShafts = parseTable(shaftsRaw).map(
     (s) => deepFreezeRecord(s)
   );
+  const supplement = loadShaftIdentitySupplement(
+    referenceDirectory,
+    frozenShafts
+  );
+  const resolutionShafts = supplement.ok ? [
+    ...frozenShafts,
+    ...supplement.identities.map((row) => deepFreezeRecord(row))
+  ] : frozenShafts;
   const headsByKey = {};
   for (const h of frozenHeads) {
     const key = h.catalogue_key;
     if (typeof key === "string" && key) headsByKey[key] = h;
   }
   const shaftsByKey = {};
-  for (const s of frozenShafts) {
+  for (const s of resolutionShafts) {
     const key = s.shaft_key;
     if (typeof key === "string" && key) shaftsByKey[key] = s;
   }
@@ -958,7 +1045,7 @@ function loadMatchIntelligence(referenceDirectory) {
   const brandRegistry = buildBrandRegistry(frozenHeads);
   return Object.freeze({
     heads: Object.freeze(frozenHeads),
-    shafts: Object.freeze(frozenShafts),
+    shafts: Object.freeze(resolutionShafts),
     headsByKey: Object.freeze(headsByKey),
     shaftsByKey: Object.freeze(shaftsByKey),
     eligibleHeads: Object.freeze(eligibleHeads),
@@ -1183,7 +1270,7 @@ function scoreCandidate(input) {
   }
   if (req.shaft_flex_min_value == null || req.shaft_flex_max_value == null) {
     dims.flex = inactive("flex", "REQUIREMENT_UNRESOLVED");
-  } else if (shaft.match_flex_mapping_status === "UNMAPPED_TO_NORMALISED_FLEX") {
+  } else if (shaft.match_flex_mapping_status !== "MAPPED") {
     dims.flex = inactive("flex", "SHAFT_FLEX_UNMAPPED");
     considerations.add("SHAFT_FLEX_UNMAPPED");
   } else {
@@ -1202,12 +1289,13 @@ function scoreCandidate(input) {
   } else {
     const wt = num(shaft.actual_weight_g);
     const wconf = String(shaft.match_weight_confidence || "");
-    if (wt == null || wconf === "UNRESOLVED" || wconf === "NOT_APPLICABLE") {
+    const weightReliability = evidenceReliability(wconf);
+    if (wt == null || wconf === "UNRESOLVED" || wconf === "NOT_APPLICABLE" || weightReliability <= 0) {
       dims.weight = inactive("weight", "SHAFT_WEIGHT_UNKNOWN");
       considerations.add("SHAFT_WEIGHT_UNKNOWN");
     } else {
       const gap = rangeGap(wt, req.shaft_weight_min_g, req.shaft_weight_max_g);
-      dims.weight = activeDim("weight", evidenceReliability(wconf) || 1, scoreWeight(gap));
+      dims.weight = activeDim("weight", weightReliability, scoreWeight(gap));
     }
   }
   if (req.shaft_launch_target === "UNRESOLVED" || req.shaft_launch_target_numeric == null) {

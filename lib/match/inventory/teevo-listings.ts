@@ -3,7 +3,12 @@ import {
   isListingPurchasable,
   PUBLIC_MARKETPLACE_STATUSES,
 } from "@/lib/listing-availability";
-import { resolveHeadIdentity, resolveShaftIdentity } from "../identity";
+import {
+  collectShaftIdentityMatches,
+  resolveHeadIdentity,
+  resolveShaftIdentity,
+} from "../identity";
+import { isProtectedShaftPhrase } from "../shaft-identity-policy";
 import type { MatchIntelligence } from "../intelligence/load";
 import type {
   MatchIdentityResolutionStatus,
@@ -78,7 +83,12 @@ export function mapTeevoListingToInventoryItem(
     shaft: row.shaft,
     flex: row.shaft_flex,
   };
+  const shaftMatches = collectShaftIdentityMatches(
+    shaftEvidence,
+    intelligence.shafts
+  );
   const shaftRes = resolveShaftIdentity(shaftEvidence, intelligence.shafts);
+  const shaftScorable = Boolean(shaftRes.eligible && shaftRes.resolved_key);
 
   const purchasable = isListingPurchasable(row);
   const evidence: string[] = [];
@@ -88,13 +98,28 @@ export function mapTeevoListingToInventoryItem(
   if (row.shaft_flex) evidence.push(`flex:${row.shaft_flex}`);
   if (headRes.reason) evidence.push(`head:${headRes.reason}`);
   if (shaftRes.reason) evidence.push(`shaft_res:${shaftRes.reason}`);
+  if (shaftRes.reason === "AMBIGUOUS_IDENTITY") {
+    const keys = shaftMatches.map((match) => match.key);
+    evidence.push(`shaft_candidates:${keys.join("|") || "none"}`);
+    const eligible = shaftMatches.some(
+      (match) => match.eligibility === "MATCH_ELIGIBLE"
+    );
+    const recognition = shaftMatches.some(
+      (match) => match.eligibility !== "MATCH_ELIGIBLE"
+    );
+    if (isProtectedShaftPhrase(row.shaft) && !(eligible && recognition)) {
+      evidence.push("shaft_fail_closed:protected_phrase");
+    }
+  } else if (shaftRes.resolved_key && !shaftScorable) {
+    evidence.push(`shaft_identity_blocked:${shaftRes.resolved_key}`);
+  }
 
   return {
     source_listing_id: row.id,
     merchant_id: row.user_id,
     source_type: "TEEVO_LISTING",
     head_key: headRes.resolved_key,
-    shaft_key: shaftRes.resolved_key,
+    shaft_key: shaftScorable ? shaftRes.resolved_key : null,
     listed_config: {
       brand: row.brand,
       model: row.model,
@@ -113,7 +138,7 @@ export function mapTeevoListingToInventoryItem(
       head_resolution: resolutionStatus(headRes.reason, headRes.resolved_key),
       shaft_resolution: resolutionStatus(
         shaftRes.reason,
-        shaftRes.resolved_key
+        shaftScorable ? shaftRes.resolved_key : null
       ),
       evidence,
     },

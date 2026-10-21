@@ -2,6 +2,11 @@ import type {
   ReadonlyHeadRecord,
   ReadonlyShaftRecord,
 } from "./intelligence/load";
+import {
+  isProtectedShaftPhrase,
+  nominalWeightOverlapsOem,
+  normaliseShaftPhrase,
+} from "./shaft-identity-policy";
 import { firstMapValue } from "./util";
 
 export type IdentityMatch = {
@@ -30,6 +35,7 @@ export type ShaftIdentityEvidence = {
   display_name?: string | null;
   flex?: string | null;
   actual_weight_g?: number | null;
+  generation?: string | null;
 };
 
 /**
@@ -66,14 +72,8 @@ export function resolveIdentity(
   };
 }
 
-function norm(s: unknown): string {
-  if (s == null) return "";
-  return String(s)
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+function norm(value: unknown): string {
+  return normaliseShaftPhrase(value);
 }
 
 function splitAliases(val: unknown): string[] {
@@ -248,9 +248,40 @@ export function resolveHeadIdentity(
   return resolveIdentity(collectHeadIdentityMatches(evidence, heads));
 }
 
+const AMBIGUOUS: IdentityResolution = {
+  resolved_key: null,
+  eligible: false,
+  reason: "AMBIGUOUS_IDENTITY",
+};
+
 export function resolveShaftIdentity(
   evidence: ShaftIdentityEvidence,
   shafts: ReadonlyArray<ReadonlyShaftRecord>
 ): IdentityResolution {
-  return resolveIdentity(collectShaftIdentityMatches(evidence, shafts));
+  const collected = collectShaftIdentityMatches(evidence, shafts);
+  const generation = norm(evidence.generation);
+  const weight = evidence.actual_weight_g;
+  let removedOverlap = false;
+  const matches = collected.filter((match) => {
+    if (weight == null || !Number.isFinite(weight)) return true;
+    if (!nominalWeightOverlapsOem(match.key, weight)) return true;
+    const shaft = shafts.find((row) => row.shaft_key === match.key);
+    if (generation && shaft && norm(shaft.generation) === generation) return true;
+    removedOverlap = true;
+    return false;
+  });
+  if (removedOverlap && matches.length === 0) return AMBIGUOUS;
+
+  const resolution = resolveIdentity(matches);
+  const protectedPhrase =
+    isProtectedShaftPhrase(evidence.shaft) ||
+    isProtectedShaftPhrase(evidence.display_name);
+  if (!protectedPhrase) return resolution;
+
+  const eligible = matches.some((match) => match.eligibility === "MATCH_ELIGIBLE");
+  const recognition = matches.some(
+    (match) => match.eligibility !== "MATCH_ELIGIBLE"
+  );
+  if (eligible && recognition) return resolution;
+  return AMBIGUOUS;
 }
