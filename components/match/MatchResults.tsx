@@ -10,15 +10,21 @@ import {
   EQUAL_HEAD_SCORE_MESSAGE,
   namedHeadsScoredEqually,
 } from "@/lib/match/app/present-head-card";
+import { presentAttachedListingLabels } from "@/lib/match/app/present-listing-labels";
+import { loadMatchAnswers } from "@/lib/match/app/session-storage";
 import type { CatalogueRecommendResult } from "@/lib/match/catalogue-types";
 
 const ADMIN_PREVIEW_PROPS = { surface: "admin_preview" as const };
 
 export function MatchResults() {
   const [result, setResult] = useState<CatalogueRecommendResult | null>(null);
+  const [budgetGbp, setBudgetGbp] = useState<number | null>(null);
 
   useEffect(() => {
     try {
+      const rawBudget = loadMatchAnswers().budget_max_gbp.trim();
+      const parsedBudget = Number(rawBudget);
+      setBudgetGbp(rawBudget && Number.isFinite(parsedBudget) ? parsedBudget : null);
       const raw = sessionStorage.getItem("teevo_match_admin_results_v1");
       if (raw) {
         const parsed = JSON.parse(raw) as CatalogueRecommendResult;
@@ -66,25 +72,56 @@ export function MatchResults() {
     })
   );
 
+  const listingRows =
+    result.mode === "NAMED_HEADS"
+      ? result.recommendations.flatMap(
+          (rec) =>
+            result.inventory_attachments?.find(
+              (attachment) => attachment.catalogue_key === rec.catalogue_key
+            )?.items ?? []
+        )
+      : [];
+  const listingRoles = presentAttachedListingLabels(listingRows, budgetGbp);
+  const anyListing = listingRows.length > 0;
+
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="max-w-6xl space-y-6">
       {result.mode === "NAMED_HEADS" ? (
         <>
           <ResultsHeading />
-          <ul className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {result.recommendations.map((rec, i) => (
               <li key={rec.catalogue_key} className="min-w-0">
                 <RecommendationHeadCard
                   score={rec}
+                  peers={result.recommendations}
                   explanation={result.explanations[i]}
                   requirements={result.normalised_requirements}
+                  listings={
+                    result.inventory_attachments?.find(
+                      (attachment) => attachment.catalogue_key === rec.catalogue_key
+                    )?.items ?? []
+                  }
+                  listingRoles={listingRoles}
+                  showEmptyListing={anyListing}
                 />
               </li>
             ))}
           </ul>
           {hasEqualFitAmongNamed ? (
-            <p className="text-sm text-mowing-green/80">{EQUAL_HEAD_SCORE_MESSAGE}</p>
+            <div className="rounded-xl bg-par-3-punch/10 px-4 py-3 text-sm text-mowing-green">
+              <p className="font-semibold">Similar suitability</p>
+              <p className="mt-1 text-mowing-green/80">{EQUAL_HEAD_SCORE_MESSAGE}</p>
+            </div>
           ) : null}
+          {anyListing ? null : (
+            <div className="rounded-xl border border-mowing-green/15 bg-white px-4 py-3 text-sm text-mowing-green">
+              <p className="font-semibold">No matching Teevo listings right now</p>
+              <p className="mt-1 text-mowing-green/80">
+                The model-level recommendation still applies.
+              </p>
+            </div>
+          )}
         </>
       ) : (
         <div>
@@ -163,79 +200,6 @@ export function MatchResults() {
           ))}
         </ul>
       </section>
-
-      {result.mode === "NAMED_HEADS" &&
-        result.recommendations.map((rec) => {
-          const attach = result.inventory_attachments?.find(
-            (a) => a.catalogue_key === rec.catalogue_key
-          );
-          const items = attach?.items ?? [];
-          return (
-            <section
-              key={`inv-${rec.catalogue_key}`}
-              className="rounded-xl border border-dashed border-mowing-green/25 p-4 space-y-2"
-            >
-              <h2 className="text-sm font-semibold text-mowing-green">
-                Available on Teevo —{" "}
-                {rec.display_name ||
-                  [rec.brand, rec.model].filter(Boolean).join(" ")}
-              </h2>
-              {items.length === 0 ? (
-                <p className="text-sm text-mowing-green/70">
-                  No matching Teevo listings for this model right now (correct
-                  handedness and unique identity required). Equipment
-                  recommendation above still applies.
-                </p>
-              ) : (
-                <ul className="space-y-2">
-                  {items.map((row) => (
-                    <li
-                      key={row.item.source_listing_id}
-                      className="rounded-lg border border-mowing-green/15 bg-white px-3 py-2 text-sm"
-                    >
-                      <a
-                        href={`/listing/${row.item.source_listing_id}`}
-                        className="font-semibold text-mowing-green underline"
-                        onClick={() =>
-                          track("match_listing_clicked", {
-                            ...ADMIN_PREVIEW_PROPS,
-                            catalogue_key: rec.catalogue_key,
-                            listing_id: row.item.source_listing_id,
-                            attach_mode: row.attach_mode,
-                          })
-                        }
-                      >
-                        £{(row.item.price_minor / 100).toFixed(2)}
-                      </a>
-                      <span className="text-mowing-green/70">
-                        {" "}
-                        · {row.item.condition || "Condition n/a"} ·{" "}
-                        {row.item.availability_status}
-                      </span>
-                      {row.unverified_shaft ? (
-                        <p className="text-xs text-par-3-punch mt-1">
-                          Shaft identity unverified — configuration not fully
-                          matched.
-                        </p>
-                      ) : null}
-                      {row.listing_match ? (
-                        <p className="text-xs text-mowing-green/70 mt-1">
-                          Listing Match: {row.listing_match.match_band.replace(/_/g, " ")}{" "}
-                          · {row.listing_match.confidence} confidence
-                        </p>
-                      ) : row.attach_mode === "HEAD_ONLY" &&
-                        !row.unverified_shaft ? (
-                        <p className="text-xs text-mowing-green/60 mt-1">
-                          Listed for this head — full Match badge not available.
-                        </p>
-                      ) : null}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          );
-        })}
 
       {result.mode !== "NAMED_HEADS" ? (
         <section className="rounded-xl border border-dashed border-mowing-green/25 p-4">

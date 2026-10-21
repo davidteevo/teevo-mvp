@@ -348,4 +348,114 @@ describe("B2a head card presentation", () => {
     expect(card.title).not.toContain("2019");
     expect(cardText(card)).not.toContain("73.21");
   });
+
+  it("names a distinct leader and states only a real dimension gap", () => {
+    const leader = score({
+      catalogue_key: "leader",
+      display_name: "Leader Driver",
+      catalogue_fit_score: 92,
+      catalogue_match_band: "EXCELLENT_MATCH",
+      dimensions: {
+        forgiveness: dim(true, 96),
+        stability: dim(true, 80),
+      },
+    });
+    const other = score({
+      catalogue_key: "other",
+      display_name: "Other Driver",
+      catalogue_fit_score: 80,
+      catalogue_match_band: "VERY_GOOD_MATCH",
+      dimensions: {
+        forgiveness: dim(true, 70),
+        stability: dim(true, 90),
+      },
+    });
+    const peers = [leader, other];
+    const req = requirements({ forgiveness_requirement: 4 });
+    const leadCard = presentHeadCard(leader, explanation("leader", { reasons: [CATALOGUE_HEAD_REASON.FORGIVENESS] }), req, peers);
+    const otherCard = presentHeadCard(other, explanation("other", { reasons: [CATALOGUE_HEAD_REASON.FORGIVENESS] }), req, peers);
+    expect(leadCard.role).toBe("BEST_SUPPORTED");
+    expect(leadCard.roleLabel).toBe("Best-supported head");
+    expect(otherCard.role).toBe("ALTERNATIVE");
+    expect(otherCard.roleLabel).toBe("Alternative");
+    expect(leadCard.reason?.text).toBe(
+      "Forgiveness scores higher on this head than on the other recommended heads."
+    );
+    expect(otherCard.reason?.text).toBe(
+      "Forgiveness scores lower on this head than on the other recommended heads."
+    );
+    expect(leadCard.reason?.text).not.toMatch(/will |yards|distance/i);
+    expect(leadCard.confidenceLabel).toBe("High evidence confidence");
+    expect(leadCard.assessedLabel).toBe("5 of 5 characteristics assessed");
+  });
+
+  it("does not invent a winner or a difference when Fit and dimensions match", () => {
+    const shared = {
+      catalogue_fit_score: 88,
+      catalogue_match_band: "EXCELLENT_MATCH" as const,
+      dimensions: {
+        forgiveness: dim(true, 90),
+        stability: dim(true, 90),
+      },
+      presentation_chars: {
+        directional_bias: "NEUTRAL",
+        primary_head_profile: "MAX_FORGIVENESS",
+        launch_tendency: "MID",
+      },
+    };
+    const a = score({ catalogue_key: "a", display_name: "Alpha Driver", ...shared });
+    const b = score({ catalogue_key: "b", display_name: "Beta Driver", ...shared });
+    const cards = presentNamedHeadCards(
+      [a, b],
+      [explanation("a", { reasons: [CATALOGUE_HEAD_REASON.FORGIVENESS] }), explanation("b", { reasons: [CATALOGUE_HEAD_REASON.FORGIVENESS] })],
+      requirements({ forgiveness_requirement: 4 })
+    );
+    expect(cards.map((card) => card.role)).toEqual(["SIMILAR", "SIMILAR"]);
+    expect(cards.every((card) => card.roleLabel == null)).toBe(true);
+    expect(cards[0].reason?.text).toBe(cards[1].reason?.text);
+    expect(cards[0].reason?.text).not.toMatch(/higher|lower|better/i);
+  });
+
+  it("uses a recorded profile only when Fit is tied and the profile actually differs", () => {
+    const base = {
+      catalogue_fit_score: 88,
+      catalogue_match_band: "EXCELLENT_MATCH" as const,
+      dimensions: { forgiveness: dim(true, 90) },
+    };
+    const draw = score({
+      catalogue_key: "draw",
+      ...base,
+      presentation_chars: {
+        directional_bias: "STRONG_DRAW",
+        primary_head_profile: "DRAW_BIASED",
+        launch_tendency: "MID",
+      },
+    });
+    const players = score({
+      catalogue_key: "players",
+      ...base,
+      presentation_chars: {
+        directional_bias: "FADE",
+        primary_head_profile: "PLAYERS",
+        launch_tendency: "MID",
+      },
+    });
+    const cards = presentNamedHeadCards(
+      [draw, players],
+      [explanation("draw"), explanation("players")],
+      requirements()
+    );
+    expect(cards[0].reason?.source).toBe("profile");
+    expect(cards[0].reason?.text).toContain("draw-biased profile");
+    expect(cards[0].reason?.text).toContain("not a ranking");
+    expect(cards[1].reason?.text).toContain("players profile");
+    expect(cards[0].role).toBe("SIMILAR");
+  });
+
+  it("keeps a single recommendation unlabeled as a leader", () => {
+    const only = score({ catalogue_key: "only", dimensions: { forgiveness: dim(true, 90) } });
+    const card = presentNamedHeadCards([only], [explanation("only", { reasons: [CATALOGUE_HEAD_REASON.FORGIVENESS] })], requirements())[0];
+    expect(card.role).toBeNull();
+    expect(card.reason?.text).toBe("Forgiveness looks consistent with what you told us.");
+  });
 });

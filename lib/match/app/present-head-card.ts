@@ -2,7 +2,8 @@ import type {
   CatalogueHeadExplanation,
   CatalogueHeadScore,
 } from "../catalogue-types";
-import type { Band, NormalisedRequirements } from "../types";
+import { BAND_RANK } from "../bands";
+import type { Band, ConfidenceBand, NormalisedRequirements } from "../types";
 import {
   CATALOGUE_HEAD_REASON,
   type CatalogueHeadReasonCode,
@@ -56,9 +57,18 @@ const REASON_CODE_BY_TEXT = new Map<string, CatalogueHeadReasonCode>(
 );
 
 export type HeadCardReason = {
-  source: "recognised" | "summary";
+  source: "recognised" | "summary" | "comparison" | "profile";
   code: CatalogueHeadReasonCode | null;
   text: string;
+};
+
+/** Catalogue role. Commercial listing labels are assigned separately. */
+export type HeadCardRole = "BEST_SUPPORTED" | "ALTERNATIVE" | "SIMILAR";
+
+export const HEAD_CARD_ROLE_LABEL: Record<HeadCardRole, string | null> = {
+  BEST_SUPPORTED: "Best-supported head",
+  ALTERNATIVE: "Alternative",
+  SIMILAR: null,
 };
 
 export type HeadCardCaveatKind =
@@ -78,7 +88,13 @@ export type HeadCardCaveat = {
 export type PresentedHeadCard = {
   catalogueKey: string;
   title: string;
+  /** Head-suitability role. Null when this card is shown on its own. */
+  role: HeadCardRole | null;
+  roleLabel: string | null;
   bandLabel: string | null;
+  confidenceLabel: string | null;
+  /** Face line, distinct from the details coverage sentence. */
+  assessedLabel: string | null;
   reason: HeadCardReason | null;
   caveat: HeadCardCaveat | null;
   details: {
@@ -94,6 +110,147 @@ export type PresentedHeadCard = {
 export function headSuitabilityBandLabel(band: Band | null | undefined): string | null {
   if (!band) return null;
   return HEAD_SUITABILITY_BAND_LABEL[band] ?? null;
+}
+
+export function headEvidenceConfidenceLabel(
+  confidence: ConfidenceBand | null | undefined
+): string | null {
+  if (confidence === "HIGH") return "High evidence confidence";
+  if (confidence === "MEDIUM") return "Medium evidence confidence";
+  if (confidence === "LOW") return "Low evidence confidence";
+  return null;
+}
+
+const COMPARED_DIMENSIONS: Array<{
+  key: "forgiveness" | "stability" | "workability" | "direction" | "head_launch";
+  noun: string;
+  code: CatalogueHeadReasonCode;
+}> = [
+  { key: "forgiveness", noun: "Forgiveness", code: "FORGIVENESS" },
+  { key: "stability", noun: "Stability", code: "STABILITY" },
+  { key: "workability", noun: "Shot shaping", code: "WORKABILITY" },
+  { key: "direction", noun: "Shot shape", code: "DIRECTION" },
+  { key: "head_launch", noun: "Launch", code: "LAUNCH" },
+];
+
+const KNOWN_HEAD_PROFILE: Record<string, string> = {
+  MAX_FORGIVENESS: "a high-forgiveness profile",
+  STANDARD: "a standard profile",
+  LOW_SPIN: "a low-spin profile",
+  DRAW_BIASED: "a draw-biased profile",
+  PLAYERS: "a players profile",
+  HIGH_LAUNCH: "a high-launch profile",
+};
+
+const KNOWN_DIRECTIONAL_BIAS: Record<string, string> = {
+  NEUTRAL: "neutral",
+  FADE: "a fade",
+  STRONG_FADE: "a strong fade",
+  DRAW: "a draw",
+  STRONG_DRAW: "a strong draw",
+};
+
+function activeDimensionScore(score: CatalogueHeadScore, key: string): number | null {
+  const trace = score.dimensions[key];
+  if (!trace?.active || trace.score == null || !Number.isFinite(trace.score)) return null;
+  return trace.score;
+}
+
+function sameFitTier(a: CatalogueHeadScore, b: CatalogueHeadScore): boolean {
+  if (a.catalogue_match_band == null || b.catalogue_match_band == null) return false;
+  if (a.catalogue_fit_score == null || b.catalogue_fit_score == null) return false;
+  return (
+    a.catalogue_match_band === b.catalogue_match_band &&
+    a.catalogue_fit_score === b.catalogue_fit_score
+  );
+}
+
+function strictlyBetterHead(a: CatalogueHeadScore, b: CatalogueHeadScore): boolean {
+  if (sameFitTier(a, b)) return false;
+  if (a.catalogue_match_band == null || b.catalogue_match_band == null) return false;
+  const bandGap = BAND_RANK[a.catalogue_match_band] - BAND_RANK[b.catalogue_match_band];
+  if (bandGap !== 0) return bandGap > 0;
+  return (a.catalogue_fit_score ?? 0) > (b.catalogue_fit_score ?? 0);
+}
+
+export function headCardRole(
+  score: CatalogueHeadScore,
+  peers: CatalogueHeadScore[]
+): HeadCardRole | null {
+  const others = peers.filter((peer) => peer.catalogue_key !== score.catalogue_key);
+  if (others.length === 0) return null;
+  const tied = others.some((peer) => sameFitTier(score, peer));
+  const beaten = others.some((peer) => strictlyBetterHead(peer, score));
+  if (!beaten && !tied) return "BEST_SUPPORTED";
+  if (!beaten && tied) return "SIMILAR";
+  return "ALTERNATIVE";
+}
+
+function comparisonReason(
+  score: CatalogueHeadScore,
+  peers: CatalogueHeadScore[]
+): HeadCardReason | null {
+  const others = peers.filter((peer) => peer.catalogue_key !== score.catalogue_key);
+  if (others.length === 0) return null;
+
+  let chosen: { order: number; gap: number; reason: HeadCardReason } | null = null;
+  for (let order = 0; order < COMPARED_DIMENSIONS.length; order += 1) {
+    const dimension = COMPARED_DIMENSIONS[order];
+    const mine = activeDimensionScore(score, dimension.key);
+    if (mine == null) continue;
+    const peerScores = others
+      .map((peer) => activeDimensionScore(peer, dimension.key))
+      .filter((value): value is number => value != null);
+    if (peerScores.length === 0) continue;
+    const diffs = peerScores.map((peerScore) => mine - peerScore);
+    if (diffs.every((diff) => diff === 0)) continue;
+    const gap = Math.max(...diffs.map((diff) => Math.abs(diff)));
+    if (chosen && (gap < chosen.gap || (gap === chosen.gap && order > chosen.order))) continue;
+    const higher = diffs.some((diff) => diff > 0) && diffs.every((diff) => diff >= 0);
+    const lower = diffs.some((diff) => diff < 0) && diffs.every((diff) => diff <= 0);
+    const text = higher
+      ? `${dimension.noun} scores higher on this head than on ${diffs.every((diff) => diff > 0) ? "the other recommended heads" : "another recommended head"}.`
+      : lower
+        ? `${dimension.noun} scores lower on this head than on ${diffs.every((diff) => diff < 0) ? "the other recommended heads" : "another recommended head"}.`
+        : `${dimension.noun} sits between the other recommended heads on the assessed characteristic.`;
+    chosen = {
+      order,
+      gap,
+      reason: { source: "comparison", code: dimension.code, text },
+    };
+  }
+  return chosen?.reason ?? null;
+}
+
+function recordedProfilePhrase(score: CatalogueHeadScore): string | null {
+  const chars = score.presentation_chars;
+  if (!chars) return null;
+  const profile = chars.primary_head_profile
+    ? KNOWN_HEAD_PROFILE[chars.primary_head_profile]
+    : null;
+  if (profile) return `This head is recorded as ${profile}.`;
+  const bias = chars.directional_bias
+    ? KNOWN_DIRECTIONAL_BIAS[chars.directional_bias]
+    : null;
+  if (bias) return `This head is recorded with ${bias} directional bias.`;
+  return null;
+}
+
+function profileReason(
+  score: CatalogueHeadScore,
+  peers: CatalogueHeadScore[]
+): HeadCardReason | null {
+  const mine = recordedProfilePhrase(score);
+  if (!mine) return null;
+  const others = peers.filter((peer) => peer.catalogue_key !== score.catalogue_key);
+  if (!others.every((peer) => sameFitTier(score, peer))) return null;
+  const differs = others.some((peer) => recordedProfilePhrase(peer) !== mine);
+  if (!differs) return null;
+  return {
+    source: "profile",
+    code: null,
+    text: `${mine} The Fit score is shared, so this description is not a ranking.`,
+  };
 }
 
 export function namedHeadsScoredEqually(recommendations: CatalogueHeadScore[]): boolean {
@@ -227,10 +384,13 @@ function otherPlainReasons(
 export function presentHeadCard(
   score: CatalogueHeadScore,
   explanation: CatalogueHeadExplanation | undefined,
-  requirements: NormalisedRequirements
+  requirements: NormalisedRequirements,
+  peers: CatalogueHeadScore[] = []
 ): PresentedHeadCard {
   const [caveat, ...otherCaveats] = caveatsFor(score, requirements);
-  const reason = recognisedReason(explanation, score);
+  const recognised = recognisedReason(explanation, score);
+  const compared = comparisonReason(score, peers) ?? profileReason(score, peers);
+  const reason = compared ?? recognised;
   const aligned =
     explanation && explanation.catalogue_key === score.catalogue_key ? explanation : undefined;
   const year = score.release_year;
@@ -238,16 +398,49 @@ export function presentHeadCard(
     Number.isFinite(score.active_catalogue_dim_count)
       ? `Checked ${score.active_catalogue_dim_count} of 5 head traits.`
       : null;
+  const assessedLabel = Number.isFinite(score.active_catalogue_dim_count)
+    ? `${score.active_catalogue_dim_count} of 5 characteristics assessed`
+    : null;
+  const role = headCardRole(score, peers);
+  const supporting = otherPlainReasons(explanation, score, reason);
+  const profileDetail = recordedProfilePhrase(score);
+  const profileDiffers =
+    profileDetail != null &&
+    peers.some(
+      (peer) =>
+        peer.catalogue_key !== score.catalogue_key &&
+        recordedProfilePhrase(peer) !== profileDetail
+    );
+  if (
+    profileDiffers &&
+    profileDetail &&
+    reason?.source !== "profile" &&
+    !supporting.includes(`${profileDetail} That catalogue description is not a Fit ranking.`)
+  ) {
+    supporting.push(`${profileDetail} That catalogue description is not a Fit ranking.`);
+  }
+  if (
+    recognised &&
+    reason?.source !== "recognised" &&
+    reason?.text !== recognised.text &&
+    !supporting.includes(recognised.text)
+  ) {
+    supporting.unshift(recognised.text);
+  }
 
   return {
     catalogueKey: score.catalogue_key,
     title: headTitle(score),
+    role,
+    roleLabel: role ? HEAD_CARD_ROLE_LABEL[role] : null,
     bandLabel: headSuitabilityBandLabel(score.catalogue_match_band),
+    confidenceLabel: headEvidenceConfidenceLabel(score.head_recommendation_confidence),
+    assessedLabel,
     reason,
     caveat: caveat ?? null,
     details: {
       otherCaveats: otherCaveats.map((item) => item.text),
-      otherReasons: otherPlainReasons(explanation, score, reason),
+      otherReasons: supporting,
       tradeOffs: aligned?.trade_offs ?? [],
       uncertainty: aligned?.uncertainty ?? [],
       coverageLabel: coverage,
@@ -263,6 +456,6 @@ export function presentNamedHeadCards(
   requirements: NormalisedRequirements
 ): PresentedHeadCard[] {
   return recommendations.map((score, index) =>
-    presentHeadCard(score, explanations[index], requirements)
+    presentHeadCard(score, explanations[index], requirements, recommendations)
   );
 }
