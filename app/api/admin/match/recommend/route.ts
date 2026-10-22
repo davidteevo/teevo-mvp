@@ -14,8 +14,10 @@ import {
 export const dynamic = "force-dynamic";
 
 /**
- * Admin-only Match recommend endpoint (Checkpoint A + B).
+ * Admin-only Teevo Fit recommend endpoint (Checkpoint A + B).
  * Independent of public match_enabled. Does not change purchase flows.
+ * A future beta allowlist must use the same server check as canAccessTeevoFit
+ * before this handler runs. Do not open it by flipping match_enabled.
  */
 export async function POST(request: Request) {
   const auth = await requireAdmin();

@@ -2,7 +2,7 @@
  * Plain-English results states. These do not decide Fit, attachment, or labels.
  */
 
-export const RESULTS_LOADING_TITLE = "Finding matches";
+export const RESULTS_LOADING_TITLE = "Finding your fit";
 export const RESULTS_LOADING_BODY =
   "Checking suitable driver heads. This can take a moment. No Fit scores are being inferred.";
 

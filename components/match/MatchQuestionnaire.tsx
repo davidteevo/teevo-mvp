@@ -163,7 +163,7 @@ export function MatchQuestionnaire() {
   return (
     <div className="max-w-xl mx-auto">
       <p className="text-xs font-medium uppercase tracking-wide text-par-3-punch mb-2">
-        Admin Match preview
+        Teevo Fit
       </p>
       <h1 className="text-2xl font-semibold text-mowing-green mb-1">
         Driver questionnaire
@@ -343,7 +343,7 @@ export function MatchQuestionnaire() {
           className="min-h-[48px] flex-1 rounded-xl bg-mowing-green text-sm font-semibold text-off-white-pique disabled:opacity-60"
         >
           {pending
-            ? "Finding matches…"
+            ? "Finding your fit…"
             : step === STEPS.length - 1
               ? "See recommendations"
               : "Continue"}

@@ -1,5 +1,5 @@
 /**
- * Global Teevo Match kill switch.
+ * Global Teevo Fit public kill switch. The setting key stays match_enabled.
  * Stored in platform_settings.match_enabled. Fail-closed: missing/invalid/error → disabled.
  */
 
@@ -8,7 +8,7 @@ import { NextResponse } from "next/server";
 
 export const PLATFORM_SETTING_MATCH_ENABLED = "match_enabled";
 
-export const MATCH_DISABLED_ERROR = "Teevo Match is not currently available.";
+export const MATCH_DISABLED_ERROR = "Teevo Fit is not currently available.";
 
 export const MATCH_EVENTS = {
   ENABLED: "match_enabled",

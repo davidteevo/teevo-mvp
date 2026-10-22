@@ -32,7 +32,7 @@ const SHOT_SHAPE = new Set([
 ]);
 
 export const PATHWAY_C_SPEED_REPLACES_CARRY =
-  "We'll use your measured swing speed instead of your earlier carry distance for this Match. You can change this later.";
+  "We'll use your measured swing speed instead of your earlier carry distance for this fit. You can change this later.";
 
 /** True only when a saved carry distance would be replaced by a new swing speed. */
 export function pathwayCReplacesCarry(carry: string, speedDraft: string): boolean {

@@ -60,7 +60,7 @@ const GROUPS: {
     icon: Wrench,
     chipClass: "bg-mowing-green/10",
     links: [
-      { href: "/admin/match", label: "Match preview", icon: Target },
+      { href: "/admin/match", label: "Teevo Fit", icon: Target },
       { href: "/admin/settings", label: "Settings", icon: Settings },
     ],
   },

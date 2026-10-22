@@ -2,6 +2,10 @@
 
 Liquidity-first MVP for a UK-based golf equipment marketplace. Sellers list items (manual verification), buyers purchase via Stripe Checkout; payments go to sellers via Stripe Connect Express.
 
+## Teevo Fit
+
+Teevo Fit is the fitting product. The public route is `/fit`. Visitors without access see a Coming Soon page. The questionnaire and recommendations stay on the existing admin preview (`/admin/match`) and are not enabled for the public. Legacy `/match` redirects to `/fit`. Internal modules, analytics event ids, and `platform_settings.match_enabled` keep their existing names. Historical engine notes remain in `docs/teevo-match`.
+
 ## Stack
 
 - **Frontend:** Next.js 14, Tailwind CSS, mobile-first

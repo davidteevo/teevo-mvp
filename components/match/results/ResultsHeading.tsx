@@ -2,10 +2,10 @@ export function ResultsHeading() {
   return (
     <header className="space-y-2">
       <p className="text-xs font-medium uppercase tracking-wide text-par-3-punch">
-        Admin preview
+        Teevo Fit
       </p>
       <h1 className="text-xl font-semibold text-mowing-green sm:text-2xl">
-        Your driver matches
+        Your driver recommendations
       </h1>
       <p className="text-sm text-mowing-green/80">
         Models ranked using evidence-backed head characteristics, not price or

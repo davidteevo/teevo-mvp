@@ -266,7 +266,7 @@ export function MatchRefinementPanel({ result, onResult, onActivity }: Props) {
   const [canRetry, setCanRetry] = useState(false);
   const [pending, startTransition] = useTransition();
   const [objConfirm, setObjConfirm] = useState(false);
-  /** OPTIONAL_B: soft prompt first; expand after "Refine my Match". */
+  /** OPTIONAL_B: soft prompt first; expand after "Refine my fit". */
   const [optionalExpanded, setOptionalExpanded] = useState(false);
   const offerLogged = useRef<string | null>(null);
   const requestSeq = useRef(0);
@@ -667,7 +667,7 @@ export function MatchRefinementPanel({ result, onResult, onActivity }: Props) {
           id="match-optional-refine-title"
           className="text-base font-semibold text-mowing-green"
         >
-          Want to refine your Match?
+          Want to refine your fit?
         </h2>
         <p className="text-sm text-mowing-green/75">
           One more detail about your ball flight may help us refine these
@@ -681,7 +681,7 @@ export function MatchRefinementPanel({ result, onResult, onActivity }: Props) {
               onClick={() => setOptionalExpanded(true)}
               className="inline-flex min-h-[48px] items-center justify-center rounded-xl border-2 border-mowing-green px-5 text-sm font-semibold text-mowing-green"
             >
-              Refine my Match
+              Refine my fit
             </button>
             <button
               type="button"

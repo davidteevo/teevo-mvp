@@ -7,7 +7,7 @@
 │                              CLIENT (Mobile-First Web)                            │
 │  Next.js App (React) · Tailwind CSS · Vercel                                     │
 ├─────────────────────────────────────────────────────────────────────────────────┤
-│  Pages: / (browse) · /listing/[id] · /sell · /dashboard · /admin · /auth         │
+│  Pages: / (browse) · /fit · /listing/[id] · /sell · /dashboard · /admin · /auth │
 │  Trust: Verified badge · Secure Payment · UK Only                                │
 └─────────────────────────────────────────────────────────────────────────────────┘
                                         │

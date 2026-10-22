@@ -142,7 +142,7 @@ const ALLOWED_EVENTS = [
   "serial_not_found_selected",
   "photo_flow_completed",
   "photo_flow_abandoned",
-  // Teevo Match admin preview only (not public Match conversion funnel)
+  // Teevo Fit admin preview only. Event ids stay match_* for analytics continuity.
   "match_questionnaire_started",
   "match_questionnaire_completed",
   "match_recommendations_viewed",

@@ -6,11 +6,12 @@ import { usePathname } from "next/navigation";
 import {
   Menu, X, ChevronDown, Settings, LogOut, ShoppingCart,
   Shield, User, Bell, Heart, Gift, Plus, ListFilter, ShoppingBag,
-  HelpCircle, BarChart2, LayoutDashboard, Sparkles,
+  HelpCircle, BarChart2, LayoutDashboard, Sparkles, Target,
 } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { FIT_NAV, showTeevoFitComingSoon } from "@/lib/fit-access";
 
 const AVATAR_BUCKET = "avatars";
 
@@ -24,8 +25,9 @@ function avatarPublicSrc(avatarPath: string | null | undefined): string | null {
   return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${AVATAR_BUCKET}/${avatarPath}`;
 }
 
-const desktopNav = [
+const desktopNav: { href: string; label: string; fit?: boolean }[] = [
   { href: "/", label: "Browse" },
+  { href: FIT_NAV.href, label: FIT_NAV.label, fit: true },
   { href: "/sell", label: "Sell" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/conversations", label: "Messages" },
@@ -35,9 +37,36 @@ function MenuDivider() {
   return <div className="my-2 h-px bg-par-3-punch/20" aria-hidden />;
 }
 
+function TeevoFitMenuLink({
+  showComingSoon,
+  onClick,
+}: {
+  showComingSoon: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <Link
+      href={FIT_NAV.href}
+      className="flex items-center gap-3 rounded-lg py-3 px-3 text-mowing-green font-medium hover:bg-mowing-green/5 active:bg-mowing-green/10 transition-colors"
+      onClick={onClick}
+    >
+      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-par-3-punch/15">
+        <Target className="h-4 w-4 text-mowing-green" aria-hidden />
+      </span>
+      <span className="flex min-w-0 flex-1 items-baseline gap-2">
+        <span>{FIT_NAV.label}</span>
+        {showComingSoon ? (
+          <span className="text-xs font-medium text-mowing-green/50">{FIT_NAV.comingSoon}</span>
+        ) : null}
+      </span>
+    </Link>
+  );
+}
+
 export function Header() {
   const pathname = usePathname();
-  const { user, profile, role, signOut } = useAuth();
+  const { user, profile, role, loading, signOut } = useAuth();
+  const showFitComingSoon = !loading && showTeevoFitComingSoon(role);
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
@@ -156,13 +185,18 @@ export function Header() {
 
         {/* Desktop nav */}
         <nav className="hidden sm:flex items-center gap-6">
-          {desktopNav.map(({ href, label }) => (
+          {desktopNav.map(({ href, label, fit }) => (
             <Link
               key={href}
               href={href}
-              className={`text-sm font-medium ${pathname === href ? "text-mowing-green" : "text-mowing-green/80 hover:text-mowing-green"}`}
+              className={`inline-flex items-baseline gap-1.5 text-sm font-medium ${pathname === href ? "text-mowing-green" : "text-mowing-green/80 hover:text-mowing-green"}`}
             >
-              {label}
+              <span>{label}</span>
+              {fit && showFitComingSoon ? (
+                <span className="text-[10px] font-medium text-mowing-green/50">
+                  {FIT_NAV.comingSoon}
+                </span>
+              ) : null}
             </Link>
           ))}
           {role === "admin" && (
@@ -327,6 +361,8 @@ export function Header() {
                     </span>
                     Browse Clubs
                   </Link>
+
+                  <TeevoFitMenuLink showComingSoon={showFitComingSoon} onClick={close} />
 
                   {/* Sell a Club — visually prioritised */}
                   <Link
@@ -516,6 +552,8 @@ export function Header() {
                     </span>
                     Browse Clubs
                   </Link>
+
+                  <TeevoFitMenuLink showComingSoon={showFitComingSoon} onClick={close} />
 
                   <Link
                     href="/sell"

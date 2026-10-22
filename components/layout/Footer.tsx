@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FIT_NAV } from "@/lib/fit-access";
 
 export function Footer() {
   return (
@@ -11,6 +12,9 @@ export function Footer() {
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
             <Link href="/" className="text-mowing-green/80 hover:text-mowing-green">
               Browse
+            </Link>
+            <Link href={FIT_NAV.href} className="text-mowing-green/80 hover:text-mowing-green">
+              {FIT_NAV.label}
             </Link>
             <Link href="/sell" className="text-mowing-green/80 hover:text-mowing-green">
               Sell
