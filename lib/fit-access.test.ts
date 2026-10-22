@@ -27,10 +27,13 @@ describe("Teevo Fit access", () => {
     expect(canAccessTeevoFit("")).toBe(false);
   });
 
-  it("shows Coming Soon to everyone who cannot open the fitting flow", () => {
-    expect(showTeevoFitComingSoon("admin")).toBe(false);
-    expect(showTeevoFitComingSoon("buyer")).toBe(true);
-    expect(showTeevoFitComingSoon(null)).toBe(true);
+  it("shows Coming Soon when Teevo Fit is disabled, and to anyone without access", () => {
+    expect(showTeevoFitComingSoon("admin", false)).toBe(true);
+    expect(showTeevoFitComingSoon("buyer", false)).toBe(true);
+    expect(showTeevoFitComingSoon(null, false)).toBe(true);
+    expect(showTeevoFitComingSoon("admin", true)).toBe(false);
+    expect(showTeevoFitComingSoon("buyer", true)).toBe(true);
+    expect(showTeevoFitComingSoon(null, true)).toBe(true);
   });
 });
 
@@ -65,15 +68,20 @@ describe("Teevo Fit public copy and routes", () => {
     expect(legacy).toContain("redirect(TEEVO_FIT_PATH)");
     expect(legacy).not.toContain("runCatalogueRecommendation");
     expect(fs.existsSync(path.join(root, "app/api/match"))).toBe(false);
-    expect(fs.existsSync(path.join(root, "app/api/fit"))).toBe(false);
+    expect(fs.existsSync(path.join(root, "app/api/fit/recommend"))).toBe(false);
+    expect(read("app/api/fit/status/route.ts")).not.toContain("runCatalogueRecommendation");
   });
 
   it("gates /fit on the server and keeps the fitting API admin-only", () => {
+    const layout = read("app/fit/layout.tsx");
+    expect(layout).toContain("viewerCanAccessTeevoFit");
+    expect(layout).toContain("FitComingSoon");
+    expect(layout).toContain("if (!authorised) return <FitComingSoon />");
+
     const page = read("app/fit/page.tsx");
-    expect(page).toContain("viewerCanAccessTeevoFit");
-    expect(page).toContain("FitComingSoon");
-    expect(page).toContain("FitPreviewEntry");
+    expect(page).toContain("MatchQuestionnaire");
     expect(page).not.toContain("runCatalogueRecommendation");
+    expect(read("app/fit/results/page.tsx")).toContain("MatchResults");
 
     const recommend = read("app/api/admin/match/recommend/route.ts");
     const adminAt = recommend.indexOf("requireAdmin");
@@ -90,17 +98,35 @@ describe("Teevo Fit public copy and routes", () => {
     expect(header.match(/<TeevoFitMenuLink /g)?.length).toBe(2);
     expect(header).toContain("FIT_NAV.href");
     expect(header).toContain("showTeevoFitComingSoon");
+    expect(header).toContain("useTeevoFitEnabled");
+    expect(read("app/dashboard/page.tsx")).toContain("useTeevoFitEnabled");
+    const status = read("app/api/fit/status/route.ts");
+    expect(status).toContain("isMatchEnabled");
+    expect(status).not.toContain("runCatalogueRecommendation");
     expect(header).not.toContain("disabled={showFitComingSoon}");
+    expect(read("app/dashboard/page.tsx")).toContain("FIT_NAV.href");
+    expect(read("app/admin/_components/AdminNav.tsx")).not.toContain('href: "/admin/match"');
+  });
+
+  it("serves the questionnaire on /fit and redirects the old admin screens", () => {
+    expect(read("components/match/MatchQuestionnaire.tsx")).toContain("TEEVO_FIT_PATH");
+    expect(read("components/match/MatchQuestionnaire.tsx")).toContain("TEEVO_FIT_RESULTS_PATH");
+    expect(read("components/match/MatchQuestionnaire.tsx")).not.toContain("/admin/match/questionnaire");
+    expect(read("components/match/MatchResults.tsx")).not.toContain("/admin/match");
+    expect(read("app/admin/match/page.tsx")).toContain("redirect(TEEVO_FIT_PATH)");
+    expect(read("app/admin/match/questionnaire/page.tsx")).toContain("TEEVO_FIT_PATH");
+    expect(read("app/admin/match/results/page.tsx")).toContain("redirect(TEEVO_FIT_RESULTS_PATH)");
   });
 
   it("does not leave Teevo Match in customer or admin UI source", () => {
     const files = [
+      "app/fit/layout.tsx",
       "app/fit/page.tsx",
+      "app/fit/results/page.tsx",
       "app/match/page.tsx",
       "app/admin/match/page.tsx",
       "app/admin/_components/AdminNav.tsx",
       "components/fit/FitComingSoon.tsx",
-      "components/fit/FitPreviewEntry.tsx",
       "components/layout/Header.tsx",
       "components/layout/Footer.tsx",
       "components/match/MatchQuestionnaire.tsx",

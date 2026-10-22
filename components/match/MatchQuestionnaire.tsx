@@ -10,6 +10,7 @@ import { startDirectionVisualOptions } from "@/components/match/visual/startDire
 import { strikePatternVisualOptions } from "@/components/match/visual/strikePatternOptions";
 import { trajectoryVisualOptions } from "@/components/match/visual/trajectoryOptions";
 import { track } from "@/lib/analytics";
+import { TEEVO_FIT_PATH, TEEVO_FIT_RESULTS_PATH } from "@/lib/fit-access";
 import { clearRefinementState } from "@/lib/match/app/refinement-session";
 import {
   answersToApiPayload,
@@ -66,7 +67,7 @@ export function MatchQuestionnaire() {
       setAnswers({ ...EMPTY_MATCH_ANSWERS });
       setStep2Draft({ ...EMPTY_STEP2_DRAFT });
       setStep(0);
-      router.replace("/admin/match/questionnaire");
+      router.replace(TEEVO_FIT_PATH);
     } else {
       const hydrated = hydrateStep2(loadMatchAnswers(), loadStep2Draft());
       setAnswers(hydrated.answers);
@@ -156,7 +157,7 @@ export function MatchQuestionnaire() {
         ...ADMIN_PREVIEW_PROPS,
         mode: data.result?.mode ?? null,
       });
-      router.push("/admin/match/results");
+      router.push(TEEVO_FIT_RESULTS_PATH);
     });
   }
 

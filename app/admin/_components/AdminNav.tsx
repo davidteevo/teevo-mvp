@@ -19,7 +19,6 @@ import {
   Tag,
   Users,
   UsersRound,
-  Target,
   Wrench,
 } from "lucide-react";
 
@@ -60,7 +59,6 @@ const GROUPS: {
     icon: Wrench,
     chipClass: "bg-mowing-green/10",
     links: [
-      { href: "/admin/match", label: "Teevo Fit", icon: Target },
       { href: "/admin/settings", label: "Settings", icon: Settings },
     ],
   },

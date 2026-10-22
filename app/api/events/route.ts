@@ -143,6 +143,8 @@ const ALLOWED_EVENTS = [
   "photo_flow_completed",
   "photo_flow_abandoned",
   // Teevo Fit admin preview only. Event ids stay match_* for analytics continuity.
+  "match_enabled",
+  "match_disabled",
   "match_questionnaire_started",
   "match_questionnaire_completed",
   "match_recommendations_viewed",

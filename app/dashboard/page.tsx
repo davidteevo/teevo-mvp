@@ -8,7 +8,9 @@ import { OnboardingStripeBanner } from "@/components/dashboard/OnboardingStripeB
 import { FoundingSellerBadge } from "@/components/trust/FoundingSellerBadge";
 import { FounderJourneyCard } from "@/components/founder/FounderJourneyCard";
 import { FounderMembershipCard } from "@/components/founder/FounderMembershipCard";
-import { Calendar, ClipboardCheck, Gift, Heart, MessageCircle, Package, PlusCircle, Send, ShoppingBag, ShoppingCart, Sparkles, Star, TrendingUp, User } from "lucide-react";
+import { Calendar, ClipboardCheck, Gift, Heart, MessageCircle, Package, PlusCircle, Send, ShoppingBag, ShoppingCart, Sparkles, Star, Target, TrendingUp, User } from "lucide-react";
+import { FIT_NAV, showTeevoFitComingSoon } from "@/lib/fit-access";
+import { useTeevoFitEnabled } from "@/lib/use-teevo-fit-enabled";
 
 function FoundingSellerFeedback() {
   const [message, setMessage] = useState("");
@@ -89,6 +91,8 @@ type DashboardCounts = { listings: number; sales: number; purchases: number; con
 
 export default function DashboardPage() {
   const { user, profile, role, loading, refreshProfile } = useAuth();
+  const { enabled: fitEnabled, loading: fitSettingLoading } = useTeevoFitEnabled();
+  const fitComingSoon = fitSettingLoading || loading || showTeevoFitComingSoon(role, fitEnabled);
   const router = useRouter();
   const [counts, setCounts] = useState<DashboardCounts>(null);
   const [edited, setEdited] = useState(false);
@@ -262,6 +266,20 @@ export default function DashboardPage() {
           <div>
             <p className="font-semibold text-mowing-green">Browse</p>
             <p className="text-sm text-mowing-green/70">Browse verified listings</p>
+          </div>
+        </Link>
+        <Link
+          href={FIT_NAV.href}
+          className="flex items-center gap-4 rounded-xl border border-par-3-punch/20 bg-white p-4 hover:shadow-md transition-shadow"
+        >
+          <div className="rounded-lg bg-golden-tee/20 p-3">
+            <Target className="h-6 w-6 text-mowing-green" />
+          </div>
+          <div>
+            <p className="font-semibold text-mowing-green">{FIT_NAV.label}</p>
+            <p className="text-sm text-mowing-green/70">
+              {fitComingSoon ? FIT_NAV.comingSoon : "Answer a few questions about your game"}
+            </p>
           </div>
         </Link>
         <Link

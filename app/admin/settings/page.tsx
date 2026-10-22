@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { TeevoFitSetting } from "@/components/admin/TeevoFitSetting";
 import { FulfilmentMode, type FulfilmentModeType } from "@/lib/fulfilment-providers";
 
 export default function AdminSettingsPage() {
@@ -192,6 +193,8 @@ export default function AdminSettingsPage() {
           </p>
         )}
       </section>
+
+      <TeevoFitSetting />
 
       {enableConfirmOpen && (
         <div

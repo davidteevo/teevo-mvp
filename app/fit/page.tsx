@@ -1,36 +1,7 @@
-import type { Metadata } from "next";
-import { FitComingSoon } from "@/components/fit/FitComingSoon";
-import { FitPreviewEntry } from "@/components/fit/FitPreviewEntry";
-import { FIT_COMING_SOON, TEEVO_FIT_NAME } from "@/lib/fit-access";
-import { viewerCanAccessTeevoFit } from "@/lib/fit-access.server";
+import { MatchQuestionnaire } from "@/components/match/MatchQuestionnaire";
 
 export const dynamic = "force-dynamic";
 
-const shareDescription = `${FIT_COMING_SOON.description} Coming soon.`;
-
-export const metadata: Metadata = {
-  title: `${TEEVO_FIT_NAME} | Teevo`,
-  description: shareDescription,
-  openGraph: {
-    title: TEEVO_FIT_NAME,
-    description: shareDescription,
-    siteName: "Teevo",
-  },
-  twitter: {
-    card: "summary",
-    title: TEEVO_FIT_NAME,
-    description: shareDescription,
-  },
-};
-
-export default async function FitPage() {
-  const authorised = await viewerCanAccessTeevoFit();
-  if (authorised) {
-    return (
-      <main className="mx-auto w-full min-w-0 max-w-6xl px-4 py-8">
-        <FitPreviewEntry />
-      </main>
-    );
-  }
-  return <FitComingSoon />;
+export default function FitPage() {
+  return <MatchQuestionnaire />;
 }

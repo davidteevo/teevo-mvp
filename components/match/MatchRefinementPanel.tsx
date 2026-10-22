@@ -646,7 +646,7 @@ export function MatchRefinementPanel({ result, onResult, onActivity }: Props) {
             Skip for now
           </button>
           <Link
-            href="/admin/match/questionnaire"
+            href="/fit"
             className="inline-flex min-h-[48px] items-center justify-center text-sm font-semibold text-mowing-green underline"
           >
             Edit all answers
@@ -785,7 +785,7 @@ export function MatchRefinementPanel({ result, onResult, onActivity }: Props) {
           Skip for now
         </button>
         <Link
-          href="/admin/match/questionnaire"
+          href="/fit"
           className="inline-flex min-h-[48px] items-center justify-center text-sm font-semibold text-mowing-green underline"
         >
           Edit all answers

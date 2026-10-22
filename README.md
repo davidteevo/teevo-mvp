@@ -4,7 +4,7 @@ Liquidity-first MVP for a UK-based golf equipment marketplace. Sellers list item
 
 ## Teevo Fit
 
-Teevo Fit is the fitting product. The public route is `/fit`. Visitors without access see a Coming Soon page. The questionnaire and recommendations stay on the existing admin preview (`/admin/match`) and are not enabled for the public. Legacy `/match` redirects to `/fit`. Internal modules, analytics event ids, and `platform_settings.match_enabled` keep their existing names. Historical engine notes remain in `docs/teevo-match`.
+Teevo Fit is the fitting product. The public route is `/fit`, also linked from the hamburger menu and dashboard. Visitors without access see a Coming Soon page. Authorised accounts answer the questionnaire on `/fit` and see recommendations on `/fit/results`. Admin Settings controls the Coming Soon label through the existing `match_enabled` switch. The recommend API stays admin-only. Legacy `/match` and `/admin/match` URLs redirect into `/fit`. Internal modules, analytics event ids, and `platform_settings.match_enabled` keep their existing names. Historical engine notes remain in `docs/teevo-match`.
 
 ## Stack
 

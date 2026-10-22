@@ -106,7 +106,7 @@ export function MatchResults() {
       <div className="max-w-xl space-y-3">
         <p className="text-sm text-mowing-green/80">No results in this session.</p>
         <Link
-          href="/admin/match/questionnaire"
+          href="/fit"
           className="text-sm font-semibold text-mowing-green underline"
         >
           Start questionnaire
@@ -257,7 +257,7 @@ export function MatchResults() {
       </details>
 
       <Link
-        href="/admin/match/questionnaire"
+        href="/fit"
         className="inline-flex min-h-[48px] items-center justify-center rounded-xl border-2 border-mowing-green px-5 text-sm font-semibold text-mowing-green"
       >
         Revise answers

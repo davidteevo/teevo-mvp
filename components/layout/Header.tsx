@@ -12,6 +12,7 @@ import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { FIT_NAV, showTeevoFitComingSoon } from "@/lib/fit-access";
+import { useTeevoFitEnabled } from "@/lib/use-teevo-fit-enabled";
 
 const AVATAR_BUCKET = "avatars";
 
@@ -66,7 +67,9 @@ function TeevoFitMenuLink({
 export function Header() {
   const pathname = usePathname();
   const { user, profile, role, loading, signOut } = useAuth();
-  const showFitComingSoon = !loading && showTeevoFitComingSoon(role);
+  const { enabled: fitEnabled, loading: fitSettingLoading } = useTeevoFitEnabled();
+  const showFitComingSoon =
+    fitSettingLoading || loading || showTeevoFitComingSoon(role, fitEnabled);
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
@@ -185,11 +188,15 @@ export function Header() {
 
         {/* Desktop nav */}
         <nav className="hidden sm:flex items-center gap-6">
-          {desktopNav.map(({ href, label, fit }) => (
+          {desktopNav.map(({ href, label, fit }) => {
+            const active = fit
+              ? pathname === href || pathname.startsWith(`${href}/`)
+              : pathname === href;
+            return (
             <Link
               key={href}
               href={href}
-              className={`inline-flex items-baseline gap-1.5 text-sm font-medium ${pathname === href ? "text-mowing-green" : "text-mowing-green/80 hover:text-mowing-green"}`}
+              className={`inline-flex items-baseline gap-1.5 text-sm font-medium ${active ? "text-mowing-green" : "text-mowing-green/80 hover:text-mowing-green"}`}
             >
               <span>{label}</span>
               {fit && showFitComingSoon ? (
@@ -198,7 +205,8 @@ export function Header() {
                 </span>
               ) : null}
             </Link>
-          ))}
+            );
+          })}
           {role === "admin" && (
             <Link href="/admin" className="text-sm font-medium text-divot-pink hover:underline">
               Admin

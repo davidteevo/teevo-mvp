@@ -2,8 +2,9 @@
  * Teevo Fit access.
  *
  * There is no beta-user allowlist. Authorised access is the existing admin
- * role, read on the server. `platform_settings.match_enabled` stays off and
- * must not be used to open the public fitting experience.
+ * role, read on the server. `platform_settings.match_enabled` controls the
+ * Coming Soon label in navigation. Turning it on does not open Teevo Fit
+ * to the public.
  *
  * Smallest later extension for selected participants:
  * 1. Store the allowlist server-side (a column on `users`, or a settings row).
@@ -14,6 +15,7 @@
 
 export const TEEVO_FIT_NAME = "Teevo Fit";
 export const TEEVO_FIT_PATH = "/fit";
+export const TEEVO_FIT_RESULTS_PATH = "/fit/results";
 export const LEGACY_MATCH_PATH = "/match";
 
 export const FIT_NAV = {
@@ -37,7 +39,15 @@ export function canAccessTeevoFit(role: string | null | undefined): boolean {
   return role === "admin";
 }
 
-/** Menu badge for people who can see Teevo Fit but cannot open the fitting flow. */
-export function showTeevoFitComingSoon(role: string | null | undefined): boolean {
+/**
+ * Coming Soon label for the hamburger menu and dashboard.
+ * Shown when Teevo Fit is disabled in admin settings, and for anyone
+ * who cannot open the fitting flow.
+ */
+export function showTeevoFitComingSoon(
+  role: string | null | undefined,
+  fitEnabled: boolean
+): boolean {
+  if (!fitEnabled) return true;
   return !canAccessTeevoFit(role);
 }
