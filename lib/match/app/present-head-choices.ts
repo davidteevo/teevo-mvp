@@ -54,9 +54,15 @@ function differentModel(a: CatalogueHeadScore, b: CatalogueHeadScore): boolean {
   return a.catalogue_key !== b.catalogue_key;
 }
 
+function sameSuitabilityBand(a: CatalogueHeadScore, b: CatalogueHeadScore): boolean {
+  return a.catalogue_match_band != null && a.catalogue_match_band === b.catalogue_match_band;
+}
+
 /**
  * Label each recommended head once, in the order the engine returned them.
  * Best Value is never assigned: there is no dated UK used-price reference yet.
+ * Newer Option also requires the same suitability band as Best Match.
+ * Equal-suitability wording is used only when the band and Fit score both match.
  */
 export function presentHeadChoices(heads: CatalogueHeadScore[]): HeadChoice[] {
   const tiers = heads.map(fitTier);
@@ -90,6 +96,7 @@ export function presentHeadChoices(heads: CatalogueHeadScore[]): HeadChoice[] {
       if (index === bestIndex) return;
       if (head.catalogue_key === best.catalogue_key) return;
       if (!differentModel(head, best)) return;
+      if (!sameSuitabilityBand(head, best)) return;
       const year = releaseYear(head);
       if (year == null || year <= bestYear) return;
       if (newerIndex === -1 || year > newestYear) {

@@ -214,5 +214,82 @@ describe("head choice presentation", () => {
     ]);
     expect(choices[2].tiedForTopSuitability).toBe(false);
     expect(choices[2].note).toMatch(/not a better fit/);
+    expect(choices[2].note).not.toMatch(/same assessed suitability/);
+  });
+
+  it("keeps Newer Option in the same band when the Fit score differs", () => {
+    const choices = presentHeadChoices([
+      head({
+        catalogue_key: "best",
+        model: "Best",
+        release_year: 2019,
+        catalogue_fit_score: 96,
+        catalogue_match_band: "EXCELLENT_MATCH",
+      }),
+      head({
+        catalogue_key: "new",
+        model: "New",
+        release_year: 2026,
+        catalogue_fit_score: 90,
+        catalogue_match_band: "EXCELLENT_MATCH",
+      }),
+    ]);
+    expect(choices.map((choice) => choice.category)).toEqual(["BEST_MATCH", "NEWER_OPTION"]);
+    expect(choices[1].tiedForTopSuitability).toBe(false);
+    expect(choices[1].note).toMatch(/not a better fit/);
+    expect(choices[1].note).not.toMatch(/same assessed suitability/);
+  });
+
+  it("omits Newer Option when the later head is in a lower suitability band", () => {
+    const choices = presentHeadChoices([
+      head({
+        catalogue_key: "best",
+        model: "Best",
+        release_year: 2020,
+        catalogue_fit_score: 96,
+        catalogue_match_band: "EXCELLENT_MATCH",
+      }),
+      head({
+        catalogue_key: "lower",
+        model: "Lower",
+        release_year: 2026,
+        catalogue_fit_score: 80,
+        catalogue_match_band: "VERY_GOOD_MATCH",
+      }),
+      head({
+        catalogue_key: "same-band",
+        model: "Same Band",
+        release_year: 2022,
+        catalogue_fit_score: 88,
+        catalogue_match_band: "EXCELLENT_MATCH",
+      }),
+    ]);
+    expect(choices.map((choice) => choice.category)).toEqual([
+      "BEST_MATCH",
+      "ALTERNATIVE_MATCH",
+      "NEWER_OPTION",
+    ]);
+    expect(choices[2].note).not.toMatch(/same assessed suitability/);
+
+    const onlyLower = presentHeadChoices([
+      head({
+        catalogue_key: "best",
+        model: "Best",
+        release_year: 2020,
+        catalogue_fit_score: 96,
+        catalogue_match_band: "EXCELLENT_MATCH",
+      }),
+      head({
+        catalogue_key: "lower",
+        model: "Lower",
+        release_year: 2026,
+        catalogue_fit_score: 80,
+        catalogue_match_band: "VERY_GOOD_MATCH",
+      }),
+    ]);
+    expect(onlyLower.map((choice) => choice.category)).toEqual([
+      "BEST_MATCH",
+      "ALTERNATIVE_MATCH",
+    ]);
   });
 });
