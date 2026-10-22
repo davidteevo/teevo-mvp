@@ -39,6 +39,7 @@ export async function POST(request: Request) {
   const intelligence = loadMatchIntelligence(matchReferenceDirectory());
 
   let inventory: MatchInventoryItem[] = [];
+  let inventoryStatus: "ready" | "unavailable" = "ready";
   try {
     const rows = await loadTeevoDriverListingsForMatch(auth.admin);
     const checkedAt = new Date().toISOString();
@@ -48,6 +49,7 @@ export async function POST(request: Request) {
   } catch {
     // Catalogue recommendations must still succeed if inventory load fails.
     inventory = [];
+    inventoryStatus = "unavailable";
   }
 
   const result = runCatalogueRecommendation({
@@ -72,6 +74,7 @@ export async function POST(request: Request) {
     preview: "ADMIN_CATALOGUE_AND_INVENTORY",
     public_match_enabled: false,
     inventory_attached: result.audit.inventory_items_attached > 0,
+    inventory_status: inventoryStatus,
     result,
   });
 }

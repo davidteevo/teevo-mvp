@@ -12,6 +12,11 @@ import {
   isProtectedShaftPhrase,
   velocoreTechnology,
 } from "../shaft-identity-policy";
+import {
+  getListingImageUrl,
+  sortListingImages,
+  type ListingImageRow,
+} from "@/lib/listing-images";
 import type { MatchIntelligence } from "../intelligence/load";
 import type {
   MatchIdentityResolutionStatus,
@@ -35,7 +40,25 @@ export type TeevoDriverListingRow = {
   archived_at: string | null;
   buying_paused: boolean | null;
   availability_confirmation_status: string | null;
+  listing_images?: ListingImageRow[] | null;
 };
+
+/** Public seller photo for the listing face. Verification and serial images are not used. */
+export function primaryListingPhotoUrl(
+  images: ListingImageRow[] | null | undefined
+): string | null {
+  const usable = (images ?? []).filter((image) => {
+    if (image.visibility === "verification_only") return false;
+    if (image.storage_bucket === "listing-verification") return false;
+    if (image.image_type === "hosel_serial") return false;
+    return Boolean(image.storage_path);
+  });
+  const sorted = sortListingImages(usable);
+  const chosen = sorted.find((image) => image.image_type === "hero") ?? sorted[0];
+  if (!chosen?.storage_path) return null;
+  const url = getListingImageUrl(chosen.storage_path, "thumb");
+  return url || null;
+}
 
 function normalizeHandedness(
   raw: string | null | undefined
@@ -136,6 +159,7 @@ export function mapTeevoListingToInventoryItem(
     },
     condition: row.condition,
     price_minor: typeof row.price === "number" ? row.price : 0,
+    primary_image_url: primaryListingPhotoUrl(row.listing_images),
     currency: "GBP",
     availability_status: purchasable ? "AVAILABLE" : "UNAVAILABLE",
     availability_checked_at: checkedAt,
@@ -158,7 +182,7 @@ export async function loadTeevoDriverListingsForMatch(
   const { data, error } = await admin
     .from("listings")
     .select(
-      "id, user_id, brand, model, title, handed, degree, degree_numeric, shaft, shaft_flex, condition, price, status, archived_at, buying_paused, availability_confirmation_status"
+      "id, user_id, brand, model, title, handed, degree, degree_numeric, shaft, shaft_flex, condition, price, status, archived_at, buying_paused, availability_confirmation_status, listing_images(storage_path, sort_order, visibility, storage_bucket, image_type)"
     )
     .eq("category", "Driver")
     .in("status", [...PUBLIC_MARKETPLACE_STATUSES])

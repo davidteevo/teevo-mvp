@@ -33,6 +33,11 @@ export type MatchInventoryItem = {
   };
   condition: string | null;
   price_minor: number;
+  /**
+   * Public seller photo for this listing. Null when none is published.
+   * Never a catalogue or studio stand-in. Omitted by older fixtures.
+   */
+  primary_image_url?: string | null;
   currency: "GBP";
   availability_status: MatchInventoryAvailability;
   availability_checked_at: string;

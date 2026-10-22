@@ -17,6 +17,7 @@ import {
   EMPTY_MATCH_ANSWERS,
   loadMatchAnswers,
   saveMatchAnswers,
+  saveMatchResult,
   type MatchQuestionnaireAnswers,
 } from "@/lib/match/app/session-storage";
 import {
@@ -146,9 +147,9 @@ export function MatchQuestionnaire() {
         );
         return;
       }
-      sessionStorage.setItem(
-        "teevo_match_admin_results_v1",
-        JSON.stringify(data.result)
+      saveMatchResult(
+        data.result,
+        data.inventory_status === "unavailable" ? "unavailable" : "ready"
       );
       clearRefinementState();
       track("match_questionnaire_completed", {
@@ -342,7 +343,7 @@ export function MatchQuestionnaire() {
           className="min-h-[48px] flex-1 rounded-xl bg-mowing-green text-sm font-semibold text-off-white-pique disabled:opacity-60"
         >
           {pending
-            ? "Matching…"
+            ? "Finding matches…"
             : step === STEPS.length - 1
               ? "See recommendations"
               : "Continue"}

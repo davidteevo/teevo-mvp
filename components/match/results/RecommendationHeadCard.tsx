@@ -4,14 +4,20 @@ import { useId, useState } from "react";
 import { track } from "@/lib/analytics";
 import type { CatalogueHeadExplanation, CatalogueHeadScore } from "@/lib/match/catalogue-types";
 import { presentHeadCard } from "@/lib/match/app/present-head-card";
-import {
-  LISTING_ROLE_LABEL,
-  presentListingCommercialNotes,
-  type ListingRoleCode,
-} from "@/lib/match/app/present-listing-labels";
+import type { HeadChoice } from "@/lib/match/app/present-head-choices";
+import type { ListingRoleCode } from "@/lib/match/app/present-listing-labels";
 import type { MatchInventoryAttachedRow } from "@/lib/match/inventory/types";
 import type { NormalisedRequirements } from "@/lib/match/types";
 import { DriverSilhouette } from "@/components/match/results/DriverSilhouette";
+import {
+  FULL_LISTING_ASSESSED,
+  HEAD_LISTING_ABSENT,
+  HEAD_ONLY_UNSCORED_BODY,
+  HEAD_ONLY_UNVERIFIED_BODY,
+  HEAD_ONLY_UNVERIFIED_TITLE,
+  browseModelSearchHref,
+  formatListingPrice,
+} from "@/lib/match/app/present-results-state";
 
 type Props = {
   score: CatalogueHeadScore;
@@ -19,21 +25,11 @@ type Props = {
   explanation: CatalogueHeadExplanation | undefined;
   requirements: NormalisedRequirements;
   listings: MatchInventoryAttachedRow[];
+  choice: HeadChoice;
   listingRoles: Map<string, ListingRoleCode[]>;
-  showEmptyListing: boolean;
+  /** page: one notice covers every head. head: this model has no listing. unchecked: stock could not be read. */
+  emptyListingsMode: "page" | "head" | "unchecked";
 };
-
-function formatPrice(minor: number): string {
-  return `£${(minor / 100).toFixed(2)}`;
-}
-
-function browseModelHref(score: CatalogueHeadScore): string {
-  const params = new URLSearchParams();
-  params.set("category", "Driver");
-  if (score.brand?.trim()) params.set("brand", score.brand.trim());
-  if (score.model?.trim()) params.set("search", score.model.trim());
-  return `/?${params.toString()}`;
-}
 
 function listedAs(row: MatchInventoryAttachedRow): string | null {
   if (row.attach_mode !== "FULL_LISTING_MATCH" || row.unverified_shaft) return null;
@@ -52,22 +48,28 @@ export function RecommendationHeadCard({
   explanation,
   requirements,
   listings,
+  choice,
   listingRoles,
-  showEmptyListing,
+  emptyListingsMode,
 }: Props) {
   const card = presentHeadCard(score, explanation, requirements, peers);
   const details = card.details;
-  const notes = presentListingCommercialNotes(listings, listingRoles);
+  const browseHref = browseModelSearchHref(score.brand, score.model);
   const [open, setOpen] = useState(false);
   const detailsId = useId();
-  const category = card.roleLabel ?? "Head match";
+  const category = choice.label;
 
   return (
     <article className="flex h-full min-w-0 flex-col rounded-[20px] border border-mowing-green/15 bg-white p-4">
       <p className="text-[11px] font-semibold uppercase tracking-wide text-par-3-punch">
         Head-only suitability
       </p>
-      <p className="mt-1 text-sm font-semibold text-mowing-green">{category}</p>
+      {category ? (
+        <p className="mt-1 text-sm font-semibold text-mowing-green">{category}</p>
+      ) : null}
+      {choice.note ? (
+        <p className="mt-1 text-xs leading-5 text-mowing-green/80">{choice.note}</p>
+      ) : null}
       <div className="mt-3 flex gap-3">
         <DriverSilhouette />
         <div className="min-w-0">
@@ -165,59 +167,47 @@ export function RecommendationHeadCard({
         <ul className="mt-3 space-y-2">
           {listings.map((row) => {
             const roles = listingRoles.get(row.item.source_listing_id) ?? [];
-            const note = notes.get(row.item.source_listing_id);
             const fullMatch = row.attach_mode === "FULL_LISTING_MATCH" && !row.unverified_shaft;
             const config = listedAs(row);
+            const price = formatListingPrice(row.item.price_minor);
             return (
               <li
                 key={row.item.source_listing_id}
                 className="rounded-xl border border-mowing-green/15 px-3 py-2"
               >
-                {roles.length > 0 ? (
-                  <p className="flex flex-wrap gap-1">
-                    {roles.map((role) => (
-                      <span
-                        key={role}
-                        className="rounded-full bg-par-3-punch/15 px-2 py-0.5 text-[11px] font-semibold text-mowing-green"
-                      >
-                        {LISTING_ROLE_LABEL[role]}
-                      </span>
-                    ))}
+                <div className="mt-1 flex gap-3">
+                  {row.item.primary_image_url ? (
+                    <img
+                      src={row.item.primary_image_url}
+                      alt="Seller photo of this listing"
+                      className="h-16 w-16 shrink-0 rounded-xl object-cover"
+                      onError={(event) => {
+                        event.currentTarget.hidden = true;
+                      }}
+                    />
+                  ) : null}
+                  <p className="text-sm font-semibold text-mowing-green">
+                    {price ?? "Price unavailable"}
+                    <span className="font-normal text-mowing-green/70">
+                      {" "}
+                      · {row.item.condition || "Condition not stated"}
+                    </span>
                   </p>
-                ) : null}
-                <p className="mt-1 text-sm font-semibold text-mowing-green">
-                  {formatPrice(row.item.price_minor)}
-                  <span className="font-normal text-mowing-green/70">
-                    {" "}
-                    · {row.item.condition || "Condition n/a"}
-                  </span>
-                </p>
+                </div>
                 {config ? <p className="mt-1 text-xs text-mowing-green/80">{config}</p> : null}
-                {note?.savingGbp != null ? (
-                  <p className="mt-1 text-xs font-semibold text-mowing-green">
-                    £{note.savingGbp.toFixed(2)} less than the Best Match.
-                  </p>
-                ) : null}
-                {note?.fitVersusBestMatch === "lower" ? (
-                  <p className="mt-1 text-xs text-mowing-green/80">
-                    The listing fit is lower than the Best Match.
-                  </p>
-                ) : null}
-                {roles.includes("BUDGET_OPTION") ? (
-                  <p className="mt-1 text-xs text-mowing-green/80">
-                    The lowest price among the listings that cleared the match bar.
-                  </p>
+                {fullMatch ? (
+                  <p className="mt-1 text-xs text-mowing-green/80">{FULL_LISTING_ASSESSED}</p>
                 ) : null}
                 {row.unverified_shaft ? (
-                  <p className="mt-1 text-xs text-mowing-green">
-                    Head only · configuration unverified. Shaft identity is unresolved, so this is
-                    not a complete match.
-                  </p>
+                  <div className="mt-1 text-xs text-mowing-green">
+                    <p className="font-semibold">{HEAD_ONLY_UNVERIFIED_TITLE}</p>
+                    <p className="mt-1">{HEAD_ONLY_UNVERIFIED_BODY}</p>
+                  </div>
                 ) : null}
                 {row.listing_match && fullMatch ? null : row.attach_mode === "HEAD_ONLY" &&
                   !row.unverified_shaft ? (
                   <p className="mt-1 text-xs text-mowing-green/70">
-                    Listed for this head. Full match badge is not available.
+                    {HEAD_ONLY_UNSCORED_BODY}
                   </p>
                 ) : null}
                 <a
@@ -245,28 +235,24 @@ export function RecommendationHeadCard({
         </ul>
       ) : (
         <div className="mt-3">
-          {showEmptyListing ? (
-            <p className="text-sm text-mowing-green/70">
-              No verified Teevo listing for this head right now.
-            </p>
-          ) : (
-            <p className="text-sm text-mowing-green/70">
-              No verified Teevo listing is attached to this head.
-            </p>
-          )}
-          <a
-            href={browseModelHref(score)}
-            className="mt-1 inline-flex min-h-[44px] items-center text-sm font-semibold text-mowing-green underline"
-            onClick={() =>
-              track("match_model_browse_clicked", {
-                surface: "admin_preview",
-                catalogue_key: score.catalogue_key,
-                role: card.role,
-              })
-            }
-          >
-            Browse Teevo for this model
-          </a>
+          {emptyListingsMode === "head" ? (
+            <p className="text-sm text-mowing-green/70">{HEAD_LISTING_ABSENT}</p>
+          ) : null}
+          {browseHref ? (
+            <a
+              href={browseHref}
+              className="mt-1 inline-flex min-h-[44px] items-center text-sm font-semibold text-mowing-green underline"
+              onClick={() =>
+                track("match_model_browse_clicked", {
+                  surface: "admin_preview",
+                  catalogue_key: score.catalogue_key,
+                  role: card.role,
+                })
+              }
+            >
+              Browse Teevo for this model
+            </a>
+          ) : null}
         </div>
       )}
     </article>

@@ -48,6 +48,8 @@ import {
   answersToApiPayload,
   loadMatchAnswers,
   saveMatchAnswers,
+  saveMatchResult,
+  type MatchInventoryLoadStatus,
   type MatchQuestionnaireAnswers,
 } from "@/lib/match/app/session-storage";
 import {
@@ -57,17 +59,27 @@ import {
 } from "@/lib/match/app/step2-measurement";
 
 const ADMIN_PREVIEW_PROPS = { surface: "admin_preview" as const };
-const RESULTS_KEY = "teevo_match_admin_results_v1";
+
+type RefreshActivity = {
+  pending: boolean;
+  refreshFailed: boolean;
+  detail: string | null;
+};
 
 type Props = {
   result: CatalogueRecommendResult;
   onResult: (next: CatalogueRecommendResult) => void;
+  onActivity?: (activity: RefreshActivity) => void;
 };
 
 async function postRecommend(
   answers: MatchQuestionnaireAnswers
 ): Promise<
-  | { ok: true; result: CatalogueRecommendResult }
+  | {
+      ok: true;
+      result: CatalogueRecommendResult;
+      inventoryStatus: MatchInventoryLoadStatus;
+    }
   | { ok: false; error: string }
 > {
   const res = await fetch("/api/admin/match/recommend", {
@@ -79,6 +91,7 @@ async function postRecommend(
     result?: CatalogueRecommendResult;
     error?: string;
     validation_errors?: string[];
+    inventory_status?: MatchInventoryLoadStatus;
   } = {};
   try {
     data = await res.json();
@@ -93,7 +106,11 @@ async function postRecommend(
       ),
     };
   }
-  return { ok: true, result: data.result };
+  return {
+    ok: true,
+    result: data.result,
+    inventoryStatus: data.inventory_status === "unavailable" ? "unavailable" : "ready",
+  };
 }
 
 function toRecord(a: MatchQuestionnaireAnswers): Record<string, unknown> {
@@ -237,7 +254,7 @@ function formatApiError(message: string): string {
   return `${trimmed}. Previous results are unchanged.`;
 }
 
-export function MatchRefinementPanel({ result, onResult }: Props) {
+export function MatchRefinementPanel({ result, onResult, onActivity }: Props) {
   const [answers, setAnswers] = useState<MatchQuestionnaireAnswers>(() =>
     loadMatchAnswers()
   );
@@ -278,6 +295,18 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
           skipped: refine.skipped,
         }
       );
+
+  const onActivityRef = useRef(onActivity);
+  onActivityRef.current = onActivity;
+  useEffect(() => {
+    onActivityRef.current?.({
+      pending,
+      refreshFailed: canRetry,
+      detail: canRetry
+        ? error?.replace(/ ?Previous results are unchanged\.?$/, "") || null
+        : null,
+    });
+  }, [pending, canRetry, error]);
 
   useEffect(() => {
     if (
@@ -335,7 +364,7 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
     });
     setOptionalExpanded(false);
     setCanRetry(false);
-    setError(null);
+        setError(null);
     track("match_refinement_skipped", {
       ...ADMIN_PREVIEW_PROPS,
       pathway: "OPTIONAL_B",
@@ -373,7 +402,7 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
       inFlight.current = true;
       const seq = ++requestSeq.current;
       setCanRetry(false);
-      setError(null);
+        setError(null);
 
       const committedRefine = preferLatestRefine(refine);
       const committedAnswers = answers;
@@ -444,7 +473,7 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
         resultMode: out.result.mode,
       });
       persistRefine(next);
-      sessionStorage.setItem(RESULTS_KEY, JSON.stringify(out.result));
+      saveMatchResult(out.result, out.inventoryStatus);
       onResult(out.result);
       if (out.result.mode === "NAMED_HEADS") {
         track("match_refinement_recovered", {
@@ -458,7 +487,7 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
       setObjConfirm(false);
       setOptionalExpanded(false);
       setCanRetry(false);
-      setError(null);
+        setError(null);
       inFlight.current = false;
     });
   }
@@ -469,7 +498,7 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
       inFlight.current = true;
       const seq = ++requestSeq.current;
       setCanRetry(false);
-      setError(null);
+        setError(null);
 
       const committedRefine = preferLatestRefine(refine);
       const planned = proposePathwayCMeasurement(
@@ -516,7 +545,7 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
         resultMode: out.result.mode,
       });
       persistRefine(next);
-      sessionStorage.setItem(RESULTS_KEY, JSON.stringify(out.result));
+      saveMatchResult(out.result, out.inventoryStatus);
       onResult(out.result);
       if (out.result.mode === "NAMED_HEADS") {
         track("match_refinement_recovered", {
@@ -527,7 +556,7 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
         });
       }
       setCanRetry(false);
-      setError(null);
+        setError(null);
       inFlight.current = false;
     });
   }

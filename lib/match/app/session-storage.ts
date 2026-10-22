@@ -1,5 +1,28 @@
 /** Client-side questionnaire persistence (Checkpoint A — no DB). */
 export const MATCH_QUESTIONNAIRE_STORAGE_KEY = "teevo_match_admin_q_v1";
+export const MATCH_RESULTS_STORAGE_KEY = "teevo_match_admin_results_v1";
+export const MATCH_INVENTORY_STATUS_KEY = "teevo_match_admin_inventory_v1";
+
+/** Whether the recommend request could read Teevo stock. Not a Fit score. */
+export type MatchInventoryLoadStatus = "ready" | "unavailable";
+
+export function saveMatchResult(
+  result: unknown,
+  inventoryStatus?: MatchInventoryLoadStatus
+): void {
+  if (typeof window === "undefined") return;
+  sessionStorage.setItem(MATCH_RESULTS_STORAGE_KEY, JSON.stringify(result));
+  if (inventoryStatus) {
+    sessionStorage.setItem(MATCH_INVENTORY_STATUS_KEY, inventoryStatus);
+  }
+}
+
+export function loadInventoryLoadStatus(): MatchInventoryLoadStatus {
+  if (typeof window === "undefined") return "ready";
+  return sessionStorage.getItem(MATCH_INVENTORY_STATUS_KEY) === "unavailable"
+    ? "unavailable"
+    : "ready";
+}
 
 export type MatchQuestionnaireAnswers = {
   handedness: "LEFT" | "RIGHT" | "";

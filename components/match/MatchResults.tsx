@@ -6,28 +6,44 @@ import { MatchRefinementPanel } from "@/components/match/MatchRefinementPanel";
 import { GuidanceSummary } from "@/components/match/results/GuidanceSummary";
 import { RecommendationHeadCard } from "@/components/match/results/RecommendationHeadCard";
 import { ResultsHeading } from "@/components/match/results/ResultsHeading";
-import { track } from "@/lib/analytics";
 import {
-  EQUAL_HEAD_SCORE_MESSAGE,
-  namedHeadsScoredEqually,
-  presentNamedHeadCards,
-} from "@/lib/match/app/present-head-card";
+  ListingAvailabilityNotice,
+  RefreshStatus,
+  ResultsLoading,
+} from "@/components/match/results/ResultsStatus";
+import { track } from "@/lib/analytics";
+import { presentNamedHeadCards } from "@/lib/match/app/present-head-card";
+import { presentHeadChoices } from "@/lib/match/app/present-head-choices";
 import { presentAttachedListingLabels } from "@/lib/match/app/present-listing-labels";
-import { loadMatchAnswers } from "@/lib/match/app/session-storage";
+import {
+  loadInventoryLoadStatus,
+  loadMatchAnswers,
+  MATCH_RESULTS_STORAGE_KEY,
+  type MatchInventoryLoadStatus,
+} from "@/lib/match/app/session-storage";
 import type { CatalogueRecommendResult } from "@/lib/match/catalogue-types";
 
 const ADMIN_PREVIEW_PROPS = { surface: "admin_preview" as const };
 
 export function MatchResults() {
+  const [hydrated, setHydrated] = useState(false);
   const [result, setResult] = useState<CatalogueRecommendResult | null>(null);
   const [budgetGbp, setBudgetGbp] = useState<number | null>(null);
+  const [inventoryStatus, setInventoryStatus] =
+    useState<MatchInventoryLoadStatus>("ready");
+  const [activity, setActivity] = useState({
+    pending: false,
+    refreshFailed: false,
+    detail: null as string | null,
+  });
 
   useEffect(() => {
     try {
+      setInventoryStatus(loadInventoryLoadStatus());
       const rawBudget = loadMatchAnswers().budget_max_gbp.trim();
       const parsedBudget = Number(rawBudget);
       setBudgetGbp(rawBudget && Number.isFinite(parsedBudget) ? parsedBudget : null);
-      const raw = sessionStorage.getItem("teevo_match_admin_results_v1");
+      const raw = sessionStorage.getItem(MATCH_RESULTS_STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as CatalogueRecommendResult;
         setResult(parsed);
@@ -50,6 +66,8 @@ export function MatchResults() {
                   )?.items ?? []
               )
             : [];
+        const choices =
+          parsed.mode === "NAMED_HEADS" ? presentHeadChoices(named) : [];
         const roles = presentAttachedListingLabels(
           attached,
           rawBudget && Number.isFinite(parsedBudget) ? parsedBudget : null
@@ -63,6 +81,10 @@ export function MatchResults() {
           top_head_matches: cards.filter((card) => card.role === "BEST_SUPPORTED").length,
           alternative_head_matches: cards.filter((card) => card.role === "ALTERNATIVE").length,
           similarly_suitable: cards.filter((card) => card.role === "SIMILAR").length,
+          best_match_heads: choices.filter((choice) => choice.category === "BEST_MATCH").length,
+          newer_option_heads: choices.filter((choice) => choice.category === "NEWER_OPTION").length,
+          alternative_match_heads: choices.filter((choice) => choice.category === "ALTERNATIVE_MATCH")
+            .length,
           best_match_listings: listingLabelCount("BEST_MATCH"),
           best_value_listings: listingLabelCount("BEST_VALUE"),
           budget_option_listings: listingLabelCount("BUDGET_OPTION"),
@@ -70,8 +92,14 @@ export function MatchResults() {
       }
     } catch {
       setResult(null);
+    } finally {
+      setHydrated(true);
     }
   }, []);
+
+  if (!hydrated) {
+    return <ResultsLoading />;
+  }
 
   if (!result) {
     return (
@@ -90,7 +118,7 @@ export function MatchResults() {
   const g = result.characteristic_guidance;
   const shaft = result.shaft_guidance;
   const named = result.mode === "NAMED_HEADS" ? result.recommendations : [];
-  const hasEqualFitAmongNamed = namedHeadsScoredEqually(named);
+  const choices = presentHeadChoices(named);
   const olderAboveNewer = named.some((rec, i) =>
     named.slice(i + 1).some((later) => {
       const older = rec.release_year;
@@ -135,26 +163,23 @@ export function MatchResults() {
                       (attachment) => attachment.catalogue_key === rec.catalogue_key
                     )?.items ?? []
                   }
+                  choice={choices[i]}
                   listingRoles={listingRoles}
-                  showEmptyListing={anyListing}
+                  emptyListingsMode={
+                    inventoryStatus === "unavailable"
+                      ? "unchecked"
+                      : anyListing
+                        ? "head"
+                        : "page"
+                  }
                 />
               </li>
             ))}
           </ul>
-          {hasEqualFitAmongNamed ? (
-            <div className="rounded-xl bg-par-3-punch/10 px-4 py-3 text-sm text-mowing-green">
-              <p className="font-semibold">Similar suitability</p>
-              <p className="mt-1 text-mowing-green/80">{EQUAL_HEAD_SCORE_MESSAGE}</p>
-            </div>
-          ) : null}
-          {anyListing ? null : (
-            <div className="rounded-xl border border-mowing-green/15 bg-white px-4 py-3 text-sm text-mowing-green">
-              <p className="font-semibold">No matching Teevo listings right now</p>
-              <p className="mt-1 text-mowing-green/80">
-                The model-level recommendation still applies.
-              </p>
-            </div>
-          )}
+          <ListingAvailabilityNotice
+            status={inventoryStatus}
+            hasListings={anyListing}
+          />
         </>
       ) : result.mode === "CHARACTERISTIC_GUIDANCE" ||
         result.mode === "NO_DEFENSIBLE_HEADS" ? (
@@ -171,7 +196,19 @@ export function MatchResults() {
       )}
 
       {/* Guidance refine + optional post-recovery refine (secondary to named cards). */}
-      <MatchRefinementPanel result={result} onResult={setResult} />
+      <RefreshStatus
+        pending={activity.pending}
+        failed={activity.refreshFailed}
+        detail={activity.detail}
+      />
+      <MatchRefinementPanel
+        result={result}
+        onResult={(next) => {
+          setResult(next);
+          setInventoryStatus(loadInventoryLoadStatus());
+        }}
+        onActivity={setActivity}
+      />
 
       {result.mode === "NAMED_HEADS" ? (
       <section className="rounded-xl border border-mowing-green/15 bg-white p-4 space-y-2">
