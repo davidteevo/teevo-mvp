@@ -41,6 +41,10 @@ import {
   type MatchRefinementState,
 } from "@/lib/match/app/refinement-session";
 import {
+  PATHWAY_C_SPEED_REPLACES_CARRY,
+  pathwayCReplacesCarry,
+} from "@/lib/match/app/present-guidance";
+import {
   answersToApiPayload,
   loadMatchAnswers,
   saveMatchAnswers,
@@ -242,6 +246,7 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
   );
   const [choice, setChoice] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [canRetry, setCanRetry] = useState(false);
   const [pending, startTransition] = useTransition();
   const [objConfirm, setObjConfirm] = useState(false);
   /** OPTIONAL_B: soft prompt first; expand after "Refine my Match". */
@@ -329,6 +334,7 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
       optionalRefineDismissed: true,
     });
     setOptionalExpanded(false);
+    setCanRetry(false);
     setError(null);
     track("match_refinement_skipped", {
       ...ADMIN_PREVIEW_PROPS,
@@ -354,16 +360,19 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
   function submitPathwayB(question: RefinementQuestion) {
     if (pending || inFlight.current) return;
     if (!choice) {
+      setCanRetry(false);
       setError("Choose an option to continue.");
       return;
     }
     if (question.requiresObjectiveConfirm && !objConfirm && choice !== "KEEP") {
+      setCanRetry(false);
       setError("Confirm that you want to change your main goal.");
       return;
     }
     startTransition(async () => {
       inFlight.current = true;
       const seq = ++requestSeq.current;
+      setCanRetry(false);
       setError(null);
 
       const committedRefine = preferLatestRefine(refine);
@@ -418,6 +427,7 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
       }
 
       if (!out.ok) {
+        setCanRetry(true);
         setError(formatApiError(out.error));
         inFlight.current = false;
         // Choice retained for Retry; stepCount / answers / results unchanged.
@@ -447,6 +457,7 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
       setChoice("");
       setObjConfirm(false);
       setOptionalExpanded(false);
+      setCanRetry(false);
       setError(null);
       inFlight.current = false;
     });
@@ -457,6 +468,7 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
     startTransition(async () => {
       inFlight.current = true;
       const seq = ++requestSeq.current;
+      setCanRetry(false);
       setError(null);
 
       const committedRefine = preferLatestRefine(refine);
@@ -487,6 +499,7 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
       }
 
       if (!out.ok) {
+        setCanRetry(true);
         setError(formatApiError(out.error));
         inFlight.current = false;
         return;
@@ -513,6 +526,7 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
           mode: out.result.mode,
         });
       }
+      setCanRetry(false);
       setError(null);
       inFlight.current = false;
     });
@@ -528,6 +542,9 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
         className="rounded-xl border border-par-3-punch/40 bg-white p-4 space-y-3"
         aria-labelledby="match-refine-c-title"
       >
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-par-3-punch">
+          Add what you know · Optional
+        </p>
         <h2
           id="match-refine-c-title"
           className="text-lg font-semibold text-mowing-green"
@@ -572,8 +589,13 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
           onChange={(v) => setCCurve(v === "UNKNOWN" ? "" : v)}
           options={curvatureVisualOptions(CURVATURE_PATHWAY_C_LABELS)}
         />
-        {error ? (
-          <p className="text-sm text-par-3-punch" role="alert">
+        {pathwayCReplacesCarry(answers.carry_distance_yards, cSpeed) ? (
+          <p className="text-sm text-mowing-green" role="status">
+            {PATHWAY_C_SPEED_REPLACES_CARRY}
+          </p>
+        ) : null}
+        {error && !canRetry ? (
+          <p className="text-sm text-red-700" role="alert">
             {error}
           </p>
         ) : null}
@@ -584,7 +606,7 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
             onClick={submitPathwayC}
             className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-mowing-green px-5 text-sm font-semibold text-white disabled:opacity-60"
           >
-            {pending ? "Updating…" : error ? "Retry" : "See recommendations"}
+            {pending ? "Updating…" : canRetry ? "Retry" : "See recommendations"}
           </button>
           <button
             type="button"
@@ -648,8 +670,8 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
               choice={choice}
               onChange={setChoice}
             />
-            {error ? (
-              <p className="text-sm text-par-3-punch" role="alert">
+            {error && !canRetry ? (
+              <p className="text-sm text-red-700" role="alert">
                 {error}
               </p>
             ) : null}
@@ -660,7 +682,7 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
                 onClick={() => submitPathwayB(question)}
                 className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-mowing-green px-5 text-sm font-semibold text-white disabled:opacity-60"
               >
-                {pending ? "Updating…" : error ? "Retry" : "Continue"}
+                {pending ? "Updating…" : canRetry ? "Retry" : "Continue"}
               </button>
               <button
                 type="button"
@@ -678,9 +700,6 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
   }
 
   const question = decision.question!;
-  // Avoid duplicating the STRAIGHT optional headline in the body.
-  const showGenericBody =
-    question.id !== "typical_curvature_straight_optional";
 
   return (
     <section
@@ -691,13 +710,8 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
         id="match-refine-b-title"
         className="text-lg font-semibold text-mowing-green"
       >
-        {question.headline}
+        One quick question
       </h2>
-      {showGenericBody ? (
-        <p className="text-sm text-mowing-green/80">
-          One more detail could help us narrow them down.
-        </p>
-      ) : null}
       <RefinementChoiceControl
         question={question}
         choice={choice}
@@ -719,8 +733,8 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
           </span>
         </label>
       ) : null}
-      {error ? (
-        <p className="text-sm text-par-3-punch" role="alert">
+      {error && !canRetry ? (
+        <p className="text-sm text-red-700" role="alert">
           {error}
         </p>
       ) : null}
@@ -731,7 +745,7 @@ export function MatchRefinementPanel({ result, onResult }: Props) {
           onClick={() => submitPathwayB(question)}
           className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-mowing-green px-5 text-sm font-semibold text-white disabled:opacity-60"
         >
-          {pending ? "Updating…" : error ? "Retry" : "Continue"}
+          {pending ? "Updating…" : canRetry ? "Retry" : "Continue"}
         </button>
         <button
           type="button"

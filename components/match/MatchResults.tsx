@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { MatchRefinementPanel } from "@/components/match/MatchRefinementPanel";
+import { GuidanceSummary } from "@/components/match/results/GuidanceSummary";
 import { RecommendationHeadCard } from "@/components/match/results/RecommendationHeadCard";
 import { ResultsHeading } from "@/components/match/results/ResultsHeading";
 import { track } from "@/lib/analytics";
@@ -155,62 +156,24 @@ export function MatchResults() {
             </div>
           )}
         </>
+      ) : result.mode === "CHARACTERISTIC_GUIDANCE" ||
+        result.mode === "NO_DEFENSIBLE_HEADS" ? (
+        <GuidanceSummary result={result} />
       ) : (
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-par-3-punch">
-            Admin preview · not purchasable offers
-          </p>
-          <h1 className="text-2xl font-semibold text-mowing-green mt-1">
-            Equipment recommendations
+          <h1 className="text-2xl font-semibold text-mowing-green">
+            Teevo could not show recommendations
           </h1>
-          <p className="text-sm text-mowing-green/70 mt-1">
-            Mode: {result.mode.replace(/_/g, " ").toLowerCase()}.
+          <p className="mt-1 text-sm text-mowing-green/80">
+            Check the answers and try again. Previous fitting results are unchanged.
           </p>
-          <div className="mt-3 rounded-xl border border-par-3-punch/40 bg-par-3-punch/5 px-3 py-2 text-sm text-mowing-green">
-            <p className="font-semibold">
-              Assessed head characteristics only — not a complete club fitting
-            </p>
-            <p className="mt-1 text-mowing-green/80">
-              Catalogue Fit scores model-level head characteristics that could be
-              assessed from your answers. Loft and shaft suitability are not
-              included. Recommendations do not prove a handedness, loft or shaft
-              configuration exists. UK-market presence is not proof of live
-              inventory. Confirm on real stock before buying.
-            </p>
-          </div>
         </div>
       )}
 
       {/* Guidance refine + optional post-recovery refine (secondary to named cards). */}
       <MatchRefinementPanel result={result} onResult={setResult} />
 
-      {(result.mode === "CHARACTERISTIC_GUIDANCE" ||
-        result.mode === "NO_DEFENSIBLE_HEADS") && (
-        <div className="rounded-xl border border-par-3-punch/30 bg-white p-4 space-y-2">
-          <h2 className="text-lg font-semibold text-mowing-green">
-            Characteristic guidance
-          </h2>
-          <p className="text-sm text-mowing-green/80">
-            {result.mode === "CHARACTERISTIC_GUIDANCE"
-              ? result.audit.insufficient_evidence_reason ===
-                "NO_MEANINGFUL_HEAD_DIFFERENTIATION"
-                ? "Too many leading heads share similar incomplete Fit evidence for Teevo to name a shortlist confidently."
-                : "Not enough independent head-fit evidence for named rankings yet."
-              : "No catalogue heads cleared the defensive gates for this session."}
-          </p>
-          <ul className="list-disc pl-5 text-sm text-mowing-green/80 space-y-1">
-            {g.notes.map((n) => (
-              <li key={n}>{n}</li>
-            ))}
-          </ul>
-          <p className="text-sm text-mowing-green/70">
-            Direction: {g.directional_requirement}. Head launch:{" "}
-            {g.head_launch_target}. Forgiveness target:{" "}
-            {g.forgiveness_requirement ?? "unresolved"}.
-          </p>
-        </div>
-      )}
-
+      {result.mode === "NAMED_HEADS" ? (
       <section className="rounded-xl border border-mowing-green/15 bg-white p-4 space-y-2">
         <h2 className="text-lg font-semibold text-mowing-green">
           Shaft profile guidance
@@ -232,17 +195,6 @@ export function MatchResults() {
           ))}
         </ul>
       </section>
-
-      {result.mode !== "NAMED_HEADS" ? (
-        <section className="rounded-xl border border-dashed border-mowing-green/25 p-4">
-          <h2 className="text-sm font-semibold text-mowing-green">
-            Available on Teevo
-          </h2>
-          <p className="text-sm text-mowing-green/70 mt-1">
-            Inventory is shown alongside named head recommendations when
-            available.
-          </p>
-        </section>
       ) : null}
 
       <details className="text-xs text-mowing-green/60">
