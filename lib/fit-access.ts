@@ -28,8 +28,9 @@ export const FIT_COMING_SOON = {
   heading: "Find your fit. Play your best.",
   description:
     "Meet Teevo Fit — a smarter way to find golf clubs suited to your game.",
+  drivers: "We're starting with drivers.",
   detail:
-    "Tell us a little about how you play, and we'll help you discover equipment that could work for you.",
+    "Tell us a little about how you play, and we'll help you discover a driver that could work for you.",
   status: "Coming Soon",
   cta: "Explore Clubs",
   ctaHref: "/",

@@ -49,7 +49,9 @@ describe("Teevo Fit public copy and routes", () => {
     expect(FIT_COMING_SOON.description).toBe(
       "Meet Teevo Fit — a smarter way to find golf clubs suited to your game."
     );
+    expect(FIT_COMING_SOON.drivers).toBe("We're starting with drivers.");
     expect(FIT_COMING_SOON.detail).toContain("how you play");
+    expect(FIT_COMING_SOON.detail).toContain("driver");
     expect(FIT_COMING_SOON.status).toBe("Coming Soon");
     expect(FIT_COMING_SOON.cta).toBe("Explore Clubs");
     expect(FIT_COMING_SOON.ctaHref).toBe("/");

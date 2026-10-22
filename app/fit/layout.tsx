@@ -5,7 +5,7 @@ import { viewerCanAccessTeevoFit } from "@/lib/fit-access.server";
 
 export const dynamic = "force-dynamic";
 
-const shareDescription = `${FIT_COMING_SOON.description} Coming soon.`;
+const shareDescription = `${FIT_COMING_SOON.description} ${FIT_COMING_SOON.drivers} Coming soon.`;
 
 export const metadata: Metadata = {
   title: `${TEEVO_FIT_NAME} | Teevo`,
@@ -27,6 +27,6 @@ export default async function FitLayout({ children }: { children: React.ReactNod
   if (!authorised) return <FitComingSoon />;
 
   return (
-    <main className="mx-auto w-full min-w-0 max-w-6xl px-4 py-8">{children}</main>
+    <div className="mx-auto w-full min-w-0 max-w-6xl px-4 py-8">{children}</div>
   );
 }
