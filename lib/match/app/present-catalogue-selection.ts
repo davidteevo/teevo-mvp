@@ -1,6 +1,7 @@
 import { canonicalBrandId } from "../brands";
 import type { CatalogueHeadScore } from "../catalogue-types";
 import { CATALOGUE_HEAD_DIMENSIONS } from "../scoring/head-dimensions";
+import type { NormalisedRequirements } from "../types";
 import type { UkHeadRelevanceIndex } from "../uk-head-relevance";
 import {
   presentHeadChoices,
@@ -141,9 +142,10 @@ export function selectPresentedCatalogueHeads(input: {
   familyWinners: CatalogueHeadScore[];
   topTiedFamilyCount: number;
   uk?: UkHeadRelevanceIndex | null;
-}): { heads: CatalogueHeadScore[]; choices: HeadChoice[] } {
+  requirements?: NormalisedRequirements | null;
+}): { heads: CatalogueHeadScore[]; choices: HeadChoice[]; diversitySelection: DiversitySelection | null } {
   const shortlist = input.technicalShortlist;
-  if (shortlist.length === 0) return { heads: [], choices: [] };
+  if (shortlist.length === 0) return { heads: [], choices: [], diversitySelection: null };
   if (input.topTiedFamilyCount > 3) {
     return {
       heads: shortlist.slice(),
@@ -155,6 +157,7 @@ export function selectPresentedCatalogueHeads(input: {
         note: null,
         substitution: null,
       })),
+      diversitySelection: null,
     };
   }
 
@@ -223,13 +226,134 @@ export function selectPresentedCatalogueHeads(input: {
         head.catalogue_key !== newer?.catalogue_key
     ) ??
     null;
-  const heads = uniqueHeads([best, filler, newer]).slice(0, 3);
+  const assembled = uniqueHeads([best, filler, newer]).slice(0, 3);
+  const diversified = substituteLowerSameManufacturer({
+    heads: assembled,
+    pool: input.familyWinners,
+    best,
+    requirements: input.requirements,
+    uk: input.uk,
+  });
   return {
-    heads,
-    choices: presentHeadChoices(heads, {
+    heads: diversified.heads,
+    choices: presentHeadChoices(diversified.heads, {
       bestCatalogueKey: best.catalogue_key,
       substitution,
     }),
+    diversitySelection: diversified.selection,
+  };
+}
+
+function newerEligible(head: CatalogueHeadScore, best: CatalogueHeadScore): boolean {
+  const year = head.release_year;
+  const bestYear = best.release_year;
+  if (year == null || bestYear == null || year <= bestYear) return false;
+  if (head.catalogue_match_band !== best.catalogue_match_band) return false;
+  return differentModel(head, best);
+}
+
+function relevantDimensionNames(
+  requirements: NormalisedRequirements | null | undefined
+): string[] {
+  if (!requirements) return ["forgiveness", "stability", "direction", "head_launch"];
+  const names: string[] = [];
+  if (requirements.forgiveness_requirement != null) names.push("forgiveness");
+  if (requirements.stability_requirement != null) names.push("stability");
+  if (
+    requirements.directional_target_numeric != null &&
+    Math.abs(requirements.directional_target_numeric) >= 1
+  ) {
+    names.push("direction");
+  }
+  if (
+    requirements.head_launch_target !== "UNRESOLVED" &&
+    requirements.head_launch_target_numeric != null
+  ) {
+    names.push("head_launch");
+  }
+  if ((requirements.workability_preference ?? 0) >= 3) names.push("workability");
+  return names;
+}
+
+function hasImportantDeficiency(
+  candidate: CatalogueHeadScore,
+  replaced: CatalogueHeadScore,
+  requirements: NormalisedRequirements | null | undefined
+): boolean {
+  for (const name of relevantDimensionNames(requirements)) {
+    const current = replaced.dimensions[name];
+    const next = candidate.dimensions[name];
+    if (!current?.active || current.score == null) continue;
+    if (!next?.active || next.score == null) return true;
+    if (current.score >= 85 && next.score < 85) return true;
+    if (next.score < current.score - 15) return true;
+  }
+  return false;
+}
+
+/**
+ * When a unique Best Match is followed by two same-manufacturer heads on one
+ * lower score, a different manufacturer at that exact score can take the
+ * spare slot. The Best Match and a qualifying Newer Option stay in place.
+ */
+export function substituteLowerSameManufacturer(input: {
+  heads: CatalogueHeadScore[];
+  pool: CatalogueHeadScore[];
+  best: CatalogueHeadScore;
+  requirements?: NormalisedRequirements | null;
+  uk?: UkHeadRelevanceIndex | null;
+}): { heads: CatalogueHeadScore[]; selection: DiversitySelection | null } {
+  const unchanged = { heads: input.heads, selection: null };
+  if (input.heads.length < 3) return unchanged;
+  const best = input.best;
+  const others = input.heads.filter((head) => head.catalogue_key !== best.catalogue_key);
+  if (others.length !== 2) return unchanged;
+  const [first, second] = others;
+  const shared = first.catalogue_fit_score;
+  if (
+    shared == null ||
+    shared !== second.catalogue_fit_score ||
+    best.catalogue_fit_score == null ||
+    !(best.catalogue_fit_score > shared)
+  ) {
+    return unchanged;
+  }
+  if (manufacturerId(first) !== manufacturerId(second)) return unchanged;
+
+  const firstNewer = newerEligible(first, best);
+  const secondNewer = newerEligible(second, best);
+  let replace = second;
+  if (firstNewer && !secondNewer) replace = second;
+  else if (secondNewer && !firstNewer) replace = first;
+  else if (firstNewer && secondNewer) {
+    replace =
+      (first.release_year ?? 0) >= (second.release_year ?? 0) ? second : first;
+  }
+
+  const stock = new Set<string>();
+  const candidates = input.pool
+    .filter(
+      (head) =>
+        head.catalogue_key !== best.catalogue_key &&
+        head.catalogue_key !== first.catalogue_key &&
+        head.catalogue_key !== second.catalogue_key &&
+        head.catalogue_fit_score === shared &&
+        manufacturerId(head) !== manufacturerId(replace) &&
+        comparableSupport(head, replace) &&
+        ukRank(head, input.uk) >= ukRank(replace, input.uk) &&
+        !hasImportantDeficiency(head, replace, input.requirements)
+    )
+    .sort((a, b) => compareSupported(a, b, input.uk, stock));
+  const candidate = candidates[0];
+  if (!candidate) return unchanged;
+  return {
+    heads: input.heads.map((head) =>
+      head.catalogue_key === replace.catalogue_key ? candidate : head
+    ),
+    selection: {
+      head: candidate,
+      reasons: ["DIFFERENT_MANUFACTURER"],
+    },
   };
 }
 
@@ -307,7 +431,6 @@ function diversityPool(
     const id = canonicalBrandId(head.brand);
     return id != null && brandIds.has(id);
   });
-  if (matching.length === 0) return { heads, filtered: false };
   return { heads: matching, filtered: true };
 }
 

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { MatchRefinementPanel } from "@/components/match/MatchRefinementPanel";
 import { GuidanceSummary } from "@/components/match/results/GuidanceSummary";
 import { RecommendationHeadCard } from "@/components/match/results/RecommendationHeadCard";
+import { BrandFilterEmpty } from "@/components/match/results/BrandFilterEmpty";
 import { ResultsHeading, SuitableResultsHeading } from "@/components/match/results/ResultsHeading";
 import type { HeadChoice } from "@/lib/match/app/present-head-choices";
 import { SUITABLE_EXAMPLE_PRECEDENCE } from "@/lib/match/app/present-catalogue-selection";
@@ -228,6 +229,8 @@ export function MatchResults() {
             hasListings={anyListing}
           />
         </>
+      ) : result.audit.insufficient_evidence_reason === "BRAND_FILTER_NO_ELIGIBLE_HEADS" ? (
+        <BrandFilterEmpty onResult={setResult} />
       ) : result.mode === "CHARACTERISTIC_GUIDANCE" ||
         result.mode === "NO_DEFENSIBLE_HEADS" ? (
         <GuidanceSummary result={result} />

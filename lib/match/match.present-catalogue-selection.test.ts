@@ -10,7 +10,9 @@ import {
   selectDiverseEquivalentHeads,
   selectPresentedCatalogueHeads,
   selectSuitableExamples,
+  substituteLowerSameManufacturer,
 } from "@/lib/match/app/present-catalogue-selection";
+import { presentHeadChoices } from "@/lib/match/app/present-head-choices";
 import { canonicalBrandId } from "@/lib/match/brands";
 import { presentHeadCard } from "@/lib/match/app/present-head-card";
 import type { DimensionTrace } from "@/lib/match/types";
@@ -347,6 +349,20 @@ describe("catalogue presentation selection", () => {
     expect(selected[1].reasons).toContain("SAME_MANUFACTURER_ONLY_SUPPORTED_OPTION");
   });
 
+  it("does not broaden a brand filter when that brand is absent", () => {
+    const topTier = [
+      head({ catalogue_key: "ping|g430|2023", brand: "PING", model: "G430" }),
+      head({ catalogue_key: "callaway|paradym|2023", brand: "Callaway", model: "Paradym" }),
+    ];
+    expect(
+      selectSuitableExamples({
+        topTier,
+        uk: null,
+        brandIds: new Set(["titleist"]),
+      })
+    ).toEqual([]);
+  });
+
   it("respects an explicit brand filter without adding another brand", () => {
     const topTier = [
       head({ catalogue_key: "ping|g430|2023", brand: "PING", model: "G430", release_year: 2023 }),
@@ -369,6 +385,168 @@ describe("catalogue presentation selection", () => {
       brandIds: new Set(["callaway"]),
     });
     expect(selected.map((item) => item.brand)).toEqual(["Callaway", "Callaway"]);
+  });
+
+  it("replaces one of two same-manufacturer followers when another brand shares that score", () => {
+    const ping = head({
+      catalogue_key: "ping|g|2016",
+      brand: "PING",
+      model: "G",
+      release_year: 2016,
+      catalogue_fit_score: 100,
+    });
+    const newerCobra = head({
+      catalogue_key: "cobra|optm|2026",
+      brand: "Cobra",
+      model: "OPTM",
+      release_year: 2026,
+      catalogue_fit_score: 97.92,
+    });
+    const otherCobra = head({
+      catalogue_key: "cobra|ds-adapt|2025",
+      brand: "Cobra",
+      model: "DS-ADAPT",
+      release_year: 2025,
+      catalogue_fit_score: 97.92,
+    });
+    const wilson = head({
+      catalogue_key: "wilson|launch-pad-2|2022",
+      brand: "Wilson",
+      model: "Launch Pad 2",
+      release_year: 2022,
+      catalogue_fit_score: 97.92,
+    });
+    const replaced = substituteLowerSameManufacturer({
+      heads: [ping, otherCobra, newerCobra],
+      pool: [ping, otherCobra, newerCobra, wilson],
+      best: ping,
+    });
+    expect(replaced.heads.map((item) => item.catalogue_key)).toEqual([
+      "ping|g|2016",
+      "wilson|launch-pad-2|2022",
+      "cobra|optm|2026",
+    ]);
+    expect(replaced.selection?.reasons).toContain("DIFFERENT_MANUFACTURER");
+    const choices = presentHeadChoices(replaced.heads, { bestCatalogueKey: ping.catalogue_key });
+    expect(choices.map((choice) => choice.label)).toEqual([
+      "Best Match",
+      "Alternative Match",
+      "Newer Option",
+    ]);
+    expect(choices[2].catalogueKey).toBe("cobra|optm|2026");
+  });
+
+  it("keeps the same-manufacturer pair when no other brand shares the score", () => {
+    const ping = head({
+      catalogue_key: "ping|g|2016",
+      brand: "PING",
+      model: "G",
+      release_year: 2016,
+      catalogue_fit_score: 100,
+    });
+    const cobras = ["optm", "ds-adapt"].map((model, index) =>
+      head({
+        catalogue_key: `cobra|${model}|202${5 + index}`,
+        brand: "Cobra",
+        model,
+        release_year: 2025 + index,
+        catalogue_fit_score: 97.92,
+      })
+    );
+    const replaced = substituteLowerSameManufacturer({
+      heads: [ping, ...cobras],
+      pool: [ping, ...cobras],
+      best: ping,
+    });
+    expect(replaced.heads.map((item) => item.brand)).toEqual(["PING", "Cobra", "Cobra"]);
+    expect(replaced.selection).toBeNull();
+  });
+
+  it("does not substitute a lower-score head with weaker evidence", () => {
+    const ping = head({
+      catalogue_key: "ping|g|2016",
+      brand: "PING",
+      model: "G",
+      release_year: 2016,
+      catalogue_fit_score: 100,
+    });
+    const cobra = head({
+      catalogue_key: "cobra|optm|2026",
+      brand: "Cobra",
+      model: "OPTM",
+      release_year: 2026,
+      catalogue_fit_score: 97.92,
+    });
+    const duplicate = head({
+      catalogue_key: "cobra|ds-adapt|2025",
+      brand: "Cobra",
+      model: "DS-ADAPT",
+      release_year: 2025,
+      catalogue_fit_score: 97.92,
+    });
+    const weak = head({
+      catalogue_key: "wilson|weak|2022",
+      brand: "Wilson",
+      model: "Weak",
+      release_year: 2022,
+      catalogue_fit_score: 97.92,
+      dimensions: { direction: dim(100, 0.5), forgiveness: dim(100, 1), stability: dim(100, 1) },
+    });
+    const replaced = substituteLowerSameManufacturer({
+      heads: [ping, duplicate, cobra],
+      pool: [ping, duplicate, cobra, weak],
+      best: ping,
+    });
+    expect(replaced.selection).toBeNull();
+  });
+
+  it("does not substitute a head that is weak on the golfer's miss", () => {
+    const ping = head({
+      catalogue_key: "ping|g|2016",
+      brand: "PING",
+      model: "G",
+      release_year: 2016,
+      catalogue_fit_score: 100,
+    });
+    const cobra = head({
+      catalogue_key: "cobra|optm|2026",
+      brand: "Cobra",
+      model: "OPTM",
+      release_year: 2026,
+      catalogue_fit_score: 97.92,
+      dimensions: { direction: dim(100, 1), forgiveness: dim(100, 1), stability: dim(100, 1) },
+    });
+    const duplicate = head({
+      catalogue_key: "cobra|ds-adapt|2025",
+      brand: "Cobra",
+      model: "DS-ADAPT",
+      release_year: 2025,
+      catalogue_fit_score: 97.92,
+      dimensions: { direction: dim(100, 1), forgiveness: dim(100, 1), stability: dim(100, 1) },
+    });
+    const fade = head({
+      catalogue_key: "wilson|fade|2022",
+      brand: "Wilson",
+      model: "Fade",
+      release_year: 2022,
+      catalogue_fit_score: 97.92,
+      dimensions: { direction: dim(60, 1), forgiveness: dim(100, 1), stability: dim(100, 1) },
+    });
+    const replaced = substituteLowerSameManufacturer({
+      heads: [ping, duplicate, cobra],
+      pool: [ping, duplicate, cobra, fade],
+      best: ping,
+      requirements: {
+        handedness: "RIGHT",
+        directional_target_numeric: 1.5,
+        forgiveness_requirement: 4,
+        stability_requirement: 4,
+        workability_preference: 1,
+        head_launch_target: "UNRESOLVED",
+        head_launch_target_numeric: null,
+      } as never,
+    });
+    expect(replaced.selection).toBeNull();
   });
 
   it("leaves a large exact-Fit tie in engine order", () => {
@@ -447,6 +625,64 @@ describe("catalogue presentation selection", () => {
     expect(result.mode).toBe("CHARACTERISTIC_GUIDANCE");
     expect(result.recommendations).toEqual([]);
     expect(result.presentation_choices).toBeUndefined();
+  });
+
+  it("replaces the spare Cobra on the incomplete-launch profile and keeps the Newer Option", () => {
+    const result = runCatalogueRecommendation({
+      answers: {
+        handedness: "RIGHT",
+        handicap: 16,
+        club_speed_mph: 90,
+        typical_trajectory: "UNKNOWN",
+        typical_start_direction: "RIGHT",
+        typical_curvature: "RIGHT",
+        miss_severity: "MODERATE",
+        strike_pattern: "CENTRE",
+        strike_consistency: "MEDIUM",
+        primary_objective: "DISTANCE",
+        current_club_satisfaction: "MEDIUM",
+      },
+      intelligence: intel,
+    });
+    expect(result.recommendations[0].catalogue_key).toBe("ping|g-sf-tec|2016");
+    expect(result.recommendations.map((item) => canonicalBrandId(item.brand))).toEqual([
+      "ping",
+      "wilson",
+      "cobra",
+    ]);
+    expect(result.recommendations[2].catalogue_key).toBe("cobra|optm-max-d|2026");
+    expect(result.presentation_choices?.map((choice) => choice.label)).toEqual([
+      "Best Match",
+      "Alternative Match",
+      "Newer Option",
+    ]);
+    expect(result.recommendations[1].catalogue_fit_score).toBe(
+      result.recommendations[2].catalogue_fit_score
+    );
+  });
+
+  it("keeps an explicit Callaway filter inside that brand", () => {
+    const result = runCatalogueRecommendation({
+      answers: SLICE,
+      intelligence: intel,
+      brandIds: ["callaway"],
+    });
+    const heads = result.recommendations.length
+      ? result.recommendations
+      : result.example_heads ?? [];
+    expect(heads.length).toBeGreaterThan(0);
+    expect(heads.every((item) => canonicalBrandId(item.brand) === "callaway")).toBe(true);
+  });
+
+  it("returns an empty result when the selected brand has no eligible driver", () => {
+    const result = runCatalogueRecommendation({
+      answers: SLICE,
+      intelligence: intel,
+      brandIds: ["notabrand"],
+    });
+    expect(result.recommendations).toEqual([]);
+    expect(result.example_heads ?? []).toEqual([]);
+    expect(result.audit.insufficient_evidence_reason).toBe("BRAND_FILTER_NO_ELIGIBLE_HEADS");
   });
 
   it("attaches inventory only to the presented head that is actually in stock", () => {

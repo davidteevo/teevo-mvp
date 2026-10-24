@@ -225,13 +225,44 @@ export function runCatalogueRecommendation(input: {
     };
   }
 
-  const scored = input.intelligence.eligibleHeads.map((head) =>
+  const scoredAll = input.intelligence.eligibleHeads.map((head) =>
     scoreCatalogueHead({
       head,
       requirements: req,
       golferConfidence: golfer,
     })
   );
+  const scored = presentationBrandIds
+    ? scoredAll.filter((head) => {
+        const id = canonicalBrandId(head.brand);
+        return id != null && presentationBrandIds.has(id);
+      })
+    : scoredAll;
+  const brandFilter = presentationBrandIds
+    ? { ids: Array.from(presentationBrandIds).sort() }
+    : null;
+
+  if (brandFilter && scored.length === 0) {
+    return {
+      mode: "NO_DEFENSIBLE_HEADS",
+      recommendations: [],
+      explanations: [],
+      shaft_guidance,
+      characteristic_guidance,
+      inventory_attachments: [],
+      normalised_requirements: req,
+      brand_filter: brandFilter,
+      session: {
+        resolved_catalogue_requirement_dims: resolvedDims,
+        min_required_dims: CATALOGUE_MIN_INDEPENDENT_ACTIVE_DIMS,
+        golfer_confidence: golfer,
+      },
+      audit: emptyAudit("BRAND_FILTER_NO_ELIGIBLE_HEADS", {
+        inventory_items_considered: inventory.length,
+      }),
+      versions,
+    };
+  }
 
   const {
     recommendations: technicalShortlist,
@@ -308,6 +339,7 @@ export function runCatalogueRecommendation(input: {
       example_heads: shown,
       explanations: shown.map((head) => explainCatalogueHead(head, req)),
       diversity_selection: diverse,
+      brand_filter: brandFilter,
       shaft_guidance,
       characteristic_guidance: buildCharacteristicGuidance(req, {
         differentiationBlocked: true,
@@ -340,6 +372,7 @@ export function runCatalogueRecommendation(input: {
       characteristic_guidance,
       inventory_attachments: [],
       normalised_requirements: req,
+      brand_filter: brandFilter,
       session: {
         resolved_catalogue_requirement_dims: resolvedDims,
         min_required_dims: CATALOGUE_MIN_INDEPENDENT_ACTIVE_DIMS,
@@ -347,7 +380,9 @@ export function runCatalogueRecommendation(input: {
       },
       audit: {
         ...auditBase,
-        insufficient_evidence_reason: "NO_HEAD_PASSED_CATALOGUE_GATES",
+        insufficient_evidence_reason: brandFilter
+          ? "BRAND_FILTER_NO_ELIGIBLE_HEADS"
+          : "NO_HEAD_PASSED_CATALOGUE_GATES",
       },
       versions,
     };
@@ -358,6 +393,7 @@ export function runCatalogueRecommendation(input: {
     familyWinners: family_winners,
     topTiedFamilyCount: family_stats.top_tied_family_count,
     uk: ukOverlay ?? null,
+    requirements: req,
   });
   const recommendations = presented.heads;
 
@@ -388,6 +424,10 @@ export function runCatalogueRecommendation(input: {
       explainCatalogueHead(r, req, { equalFitAmongNamed: hasEqualFitAmongNamed })
     ),
     presentation_choices: presented.choices,
+    diversity_selection: presented.diversitySelection
+      ? [presented.diversitySelection]
+      : undefined,
+    brand_filter: brandFilter,
     shaft_guidance,
     characteristic_guidance,
     inventory_attachments,

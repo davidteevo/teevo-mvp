@@ -131,6 +131,8 @@ export type CatalogueRecommendResult = {
    * Presentation only. Absent on older stored sessions.
    */
   diversity_selection?: import("./app/present-catalogue-selection").DiversitySelection[];
+  /** Present when the golfer asked for specific brands. Empty means no filter. */
+  brand_filter?: { ids: string[] } | null;
   shaft_guidance: ShaftGuidance;
   characteristic_guidance: CharacteristicGuidance;
   /**
