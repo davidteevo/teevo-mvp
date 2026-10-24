@@ -5313,8 +5313,8 @@ Expected full normalized requirements:
   "head_launch_target": "MID",
   "head_launch_target_numeric": 0,
   "head_spin_target": "UNRESOLVED",
-  "forgiveness_requirement": 4.5,
-  "stability_requirement": 5,
+  "forgiveness_requirement": 4,
+  "stability_requirement": 4.5,
   "directional_target_numeric": 0.0,
   "directional_requirement": "NEUTRAL",
   "workability_preference": 1.5,
@@ -5335,8 +5335,7 @@ Expected full normalized requirements:
       "band": "MEDIUM",
       "source_codes": [
         "BASELINE",
-        "STRIKE_CONSISTENCY",
-        "STRIKE_PATTERN"
+        "STRIKE_CONSISTENCY"
       ],
       "conflict_codes": []
     },
@@ -5344,8 +5343,7 @@ Expected full normalized requirements:
       "band": "MEDIUM",
       "source_codes": [
         "BASELINE",
-        "STRIKE_CONSISTENCY",
-        "STRIKE_PATTERN"
+        "STRIKE_CONSISTENCY"
       ],
       "conflict_codes": []
     },
