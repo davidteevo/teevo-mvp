@@ -21,6 +21,7 @@ import {
 import type { UkHeadRelevanceIndex } from "../uk-head-relevance";
 import { loadUkHeadRelevanceOverlay } from "../uk-head-relevance";
 import { matchAdapterVersions } from "../versions";
+import { selectPresentedCatalogueHeads } from "./present-catalogue-selection";
 import { buildCharacteristicGuidance, explainCatalogueHead } from "./explain";
 import { attachInventoryToCatalogueRecommendations } from "./inventory-attach";
 import { matchReferenceDirectory } from "./intelligence-path";
@@ -218,7 +219,8 @@ export function runCatalogueRecommendation(input: {
   );
 
   const {
-    recommendations,
+    recommendations: technicalShortlist,
+    family_winners,
     stats,
     family_stats,
     differentiation_blocked,
@@ -241,7 +243,7 @@ export function runCatalogueRecommendation(input: {
     qualifying_families_after_dedupe:
       family_stats.qualifying_families_after_dedupe,
     family_duplicates_suppressed: family_stats.family_duplicates_suppressed,
-    recommendations_returned: family_stats.recommendations_returned,
+      recommendations_returned: 0,
     top_tied_family_count: family_stats.top_tied_family_count,
     top_tied_max_active_dims: family_stats.top_tied_max_active_dims,
     top_tied_min_active_dims: family_stats.top_tied_min_active_dims,
@@ -279,7 +281,7 @@ export function runCatalogueRecommendation(input: {
     };
   }
 
-  if (recommendations.length === 0) {
+  if (technicalShortlist.length === 0) {
     return {
       mode: "NO_DEFENSIBLE_HEADS",
       recommendations: [],
@@ -300,6 +302,14 @@ export function runCatalogueRecommendation(input: {
       versions,
     };
   }
+
+  const presented = selectPresentedCatalogueHeads({
+    technicalShortlist,
+    familyWinners: family_winners,
+    topTiedFamilyCount: family_stats.top_tied_family_count,
+    uk: ukOverlay ?? null,
+  });
+  const recommendations = presented.heads;
 
   const inventory_attachments = attachInventoryToCatalogueRecommendations({
     recommendations,
@@ -327,6 +337,7 @@ export function runCatalogueRecommendation(input: {
     explanations: recommendations.map((r) =>
       explainCatalogueHead(r, req, { equalFitAmongNamed: hasEqualFitAmongNamed })
     ),
+    presentation_choices: presented.choices,
     shaft_guidance,
     characteristic_guidance,
     inventory_attachments,
@@ -339,6 +350,7 @@ export function runCatalogueRecommendation(input: {
     audit: {
       ...auditBase,
       insufficient_evidence_reason: null,
+      recommendations_returned: recommendations.length,
       inventory_items_attached: attached,
     },
     versions,

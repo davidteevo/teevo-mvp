@@ -13,6 +13,18 @@ export const HEAD_CHOICE_LABEL: Record<HeadChoiceCategory, string> = {
   ALTERNATIVE_MATCH: "Alternative Match",
 };
 
+export type PresentationSubstitutionFactor =
+  | "STRONGER_EVIDENCE"
+  | "UK_ESTABLISHED_RELEVANCE"
+  | "CONSUMER_FAMILIARITY";
+
+/** Why a presented Best Match is not the numerical Fit leader. Fit scores are unchanged. */
+export type PresentationSubstitution = {
+  code: "PRESENTATION_EQUIVALENT_SUBSTITUTION";
+  factors: PresentationSubstitutionFactor[];
+  technicalLeaderKey: string;
+};
+
 export type HeadChoice = {
   catalogueKey: string;
   category: HeadChoiceCategory | null;
@@ -20,6 +32,7 @@ export type HeadChoice = {
   /** True when this head shares the top assessed suitability with another head. */
   tiedForTopSuitability: boolean;
   note: string | null;
+  substitution: PresentationSubstitution | null;
 };
 
 const TIED_BEST_NOTE =
@@ -30,6 +43,26 @@ const NEWER_TIED_NOTE =
 
 const NEWER_NOTE =
   "A more recent model that still suits what we could assess. A later release year is not a better fit.";
+
+const LEADER_NOTE =
+  "Highest Fit score on these assessed characteristics. The Best Match shares those characteristic scores.";
+
+function equivalenceNote(factors: PresentationSubstitutionFactor[]): string {
+  const factor = factors[0];
+  const because =
+    factor === "UK_ESTABLISHED_RELEVANCE"
+      ? "its UK market record is more established"
+      : factor === "CONSUMER_FAMILIARITY"
+        ? "it is a more familiar UK brand"
+        : "its supporting evidence is stronger";
+  return `Same assessed characteristics as the highest-scoring head. Shown first because ${because}. This is not a higher Fit score.`;
+}
+
+export type PresentHeadChoiceOptions = {
+  /** When set, this head is Best Match even if another head has a higher Fit score. */
+  bestCatalogueKey?: string;
+  substitution?: PresentationSubstitution | null;
+};
 
 type FitTier = { band: number; fit: number };
 
@@ -64,7 +97,10 @@ function sameSuitabilityBand(a: CatalogueHeadScore, b: CatalogueHeadScore): bool
  * Newer Option also requires the same suitability band as Best Match.
  * Equal-suitability wording is used only when the band and Fit score both match.
  */
-export function presentHeadChoices(heads: CatalogueHeadScore[]): HeadChoice[] {
+export function presentHeadChoices(
+  heads: CatalogueHeadScore[],
+  options: PresentHeadChoiceOptions = {}
+): HeadChoice[] {
   const tiers = heads.map(fitTier);
   let top: FitTier | null = null;
   for (const tier of tiers) {
@@ -75,7 +111,10 @@ export function presentHeadChoices(heads: CatalogueHeadScore[]): HeadChoice[] {
   }
 
   let bestIndex = -1;
-  if (top) {
+  if (options.bestCatalogueKey) {
+    bestIndex = heads.findIndex((head) => head.catalogue_key === options.bestCatalogueKey);
+  }
+  if (bestIndex < 0 && top) {
     bestIndex = tiers.findIndex((tier) => tier != null && sameTier(tier, top));
   }
 
@@ -117,16 +156,25 @@ export function presentHeadChoices(heads: CatalogueHeadScore[]): HeadChoice[] {
         label: null,
         tiedForTopSuitability: false,
         note: null,
+        substitution: null,
       };
     }
     const tied = topIsTied && tiedIndexes.has(index);
+    const substitution = options.substitution ?? null;
     if (index === bestIndex) {
       return {
         catalogueKey: head.catalogue_key,
         category: "BEST_MATCH",
         label: HEAD_CHOICE_LABEL.BEST_MATCH,
         tiedForTopSuitability: tied,
-        note: tied ? TIED_BEST_NOTE : null,
+        note: substitution
+          ? equivalenceNote(substitution.factors)
+          : tied
+            ? TIED_BEST_NOTE
+            : null,
+        substitution: substitution && head.catalogue_key !== substitution.technicalLeaderKey
+          ? substitution
+          : null,
       };
     }
     if (index === newerIndex) {
@@ -136,6 +184,7 @@ export function presentHeadChoices(heads: CatalogueHeadScore[]): HeadChoice[] {
         label: HEAD_CHOICE_LABEL.NEWER_OPTION,
         tiedForTopSuitability: tied,
         note: tied ? NEWER_TIED_NOTE : NEWER_NOTE,
+        substitution: null,
       };
     }
     return {
@@ -143,7 +192,11 @@ export function presentHeadChoices(heads: CatalogueHeadScore[]): HeadChoice[] {
       category: "ALTERNATIVE_MATCH",
       label: HEAD_CHOICE_LABEL.ALTERNATIVE_MATCH,
       tiedForTopSuitability: tied,
-      note: null,
+      note:
+        substitution && head.catalogue_key === substitution.technicalLeaderKey
+          ? LEADER_NOTE
+          : null,
+      substitution: null,
     };
   });
 }

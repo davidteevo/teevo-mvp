@@ -492,6 +492,8 @@ export function rankCatalogueHeads(
   requirements?: NormalisedRequirements | null
 ): {
   recommendations: CatalogueHeadScore[];
+  /** Full Fit order after family dedupe. Presentation may label a later head; it does not rescore. */
+  family_winners: CatalogueHeadScore[];
   stats: CatalogueRankStats;
   family_stats: CatalogueRankFamilyStats;
   differentiation_blocked: boolean;
@@ -533,6 +535,7 @@ export function rankCatalogueHeads(
   if (familyWinners.length === 0) {
     return {
       recommendations: [],
+      family_winners: [],
       stats,
       family_stats: family_stats_base,
       differentiation_blocked: false,
@@ -571,6 +574,7 @@ export function rankCatalogueHeads(
   ) {
     return {
       recommendations: [],
+      family_winners: familyWinners,
       stats,
       family_stats,
       differentiation_blocked: true,
@@ -581,6 +585,7 @@ export function rankCatalogueHeads(
   const recommendations = selectCatalogueShortlist(familyWinners, limit);
   return {
     recommendations,
+    family_winners: familyWinners,
     stats,
     family_stats: {
       ...family_stats,

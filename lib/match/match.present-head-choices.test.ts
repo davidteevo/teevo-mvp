@@ -94,6 +94,7 @@ describe("head choice presentation", () => {
         label: "Best Match",
         tiedForTopSuitability: false,
         note: null,
+        substitution: null,
       },
     ]);
   });

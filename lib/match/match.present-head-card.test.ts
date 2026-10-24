@@ -380,11 +380,11 @@ describe("B2a head card presentation", () => {
     expect(otherCard.roleLabel).toBe("Alternative Head Match");
     expect(leadCard.headline).toBe("A strong option if forgiveness is your priority.");
     expect(leadCard.reason?.text).toBe(
-      "Your answers suggest forgiveness matters for your game. This head's assessed forgiveness is stronger than the other recommended heads, so it is worth considering if that is the trait you want."
+      "Your answers suggest forgiveness matters for your game. This head's assessed forgiveness lines up with what you told us."
     );
-    expect(otherCard.headline).toBe("An alternative with a different balance.");
+    expect(otherCard.headline).toBe("A partial match for what you told us.");
     expect(otherCard.reason?.text).toBe(
-      "Your answers suggest forgiveness matters for your game. This head's assessed forgiveness is lighter than the other recommended heads, so it is a different balance rather than a stronger match on that trait."
+      "Your answers suggest forgiveness matters for your game. This head's assessed forgiveness is only a partial match for what you told us."
     );
     expect(leadCard.benefits).toEqual([
       { code: "FORGIVENESS", text: "Forgiving for your game" },
@@ -548,6 +548,7 @@ describe("B2a head card presentation", () => {
   it("leads with the trait that actually separates two heads", () => {
     const forgiving = score({
       catalogue_key: "forgiving",
+      catalogue_fit_score: 92,
       dimensions: {
         forgiveness: dim(true, 96),
         workability: dim(true, 70),
@@ -555,6 +556,7 @@ describe("B2a head card presentation", () => {
     });
     const workable = score({
       catalogue_key: "workable",
+      catalogue_fit_score: 80,
       dimensions: {
         forgiveness: dim(true, 74),
         workability: dim(true, 95),
@@ -570,7 +572,7 @@ describe("B2a head card presentation", () => {
       req
     );
     expect(cards[0].reason?.code).toBe("FORGIVENESS");
-    expect(cards[1].reason?.code).toBe("WORKABILITY");
+    expect(cards[1].reason?.code).toBe("FORGIVENESS");
     expect(cards[0].benefits.map((benefit) => benefit.code)).toEqual(["FORGIVENESS"]);
     expect(cards[1].benefits.map((benefit) => benefit.code)).toEqual(["WORKABILITY"]);
     expect(cards[0].reason?.text).not.toBe(cards[1].reason?.text);
@@ -637,7 +639,7 @@ describe("B2a head card presentation", () => {
     });
     const card = presentHeadCard(head, explanation("traced"), req);
     expect(card.benefits.length).toBeGreaterThan(0);
-    expect(card.benefits.length).toBeLessThanOrEqual(2);
+    expect(card.benefits.length).toBeLessThanOrEqual(3);
     for (const benefit of card.benefits) {
       expect(benefit.text.length).toBeGreaterThan(0);
       const key =

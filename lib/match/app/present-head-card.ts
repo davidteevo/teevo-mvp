@@ -474,98 +474,83 @@ type SalesCopy = {
  * Face copy from golfer answers and active head scores only.
  * A missing answer or an inactive dimension cannot produce a benefit.
  */
+function golferRelevance(
+  requirements: NormalisedRequirements
+): Array<(typeof COMPARED_DIMENSIONS)[number]> {
+  const directionMatters =
+    requirements.directional_target_numeric != null &&
+    requirements.directional_target_numeric !== 0;
+  const workabilityMatters = (requirements.workability_preference ?? 0) >= 3;
+  const preferred = directionMatters
+    ? (["direction", "forgiveness", "stability", "head_launch", "workability"] as const)
+    : (["forgiveness", "stability", "direction", "head_launch", "workability"] as const);
+  return preferred
+    .filter((key) => {
+      if (key === "workability") return workabilityMatters;
+      return golferAsked(requirements, key);
+    })
+    .map((key) => COMPARED_DIMENSIONS.find((dimension) => dimension.key === key))
+    .filter((dimension): dimension is (typeof COMPARED_DIMENSIONS)[number] => dimension != null);
+}
+
 function salesCopy(
   score: CatalogueHeadScore,
   peers: CatalogueHeadScore[],
   requirements: NormalisedRequirements
 ): SalesCopy | null {
-  const eligible = COMPARED_DIMENSIONS.filter(
-    (dimension) =>
-      golferAsked(requirements, dimension.key) &&
-      activeDimensionScore(score, dimension.key) != null
+  const eligible = golferRelevance(requirements).filter(
+    (dimension) => activeDimensionScore(score, dimension.key) != null
   );
   if (eligible.length === 0) return null;
 
-  const leads = eligible.filter((dimension) => {
-    const diffs = dimensionDiffs(score, peers, dimension.key);
-    return diffs.some((diff) => diff > 0) && diffs.every((diff) => diff >= 0);
-  });
-  const pool = leads.length > 0 ? leads : eligible;
-  const primary = [...pool].sort((a, b) => {
-    const gapA = Math.max(0, ...dimensionDiffs(score, peers, a.key));
-    const gapB = Math.max(0, ...dimensionDiffs(score, peers, b.key));
-    if (gapA !== gapB) return gapB - gapA;
-    const scoreA = activeDimensionScore(score, a.key) ?? 0;
-    const scoreB = activeDimensionScore(score, b.key) ?? 0;
-    if (scoreA !== scoreB) return scoreB - scoreA;
-    return (
-      COMPARED_DIMENSIONS.findIndex((dimension) => dimension.key === a.key) -
-      COMPARED_DIMENSIONS.findIndex((dimension) => dimension.key === b.key)
-    );
-  })[0];
-  if (!primary) return null;
-
-  const diffs = dimensionDiffs(score, peers, primary.key);
-  const higher = diffs.some((diff) => diff > 0) && diffs.every((diff) => diff >= 0);
-  const lower = diffs.some((diff) => diff < 0) && diffs.every((diff) => diff <= 0);
-  const allPeers = diffs.length > 0 && diffs.every((diff) => diff !== 0);
-  const tied = diffs.length === 0 || diffs.every((diff) => diff === 0);
+  const primary = eligible[0];
+  const primaryScore = activeDimensionScore(score, primary.key) ?? 0;
+  const others = peers.filter((peer) => peer.catalogue_key !== score.catalogue_key);
+  const sharedFit =
+    others.length > 0 && others.every((peer) => sameFitTier(score, peer));
   const hedged = evidenceIsThin(score);
   const noun = BENEFIT_NOUN[primary.code];
-  const opening = BENEFIT_OPENING[primary.code];
-  const who = allPeers ? "the other recommended heads" : "another recommended head";
+  const directionMiss = Math.abs(requirements.directional_target_numeric ?? 0) >= 1;
+  const opening =
+    primary.code === "DIRECTION" && directionMiss
+      ? "Your answers describe a pronounced miss."
+      : BENEFIT_OPENING[primary.code];
 
   let second: string;
-  if (tied && peers.some((peer) => peer.catalogue_key !== score.catalogue_key)) {
+  if (sharedFit) {
     const mine = recordedProfilePhrase(score);
     const profileDiffers =
       mine != null &&
-      peers.some(
-        (peer) =>
-          peer.catalogue_key !== score.catalogue_key && recordedProfilePhrase(peer) !== mine
-      );
+      others.some((peer) => recordedProfilePhrase(peer) !== mine);
     second = profileDiffers
       ? `${mine?.replace(/\.$/, "")}, and the shared Fit means that description is not a ranking.`
       : hedged
         ? "It is similarly suited to the other recommended heads, but some of the evidence is still open."
         : "It is similarly suited to the other recommended heads on the characteristics we could check.";
-  } else if (higher) {
-    second = hedged
-      ? `This head's assessed ${noun} is stronger than ${who}, but some of the evidence is still open.`
-      : `This head's assessed ${noun} is stronger than ${who}, so it is worth considering if that is the trait you want.`;
-  } else if (lower) {
-    second = hedged
-      ? `This head's assessed ${noun} is lighter than ${who}, and some of the evidence is still open.`
-      : `This head's assessed ${noun} is lighter than ${who}, so it is a different balance rather than a stronger match on that trait.`;
-  } else if (diffs.length > 0) {
-    second = hedged
-      ? `This head's assessed ${noun} sits between the other recommended heads, and some of the evidence is still open.`
-      : `This head's assessed ${noun} sits between the other recommended heads.`;
+  } else if (hedged) {
+    second = `This head's assessed ${noun} lines up with what you told us, but some of the evidence is still open.`;
+  } else if (primaryScore < 85) {
+    second = `This head's assessed ${noun} is only a partial match for what you told us.`;
+  } else if (primary.code === "DIRECTION" && Math.abs(requirements.directional_target_numeric ?? 0) >= 1) {
+    second = "This head's recorded shot bias lines up with that pattern. That does not guarantee your ball flight.";
   } else {
-    second = hedged
-      ? `This head's assessed ${noun} lines up with what you told us, but some of the evidence is still open.`
-      : `This head's assessed ${noun} lines up with what you told us.`;
+    second = `This head's assessed ${noun} lines up with what you told us.`;
   }
 
-  const benefits: HeadCardBenefit[] = hedged
+  const benefits: HeadCardBenefit[] = hedged || sharedFit
     ? []
     : eligible
         .filter((dimension) => {
           const mine = activeDimensionScore(score, dimension.key);
-          if (mine == null || mine < 70) return false;
-          const gaps = dimensionDiffs(score, peers, dimension.key);
-          if (gaps.length === 0) return true;
-          return gaps.some((gap) => gap > 0) && gaps.every((gap) => gap >= 0);
+          return mine != null && mine >= 85;
         })
-        .sort((a, b) => {
-          const gapA = Math.max(0, ...dimensionDiffs(score, peers, a.key));
-          const gapB = Math.max(0, ...dimensionDiffs(score, peers, b.key));
-          return gapB - gapA;
-        })
-        .slice(0, 2)
+        .slice(0, 3)
         .map((dimension) => ({
           code: dimension.code,
-          text: BENEFIT_CHIP[dimension.code],
+          text:
+            dimension.code === "DIRECTION" && directionMiss
+              ? "Lines up with your miss pattern"
+              : BENEFIT_CHIP[dimension.code],
         }));
 
   const profileCode = score.presentation_chars?.primary_head_profile;
@@ -591,14 +576,15 @@ function salesCopy(
     benefits.push({ code: "PROFILE", text: profileChip });
   }
 
-  const comparedWithPeers = diffs.length > 0;
   const headline = hedged
     ? HEDGED_HEADLINE
-    : tied && peers.some((peer) => peer.catalogue_key !== score.catalogue_key)
+    : sharedFit
       ? "Similarly suited to your game."
-      : higher || !comparedWithPeers
-        ? BENEFIT_HEADLINE[primary.code]
-        : "An alternative with a different balance.";
+      : primaryScore < 85
+        ? "A partial match for what you told us."
+        : primary.code === "DIRECTION" && directionMiss
+          ? "Worth considering for the miss pattern you described."
+          : BENEFIT_HEADLINE[primary.code];
 
   return {
     headline,
@@ -659,14 +645,6 @@ export function presentHeadCard(
         peer.catalogue_key !== score.catalogue_key &&
         recordedProfilePhrase(peer) !== profileDetail
     );
-  const technicalComparison = sales ? comparisonReason(score, peers) : null;
-  if (
-    technicalComparison &&
-    technicalComparison.text !== reason?.text &&
-    !supporting.includes(technicalComparison.text)
-  ) {
-    supporting.push(technicalComparison.text);
-  }
   if (
     profileDiffers &&
     profileDetail &&

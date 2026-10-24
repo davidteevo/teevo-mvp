@@ -67,7 +67,11 @@ export function MatchResults() {
               )
             : [];
         const choices =
-          parsed.mode === "NAMED_HEADS" ? presentHeadChoices(named) : [];
+          parsed.mode === "NAMED_HEADS"
+            ? parsed.presentation_choices?.length
+              ? parsed.presentation_choices
+              : presentHeadChoices(named)
+            : [];
         const roles = presentAttachedListingLabels(
           attached,
           rawBudget && Number.isFinite(parsedBudget) ? parsedBudget : null
@@ -118,7 +122,10 @@ export function MatchResults() {
   const g = result.characteristic_guidance;
   const shaft = result.shaft_guidance;
   const named = result.mode === "NAMED_HEADS" ? result.recommendations : [];
-  const choices = presentHeadChoices(named);
+  const choices =
+    result.presentation_choices?.length === named.length
+      ? result.presentation_choices
+      : presentHeadChoices(named);
   const olderAboveNewer = named.some((rec, i) =>
     named.slice(i + 1).some((later) => {
       const older = rec.release_year;

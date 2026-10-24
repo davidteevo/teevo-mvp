@@ -71,18 +71,28 @@ export function RecommendationHeadCard({
         <p className="mt-1 text-xs leading-5 text-mowing-green/80">{choice.note}</p>
       ) : null}
       <div className="mt-3 flex gap-3">
-        <DriverSilhouette />
+        <div className="shrink-0">
+          <DriverSilhouette />
+          <p className="mt-1 max-w-[104px] text-[10px] leading-4 text-mowing-green/60">
+            Illustration, not a photo of this model
+          </p>
+        </div>
         <div className="min-w-0">
           <h2 className="text-xl font-semibold leading-tight text-mowing-green">{card.title}</h2>
           {card.releaseYear != null ? (
             <p className="mt-1 text-xs font-medium text-mowing-green/70">{card.releaseYear}</p>
           ) : null}
-          <p className="mt-1 text-xs text-mowing-green/70">Head characteristics only</p>
+          <p className="mt-1 text-xs text-mowing-green/70">Head characteristics only. Loft and shaft are not assessed.</p>
         </div>
       </div>
+      <h3 className="mt-3 text-sm font-semibold text-mowing-green">Why this fits you</h3>
       {card.headline ? (
-        <p className="mt-3 text-base font-semibold leading-snug text-mowing-green">{card.headline}</p>
-      ) : null}
+        <p className="mt-1 text-base font-semibold leading-snug text-mowing-green">{card.headline}</p>
+      ) : card.reason ? null : (
+        <p className="mt-1 text-sm leading-5 text-mowing-green/80">
+          We could not match a head characteristic to the answers so far.
+        </p>
+      )}
       {card.reason ? (
         <p className="mt-2 text-[13px] leading-5 text-mowing-green/90">{card.reason.text}</p>
       ) : null}
@@ -117,7 +127,7 @@ export function RecommendationHeadCard({
             })
           }
         >
-          {open ? "Hide fit details" : "Why this fits you"}
+          {open ? "Hide fit details" : "More fit details"}
         </button>
         <div id={detailsId} hidden={!open} className="mt-2 space-y-2 text-sm text-mowing-green/80">
           <p>Shaft and loft are not included in this head recommendation.</p>

@@ -121,6 +121,11 @@ export type CatalogueRecommendResult = {
    */
   example_heads?: CatalogueHeadScore[];
   explanations: CatalogueHeadExplanation[];
+  /**
+   * Consumer labels for `recommendations`. Absent on older stored sessions.
+   * Does not change Fit scores.
+   */
+  presentation_choices?: import("./app/present-head-choices").HeadChoice[];
   shaft_guidance: ShaftGuidance;
   characteristic_guidance: CharacteristicGuidance;
   /**
