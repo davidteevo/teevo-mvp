@@ -54,10 +54,15 @@ export async function POST(request: Request) {
     inventoryStatus = "unavailable";
   }
 
+  const brandIds = Array.isArray(body.brand_ids)
+    ? body.brand_ids.filter((id): id is string => typeof id === "string")
+    : undefined;
+
   const result = runCatalogueRecommendation({
     answers,
     intelligence,
     inventory,
+    brandIds,
   });
 
   if (result.mode === "VALIDATION_ERROR") {

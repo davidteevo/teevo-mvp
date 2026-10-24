@@ -126,6 +126,11 @@ export type CatalogueRecommendResult = {
    * Does not change Fit scores.
    */
   presentation_choices?: import("./app/present-head-choices").HeadChoice[];
+  /**
+   * Why each displayed head was kept when several shared suitability.
+   * Presentation only. Absent on older stored sessions.
+   */
+  diversity_selection?: import("./app/present-catalogue-selection").DiversitySelection[];
   shaft_guidance: ShaftGuidance;
   characteristic_guidance: CharacteristicGuidance;
   /**

@@ -541,9 +541,19 @@ function salesCopy(
           recordedProfilePhrase(peer) !== profile
       );
     const profileSentence = profileDiffers ? ` ${profile}` : "";
+    const year = score.release_year;
+    const yearDiffers =
+      year != null &&
+      peers.some(
+        (peer) =>
+          peer.catalogue_key !== score.catalogue_key &&
+          peer.release_year != null &&
+          peer.release_year !== year
+      );
+    const yearSentence = yearDiffers ? ` This is the ${year} model.` : "";
     return {
       headline: "Forgiveness and stability to support your game.",
-      pitch: `This driver's forgiving design and assessed stability make it a strong option if you're looking for more consistent results.${directionSentence}${profileSentence}`,
+      pitch: `This driver's forgiving design and assessed stability make it a strong option if you're looking for more consistent results.${directionSentence}${profileSentence}${yearSentence}`,
       code: "FORGIVENESS",
       benefits: [
         { code: "FORGIVENESS" as const, text: "Forgiving for your game" },

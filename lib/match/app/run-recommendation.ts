@@ -20,10 +20,11 @@ import {
 } from "../scoring/head-dimensions";
 import type { UkHeadRelevanceIndex } from "../uk-head-relevance";
 import { loadUkHeadRelevanceOverlay } from "../uk-head-relevance";
+import { canonicalBrandId } from "../brands";
 import { matchAdapterVersions } from "../versions";
 import {
+  selectDiverseEquivalentHeads,
   selectPresentedCatalogueHeads,
-  selectSuitableExamples,
 } from "./present-catalogue-selection";
 import { buildCharacteristicGuidance, explainCatalogueHead } from "./explain";
 import { attachInventoryToCatalogueRecommendations } from "./inventory-attach";
@@ -82,8 +83,19 @@ export function runCatalogueRecommendation(input: {
   skipUkMarketGate?: boolean;
   /** Override reference directory used when loading the default overlay. */
   referenceDirectory?: string;
+  /**
+   * Optional presentation filter. Empty means every brand.
+   * This does not change Fit, eligibility, or confidence.
+   */
+  brandIds?: readonly string[] | null;
 }): CatalogueRecommendResult {
   const inventory = input.inventory ?? [];
+  const brandIds = new Set(
+    (input.brandIds ?? [])
+      .map((id) => canonicalBrandId(id))
+      .filter((id): id is string => id != null)
+  );
+  const presentationBrandIds = brandIds.size > 0 ? brandIds : null;
   const versions = {
     ...matchAdapterVersions(),
     catalogue_pathway: "PHASE_2A_CHECKPOINT_A" as const,
@@ -273,12 +285,14 @@ export function runCatalogueRecommendation(input: {
         )
         .map((item) => item.head_key as string)
     );
-    const examples = selectSuitableExamples({
-      topTier,
+    const diverse = selectDiverseEquivalentHeads({
+      heads: topTier,
       uk: ukOverlay ?? null,
       inStockKeys,
+      brandIds: presentationBrandIds,
       limit: 3,
     });
+    const examples = diverse.map((item) => item.head);
     const shown = examples.length > 0 ? examples : example_heads;
     const inventory_attachments = attachInventoryToCatalogueRecommendations({
       recommendations: shown,
@@ -293,6 +307,7 @@ export function runCatalogueRecommendation(input: {
       recommendations: [],
       example_heads: shown,
       explanations: shown.map((head) => explainCatalogueHead(head, req)),
+      diversity_selection: diverse,
       shaft_guidance,
       characteristic_guidance: buildCharacteristicGuidance(req, {
         differentiationBlocked: true,

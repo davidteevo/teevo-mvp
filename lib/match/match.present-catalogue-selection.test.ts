@@ -7,9 +7,11 @@ import {
 } from "@/lib/match/catalogue-types";
 import {
   characteristicEquivalenceKey,
+  selectDiverseEquivalentHeads,
   selectPresentedCatalogueHeads,
   selectSuitableExamples,
 } from "@/lib/match/app/present-catalogue-selection";
+import { canonicalBrandId } from "@/lib/match/brands";
 import { presentHeadCard } from "@/lib/match/app/present-head-card";
 import type { DimensionTrace } from "@/lib/match/types";
 import type { MatchInventoryItem } from "@/lib/match/inventory/types";
@@ -282,6 +284,91 @@ describe("catalogue presentation selection", () => {
       "honma|strong|2018",
     ]);
     expect(selected).toHaveLength(3);
+  });
+
+  it("spreads an equal-suitability tie across manufacturers", () => {
+    const models = [
+      ["callaway|paradym-ai-smoke-max|2024", "Callaway", "Paradym Ai Smoke Max", 2024],
+      ["callaway|paradym|2023", "Callaway", "Paradym", 2023],
+      ["callaway|epic-flash|2019", "Callaway", "Epic Flash", 2019],
+      ["ping|g430-max|2023", "PING", "G430 Max", 2023],
+      ["cobra|ds-adapt-max|2025", "Cobra", "DS-ADAPT MAX", 2025],
+    ] as const;
+    const topTier = models.map(([catalogue_key, brand, model, release_year]) =>
+      head({ catalogue_key, brand, model, release_year, catalogue_fit_score: 100 })
+    );
+    const selected = selectDiverseEquivalentHeads({ heads: topTier, limit: 3 });
+    expect(new Set(selected.map((item) => canonicalBrandId(item.head.brand))).size).toBe(3);
+    expect(selected.filter((item) => canonicalBrandId(item.head.brand) === "callaway")).toHaveLength(1);
+    expect(selected[1].reasons).toContain("DIFFERENT_MANUFACTURER");
+    expect(selected.map((item) => item.head.catalogue_fit_score)).toEqual([100, 100, 100]);
+    const again = selectSuitableExamples({ topTier, uk: null });
+    expect(again.map((item) => item.catalogue_key)).toEqual(
+      selected.map((item) => item.head.catalogue_key)
+    );
+  });
+
+  it("does not replace supported heads with a low-reliability different brand", () => {
+    const callaways = ["one", "two", "three"].map((name, index) =>
+      head({
+        catalogue_key: `callaway|${name}|202${index}`,
+        brand: "Callaway",
+        model: name,
+        release_year: 2020 + index,
+        catalogue_fit_score: 100,
+      })
+    );
+    const cobra = head({
+      catalogue_key: "cobra|weak|2025",
+      brand: "Cobra",
+      model: "Weak",
+      release_year: 2025,
+      catalogue_fit_score: 100,
+      dimensions: { direction: dim(100, 0.5) },
+    });
+    const selected = selectSuitableExamples({
+      topTier: [...callaways, cobra],
+      uk: null,
+    });
+    expect(selected.map((item) => item.brand)).toEqual(["Callaway", "Callaway", "Callaway"]);
+  });
+
+  it("keeps the only qualifying manufacturer", () => {
+    const callaways = ["one", "two", "three"].map((name, index) =>
+      head({
+        catalogue_key: `callaway|${name}|202${index}`,
+        brand: "Callaway",
+        model: name,
+        release_year: 2020 + index,
+      })
+    );
+    const selected = selectDiverseEquivalentHeads({ heads: callaways, limit: 3 });
+    expect(selected.map((item) => item.head.brand)).toEqual(["Callaway", "Callaway", "Callaway"]);
+    expect(selected[1].reasons).toContain("SAME_MANUFACTURER_ONLY_SUPPORTED_OPTION");
+  });
+
+  it("respects an explicit brand filter without adding another brand", () => {
+    const topTier = [
+      head({ catalogue_key: "ping|g430|2023", brand: "PING", model: "G430", release_year: 2023 }),
+      head({
+        catalogue_key: "callaway|paradym|2023",
+        brand: "Callaway",
+        model: "Paradym",
+        release_year: 2023,
+      }),
+      head({
+        catalogue_key: "callaway|epic|2022",
+        brand: "Callaway",
+        model: "Epic",
+        release_year: 2022,
+      }),
+    ];
+    const selected = selectSuitableExamples({
+      topTier,
+      uk: null,
+      brandIds: new Set(["callaway"]),
+    });
+    expect(selected.map((item) => item.brand)).toEqual(["Callaway", "Callaway"]);
   });
 
   it("leaves a large exact-Fit tie in engine order", () => {

@@ -298,6 +298,10 @@ export function MatchResults() {
               handedness: g.handedness,
               presentation_choices: result.presentation_choices ?? null,
               example_selection: suitableExamples ? SUITABLE_EXAMPLE_PRECEDENCE : null,
+              diversity_selection: result.diversity_selection?.map((item) => ({
+                catalogue_key: item.head.catalogue_key,
+                reasons: item.reasons,
+              })) ?? null,
               heads: shownHeads.map((head) => ({
                 catalogue_key: head.catalogue_key,
                 fit: head.catalogue_fit_score,

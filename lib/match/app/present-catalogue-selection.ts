@@ -115,7 +115,18 @@ function pickNewer(
     if (!differentModel(head, best)) continue;
     const year = head.release_year;
     if (year == null || !Number.isFinite(year) || year <= bestYear) continue;
-    if (!chosen || year > (chosen.release_year ?? 0)) chosen = head;
+    if (
+      !chosen ||
+      (head.catalogue_fit_score ?? -1) > (chosen.catalogue_fit_score ?? -1) ||
+      ((head.catalogue_fit_score ?? -1) === (chosen.catalogue_fit_score ?? -1) &&
+        manufacturerId(head) !== manufacturerId(best) &&
+        manufacturerId(chosen) === manufacturerId(best)) ||
+      ((head.catalogue_fit_score ?? -1) === (chosen.catalogue_fit_score ?? -1) &&
+        manufacturerId(head) === manufacturerId(chosen) &&
+        year > (chosen.release_year ?? 0))
+    ) {
+      chosen = head;
+    }
   }
   return chosen;
 }
@@ -185,7 +196,23 @@ export function selectPresentedCatalogueHeads(input: {
         }
       : null;
 
-  const alternative = best.catalogue_key === leader.catalogue_key ? null : leader;
+  const sameScoreOthers = input.familyWinners.filter(
+    (head) =>
+      head.catalogue_key !== best.catalogue_key &&
+      head.catalogue_fit_score != null &&
+      head.catalogue_fit_score === best.catalogue_fit_score
+  );
+  const diverseAlternative =
+    sameScoreOthers.length > 0
+      ? selectDiverseEquivalentHeads({
+          heads: sameScoreOthers,
+          uk: input.uk,
+          alreadySelected: [best],
+          limit: 1,
+        })[0]?.head ?? null
+      : null;
+  const alternative =
+    diverseAlternative ?? (best.catalogue_key === leader.catalogue_key ? null : leader);
   const window = uniqueHeads([...shortlist, best, leader]);
   const newer = pickNewer(window, best, alternative?.catalogue_key ?? null);
   const filler =
@@ -207,23 +234,82 @@ export function selectPresentedCatalogueHeads(input: {
 }
 
 /**
- * Which suitable examples to show when more than three families share the
- * top suitability. This order never changes the suitability score.
+ * How a displayed set is chosen from drivers that already share suitability.
+ * This order never changes the suitability score.
  * 1. Equipment evidence quality
  * 2. Verified UK-market relevance
- * 3. Actual Teevo inventory availability
- * 4. Consumer familiarity
- * 5. A supported difference in recorded characteristics
- * 6. Catalogue key, so the result stays repeatable
+ * 3. Comparable support (medium evidence or better, within one reliability step)
+ * 4. A different manufacturer, when one is equally supported
+ * 5. A different recorded characteristic profile
+ * 6. Actual Teevo inventory availability
+ * 7. A different release generation
+ * 8. Consumer familiarity
+ * 9. Catalogue key, so the result stays repeatable
  */
 export const SUITABLE_EXAMPLE_PRECEDENCE = [
   "EQUIPMENT_EVIDENCE",
   "UK_MARKET_RELEVANCE",
+  "COMPARABLE_SUPPORT",
+  "DIFFERENT_MANUFACTURER",
+  "DIFFERENT_CHARACTERISTICS",
   "TEEVO_INVENTORY",
+  "DIFFERENT_GENERATION",
   "CONSUMER_FAMILIARITY",
-  "SUPPORTED_CHARACTERISTIC_DIFFERENCE",
   "CATALOGUE_KEY",
 ] as const;
+
+/** One medium-versus-high reliability step. A low-reliability dimension is not comparable. */
+const SUPPORT_STEP = 0.15;
+
+export type DiversitySelectionReason =
+  | "STRONGER_EVIDENCE"
+  | "UK_MARKET_RELEVANCE"
+  | "TEEVO_INVENTORY"
+  | "DIFFERENT_MANUFACTURER"
+  | "SAME_MANUFACTURER_ONLY_SUPPORTED_OPTION"
+  | "DIFFERENT_CHARACTERISTICS"
+  | "DIFFERENT_GENERATION"
+  | "CONSUMER_FAMILIARITY"
+  | "BRAND_FILTER"
+  | "REMAINING_SUITABLE_HEAD"
+  | "CATALOGUE_KEY";
+
+export type DiversitySelection = {
+  head: CatalogueHeadScore;
+  reasons: DiversitySelectionReason[];
+};
+
+function hasLowReliability(head: CatalogueHeadScore): boolean {
+  for (const name of CATALOGUE_HEAD_DIMENSIONS) {
+    const trace = head.dimensions[name];
+    if (trace?.active && trace.reliability > 0 && trace.reliability < MEDIUM_RELIABILITY) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function manufacturerId(head: CatalogueHeadScore): string {
+  return canonicalBrandId(head.brand) ?? head.catalogue_key;
+}
+
+function comparableSupport(candidate: CatalogueHeadScore, anchor: CatalogueHeadScore): boolean {
+  if (hasLowReliability(candidate) && !hasLowReliability(anchor)) return false;
+  return evidenceStrength(candidate) + 1e-9 >= evidenceStrength(anchor) - SUPPORT_STEP;
+}
+
+function diversityPool(
+  heads: CatalogueHeadScore[],
+  brandIds: ReadonlySet<string> | null | undefined
+): { heads: CatalogueHeadScore[]; filtered: boolean } {
+  if (!brandIds || brandIds.size === 0) return { heads, filtered: false };
+  const matching = heads.filter((head) => {
+    const id = canonicalBrandId(head.brand);
+    return id != null && brandIds.has(id);
+  });
+  if (matching.length === 0) return { heads, filtered: false };
+  return { heads: matching, filtered: true };
+}
 
 function characteristicSignature(head: CatalogueHeadScore): string {
   const chars = head.presentation_chars;
@@ -238,43 +324,125 @@ function characteristicSignature(head: CatalogueHeadScore): string {
   return parts.join("|") || head.catalogue_key;
 }
 
+function compareSupported(
+  a: CatalogueHeadScore,
+  b: CatalogueHeadScore,
+  uk: UkHeadRelevanceIndex | null | undefined,
+  stock: ReadonlySet<string>
+): number {
+  const evidence = evidenceStrength(b) - evidenceStrength(a);
+  if (evidence !== 0) return evidence;
+  const market = ukRank(b, uk) - ukRank(a, uk);
+  if (market !== 0) return market;
+  const available = Number(stock.has(b.catalogue_key)) - Number(stock.has(a.catalogue_key));
+  if (available !== 0) return available;
+  const familiar = familiarityRank(a) - familiarityRank(b);
+  if (familiar !== 0) return familiar;
+  return a.catalogue_key.localeCompare(b.catalogue_key);
+}
+
+function selectionReasons(
+  head: CatalogueHeadScore,
+  selected: CatalogueHeadScore[],
+  filtered: boolean,
+  comparable: boolean
+): DiversitySelectionReason[] {
+  const reasons: DiversitySelectionReason[] = [];
+  if (filtered) reasons.push("BRAND_FILTER");
+  if (!comparable && selected.length > 0) {
+    reasons.push("REMAINING_SUITABLE_HEAD");
+    return reasons;
+  }
+  if (selected.length === 0) {
+    reasons.push("STRONGER_EVIDENCE");
+    return reasons;
+  }
+  if (!selected.some((prior) => manufacturerId(prior) === manufacturerId(head))) {
+    reasons.push("DIFFERENT_MANUFACTURER");
+  } else {
+    reasons.push("SAME_MANUFACTURER_ONLY_SUPPORTED_OPTION");
+  }
+  if (selected.every((prior) => characteristicSignature(prior) !== characteristicSignature(head))) {
+    reasons.push("DIFFERENT_CHARACTERISTICS");
+  }
+  return reasons;
+}
+
+/**
+ * Choose up to `limit` heads from drivers that already share suitability.
+ * A different manufacturer is preferred only when its evidence is comparable.
+ * An explicit brand filter keeps that brand. It does not add a bonus to Fit.
+ */
+export function selectDiverseEquivalentHeads(input: {
+  heads: CatalogueHeadScore[];
+  uk?: UkHeadRelevanceIndex | null;
+  inStockKeys?: ReadonlySet<string>;
+  brandIds?: ReadonlySet<string> | null;
+  alreadySelected?: CatalogueHeadScore[];
+  limit?: number;
+}): DiversitySelection[] {
+  const limit = Math.max(0, input.limit ?? 3);
+  if (input.heads.length === 0 || limit === 0) return [];
+  const stock = input.inStockKeys ?? new Set<string>();
+  const pooled = diversityPool(input.heads, input.brandIds);
+  const sorted = [...pooled.heads].sort((a, b) => compareSupported(a, b, input.uk, stock));
+  const anchor = input.alreadySelected?.[0] ?? sorted[0];
+  const comparable = sorted.filter((head) => comparableSupport(head, anchor));
+  const selected: DiversitySelection[] = [];
+  const used = new Set((input.alreadySelected ?? []).map((head) => head.catalogue_key));
+  const prior = [...(input.alreadySelected ?? [])];
+
+  const take = (source: CatalogueHeadScore[], comparablePick: boolean) => {
+    const pool = source.filter((head) => !used.has(head.catalogue_key));
+    while (selected.length < limit && pool.length > 0) {
+      let pick = 0;
+      if (prior.length > 0) {
+        let bestRank = Number.POSITIVE_INFINITY;
+        pool.forEach((head, index) => {
+          const sameBrand = prior.some((item) => manufacturerId(item) === manufacturerId(head));
+          const sameProfile = prior.some(
+            (item) => characteristicSignature(item) === characteristicSignature(head)
+          );
+          const sameGeneration = prior.some(
+            (item) =>
+              manufacturerId(item) === manufacturerId(head) &&
+              item.release_year != null &&
+              item.release_year === head.release_year
+          );
+          const rank = (sameBrand ? 100 : 0) + (sameProfile ? 10 : 0) + (sameGeneration ? 1 : 0);
+          if (rank < bestRank) {
+            bestRank = rank;
+            pick = index;
+          }
+        });
+      }
+      const head = pool.splice(pick, 1)[0];
+      used.add(head.catalogue_key);
+      selected.push({
+        head,
+        reasons: selectionReasons(head, prior, pooled.filtered, comparablePick),
+      });
+      prior.push(head);
+    }
+  };
+
+  take(comparable, true);
+  if (selected.length < limit) take(sorted, false);
+  return selected;
+}
+
 export function selectSuitableExamples(input: {
   topTier: CatalogueHeadScore[];
   uk: UkHeadRelevanceIndex | null | undefined;
   inStockKeys?: ReadonlySet<string>;
+  brandIds?: ReadonlySet<string> | null;
   limit?: number;
 }): CatalogueHeadScore[] {
-  const limit = Math.max(0, input.limit ?? 3);
-  if (input.topTier.length === 0 || limit === 0) return [];
-  const stock = input.inStockKeys ?? new Set<string>();
-  const sorted = [...input.topTier].sort((a, b) => {
-    const evidence = evidenceStrength(b) - evidenceStrength(a);
-    if (evidence !== 0) return evidence;
-    const market = ukRank(b, input.uk) - ukRank(a, input.uk);
-    if (market !== 0) return market;
-    const available =
-      Number(stock.has(b.catalogue_key)) - Number(stock.has(a.catalogue_key));
-    if (available !== 0) return available;
-    const familiar = familiarityRank(a) - familiarityRank(b);
-    if (familiar !== 0) return familiar;
-    return a.catalogue_key.localeCompare(b.catalogue_key);
-  });
-  if (sorted.length <= limit) return sorted;
-
-  const selected: CatalogueHeadScore[] = [];
-  const pool = sorted.slice();
-  const used = new Set<string>();
-  while (selected.length < limit && pool.length > 0) {
-    let pick = 0;
-    if (selected.length > 0) {
-      const diverse = pool.findIndex(
-        (head) => !used.has(characteristicSignature(head))
-      );
-      if (diverse >= 0) pick = diverse;
-    }
-    const head = pool.splice(pick, 1)[0];
-    selected.push(head);
-    used.add(characteristicSignature(head));
-  }
-  return selected;
+  return selectDiverseEquivalentHeads({
+    heads: input.topTier,
+    uk: input.uk,
+    inStockKeys: input.inStockKeys,
+    brandIds: input.brandIds,
+    limit: input.limit,
+  }).map((item) => item.head);
 }
