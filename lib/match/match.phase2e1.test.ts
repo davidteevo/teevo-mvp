@@ -341,7 +341,7 @@ describe("Phase 2E.1 — explain and guidance copy", () => {
 describe("Phase 2E.1 — live catalogue path smoke", () => {
   const intel = loadMatchIntelligence(REFERENCE);
 
-  it("beginner_forgiveness still returns named heads with assessed-scope explanations", () => {
+  it("beginner_forgiveness returns suitable unranked examples when many families tie", () => {
     const result = runCatalogueRecommendation({
       answers: {
         handedness: "RIGHT",
@@ -359,11 +359,13 @@ describe("Phase 2E.1 — live catalogue path smoke", () => {
       intelligence: intel,
       inventory: [],
     });
-    expect(result.mode).toBe("NAMED_HEADS");
-    expect(result.recommendations.length).toBeGreaterThan(0);
-    expect(result.recommendations.length).toBeLessThanOrEqual(3);
+    expect(result.mode).toBe("CHARACTERISTIC_GUIDANCE");
+    expect(result.recommendations).toEqual([]);
+    expect(result.example_heads?.length).toBeGreaterThan(0);
+    expect(result.example_heads?.length).toBeLessThanOrEqual(3);
+    expect(result.presentation_choices).toBeUndefined();
     expect(
-      result.recommendations.every(
+      result.example_heads?.every(
         (r) => !hasUnresolvedLaunchEquipmentEvidence(r)
       )
     ).toBe(true);

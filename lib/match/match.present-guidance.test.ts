@@ -55,10 +55,11 @@ describe("characteristic guidance presentation", () => {
       }),
       shaft: shaft(),
     });
-    expect(card.title).toBe("Several drivers could suit your game.");
+    expect(card.title).toBe("Your recommended drivers");
     expect(card.reason).toBe(
-      "Based on what you've told us, we can't confidently pick one as your best match yet."
+      "Based on your game and what you're looking to improve, we've selected drivers with characteristics that suit your needs."
     );
+    expect(card.reason).not.toMatch(/can't confidently|insufficient differentiation|best match/i);
     expect(card.reason).not.toMatch(/equally suitable/i);
     expect(card.reason).not.toMatch(/wrong|incorrect|mistake in what you/i);
     expect(card.characteristics).toContain("More forgiving on off-centre strikes.");

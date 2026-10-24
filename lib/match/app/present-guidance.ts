@@ -35,7 +35,24 @@ export const PATHWAY_C_SPEED_REPLACES_CARRY =
   "We'll use the swing speed you entered instead of your earlier carry distance. This is not recorded as a measured speed.";
 
 export const UNRANKED_EXAMPLE_NOTE =
-  "These examples passed the same UK and family checks and sit in the top suitability band. The order is catalogue order, not a personal ranking. None of these is labelled a Best Match.";
+  "Explore each recommendation to discover what makes it a great option for your game.";
+
+export function suitableDriversCopy(count: number): {
+  title: string;
+  reason: string;
+  explore: string;
+} {
+  const plural = count !== 1;
+  return {
+    title: plural ? "Your recommended drivers" : "Your recommended driver",
+    reason: plural
+      ? "Based on your game and what you're looking to improve, we've selected drivers with characteristics that suit your needs."
+      : "Based on your game and what you're looking to improve, we've selected a driver with characteristics that suit your needs.",
+    explore: plural
+      ? "Explore each recommendation to discover what makes it a great option for your game."
+      : "Explore this recommendation to discover what makes it a great option for your game.",
+  };
+}
 
 /** True only when a saved carry distance would be replaced by a new swing speed. */
 export function pathwayCReplacesCarry(carry: string, speedDraft: string): boolean {
@@ -50,7 +67,7 @@ function reasonFor(
     return "Teevo could not find a driver it can recommend from these answers. That is a limit of the evidence, not a mistake in what you told us.";
   }
   if (insufficientEvidenceReason === "NO_MEANINGFUL_HEAD_DIFFERENTIATION") {
-    return "Based on what you've told us, we can't confidently pick one as your best match yet.";
+    return "Based on your game and what you're looking to improve, we've selected drivers with characteristics that suit your needs.";
   }
   if (insufficientEvidenceReason === "INSUFFICIENT_EVIDENCE_BACKED_REQUIREMENT_DIMS") {
     return "Teevo needs a little more about your game before it can name a driver.";
@@ -120,9 +137,7 @@ export function presentCharacteristicGuidance(input: {
   const tied =
     input.insufficientEvidenceReason === "NO_MEANINGFUL_HEAD_DIFFERENTIATION";
   return {
-    title: tied
-      ? "Several drivers could suit your game."
-      : "Let's narrow down your driver",
+    title: tied ? "Your recommended drivers" : "Let's narrow down your driver",
     reason: reasonFor(input.mode, input.insufficientEvidenceReason),
     characteristics: characteristicsFor(input.guidance),
     limitation:

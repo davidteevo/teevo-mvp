@@ -503,6 +503,58 @@ function salesCopy(
   );
   if (eligible.length === 0) return null;
 
+  const forgiveness = activeDimensionScore(score, "forgiveness");
+  const stability = activeDimensionScore(score, "stability");
+  const supportive =
+    !evidenceIsThin(score) &&
+    golferAsked(requirements, "forgiveness") &&
+    golferAsked(requirements, "stability") &&
+    forgiveness != null &&
+    forgiveness >= 85 &&
+    stability != null &&
+    stability >= 85;
+  if (supportive) {
+    const bias = (score.presentation_chars?.directional_bias ?? "").toUpperCase();
+    const target = requirements.directional_target_numeric;
+    const drawHelps =
+      target != null && target > 0 && (bias === "DRAW" || bias === "STRONG_DRAW");
+    const fadeHelps =
+      target != null && target < 0 && (bias === "FADE" || bias === "STRONG_FADE");
+    const rightHanded = requirements.handedness !== "LEFT";
+    let directionSentence = "";
+    if (drawHelps && rightHanded) {
+      directionSentence =
+        " Its draw characteristics may also suit your typical rightward miss.";
+    } else if (fadeHelps && rightHanded) {
+      directionSentence =
+        " Its fade characteristics may also suit your typical leftward miss.";
+    } else if (drawHelps || fadeHelps) {
+      directionSentence =
+        " Its recorded shot bias may also suit the miss pattern you described.";
+    }
+    const profile = recordedProfilePhrase(score);
+    const profileDiffers =
+      profile != null &&
+      peers.some(
+        (peer) =>
+          peer.catalogue_key !== score.catalogue_key &&
+          recordedProfilePhrase(peer) !== profile
+      );
+    const profileSentence = profileDiffers ? ` ${profile}` : "";
+    return {
+      headline: "Forgiveness and stability to support your game.",
+      pitch: `This driver's forgiving design and assessed stability make it a strong option if you're looking for more consistent results.${directionSentence}${profileSentence}`,
+      code: "FORGIVENESS",
+      benefits: [
+        { code: "FORGIVENESS" as const, text: "Forgiving for your game" },
+        { code: "STABILITY" as const, text: "Stability-focused design" },
+        ...(drawHelps || fadeHelps
+          ? [{ code: "DIRECTION" as const, text: "Lines up with your miss pattern" }]
+          : []),
+      ].slice(0, 3),
+    };
+  }
+
   const primary = eligible[0];
   const primaryScore = activeDimensionScore(score, primary.key) ?? 0;
   const others = peers.filter((peer) => peer.catalogue_key !== score.catalogue_key);

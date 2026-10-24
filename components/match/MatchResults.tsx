@@ -5,7 +5,9 @@ import Link from "next/link";
 import { MatchRefinementPanel } from "@/components/match/MatchRefinementPanel";
 import { GuidanceSummary } from "@/components/match/results/GuidanceSummary";
 import { RecommendationHeadCard } from "@/components/match/results/RecommendationHeadCard";
-import { ResultsHeading } from "@/components/match/results/ResultsHeading";
+import { ResultsHeading, SuitableResultsHeading } from "@/components/match/results/ResultsHeading";
+import type { HeadChoice } from "@/lib/match/app/present-head-choices";
+import { SUITABLE_EXAMPLE_PRECEDENCE } from "@/lib/match/app/present-catalogue-selection";
 import {
   ListingAvailabilityNotice,
   RefreshStatus,
@@ -140,21 +142,59 @@ export function MatchResults() {
     })
   );
 
-  const listingRows =
-    result.mode === "NAMED_HEADS"
-      ? result.recommendations.flatMap(
-          (rec) =>
-            result.inventory_attachments?.find(
-              (attachment) => attachment.catalogue_key === rec.catalogue_key
-            )?.items ?? []
-        )
+  const exampleHeads =
+    result.mode === "CHARACTERISTIC_GUIDANCE" &&
+    result.audit.insufficient_evidence_reason === "NO_MEANINGFUL_HEAD_DIFFERENTIATION"
+      ? result.example_heads ?? []
       : [];
+  const suitableExamples = exampleHeads.length > 0;
+  const shownHeads = result.mode === "NAMED_HEADS" ? result.recommendations : exampleHeads;
+  const listingRows = shownHeads.flatMap(
+    (rec) =>
+      result.inventory_attachments?.find(
+        (attachment) => attachment.catalogue_key === rec.catalogue_key
+      )?.items ?? []
+  );
   const listingRoles = presentAttachedListingLabels(listingRows, budgetGbp);
   const anyListing = listingRows.length > 0;
 
   return (
     <div className="max-w-6xl space-y-6">
-      {result.mode === "NAMED_HEADS" ? (
+      {suitableExamples ? (
+        <>
+          <SuitableResultsHeading count={exampleHeads.length} />
+          <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {exampleHeads.map((rec, i) => (
+              <li key={rec.catalogue_key} className="min-w-0">
+                <RecommendationHeadCard
+                  score={rec}
+                  peers={exampleHeads}
+                  explanation={result.explanations[i]}
+                  requirements={result.normalised_requirements}
+                  listings={
+                    result.inventory_attachments?.find(
+                      (attachment) => attachment.catalogue_key === rec.catalogue_key
+                    )?.items ?? []
+                  }
+                  choice={unrankedChoice(rec.catalogue_key)}
+                  listingRoles={listingRoles}
+                  emptyListingsMode={
+                    inventoryStatus === "unavailable"
+                      ? "unchecked"
+                      : anyListing
+                        ? "head"
+                        : "page"
+                  }
+                />
+              </li>
+            ))}
+          </ul>
+          <ListingAvailabilityNotice
+            status={inventoryStatus}
+            hasListings={anyListing}
+          />
+        </>
+      ) : result.mode === "NAMED_HEADS" ? (
         <>
           <ResultsHeading />
           <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -217,7 +257,7 @@ export function MatchResults() {
         onActivity={setActivity}
       />
 
-      {result.mode === "NAMED_HEADS" ? (
+      {result.mode === "NAMED_HEADS" || suitableExamples ? (
       <section className="rounded-xl border border-mowing-green/15 bg-white p-4 space-y-2">
         <h2 className="text-lg font-semibold text-mowing-green">
           Shaft profile guidance
@@ -256,6 +296,25 @@ export function MatchResults() {
               audit: result.audit,
               versions: result.versions,
               handedness: g.handedness,
+              presentation_choices: result.presentation_choices ?? null,
+              example_selection: suitableExamples ? SUITABLE_EXAMPLE_PRECEDENCE : null,
+              heads: shownHeads.map((head) => ({
+                catalogue_key: head.catalogue_key,
+                fit: head.catalogue_fit_score,
+                band: head.catalogue_match_band,
+                active_dims: head.active_catalogue_dim_count,
+                confidence: head.head_recommendation_confidence,
+                golfer_confidence: head.confidence_components.golfer,
+                equipment_confidence: head.confidence_components.equipment,
+                dimensions: Object.fromEntries(
+                  Object.entries(head.dimensions)
+                    .filter(([, trace]) => trace.active)
+                    .map(([name, trace]) => [
+                      name,
+                      { score: trace.score, reliability: trace.reliability },
+                    ])
+                ),
+              })),
             },
             null,
             2
@@ -267,8 +326,19 @@ export function MatchResults() {
         href="/fit"
         className="inline-flex min-h-[48px] items-center justify-center rounded-xl border-2 border-mowing-green px-5 text-sm font-semibold text-mowing-green"
       >
-        Revise answers
-      </Link>
+      Revise answers
+    </Link>
     </div>
   );
+}
+
+function unrankedChoice(catalogueKey: string): HeadChoice {
+  return {
+    catalogueKey,
+    category: null,
+    label: null,
+    tiedForTopSuitability: false,
+    note: null,
+    substitution: null,
+  };
 }

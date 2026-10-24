@@ -358,9 +358,8 @@ export function sameCatalogueFitTier(
 
 /**
  * B2.1 differentiation gate on post-family top-tied families (mixed-coverage safe).
- * - ≤3 families share top Fit tier → allow
- * - >3 top-tied AND every top-tied winner has ≥5 active dims → allow (disclose ties)
- * - >3 top-tied AND any top-tied winner has <5 active dims → block
+ * - ≤3 families share the top suitability → a named recommendation is allowed
+ * - >3 families share the exact top suitability → no unique Best Match
  *
  * Does **not** use distinct_fits > 1 as an allow condition.
  * Does **not** let one fully covered family unlock incomplete peers (uses min, not max).
@@ -371,9 +370,7 @@ export function lacksMeaningfulHeadDifferentiation(input: {
   top_tied_min_active_dims: number;
 }): boolean {
   if (input.top_tied_family_count <= 0) return false;
-  if (input.top_tied_family_count <= 3) return false;
-  if (input.top_tied_min_active_dims >= 5) return false;
-  return true;
+  return input.top_tied_family_count > 3;
 }
 
 /** Presentation sort only — never mutates Fit scores. */

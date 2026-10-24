@@ -31,9 +31,9 @@ function run(answers: Record<string, unknown>) {
 
 describe("Phase 2E.3 refinement policy", () => {
   it("Pathway A: named profiles get no refinement question", () => {
-    const result = run(PROFILE_FIXTURES.beginner_forgiveness);
+    const result = run(PROFILE_FIXTURES.high_handicap_slice);
     expect(result.mode).toBe("NAMED_HEADS");
-    const d = selectRefinement(result, PROFILE_FIXTURES.beginner_forgiveness, [], 0);
+    const d = selectRefinement(result, PROFILE_FIXTURES.high_handicap_slice, [], 0);
     expect(d.pathway).toBe("A");
     expect(d.question).toBeNull();
   });
@@ -69,10 +69,12 @@ describe("Phase 2E.3 refinement policy", () => {
     };
     expect(after.typical_curvature).toBe("STRAIGHT");
     const result = run(after);
-    expect(result.mode).toBe("NAMED_HEADS");
-    expect(result.recommendations.length).toBeGreaterThan(0);
+    expect(result.mode).toBe("CHARACTERISTIC_GUIDANCE");
+    expect(result.recommendations).toEqual([]);
+    expect(result.example_heads?.length).toBe(3);
+    expect(result.presentation_choices).toBeUndefined();
     expect(
-      result.recommendations.every((r) => r.active_catalogue_dim_count >= 4)
+      result.example_heads?.every((head) => head.active_catalogue_dim_count >= 4)
     ).toBe(true);
   });
 
@@ -82,11 +84,13 @@ describe("Phase 2E.3 refinement policy", () => {
       typical_start_direction: "RIGHT",
     };
     const result = run(after);
-    expect(result.mode).toBe("NAMED_HEADS");
+    expect(result.mode).toBe("CHARACTERISTIC_GUIDANCE");
+    expect(result.example_heads?.length).toBe(3);
     const d = selectRefinement(result, after, ["typical_start_direction"], 1, {
       recoveredNamedViaRefinement: true,
     });
-    expect(d.pathway).toBe("A");
+    expect(d.pathway).toBe("NONE");
+    expect(d.question).toBeNull();
   });
 
   it("mid_handicap: KEEP-equivalent — STRAIGHT retained via applyRefinementAnswer", () => {
@@ -284,16 +288,31 @@ describe("Phase 2E.3 refinement policy", () => {
     });
     const named = rows.filter((r) => r.mode === "NAMED_HEADS");
     const guidance = rows.filter((r) => r.mode === "CHARACTERISTIC_GUIDANCE");
-    expect(named.length).toBe(19);
-    expect(guidance.length).toBe(5);
+    expect(named.map((row) => row.id).sort()).toEqual([
+      "borderline_forgiveness",
+      "high_handicap_slice",
+      "incomplete_launch",
+      "low_handicap_workability",
+      "mid_fade_bias",
+      "mid_handicap_hook",
+      "rich_left_start",
+      "rich_right_miss",
+      "senior_slower",
+      "strong_draw_assist",
+      "toe_miss_moderate",
+    ]);
+    expect(guidance.length).toBe(13);
     for (const r of named) {
       expect(r.pathway).toBe("A");
     }
     for (const r of guidance) {
       if (r.pathway === "NONE") {
         const answers = PROFILE_FIXTURES[r.id as keyof typeof PROFILE_FIXTURES];
-        expect(answers.typical_trajectory).toBe("UNKNOWN");
-        expect(answers.typical_curvature).toBe("UNKNOWN");
+        if (answers.typical_trajectory === "UNKNOWN") {
+          expect(answers.typical_curvature).toBe("UNKNOWN");
+        } else {
+          expect(String(answers.typical_curvature ?? "")).not.toBe("");
+        }
       } else {
         expect(["B", "C"]).toContain(r.pathway);
       }
@@ -403,24 +422,28 @@ describe("Phase 2E.3 refinement session accounting", () => {
 });
 
 describe("Phase 2E.3 five blocked-profile recovery matrix", () => {
-  it("mid_handicap_distance recovers via start RIGHT", () => {
+  it("mid_handicap_distance keeps suitable examples when start RIGHT is still shared", () => {
     const after: Record<string, unknown> = {
       ...PROFILE_FIXTURES.mid_handicap_distance,
       typical_start_direction: "RIGHT",
     };
     const result = run(after);
-    expect(result.mode).toBe("NAMED_HEADS");
+    expect(result.mode).toBe("CHARACTERISTIC_GUIDANCE");
+    expect(result.example_heads?.length).toBe(3);
+    expect(result.presentation_choices).toBeUndefined();
     expect(after.typical_curvature).toBe("STRAIGHT");
     expect(after.primary_objective).toBe("DISTANCE");
   });
 
-  it("mid_handicap_carry_hint recovers via start RIGHT", () => {
+  it("mid_handicap_carry_hint keeps suitable examples when start RIGHT is still shared", () => {
     const after = {
       ...PROFILE_FIXTURES.mid_handicap_carry_hint,
       typical_start_direction: "RIGHT",
     };
     const result = run(after);
-    expect(result.mode).toBe("NAMED_HEADS");
+    expect(result.mode).toBe("CHARACTERISTIC_GUIDANCE");
+    expect(result.example_heads?.length).toBe(3);
+    expect(result.presentation_choices).toBeUndefined();
   });
 
   it("inconsistent_strike weak then optional traj path to 5-dim", () => {

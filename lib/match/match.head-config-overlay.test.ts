@@ -459,22 +459,17 @@ describe("MATCH_HEAD_CONFIG_OVERLAY_V1", () => {
       expect(differentiation_blocked).toBe(true);
     });
 
-    it("8. twenty-five top-tied with five dims — allow and disclose ties", () => {
+    it("8. twenty-five top-tied with five dims — no unique Best Match", () => {
       const scored = nFamilies(25, {
         catalogue_fit_score: 90,
         active_catalogue_dim_count: 5,
       });
       const { recommendations, differentiation_blocked, family_stats } =
         rankCatalogueHeads(scored, 3, overlay);
-      expect(differentiation_blocked).toBe(false);
+      expect(differentiation_blocked).toBe(true);
       expect(family_stats.top_tied_family_count).toBe(25);
       expect(family_stats.top_tied_min_active_dims).toBe(5);
-      expect(recommendations).toHaveLength(3);
-      expect(
-        recommendations.every(
-          (r) => r.catalogue_fit_score === recommendations[0].catalogue_fit_score
-        )
-      ).toBe(true);
+      expect(recommendations).toEqual([]);
     });
 
     it("mixed coverage: one 5-dim among twenty 3-dim top-tied — block", () => {

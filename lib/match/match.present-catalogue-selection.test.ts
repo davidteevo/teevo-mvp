@@ -8,6 +8,7 @@ import {
 import {
   characteristicEquivalenceKey,
   selectPresentedCatalogueHeads,
+  selectSuitableExamples,
 } from "@/lib/match/app/present-catalogue-selection";
 import { presentHeadCard } from "@/lib/match/app/present-head-card";
 import type { DimensionTrace } from "@/lib/match/types";
@@ -146,12 +147,13 @@ describe("catalogue presentation selection", () => {
       result.normalised_requirements,
       result.recommendations
     );
-    expect(card.headline).toMatch(/miss pattern/i);
+    expect(card.headline).toBe("Forgiveness and stability to support your game.");
+    expect(card.reason?.text ?? "").toMatch(/rightward miss/i);
     expect(card.reason?.text ?? "").not.toMatch(/shape shots/i);
     expect(card.benefits.map((benefit) => benefit.code)).toEqual([
-      "DIRECTION",
       "FORGIVENESS",
       "STABILITY",
+      "DIRECTION",
     ]);
     expect(cardText(card)).not.toContain(String(wilson?.catalogue_fit_score));
   });
@@ -238,6 +240,50 @@ describe("catalogue presentation selection", () => {
     expect(selected.choices[0].catalogueKey).toBe("niche|one|2014");
   });
 
+  it("selects unranked examples by evidence, UK relevance, stock, then familiarity", () => {
+    const weak = head({
+      catalogue_key: "adams|weak|2014",
+      brand: "Adams",
+      release_year: 2024,
+      dimensions: { direction: dim(100, 0.85) },
+    });
+    const strongUnfamiliar = head({
+      catalogue_key: "honma|strong|2018",
+      brand: "Honma",
+      dimensions: { direction: dim(100, 1) },
+    });
+    const familiar = head({
+      catalogue_key: "ping|familiar|2020",
+      brand: "PING",
+      dimensions: { direction: dim(100, 1) },
+    });
+    const stocked = head({
+      catalogue_key: "wilson|stocked|2023",
+      brand: "Wilson",
+      dimensions: { direction: dim(100, 1) },
+    });
+    const uk: UkHeadRelevanceIndex = {
+      byCatalogueKey: new Map([
+        ["honma|strong|2018", { uk_market_status: "UK_OBSERVED" }],
+        ["ping|familiar|2020", { uk_market_status: "UK_ESTABLISHED" }],
+        ["wilson|stocked|2023", { uk_market_status: "UK_ESTABLISHED" }],
+        ["adams|weak|2014", { uk_market_status: "UK_ESTABLISHED" }],
+      ]),
+    } as unknown as UkHeadRelevanceIndex;
+    const selected = selectSuitableExamples({
+      topTier: [weak, strongUnfamiliar, familiar, stocked],
+      uk,
+      inStockKeys: new Set(["wilson|stocked|2023"]),
+      limit: 3,
+    });
+    expect(selected.map((item) => item.catalogue_key)).toEqual([
+      "wilson|stocked|2023",
+      "ping|familiar|2020",
+      "honma|strong|2018",
+    ]);
+    expect(selected).toHaveLength(3);
+  });
+
   it("leaves a large exact-Fit tie in engine order", () => {
     const newerFamiliar = head({
       catalogue_key: "ping|g430-max|2024",
@@ -263,6 +309,7 @@ describe("catalogue presentation selection", () => {
       "ping|g430-max|2024",
     ]);
     expect(selected.choices[0].substitution).toBeNull();
+    expect(selected.choices.every((choice) => choice.label == null)).toBe(true);
   });
 
   it("omits Newer Option when nothing in the window is a later year in the same band", () => {

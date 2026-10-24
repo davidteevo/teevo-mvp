@@ -134,7 +134,17 @@ export function selectPresentedCatalogueHeads(input: {
   const shortlist = input.technicalShortlist;
   if (shortlist.length === 0) return { heads: [], choices: [] };
   if (input.topTiedFamilyCount > 3) {
-    return { heads: shortlist.slice(), choices: presentHeadChoices(shortlist) };
+    return {
+      heads: shortlist.slice(),
+      choices: shortlist.map((head) => ({
+        catalogueKey: head.catalogue_key,
+        category: null,
+        label: null,
+        tiedForTopSuitability: false,
+        note: null,
+        substitution: null,
+      })),
+    };
   }
 
   const leader = input.familyWinners[0] ?? shortlist[0];
@@ -194,4 +204,77 @@ export function selectPresentedCatalogueHeads(input: {
       substitution,
     }),
   };
+}
+
+/**
+ * Which suitable examples to show when more than three families share the
+ * top suitability. This order never changes the suitability score.
+ * 1. Equipment evidence quality
+ * 2. Verified UK-market relevance
+ * 3. Actual Teevo inventory availability
+ * 4. Consumer familiarity
+ * 5. A supported difference in recorded characteristics
+ * 6. Catalogue key, so the result stays repeatable
+ */
+export const SUITABLE_EXAMPLE_PRECEDENCE = [
+  "EQUIPMENT_EVIDENCE",
+  "UK_MARKET_RELEVANCE",
+  "TEEVO_INVENTORY",
+  "CONSUMER_FAMILIARITY",
+  "SUPPORTED_CHARACTERISTIC_DIFFERENCE",
+  "CATALOGUE_KEY",
+] as const;
+
+function characteristicSignature(head: CatalogueHeadScore): string {
+  const chars = head.presentation_chars;
+  const parts: string[] = [];
+  if (head.dimensions.direction?.active && chars?.directional_bias) {
+    parts.push(`dir:${chars.directional_bias}`);
+  }
+  if (head.dimensions.head_launch?.active && chars?.launch_tendency) {
+    parts.push(`launch:${chars.launch_tendency}`);
+  }
+  if (chars?.primary_head_profile) parts.push(`profile:${chars.primary_head_profile}`);
+  return parts.join("|") || head.catalogue_key;
+}
+
+export function selectSuitableExamples(input: {
+  topTier: CatalogueHeadScore[];
+  uk: UkHeadRelevanceIndex | null | undefined;
+  inStockKeys?: ReadonlySet<string>;
+  limit?: number;
+}): CatalogueHeadScore[] {
+  const limit = Math.max(0, input.limit ?? 3);
+  if (input.topTier.length === 0 || limit === 0) return [];
+  const stock = input.inStockKeys ?? new Set<string>();
+  const sorted = [...input.topTier].sort((a, b) => {
+    const evidence = evidenceStrength(b) - evidenceStrength(a);
+    if (evidence !== 0) return evidence;
+    const market = ukRank(b, input.uk) - ukRank(a, input.uk);
+    if (market !== 0) return market;
+    const available =
+      Number(stock.has(b.catalogue_key)) - Number(stock.has(a.catalogue_key));
+    if (available !== 0) return available;
+    const familiar = familiarityRank(a) - familiarityRank(b);
+    if (familiar !== 0) return familiar;
+    return a.catalogue_key.localeCompare(b.catalogue_key);
+  });
+  if (sorted.length <= limit) return sorted;
+
+  const selected: CatalogueHeadScore[] = [];
+  const pool = sorted.slice();
+  const used = new Set<string>();
+  while (selected.length < limit && pool.length > 0) {
+    let pick = 0;
+    if (selected.length > 0) {
+      const diverse = pool.findIndex(
+        (head) => !used.has(characteristicSignature(head))
+      );
+      if (diverse >= 0) pick = diverse;
+    }
+    const head = pool.splice(pick, 1)[0];
+    selected.push(head);
+    used.add(characteristicSignature(head));
+  }
+  return selected;
 }

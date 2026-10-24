@@ -62,7 +62,7 @@ export function RecommendationHeadCard({
   return (
     <article className="flex h-full min-w-0 flex-col rounded-[20px] border border-mowing-green/15 bg-white p-4">
       <p className="text-[11px] font-semibold uppercase tracking-wide text-par-3-punch">
-        Head-only suitability
+        Driver-head suitability
       </p>
       {category ? (
         <p className="mt-1 text-sm font-semibold text-mowing-green">{category}</p>

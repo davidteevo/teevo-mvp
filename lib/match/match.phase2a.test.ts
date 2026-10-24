@@ -214,13 +214,13 @@ describe("Phase 2A — B2.1 differentiation gate", () => {
     ).toBe(true);
   });
 
-  it("allows >3 top-tied families only when every winner has 5 dims", () => {
+  it("withholds a unique Best Match when more than three families share the top suitability", () => {
     expect(
       lacksMeaningfulHeadDifferentiation({
         top_tied_family_count: 25,
         top_tied_min_active_dims: 5,
       })
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it("blocks mixed coverage where max is 5 but min is below 5", () => {
@@ -398,7 +398,7 @@ describe("Phase 2A Checkpoint A — catalogue scoring", () => {
     expect(recommendations.length).toBe(1);
   });
 
-  it("does not suppress informative 5-dim profiles solely because Fits tie", () => {
+  it("withholds a unique Best Match when more than three families share the top suitability", () => {
     const tied = [
       stubScore({
         catalogue_key: "brand|a|2020",
@@ -427,15 +427,11 @@ describe("Phase 2A Checkpoint A — catalogue scoring", () => {
     ];
     const { recommendations, differentiation_blocked, stats } =
       rankCatalogueHeads(tied, 3);
-    expect(differentiation_blocked).toBe(false);
+    expect(differentiation_blocked).toBe(true);
     expect(stats.distinct_fit_scores).toBe(1);
     expect(stats.max_active_catalogue_dims).toBe(5);
     expect(stats.top_fit_share_count).toBe(4);
-    expect(recommendations.map((r) => r.catalogue_key)).toEqual([
-      "brand|b|2024",
-      "brand|c|2022",
-      "brand|d|2021",
-    ]);
+    expect(recommendations).toEqual([]);
   });
 
   it("logs differentiation suppression reason for sparse incomplete profiles", () => {

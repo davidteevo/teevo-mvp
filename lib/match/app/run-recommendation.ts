@@ -21,7 +21,10 @@ import {
 import type { UkHeadRelevanceIndex } from "../uk-head-relevance";
 import { loadUkHeadRelevanceOverlay } from "../uk-head-relevance";
 import { matchAdapterVersions } from "../versions";
-import { selectPresentedCatalogueHeads } from "./present-catalogue-selection";
+import {
+  selectPresentedCatalogueHeads,
+  selectSuitableExamples,
+} from "./present-catalogue-selection";
 import { buildCharacteristicGuidance, explainCatalogueHead } from "./explain";
 import { attachInventoryToCatalogueRecommendations } from "./inventory-attach";
 import { matchReferenceDirectory } from "./intelligence-path";
@@ -255,18 +258,48 @@ export function runCatalogueRecommendation(input: {
   };
 
   if (differentiation_blocked) {
+    const leaderFit = family_winners[0]?.catalogue_fit_score ?? null;
+    const topTier =
+      leaderFit == null
+        ? []
+        : family_winners.filter((head) => head.catalogue_fit_score === leaderFit);
+    const inStockKeys = new Set(
+      inventory
+        .filter(
+          (item) =>
+            item.availability_status === "AVAILABLE" &&
+            item.identity.head_resolution === "UNIQUE" &&
+            item.head_key != null
+        )
+        .map((item) => item.head_key as string)
+    );
+    const examples = selectSuitableExamples({
+      topTier,
+      uk: ukOverlay ?? null,
+      inStockKeys,
+      limit: 3,
+    });
+    const shown = examples.length > 0 ? examples : example_heads;
+    const inventory_attachments = attachInventoryToCatalogueRecommendations({
+      recommendations: shown,
+      inventory,
+      requirements: req,
+      intelligence: input.intelligence,
+      golferConfidence: golfer,
+    });
+    const attached = inventory_attachments.reduce((n, row) => n + row.items.length, 0);
     return {
       mode: "CHARACTERISTIC_GUIDANCE",
       recommendations: [],
-      example_heads,
-      explanations: [],
+      example_heads: shown,
+      explanations: shown.map((head) => explainCatalogueHead(head, req)),
       shaft_guidance,
       characteristic_guidance: buildCharacteristicGuidance(req, {
         differentiationBlocked: true,
         topTiedFamilyCount: family_stats.top_tied_family_count,
         topTiedMinActiveDims: family_stats.top_tied_min_active_dims,
       }),
-      inventory_attachments: [],
+      inventory_attachments,
       normalised_requirements: req,
       session: {
         resolved_catalogue_requirement_dims: resolvedDims,
@@ -276,6 +309,8 @@ export function runCatalogueRecommendation(input: {
       audit: {
         ...auditBase,
         insufficient_evidence_reason: "NO_MEANINGFUL_HEAD_DIFFERENTIATION",
+        recommendations_returned: shown.length,
+        inventory_items_attached: attached,
       },
       versions,
     };
