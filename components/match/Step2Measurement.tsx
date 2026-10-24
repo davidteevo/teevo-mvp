@@ -16,19 +16,29 @@ type Props = {
 };
 
 const CHOICES: Array<{
-  value: Exclude<SwingKnowledge, "">;
+  value: Exclude<SwingKnowledge, "" | "SPEED">;
   title: string;
-  icon: "speed" | "distance" | "unknown";
+  icon: "speed" | "estimate" | "distance" | "band" | "unknown";
 }> = [
   {
-    value: "SPEED",
-    title: "I know my swing speed.",
+    value: "MEASURED",
+    title: "I have a measured clubhead speed.",
     icon: "speed",
   },
   {
+    value: "ESTIMATED",
+    title: "I can estimate my clubhead speed.",
+    icon: "estimate",
+  },
+  {
     value: "DISTANCE",
-    title: "I know my driver carry distance.",
+    title: "I know my typical carry distance.",
     icon: "distance",
+  },
+  {
+    value: "BAND",
+    title: "I only know roughly: slow, medium or fast.",
+    icon: "band",
   },
   {
     value: "UNKNOWN",
@@ -57,8 +67,8 @@ export function Step2Measurement({
   return (
     <div className="space-y-4">
       <VisualChoiceGroup
-        label="Which measurement would you like to use?"
-        hint="You can continue without a swing speed or carry distance."
+        label="How should we use your driver speed?"
+        hint="A measured speed, an estimate, a carry distance, or a rough category. Carry stays carry."
         value={draft.knowledge}
         onChange={choose}
         options={CHOICES.map((choice) => ({
@@ -68,10 +78,21 @@ export function Step2Measurement({
         }))}
       />
 
-      {draft.knowledge === "SPEED" ? (
+      {draft.knowledge === "SPEED" || draft.knowledge === "MEASURED" ? (
         <Field
-          label="Driver clubhead speed (mph)"
-          hint="Driver clubhead speed in mph — not ball speed."
+          label="Measured clubhead speed (mph)"
+          hint="From a launch monitor or radar. Clubhead speed, not ball speed."
+          value={draft.speedDraft}
+          onChange={(speedDraft) => onDraft({ ...draft, speedDraft })}
+          inputMode="decimal"
+          error={validationError}
+        />
+      ) : null}
+
+      {draft.knowledge === "ESTIMATED" ? (
+        <Field
+          label="Estimated clubhead speed (mph)"
+          hint="Your estimate. This is not recorded as a measured speed."
           value={draft.speedDraft}
           onChange={(speedDraft) => onDraft({ ...draft, speedDraft })}
           inputMode="decimal"
@@ -82,7 +103,7 @@ export function Step2Measurement({
       {draft.knowledge === "DISTANCE" ? (
         <Field
           label="Typical driver carry (yards)"
-          hint="How far your ball travels through the air before landing, excluding roll."
+          hint="Airborne carry in yards. This is not converted into a clubhead speed."
           value={draft.carryDraft}
           onChange={(carryDraft) => onDraft({ ...draft, carryDraft })}
           inputMode="decimal"
@@ -98,6 +119,31 @@ export function Step2Measurement({
         >
           Skip this measurement
         </button>
+      ) : null}
+
+      {draft.knowledge === "BAND" ? (
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-mowing-green">Approximate clubhead speed</p>
+          <p className="text-xs text-mowing-green/60">
+            A range for flex and weight guidance. It does not rule a shaft in or out.
+          </p>
+          <div className="grid grid-cols-3 gap-2">
+            {(["SLOW", "MEDIUM", "FAST"] as const).map((band) => (
+              <button
+                key={band}
+                type="button"
+                onClick={() => onDraft({ ...draft, band })}
+                className={`min-h-[48px] rounded-xl border-2 text-sm font-semibold ${
+                  draft.band === band
+                    ? "border-mowing-green bg-mowing-green text-off-white-pique"
+                    : "border-mowing-green/25 text-mowing-green"
+                }`}
+              >
+                {band === "SLOW" ? "Slow" : band === "MEDIUM" ? "Medium" : "Fast"}
+              </button>
+            ))}
+          </div>
+        </div>
       ) : null}
 
       {draft.knowledge === "UNKNOWN" ? (
@@ -167,7 +213,11 @@ function Field({
   );
 }
 
-function MeasurementIcon({ kind }: { kind: "speed" | "distance" | "unknown" }) {
+function MeasurementIcon({
+  kind,
+}: {
+  kind: "speed" | "estimate" | "distance" | "band" | "unknown";
+}) {
   return (
     <svg
       width="44"

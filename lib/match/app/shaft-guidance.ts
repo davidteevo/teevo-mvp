@@ -1,8 +1,20 @@
 import type { ShaftGuidance } from "../catalogue-types";
 import type { NormalisedRequirements } from "../types";
 
+function flexPoint(value: number): string {
+  if (value < 1.25) return "softer";
+  if (value < 2.25) return "regular";
+  if (value < 3.25) return "regular–stiff";
+  if (value < 4.25) return "stiff";
+  return "extra-stiff";
+}
+
 function flexBandLabel(min: number | null, max: number | null): string | null {
   if (min == null || max == null) return null;
+  // A wide window comes from an approximate speed. Do not name one flex.
+  if (max - min > 1.5) {
+    return `About ${flexPoint(min)} through ${flexPoint(max)} flex. An approximate speed is a range, not one shaft flex.`;
+  }
   // Frozen numeric flex: 0–5 maps broadly L→X; keep labels qualitative.
   const mid = (min + max) / 2;
   if (mid < 1.25) return "Softer flex territory (approx. Ladies–Senior)";
@@ -53,8 +65,13 @@ export function buildShaftGuidance(req: NormalisedRequirements): ShaftGuidance {
     );
   }
   if (req.conflict_flags.includes("SPEED_CARRY_CONFLICT")) {
+    const estimated = req.requirement_confidence.flex?.source_codes.includes(
+      "ESTIMATED_SPEED"
+    );
     notes.push(
-      "Measured speed and carry suggest different flex territories — treat flex guidance cautiously."
+      estimated
+        ? "Estimated speed and carry suggest different flex territories — treat flex guidance cautiously."
+        : "Measured speed and carry suggest different flex territories — treat flex guidance cautiously."
     );
   }
 

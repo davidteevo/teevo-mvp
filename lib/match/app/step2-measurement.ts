@@ -3,7 +3,16 @@ import type { MatchQuestionnaireAnswers } from "./session-storage";
 /** Separate from fitting answers. Never sent to the recommend API. */
 export const STEP2_DRAFT_STORAGE_KEY = "teevo_match_admin_q_step2_draft_v1";
 
-export type SwingKnowledge = "" | "SPEED" | "DISTANCE" | "UNKNOWN";
+export type SwingKnowledge =
+  | ""
+  | "SPEED"
+  | "MEASURED"
+  | "ESTIMATED"
+  | "DISTANCE"
+  | "BAND"
+  | "UNKNOWN";
+
+export type SpeedBandChoice = "" | "SLOW" | "MEDIUM" | "FAST";
 
 export type Step2Draft = {
   knowledge: SwingKnowledge;
@@ -11,6 +20,7 @@ export type Step2Draft = {
   speedDraft: string;
   /** UI-only text. Not a fitting field. */
   carryDraft: string;
+  band?: SpeedBandChoice;
   /**
    * A saved questionnaire already had both measurements. Speed stays
    * committed; carry remains in this draft.
@@ -22,10 +32,20 @@ export const EMPTY_STEP2_DRAFT: Step2Draft = {
   knowledge: "",
   speedDraft: "",
   carryDraft: "",
+  band: "",
   legacyDualResolved: false,
 };
 
-const KNOWLEDGE = new Set<SwingKnowledge>(["", "SPEED", "DISTANCE", "UNKNOWN"]);
+const KNOWLEDGE = new Set<SwingKnowledge>([
+  "",
+  "SPEED",
+  "MEASURED",
+  "ESTIMATED",
+  "DISTANCE",
+  "BAND",
+  "UNKNOWN",
+]);
+const BANDS = new Set<SpeedBandChoice>(["", "SLOW", "MEDIUM", "FAST"]);
 
 export function loadStep2Draft(): Step2Draft {
   if (typeof window === "undefined") return { ...EMPTY_STEP2_DRAFT };
@@ -36,10 +56,14 @@ export function loadStep2Draft(): Step2Draft {
     const knowledge = KNOWLEDGE.has(parsed.knowledge as SwingKnowledge)
       ? (parsed.knowledge as SwingKnowledge)
       : "";
+    const band = BANDS.has(parsed.band as SpeedBandChoice)
+      ? (parsed.band as SpeedBandChoice)
+      : "";
     return {
       knowledge,
       speedDraft: typeof parsed.speedDraft === "string" ? parsed.speedDraft : "",
       carryDraft: typeof parsed.carryDraft === "string" ? parsed.carryDraft : "",
+      band,
       legacyDualResolved: parsed.legacyDualResolved === true,
     };
   } catch {
@@ -62,15 +86,36 @@ export function clearStep2Draft(): void {
  * measurement. Handicap and every other answer are left unchanged.
  * UNKNOWN and no selection commit neither measurement.
  */
+function clearedSpeed(answers: MatchQuestionnaireAnswers): MatchQuestionnaireAnswers {
+  return {
+    ...answers,
+    club_speed_mph: "",
+    carry_distance_yards: "",
+    speed_method: "",
+    speed_band: "",
+  };
+}
+
 export function commitStep2Measurement(
   answers: MatchQuestionnaireAnswers,
   draft: Step2Draft
 ): MatchQuestionnaireAnswers {
-  if (draft.knowledge === "SPEED") {
+  if (draft.knowledge === "SPEED" || draft.knowledge === "MEASURED") {
     return {
       ...answers,
       club_speed_mph: draft.speedDraft,
       carry_distance_yards: "",
+      speed_method: "measured_mph",
+      speed_band: "",
+    };
+  }
+  if (draft.knowledge === "ESTIMATED") {
+    return {
+      ...answers,
+      club_speed_mph: draft.speedDraft,
+      carry_distance_yards: "",
+      speed_method: "estimated_mph",
+      speed_band: "",
     };
   }
   if (draft.knowledge === "DISTANCE") {
@@ -78,13 +123,26 @@ export function commitStep2Measurement(
       ...answers,
       club_speed_mph: "",
       carry_distance_yards: draft.carryDraft,
+      speed_method: "carry_yards",
+      speed_band: "",
     };
   }
-  return {
-    ...answers,
-    club_speed_mph: "",
-    carry_distance_yards: "",
-  };
+  if (draft.knowledge === "BAND" && draft.band) {
+    return {
+      ...answers,
+      club_speed_mph: "",
+      carry_distance_yards: "",
+      speed_method: "band",
+      speed_band: draft.band,
+    };
+  }
+  if (draft.knowledge === "UNKNOWN" || draft.knowledge === "BAND") {
+    return {
+      ...clearedSpeed(answers),
+      speed_method: "unknown",
+    };
+  }
+  return clearedSpeed(answers);
 }
 
 /**
@@ -102,11 +160,20 @@ export function hydrateStep2(
     knowledge: draft.knowledge,
     speedDraft: draft.speedDraft || speed,
     carryDraft: draft.carryDraft || carry,
+    band: draft.band || (BANDS.has(answers.speed_band as SpeedBandChoice) ? answers.speed_band : ""),
     legacyDualResolved: draft.legacyDualResolved,
   };
 
   if (!next.knowledge) {
-    if (speed && carry) {
+    if (answers.speed_method === "estimated_mph" && speed) {
+      next.knowledge = "ESTIMATED";
+    } else if (answers.speed_method === "band" && next.band) {
+      next.knowledge = "BAND";
+    } else if (answers.speed_method === "carry_yards" && carry) {
+      next.knowledge = "DISTANCE";
+    } else if (answers.speed_method === "unknown") {
+      next.knowledge = "UNKNOWN";
+    } else if (speed && carry) {
       next.knowledge = "SPEED";
       next.legacyDualResolved = true;
     } else if (speed) {
@@ -143,7 +210,13 @@ export function isUsableCarryDistance(raw: string): boolean {
  * the fitter would reject. Blank, no selection, and I'm not sure do not block.
  */
 export function step2ContinueError(draft: Step2Draft): string | null {
-  if (draft.knowledge === "SPEED" && draft.speedDraft.trim() && !isUsableClubSpeed(draft.speedDraft)) {
+  if (
+    (draft.knowledge === "SPEED" ||
+      draft.knowledge === "MEASURED" ||
+      draft.knowledge === "ESTIMATED") &&
+    draft.speedDraft.trim() &&
+    !isUsableClubSpeed(draft.speedDraft)
+  ) {
     return "Enter a clubhead speed above 0 and up to 160 mph. Clear the box, or skip this measurement. What you typed is kept if you skip.";
   }
   if (
@@ -153,11 +226,14 @@ export function step2ContinueError(draft: Step2Draft): string | null {
   ) {
     return "Enter a carry distance above 0 and up to 400 yards. Clear the box, or skip this measurement. What you typed is kept if you skip.";
   }
+  if (draft.knowledge === "BAND" && !draft.band) {
+    return "Choose Slow, Medium or Fast, or pick I'm not sure.";
+  }
   return null;
 }
 
 /**
- * Pathway C may add a measured swing speed after carry was saved.
+ * Pathway C may add an estimated swing speed after carry was saved.
  * The fitting request then uses speed only. Carry stays in the UI draft.
  * Callers must persist the result only after the recommendation succeeds.
  */
@@ -183,17 +259,22 @@ export function proposePathwayCMeasurement(
   if (!speed) {
     return { answers: proposed, draft };
   }
+  const estimated: MatchQuestionnaireAnswers = {
+    ...proposed,
+    speed_method: "estimated_mph",
+    speed_band: "",
+  };
   if (!carry) {
     return {
-      answers: proposed,
-      draft: { ...draft, knowledge: "SPEED", speedDraft: speed },
+      answers: estimated,
+      draft: { ...draft, knowledge: "ESTIMATED", speedDraft: speed },
     };
   }
   return {
-    answers: { ...proposed, carry_distance_yards: "" },
+    answers: { ...estimated, carry_distance_yards: "" },
     draft: {
       ...draft,
-      knowledge: "SPEED",
+      knowledge: "ESTIMATED",
       speedDraft: speed,
       carryDraft: carry,
       legacyDualResolved: true,
@@ -207,19 +288,38 @@ export function step2Messages(draft: Step2Draft): string[] {
   const speed = draft.speedDraft.trim();
   const carry = draft.carryDraft.trim();
 
-  if (draft.knowledge === "SPEED" && !speed) {
+  if (
+    (draft.knowledge === "SPEED" ||
+      draft.knowledge === "MEASURED" ||
+      draft.knowledge === "ESTIMATED") &&
+    !speed
+  ) {
     messages.push("No swing speed entered, so it will not be used.");
+  }
+  if (draft.knowledge === "BAND" && !draft.band) {
+    messages.push("No approximate speed selected, so it will not be used.");
   }
 
   if (draft.knowledge === "DISTANCE" && !carry) {
     messages.push("No carry distance entered, so it will not be used.");
   }
 
-  if (draft.legacyDualResolved && draft.knowledge === "SPEED" && carry) {
+  if (
+    draft.legacyDualResolved &&
+    (draft.knowledge === "SPEED" || draft.knowledge === "MEASURED") &&
+    carry
+  ) {
     messages.push(
       `You had saved both a swing speed and a carry distance. Measured swing speed is used for matching. Your carry distance (${carry} yards) is saved if you choose carry distance instead.`
     );
-  } else if (draft.knowledge === "SPEED" && carry) {
+  } else if (draft.knowledge === "ESTIMATED" && carry) {
+    messages.push(
+      `Your carry distance (${carry} yards) is saved, but it will not be used unless you choose carry distance. This speed is an estimate, not a measured speed.`
+    );
+  } else if (
+    (draft.knowledge === "SPEED" || draft.knowledge === "MEASURED") &&
+    carry
+  ) {
     messages.push(
       `Your carry distance (${carry} yards) is saved, but it will not be used unless you choose carry distance.`
     );

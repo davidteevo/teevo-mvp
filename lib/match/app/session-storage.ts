@@ -29,6 +29,9 @@ export type MatchQuestionnaireAnswers = {
   handicap: string;
   club_speed_mph: string;
   carry_distance_yards: string;
+  /** Empty keeps the legacy path: a typed speed is treated as measured. */
+  speed_method: "" | "measured_mph" | "estimated_mph" | "carry_yards" | "band" | "unknown";
+  speed_band: "" | "SLOW" | "MEDIUM" | "FAST";
   typical_trajectory: string;
   typical_start_direction: string;
   typical_curvature: string;
@@ -46,6 +49,8 @@ export const EMPTY_MATCH_ANSWERS: MatchQuestionnaireAnswers = {
   handicap: "",
   club_speed_mph: "",
   carry_distance_yards: "",
+  speed_method: "",
+  speed_band: "",
   typical_trajectory: "UNKNOWN",
   typical_start_direction: "UNKNOWN",
   typical_curvature: "UNKNOWN",
@@ -83,8 +88,8 @@ export function saveMatchAnswers(answers: MatchQuestionnaireAnswers): void {
 }
 
 /**
- * Fitting payload only. Step 2's measurement choice and inactive drafts
- * live outside this object and must not be added here.
+ * Fitting payload. Inactive Step 2 draft text stays out of this object.
+ * The committed speed source is included because it changes how a number is read.
  */
 export function answersToApiPayload(
   a: MatchQuestionnaireAnswers
@@ -99,6 +104,14 @@ export function answersToApiPayload(
     handicap: num(a.handicap),
     club_speed_mph: num(a.club_speed_mph),
     carry_distance_yards: num(a.carry_distance_yards),
+    ...(a.speed_method
+      ? {
+          speed_evidence: {
+            method: a.speed_method,
+            band: a.speed_band || null,
+          },
+        }
+      : {}),
     typical_trajectory: a.typical_trajectory,
     typical_start_direction: a.typical_start_direction,
     typical_curvature: a.typical_curvature,

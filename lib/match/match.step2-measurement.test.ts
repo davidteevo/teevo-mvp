@@ -32,6 +32,7 @@ const PAYLOAD_KEYS = [
   "handicap",
   "miss_severity",
   "primary_objective",
+  "speed_evidence",
   "strike_consistency",
   "strike_pattern",
   "typical_curvature",
@@ -275,7 +276,8 @@ describe("B1d Step 2 measurement choice", () => {
     expect(planned.answers.club_speed_mph).toBe("96");
     expect(planned.answers.carry_distance_yards).toBe("");
     expect(planned.answers.handicap).toBe("18");
-    expect(planned.draft.knowledge).toBe("SPEED");
+    expect(planned.draft.knowledge).toBe("ESTIMATED");
+    expect(planned.answers.speed_method).toBe("estimated_mph");
     expect(planned.draft.speedDraft).toBe("96");
     expect(planned.draft.carryDraft).toBe("220");
     expect(planned.draft.legacyDualResolved).toBe(true);

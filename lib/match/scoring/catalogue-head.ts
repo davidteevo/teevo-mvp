@@ -495,6 +495,8 @@ export function rankCatalogueHeads(
   stats: CatalogueRankStats;
   family_stats: CatalogueRankFamilyStats;
   differentiation_blocked: boolean;
+  /** Top-tier examples when names are withheld. Not a ranked shortlist. */
+  example_heads: CatalogueHeadScore[];
 } {
   const { qualifying, stats } = collectQualifyingCatalogueHeads(scored);
   // Material launch filter: before family dedupe and B2.1 (not after).
@@ -534,6 +536,7 @@ export function rankCatalogueHeads(
       stats,
       family_stats: family_stats_base,
       differentiation_blocked: false,
+      example_heads: [],
     };
   }
 
@@ -571,6 +574,7 @@ export function rankCatalogueHeads(
       stats,
       family_stats,
       differentiation_blocked: true,
+      example_heads: selectCatalogueShortlist(topTier, limit),
     };
   }
 
@@ -583,5 +587,6 @@ export function rankCatalogueHeads(
       recommendations_returned: recommendations.length,
     },
     differentiation_blocked: false,
+    example_heads: [],
   };
 }

@@ -228,16 +228,17 @@ describe("B1c strike-pattern visual option maps", () => {
       CENTRE: "Centre",
       HEEL: "Heel",
       TOE: "Toe",
-      HIGH_FACE: "High on face",
-      LOW_FACE: "Low on face",
-      VARIABLE: "Varies a lot",
-      UNKNOWN: "Not sure",
+      HIGH_FACE: "High on the face",
+      LOW_FACE: "Low on the face",
+      VARIABLE: "Varies",
+      UNKNOWN: "I'm not sure",
     });
     expect(strikePatternEnumForLabel("Heel")).toBe("HEEL");
     expect(strikePatternEnumForLabel("Toe")).toBe("TOE");
-    expect(strikePatternEnumForLabel("High on face")).toBe("HIGH_FACE");
-    expect(strikePatternEnumForLabel("Low on face")).toBe("LOW_FACE");
-    expect(strikePatternEnumForLabel("Varies a lot")).toBe("VARIABLE");
+    expect(strikePatternEnumForLabel("High on the face")).toBe("HIGH_FACE");
+    expect(strikePatternEnumForLabel("Low on the face")).toBe("LOW_FACE");
+    expect(strikePatternEnumForLabel("Varies")).toBe("VARIABLE");
+    expect(strikePatternEnumForLabel("I'm not sure")).toBe("UNKNOWN");
     expect(isStrikePatternEnum("DRAW")).toBe(false);
   });
 

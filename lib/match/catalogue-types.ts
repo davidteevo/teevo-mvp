@@ -115,6 +115,11 @@ export type CatalogueRecommendResult = {
   mode: CatalogueRecommendationMode;
   /** Empty when mode is not NAMED_HEADS. */
   recommendations: CatalogueHeadScore[];
+  /**
+   * Eligible top-band examples when differentiation is blocked.
+   * Not a ranking and not assigned Best Match or Newer Option.
+   */
+  example_heads?: CatalogueHeadScore[];
   explanations: CatalogueHeadExplanation[];
   shaft_guidance: ShaftGuidance;
   characteristic_guidance: CharacteristicGuidance;

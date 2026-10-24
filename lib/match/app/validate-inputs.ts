@@ -43,6 +43,38 @@ function asEnum(
   return s;
 }
 
+const SPEED_EVIDENCE_METHODS = new Set([
+  "measured_mph",
+  "estimated_mph",
+  "carry_yards",
+  "band",
+  "unknown",
+]);
+const SPEED_BANDS = new Set(["SLOW", "MEDIUM", "FAST"]);
+
+function readSpeedEvidenceInput(
+  value: unknown,
+  errors: string[]
+): { method: string; band: string | null } | null {
+  if (value == null || value === "") return null;
+  if (typeof value !== "object") {
+    errors.push("speed_evidence: invalid value");
+    return null;
+  }
+  const method = String((value as { method?: unknown }).method ?? "");
+  if (!SPEED_EVIDENCE_METHODS.has(method)) {
+    errors.push("speed_evidence: invalid value");
+    return null;
+  }
+  const bandRaw = String((value as { band?: unknown }).band ?? "").toUpperCase();
+  if (method === "band" && !SPEED_BANDS.has(bandRaw)) {
+    errors.push("speed_evidence: invalid value");
+    return null;
+  }
+  const band = SPEED_BANDS.has(bandRaw) ? bandRaw : null;
+  return { method, band };
+}
+
 function asOptionalNumber(
   value: unknown,
   field: string,
@@ -108,6 +140,7 @@ export function validateMatchQuestionnaireInputs(
     errors,
     { positive: true, min: 5, max: 16 }
   );
+  const speed_evidence = readSpeedEvidenceInput(body.speed_evidence, errors);
   const budget_max_gbp = asOptionalNumber(
     body.budget_max_gbp,
     "budget_max_gbp",
@@ -161,6 +194,9 @@ export function validateMatchQuestionnaireInputs(
   mark(handicap, false);
   mark(club_speed_mph, false);
   mark(carry_distance_yards, false);
+  if (speed_evidence?.method === "band" && speed_evidence.band) {
+    mark(speed_evidence.band, false);
+  }
   mark(typical_trajectory, typical_trajectory === "UNKNOWN");
   mark(typical_start_direction, typical_start_direction === "UNKNOWN");
   mark(typical_curvature, typical_curvature === "UNKNOWN");
@@ -179,6 +215,7 @@ export function validateMatchQuestionnaireInputs(
     handedness,
     handicap,
     club_speed_mph,
+    ...(speed_evidence ? { speed_evidence } : {}),
     ball_speed_mph: null,
     launch_angle_deg: null,
     spin_rate_rpm: null,

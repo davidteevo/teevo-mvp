@@ -41,10 +41,9 @@ import type {
 
 const STEPS = [
   "Handedness",
-  "Speed & distance",
+  "Speed",
   "Ball flight",
-  "Strike & goal",
-  "Current club",
+  "Contact and goal",
 ] as const;
 
 const ADMIN_PREVIEW_PROPS = { surface: "admin_preview" as const };
@@ -54,6 +53,7 @@ export function MatchQuestionnaire() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<MatchQuestionnaireAnswers>(EMPTY_MATCH_ANSWERS);
   const [step2Draft, setStep2Draft] = useState<Step2Draft>(EMPTY_STEP2_DRAFT);
+  const [pendingFlightChange, setPendingFlightChange] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -118,6 +118,15 @@ export function MatchQuestionnaire() {
         setError(measurementError);
         return;
       }
+    }
+    if (
+      step === STEPS.length - 1 &&
+      pendingFlightChange &&
+      answers.primary_objective !== "HIGHER_FLIGHT" &&
+      answers.primary_objective !== "LOWER_FLIGHT"
+    ) {
+      setError("Choose a higher or lower flight, or pick a different goal.");
+      return;
     }
     if (step < STEPS.length - 1) setStep((s) => s + 1);
     else submit();
@@ -238,88 +247,126 @@ export function MatchQuestionnaire() {
               onChange={(v) => patch({ typical_curvature: v })}
               options={curvatureVisualOptions()}
             />
-            <RadioCards
-              label="How big is the miss when it goes offline?"
-              value={answers.miss_severity}
-              onChange={(v) => patch({ miss_severity: v })}
-              options={[
-                { value: "SMALL", title: "Small" },
-                { value: "MODERATE", title: "Moderate" },
-                { value: "LARGE", title: "Large" },
-                { value: "UNKNOWN", title: "Not sure" },
-              ]}
-            />
+            {answers.typical_curvature === "LEFT" ||
+            answers.typical_curvature === "RIGHT" ||
+            answers.typical_start_direction === "LEFT" ||
+            answers.typical_start_direction === "RIGHT" ? (
+              <RadioCards
+                label="How big is the miss when it goes offline?"
+                value={answers.miss_severity}
+                onChange={(v) => patch({ miss_severity: v })}
+                options={[
+                  { value: "SMALL", title: "Small" },
+                  { value: "MODERATE", title: "Moderate" },
+                  { value: "LARGE", title: "Large" },
+                  { value: "UNKNOWN", title: "I'm not sure" },
+                ]}
+              />
+            ) : null}
           </>
         )}
 
         {step === 3 && (
           <>
             <RadioCards
-              label="Strike consistency"
+              label="How consistent is your contact with the driver?"
               value={answers.strike_consistency}
               onChange={(v) => patch({ strike_consistency: v })}
               options={[
-                { value: "HIGH", title: "Usually centred" },
-                { value: "MEDIUM", title: "Mixed" },
-                { value: "LOW", title: "Often off-centre" },
-                { value: "UNKNOWN", title: "Not sure" },
+                { value: "HIGH", title: "Most strikes feel solid" },
+                { value: "MEDIUM", title: "Some good strikes, some poor" },
+                { value: "LOW", title: "I often struggle to make solid contact" },
+                { value: "UNKNOWN", title: "I'm not sure" },
               ]}
             />
-            <VisualChoiceGroup
-              label="Typical strike pattern"
-              hint="Where on the driver face do you usually make contact?"
-              value={answers.strike_pattern as StrikePatternEnum | ""}
-              onChange={(v) => patch({ strike_pattern: v })}
-              options={strikePatternVisualOptions(
-                (answers.handedness || "RIGHT") as StrikeHandedness
-              )}
-            />
+            <details className="rounded-xl border border-mowing-green/15 bg-white px-3 py-2">
+              <summary className="min-h-[44px] cursor-pointer text-sm font-semibold leading-[44px] text-mowing-green">
+                Where you usually strike the face (optional)
+              </summary>
+              <div className="pb-2">
+                <VisualChoiceGroup
+                  label="Strike location"
+                  hint="Optional. We record this and do not use it to claim one driver is better."
+                  value={answers.strike_pattern as StrikePatternEnum | ""}
+                  onChange={(v) => patch({ strike_pattern: v })}
+                  options={strikePatternVisualOptions(
+                    (answers.handedness || "RIGHT") as StrikeHandedness
+                  )}
+                />
+              </div>
+            </details>
             <RadioCards
-              label="Main goal with a new driver"
-              value={answers.primary_objective}
-              onChange={(v) => patch({ primary_objective: v })}
+              label="What do you most want from a new driver?"
+              value={
+                pendingFlightChange ||
+                answers.primary_objective === "HIGHER_FLIGHT" ||
+                answers.primary_objective === "LOWER_FLIGHT"
+                  ? "CHANGE_FLIGHT"
+                  : answers.primary_objective
+              }
+              onChange={(v) => {
+                if (v === "CHANGE_FLIGHT") {
+                  setPendingFlightChange(true);
+                  if (
+                    answers.primary_objective !== "HIGHER_FLIGHT" &&
+                    answers.primary_objective !== "LOWER_FLIGHT"
+                  ) {
+                    patch({ primary_objective: "UNKNOWN" });
+                  }
+                  return;
+                }
+                setPendingFlightChange(false);
+                patch({ primary_objective: v });
+              }}
               options={[
                 { value: "DISTANCE", title: "More distance" },
                 { value: "FORGIVENESS", title: "More forgiveness" },
-                { value: "ACCURACY", title: "More accuracy" },
-                { value: "REDUCE_RIGHT_MISS", title: "Reduce right misses" },
-                { value: "REDUCE_LEFT_MISS", title: "Reduce left misses" },
-                { value: "HIGHER_FLIGHT", title: "Higher flight" },
-                { value: "LOWER_FLIGHT", title: "Lower flight" },
+                { value: "ACCURACY", title: "Straighter shots" },
                 { value: "CONTROL", title: "More control" },
-                { value: "UNKNOWN", title: "Not sure" },
+                { value: "CHANGE_FLIGHT", title: "Change my ball flight" },
+                { value: "UNKNOWN", title: "I'm not sure" },
               ]}
             />
-          </>
-        )}
-
-        {step === 4 && (
-          <>
-            <Field
-              label="Current driver loft (degrees)"
-              hint="Optional"
-              value={answers.current_loft_deg}
-              onChange={(v) => patch({ current_loft_deg: v })}
-              inputMode="decimal"
-            />
-            <RadioCards
-              label="How happy are you with your current driver?"
-              value={answers.current_club_satisfaction}
-              onChange={(v) => patch({ current_club_satisfaction: v })}
-              options={[
-                { value: "HIGH", title: "Happy" },
-                { value: "MEDIUM", title: "Okay" },
-                { value: "LOW", title: "Unhappy" },
-                { value: "UNKNOWN", title: "No current driver / not sure" },
-              ]}
-            />
-            <Field
-              label="Budget ceiling (£)"
-              hint="Optional — marketplace only later"
-              value={answers.budget_max_gbp}
-              onChange={(v) => patch({ budget_max_gbp: v })}
-              inputMode="decimal"
-            />
+            {pendingFlightChange ||
+            answers.primary_objective === "HIGHER_FLIGHT" ||
+            answers.primary_objective === "LOWER_FLIGHT" ? (
+              <RadioCards
+                label="Which way do you want the flight to change?"
+                value={
+                  answers.primary_objective === "HIGHER_FLIGHT" ||
+                  answers.primary_objective === "LOWER_FLIGHT"
+                    ? answers.primary_objective
+                    : ""
+                }
+                onChange={(v) => {
+                  setPendingFlightChange(false);
+                  patch({ primary_objective: v });
+                }}
+                options={[
+                  { value: "HIGHER_FLIGHT", title: "Higher" },
+                  { value: "LOWER_FLIGHT", title: "Lower" },
+                ]}
+              />
+            ) : null}
+            {answers.primary_objective === "ACCURACY" &&
+            answers.typical_curvature === "UNKNOWN" ? (
+              <RadioCards
+                label="Which way does the miss usually go?"
+                value={answers.typical_curvature}
+                onChange={(v) => patch({ typical_curvature: v })}
+                options={[
+                  { value: "LEFT", title: "Left" },
+                  { value: "RIGHT", title: "Right" },
+                  { value: "VARIABLE", title: "Both ways" },
+                  { value: "UNKNOWN", title: "I'm not sure" },
+                ]}
+              />
+            ) : null}
+            {answers.primary_objective === "DISTANCE" ? (
+              <p className="text-sm text-mowing-green/80">
+                More distance is saved as your goal. It does not add a predicted yardage gain.
+              </p>
+            ) : null}
           </>
         )}
       </div>
@@ -362,33 +409,3 @@ export function MatchQuestionnaire() {
   );
 }
 
-function Field({
-  label,
-  hint,
-  value,
-  onChange,
-  inputMode,
-}: {
-  label: string;
-  hint?: string;
-  value: string;
-  onChange: (v: string) => void;
-  inputMode?: "decimal" | "text";
-}) {
-  return (
-    <label className="block">
-      <span className="text-sm font-medium text-mowing-green">{label}</span>
-      {hint ? (
-        <span className="block text-xs text-mowing-green/60 mb-1">{hint}</span>
-      ) : (
-        <span className="block mb-1" />
-      )}
-      <input
-        className="w-full min-h-[48px] rounded-xl border border-mowing-green/25 px-3 text-sm text-mowing-green"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        inputMode={inputMode}
-      />
-    </label>
-  );
-}

@@ -141,6 +141,7 @@ export function selectOptionalPostRecoveryQuestion(
   if (
     launchUnresolved(req) &&
     !trajResolved(traj) &&
+    traj !== "UNKNOWN" &&
     !asked.has("typical_trajectory")
   ) {
     return QUESTIONS.typical_trajectory;
@@ -214,8 +215,8 @@ export function selectRefinement(
     if (q) return q;
   }
 
-  // 2) Unresolved launch — trajectory (sparse / inconsistent path).
-  if (launchUnresolved(req) && !trajResolved(traj)) {
+  // 2) Trajectory only when it was never answered. "I'm not sure" is not asked again.
+  if (launchUnresolved(req) && !trajResolved(traj) && traj !== "UNKNOWN") {
     const q = pick("typical_trajectory");
     if (q) return q;
   }
@@ -224,35 +225,42 @@ export function selectRefinement(
   if (
     directionNeutralOrUnresolved(req) &&
     curve === "STRAIGHT" &&
+    start !== "UNKNOWN" &&
+    start !== "" &&
     !startIsDirectional(start)
   ) {
     const q = pick("typical_start_direction");
     if (q) return q;
   }
 
-  // 4) UNKNOWN curve — ask curve.
-  if (directionNeutralOrUnresolved(req) && curve === "UNKNOWN") {
+  // 4) Curve only when it was never answered. An explicit "I'm not sure" stays.
+  if (directionNeutralOrUnresolved(req) && curve === "") {
     const q = pick("typical_curvature_unknown");
     if (q) return q;
   }
 
-  // 5) Optional STRAIGHT refine only after start tried/exhausted; KEEP preserves STRAIGHT.
+  // 5) Optional STRAIGHT refine. An unknown start is already an answer.
   if (
     directionNeutralOrUnresolved(req) &&
     curve === "STRAIGHT" &&
-    (asked.has("typical_start_direction") || startIsDirectional(start))
+    (asked.has("typical_start_direction") ||
+      startIsDirectional(start) ||
+      start === "UNKNOWN")
   ) {
     const q = pick("typical_curvature_straight_optional");
     if (q) return q;
   }
 
   // 6) Miss-reduction only with explicit confirm after ball-flight exhausted.
+  // Do not use this to re-ask a curve the golfer already left as "I'm not sure".
   if (
     directionNeutralOrUnresolved(req) &&
     !isMissReduction(objective) &&
     curve !== "LEFT" &&
     curve !== "RIGHT" &&
-    curve !== "VARIABLE"
+    curve !== "VARIABLE" &&
+    curve !== "UNKNOWN" &&
+    curve !== ""
   ) {
     const ballFlightTried =
       asked.has("typical_curvature_unknown") ||

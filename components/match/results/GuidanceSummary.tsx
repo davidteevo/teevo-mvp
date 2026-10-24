@@ -1,4 +1,7 @@
-import { presentCharacteristicGuidance } from "@/lib/match/app/present-guidance";
+import {
+  presentCharacteristicGuidance,
+  UNRANKED_EXAMPLE_NOTE,
+} from "@/lib/match/app/present-guidance";
 import type { CatalogueRecommendResult } from "@/lib/match/catalogue-types";
 
 type Props = {
@@ -38,6 +41,24 @@ export function GuidanceSummary({ result }: Props) {
         </ul>
       ) : null}
       <p className="text-sm text-mowing-green/80">{guidance.limitation}</p>
+      {result.example_heads && result.example_heads.length > 0 ? (
+        <div className="space-y-2">
+          <p className="text-sm text-mowing-green/80">{UNRANKED_EXAMPLE_NOTE}</p>
+          <ul className="space-y-2">
+            {result.example_heads.map((head) => (
+              <li
+                key={head.catalogue_key}
+                className="rounded-xl border border-mowing-green/15 bg-white px-3 py-3 text-sm text-mowing-green"
+              >
+                <p className="font-semibold">
+                  {head.display_name || `${head.brand ?? ""} ${head.model ?? ""}`.trim()}
+                  {head.release_year ? ` (${head.release_year})` : ""}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
       {guidance.details.length > 0 ? (
         <details className="rounded-xl border border-mowing-green/15 bg-white px-3 py-2 text-sm text-mowing-green">
           <summary className="min-h-[44px] cursor-pointer font-semibold leading-[44px]">

@@ -240,6 +240,15 @@ var CARRY = [
   { lim: 280, flex: [3, 3] },
   { lim: Infinity, flex: [3, 4] }
 ];
+function approximateSpeedWindow(band) {
+  if (band === "SLOW") {
+    return { flex: [0, 2.5], weight: [40, 60], loft: [10, 12.5] };
+  }
+  if (band === "MEDIUM") {
+    return { flex: [2, 3], weight: [50, 65], loft: [9, 11.5] };
+  }
+  return { flex: [2.5, 5], weight: [55, 75], loft: [8, 10.5] };
+}
 function speedRegion(speed) {
   for (const row of SPEED) {
     if (speed < row.lim) {
@@ -593,6 +602,22 @@ function asStr(v) {
   if (v == null) return null;
   return String(v);
 }
+var SPEED_EVIDENCE_METHODS = /* @__PURE__ */ new Set([
+  "measured_mph",
+  "estimated_mph",
+  "carry_yards",
+  "band",
+  "unknown"
+]);
+function readSpeedEvidence(raw) {
+  const evidence = raw.speed_evidence;
+  if (!evidence || typeof evidence !== "object") return { method: null, band: null };
+  const method = String(evidence.method ?? "");
+  if (!SPEED_EVIDENCE_METHODS.has(method)) return { method: null, band: null };
+  const bandRaw = String(evidence.band ?? "").toUpperCase();
+  const band = bandRaw === "SLOW" || bandRaw === "MEDIUM" || bandRaw === "FAST" ? bandRaw : null;
+  return { method, band };
+}
 function normalizeRequirements(raw, headsByKey) {
   const src = Object.fromEntries(
     DIMENSION_NAMES.map((k) => [k, /* @__PURE__ */ new Set()])
@@ -641,7 +666,9 @@ function normalizeRequirements(raw, headsByKey) {
       src[k].add("STRIKE_CONSISTENCY");
     }
   }
-  if (asStr(raw.strike_pattern) === "VARIABLE") {
+  const pattern = asStr(raw.strike_pattern);
+  const strikeKnown = strike === "HIGH" || strike === "MEDIUM" || strike === "LOW";
+  if (pattern === "VARIABLE" && !strikeKnown) {
     mod(0.5, 0.5, 0, "STRIKE_PATTERN");
   }
   const sign = handedness === "RIGHT" ? 1 : -1;
@@ -707,13 +734,19 @@ function normalizeRequirements(raw, headsByKey) {
   let flex = null;
   let weight = null;
   let loft = null;
-  if (speed != null && speed > 0) {
+  const speedEvidence = readSpeedEvidence(raw);
+  const useMeasured = speedEvidence.method === "measured_mph" || speedEvidence.method == null && speed != null && speed > 0;
+  const useEstimated = speedEvidence.method === "estimated_mph" && speed != null && speed > 0;
+  const useBand = speedEvidence.method === "band";
+  const useCarry = speedEvidence.method === "carry_yards" || speedEvidence.method == null && !useMeasured && carry != null && carry > 0;
+  if (useMeasured || useEstimated) {
     const region = speedRegion(speed);
     flex = region.flex;
     weight = region.weight;
     loft = region.loft;
+    const source = useMeasured ? "MEASURED_SPEED" : "ESTIMATED_SPEED";
     for (const k of ["flex", "weight", "loft"]) {
-      src[k].add("MEASURED_SPEED");
+      src[k].add(source);
     }
     if (carry != null && carry > 0) {
       const cFlex = carryRegion(carry).flex;
@@ -721,15 +754,26 @@ function normalizeRequirements(raw, headsByKey) {
         flags.add("SPEED_CARRY_CONFLICT");
       }
     }
-  } else {
-    if (carry != null && carry > 0) {
-      flex = carryRegion(carry).flex;
-      src.flex.add("CARRY_PROXY");
+  } else if (useBand && speedEvidence.band) {
+    const bandWindow = approximateSpeedWindow(speedEvidence.band);
+    if (bandWindow) {
+      flex = bandWindow.flex;
+      weight = bandWindow.weight;
+      loft = bandWindow.loft;
+      for (const k of ["flex", "weight", "loft"]) {
+        src[k].add("APPROXIMATE_SPEED");
+      }
     }
+  } else if (useCarry && carry != null && carry > 0) {
+    flex = carryRegion(carry).flex;
+    src.flex.add("CARRY_PROXY");
     if (usable) {
       loft = [currentLoft - 1, currentLoft + 1];
       src.loft.add("CURRENT_LOFT");
     }
+  } else if (usable) {
+    loft = [currentLoft - 1, currentLoft + 1];
+    src.loft.add("CURRENT_LOFT");
   }
   if (loft != null) {
     const shift = clamp(
@@ -774,7 +818,7 @@ function normalizeRequirements(raw, headsByKey) {
       band = "UNRESOLVED";
       sources = [];
     } else {
-      let n = sources.includes("MEASURED_SPEED") ? 3 : sources.includes("CARRY_PROXY") ? 1 : sources.some((s) => s !== "BASELINE" && s !== "HANDICAP") ? 2 : 1;
+      let n = sources.includes("MEASURED_SPEED") ? 3 : sources.includes("CARRY_PROXY") || sources.includes("ESTIMATED_SPEED") || sources.includes("APPROXIMATE_SPEED") ? 1 : sources.some((s) => s !== "BASELINE" && s !== "HANDICAP") ? 2 : 1;
       n = Math.min(
         n,
         { HIGH: 3, MEDIUM: 2, LOW: 1 }[inputConfidence]
@@ -814,7 +858,12 @@ function golferEvidenceConfidence(raw, flags) {
   let score = 100;
   const speed = asNum(raw.club_speed_mph);
   const carry = asNum(raw.carry_distance_yards);
-  if (speed == null) score -= carry != null ? 10 : 25;
+  const speedEvidence = readSpeedEvidence(raw);
+  if (speed == null) {
+    const bandUsable = speedEvidence.method === "band" && speedEvidence.band != null;
+    const carryUsable = carry != null && (speedEvidence.method == null || speedEvidence.method === "carry_yards");
+    score -= bandUsable || carryUsable ? 10 : 25;
+  }
   const unknownChecks = [
     ["typical_start_direction", 4],
     ["typical_curvature", 6],

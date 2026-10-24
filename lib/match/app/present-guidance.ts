@@ -32,7 +32,10 @@ const SHOT_SHAPE = new Set([
 ]);
 
 export const PATHWAY_C_SPEED_REPLACES_CARRY =
-  "We'll use your measured swing speed instead of your earlier carry distance for this fit. You can change this later.";
+  "We'll use the swing speed you entered instead of your earlier carry distance. This is not recorded as a measured speed.";
+
+export const UNRANKED_EXAMPLE_NOTE =
+  "These examples passed the same UK and family checks and sit in the top suitability band. The order is catalogue order, not a personal ranking. None of these is labelled a Best Match.";
 
 /** True only when a saved carry distance would be replaced by a new swing speed. */
 export function pathwayCReplacesCarry(carry: string, speedDraft: string): boolean {
@@ -47,7 +50,7 @@ function reasonFor(
     return "Teevo could not find a driver it can recommend from these answers. That is a limit of the evidence, not a mistake in what you told us.";
   }
   if (insufficientEvidenceReason === "NO_MEANINGFUL_HEAD_DIFFERENTIATION") {
-    return "Several drivers look similarly suitable from what Teevo knows so far, so it is not naming one yet.";
+    return "Based on what you've told us, we can't confidently pick one as your best match yet.";
   }
   if (insufficientEvidenceReason === "INSUFFICIENT_EVIDENCE_BACKED_REQUIREMENT_DIMS") {
     return "Teevo needs a little more about your game before it can name a driver.";
@@ -114,8 +117,12 @@ export function presentCharacteristicGuidance(input: {
   guidance: CharacteristicGuidance;
   shaft: ShaftGuidance;
 }): GuidancePresentation {
+  const tied =
+    input.insufficientEvidenceReason === "NO_MEANINGFUL_HEAD_DIFFERENTIATION";
   return {
-    title: "Let's narrow down your driver",
+    title: tied
+      ? "Several drivers could suit your game."
+      : "Let's narrow down your driver",
     reason: reasonFor(input.mode, input.insufficientEvidenceReason),
     characteristics: characteristicsFor(input.guidance),
     limitation:

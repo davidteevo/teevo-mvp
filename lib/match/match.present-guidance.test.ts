@@ -55,8 +55,11 @@ describe("characteristic guidance presentation", () => {
       }),
       shaft: shaft(),
     });
-    expect(card.title).toBe("Let's narrow down your driver");
-    expect(card.reason).toMatch(/similarly suitable/i);
+    expect(card.title).toBe("Several drivers could suit your game.");
+    expect(card.reason).toBe(
+      "Based on what you've told us, we can't confidently pick one as your best match yet."
+    );
+    expect(card.reason).not.toMatch(/equally suitable/i);
     expect(card.reason).not.toMatch(/wrong|incorrect|mistake in what you/i);
     expect(card.characteristics).toContain("More forgiving on off-centre strikes.");
     expect(card.characteristics).toContain(
@@ -117,7 +120,7 @@ describe("characteristic guidance presentation", () => {
     expect(pathwayCReplacesCarry("220", "95")).toBe(true);
     expect(pathwayCReplacesCarry("220", "")).toBe(false);
     expect(pathwayCReplacesCarry("", "95")).toBe(false);
-    expect(PATHWAY_C_SPEED_REPLACES_CARRY).toMatch(/measured swing speed/i);
+    expect(PATHWAY_C_SPEED_REPLACES_CARRY).toMatch(/not recorded as a measured speed/i);
     expect(PATHWAY_C_SPEED_REPLACES_CARRY).toMatch(/carry distance/i);
   });
 });

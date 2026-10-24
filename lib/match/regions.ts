@@ -22,6 +22,25 @@ const CARRY: Array<{ lim: number; flex: Interval }> = [
   { lim: Infinity, flex: [3, 4] },
 ];
 
+/**
+ * Slow / Medium / Fast are unions of the existing speed rows.
+ * They widen the guidance window. They do not exclude shafts.
+ * Slow: under 90 mph. Medium: the 90–100 mph row. Fast: 100 mph and above.
+ */
+export function approximateSpeedWindow(band: "SLOW" | "MEDIUM" | "FAST"): {
+  flex: Interval;
+  weight: Interval;
+  loft: Interval;
+} {
+  if (band === "SLOW") {
+    return { flex: [0, 2.5], weight: [40, 60], loft: [10, 12.5] };
+  }
+  if (band === "MEDIUM") {
+    return { flex: [2, 3], weight: [50, 65], loft: [9, 11.5] };
+  }
+  return { flex: [2.5, 5], weight: [55, 75], loft: [8, 10.5] };
+}
+
 export function speedRegion(speed: number): {
   flex: Interval;
   weight: Interval;

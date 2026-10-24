@@ -118,8 +118,8 @@ describe("Phase 2E.3 refinement policy", () => {
     const next = selectRefinement(result, base, [
       "typical_curvature_variable_clarify",
     ], 1);
-    expect(next.pathway).toBe("B");
-    expect(next.question?.id).toBe("typical_trajectory");
+    expect(next.pathway).toBe("NONE");
+    expect(next.question).toBeNull();
   });
 
   it("inconsistent_strike: curve-only weak named → OPTIONAL_B trajectory", () => {
@@ -148,8 +148,8 @@ describe("Phase 2E.3 refinement policy", () => {
       1,
       { recoveredNamedViaRefinement: true }
     );
-    expect(withFlag.pathway).toBe("OPTIONAL_B");
-    expect(withFlag.question?.id).toBe("typical_trajectory");
+    expect(withFlag.pathway).toBe("A");
+    expect(withFlag.question).toBeNull();
 
     const dismissed = selectRefinement(
       result,
@@ -183,21 +183,23 @@ describe("Phase 2E.3 refinement policy", () => {
     expect(opt).toBeNull();
   });
 
-  it("sparse_incomplete: trajectory first then curve", () => {
+  it("sparse_incomplete: does not re-ask an explicit I'm not sure", () => {
     const base = PROFILE_FIXTURES.sparse_incomplete;
     const result = run(base);
     const d1 = selectRefinement(result, base, [], 0);
-    expect(d1.question?.id).toBe("typical_trajectory");
+    expect(d1.question?.id).not.toBe("typical_trajectory");
+    expect(d1.question?.id).not.toBe("typical_curvature_unknown");
 
-    const withTraj = { ...base, typical_trajectory: "MID" };
-    const r2 = run(withTraj);
-    const d2 = selectRefinement(r2, withTraj, ["typical_trajectory"], 1);
+    const omittedCurve = { ...base, typical_trajectory: "MID", typical_curvature: "" };
+    const r2 = run(omittedCurve);
+    const d2 = selectRefinement(r2, omittedCurve, ["typical_trajectory"], 1);
     if (r2.mode === "NAMED_HEADS") {
       expect(d2.pathway).toBe("A");
     } else {
       expect(d2.question?.id).toBe("typical_curvature_unknown");
     }
 
+    const withTraj = { ...base, typical_trajectory: "MID" };
     const withBoth = { ...withTraj, typical_curvature: "RIGHT" };
     const r3 = run(withBoth);
     expect(r3.mode).toBe("NAMED_HEADS");
@@ -288,7 +290,13 @@ describe("Phase 2E.3 refinement policy", () => {
       expect(r.pathway).toBe("A");
     }
     for (const r of guidance) {
-      expect(["B", "C"]).toContain(r.pathway);
+      if (r.pathway === "NONE") {
+        const answers = PROFILE_FIXTURES[r.id as keyof typeof PROFILE_FIXTURES];
+        expect(answers.typical_trajectory).toBe("UNKNOWN");
+        expect(answers.typical_curvature).toBe("UNKNOWN");
+      } else {
+        expect(["B", "C"]).toContain(r.pathway);
+      }
     }
     const handed = rows.find((r) => r.id === "sparse_handedness_only");
     expect(handed?.pathway).toBe("C");
@@ -429,7 +437,7 @@ describe("Phase 2E.3 five blocked-profile recovery matrix", () => {
       1,
       { recoveredNamedViaRefinement: true }
     );
-    expect(opt.pathway).toBe("OPTIONAL_B");
+    expect(opt.pathway).toBe("A");
 
     const strong = { ...weak, typical_trajectory: "MID" };
     const strongResult = run(strong);

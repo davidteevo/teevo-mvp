@@ -596,7 +596,7 @@ export function MatchRefinementPanel({ result, onResult, onActivity }: Props) {
           />
         </label>
         <label className="block text-sm text-mowing-green">
-          <span className="font-medium">Driver swing speed mph (optional)</span>
+          <span className="font-medium">Estimated driver clubhead speed, mph (optional)</span>
           <input
             type="text"
             inputMode="decimal"
@@ -606,18 +606,22 @@ export function MatchRefinementPanel({ result, onResult, onActivity }: Props) {
             placeholder="Leave blank if you don’t know"
           />
         </label>
-        <VisualChoiceGroup
-          label="Typical ball flight (helpful)"
-          value={(cTraj || "UNKNOWN") as TrajectoryEnum}
-          onChange={(v) => setCTraj(v === "UNKNOWN" ? "" : v)}
-          options={trajectoryVisualOptions()}
-        />
-        <VisualChoiceGroup
-          label="Typical shot curve (helpful)"
-          value={(cCurve || "UNKNOWN") as CurvatureEnum}
-          onChange={(v) => setCCurve(v === "UNKNOWN" ? "" : v)}
-          options={curvatureVisualOptions(CURVATURE_PATHWAY_C_LABELS)}
-        />
+        {answers.typical_trajectory === "" ? (
+          <VisualChoiceGroup
+            label="Typical ball flight (helpful)"
+            value={(cTraj || "UNKNOWN") as TrajectoryEnum}
+            onChange={(v) => setCTraj(v === "UNKNOWN" ? "" : v)}
+            options={trajectoryVisualOptions()}
+          />
+        ) : null}
+        {answers.typical_curvature === "" ? (
+          <VisualChoiceGroup
+            label="Typical shot curve (helpful)"
+            value={(cCurve || "UNKNOWN") as CurvatureEnum}
+            onChange={(v) => setCCurve(v === "UNKNOWN" ? "" : v)}
+            options={curvatureVisualOptions(CURVATURE_PATHWAY_C_LABELS)}
+          />
+        ) : null}
         {pathwayCReplacesCarry(answers.carry_distance_yards, cSpeed) ? (
           <p className="text-sm text-mowing-green" role="status">
             {PATHWAY_C_SPEED_REPLACES_CARRY}

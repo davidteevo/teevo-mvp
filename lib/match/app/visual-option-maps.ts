@@ -150,10 +150,10 @@ export const STRIKE_PATTERN_LABELS: Record<StrikePatternEnum, string> = {
   CENTRE: "Centre",
   HEEL: "Heel",
   TOE: "Toe",
-  HIGH_FACE: "High on face",
-  LOW_FACE: "Low on face",
-  VARIABLE: "Varies a lot",
-  UNKNOWN: "Not sure",
+  HIGH_FACE: "High on the face",
+  LOW_FACE: "Low on the face",
+  VARIABLE: "Varies",
+  UNKNOWN: "I'm not sure",
 };
 
 export type StrikeHandedness = "LEFT" | "RIGHT" | "";

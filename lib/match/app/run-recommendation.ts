@@ -217,8 +217,13 @@ export function runCatalogueRecommendation(input: {
     })
   );
 
-  const { recommendations, stats, family_stats, differentiation_blocked } =
-    rankCatalogueHeads(scored, 3, overlay, ukOverlay, req);
+  const {
+    recommendations,
+    stats,
+    family_stats,
+    differentiation_blocked,
+    example_heads,
+  } = rankCatalogueHeads(scored, 3, overlay, ukOverlay, req);
 
   const auditBase = {
     heads_scored: stats.scored,
@@ -251,6 +256,7 @@ export function runCatalogueRecommendation(input: {
     return {
       mode: "CHARACTERISTIC_GUIDANCE",
       recommendations: [],
+      example_heads,
       explanations: [],
       shaft_guidance,
       characteristic_guidance: buildCharacteristicGuidance(req, {
