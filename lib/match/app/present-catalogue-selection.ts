@@ -89,15 +89,15 @@ function uniqueHeads(heads: Array<CatalogueHeadScore | null | undefined>): Catal
   return out;
 }
 
-function substitutionFactors(
+function preferenceFactors(
   best: CatalogueHeadScore,
-  leader: CatalogueHeadScore,
+  other: CatalogueHeadScore,
   uk: UkHeadRelevanceIndex | null | undefined
-): PresentationSubstitutionFactor[] {
-  if (evidenceStrength(best) > evidenceStrength(leader)) return ["STRONGER_EVIDENCE"];
-  if (ukRank(best, uk) > ukRank(leader, uk)) return ["UK_ESTABLISHED_RELEVANCE"];
-  if (familiarityRank(best) < familiarityRank(leader)) return ["CONSUMER_FAMILIARITY"];
-  return ["CONSUMER_FAMILIARITY"];
+): PresentationSubstitutionFactor[] | null {
+  if (evidenceStrength(best) > evidenceStrength(other)) return ["STRONGER_EVIDENCE"];
+  if (ukRank(best, uk) > ukRank(other, uk)) return ["UK_ESTABLISHED_RELEVANCE"];
+  if (familiarityRank(best) < familiarityRank(other)) return ["CONSUMER_FAMILIARITY"];
+  return null;
 }
 
 function pickNewer(
@@ -156,14 +156,24 @@ export function selectPresentedCatalogueHeads(input: {
       return a.index - b.index;
     });
   const best = ranked[0]?.head ?? leader;
-  const substitution: PresentationSubstitution | null =
+  const compared =
     best.catalogue_key === leader.catalogue_key
-      ? null
-      : {
+      ? ranked.find((entry) => entry.head.catalogue_key !== best.catalogue_key)?.head
+      : leader;
+  const factors = compared ? preferenceFactors(best, compared, input.uk) : null;
+  const equalSuitability =
+    compared != null &&
+    best.catalogue_fit_score != null &&
+    best.catalogue_fit_score === compared.catalogue_fit_score;
+  const substitution: PresentationSubstitution | null =
+    factors && compared && (best.catalogue_key !== leader.catalogue_key || equalSuitability)
+      ? {
           code: "PRESENTATION_EQUIVALENT_SUBSTITUTION",
-          factors: substitutionFactors(best, leader, input.uk),
-          technicalLeaderKey: leader.catalogue_key,
-        };
+          factors,
+          technicalLeaderKey: compared.catalogue_key,
+          equalSuitability,
+        }
+      : null;
 
   const alternative = best.catalogue_key === leader.catalogue_key ? null : leader;
   const window = uniqueHeads([...shortlist, best, leader]);

@@ -23,6 +23,8 @@ export type PresentationSubstitution = {
   code: "PRESENTATION_EQUIVALENT_SUBSTITUTION";
   factors: PresentationSubstitutionFactor[];
   technicalLeaderKey: string;
+  /** True when the displayed head shares the suitability score and is shown first on evidence. */
+  equalSuitability?: boolean;
 };
 
 export type HeadChoice = {
@@ -47,7 +49,10 @@ const NEWER_NOTE =
 const LEADER_NOTE =
   "Highest Fit score on these assessed characteristics. The Best Match shares those characteristic scores.";
 
-function equivalenceNote(factors: PresentationSubstitutionFactor[]): string {
+function equivalenceNote(
+  factors: PresentationSubstitutionFactor[],
+  equalSuitability: boolean
+): string {
   const factor = factors[0];
   const because =
     factor === "UK_ESTABLISHED_RELEVANCE"
@@ -55,8 +60,14 @@ function equivalenceNote(factors: PresentationSubstitutionFactor[]): string {
       : factor === "CONSUMER_FAMILIARITY"
         ? "it is a more familiar UK brand"
         : "its supporting evidence is stronger";
-  return `Same assessed characteristics as the highest-scoring head. Shown first because ${because}. This is not a higher Fit score.`;
+  if (equalSuitability) {
+    return `Same assessed suitability as another recommended driver. Shown first because ${because}.`;
+  }
+  return `Same assessed characteristics as the highest-scoring head. Shown first because ${because}.`;
 }
+
+const EQUAL_ALTERNATIVE_NOTE =
+  "Same assessed suitability as the driver shown first.";
 
 export type PresentHeadChoiceOptions = {
   /** When set, this head is Best Match even if another head has a higher Fit score. */
@@ -168,7 +179,7 @@ export function presentHeadChoices(
         label: HEAD_CHOICE_LABEL.BEST_MATCH,
         tiedForTopSuitability: tied,
         note: substitution
-          ? equivalenceNote(substitution.factors)
+          ? equivalenceNote(substitution.factors, substitution.equalSuitability === true)
           : tied
             ? TIED_BEST_NOTE
             : null,
@@ -194,7 +205,9 @@ export function presentHeadChoices(
       tiedForTopSuitability: tied,
       note:
         substitution && head.catalogue_key === substitution.technicalLeaderKey
-          ? LEADER_NOTE
+          ? substitution.equalSuitability
+            ? EQUAL_ALTERNATIVE_NOTE
+            : LEADER_NOTE
           : null,
       substitution: null,
     };

@@ -20,7 +20,7 @@ import {
   type NormalisedRequirements,
 } from "../types";
 import { sortedSetValues } from "../util";
-import { aggregateFit } from "./aggregate";
+import { aggregateCatalogueSuitability } from "./aggregate";
 import { inactiveDim } from "./dim-helpers";
 import {
   CATALOGUE_HEAD_DIMENSIONS,
@@ -169,10 +169,9 @@ export function scoreCatalogueHead(input: {
   }
 
   const activeCount = countActiveCatalogueDims(dims);
-  const agg = aggregateFit(
-    DIMENSION_NAMES.filter((n) => dims[n].active).map((n) => ({
+  const agg = aggregateCatalogueSuitability(
+    CATALOGUE_HEAD_DIMENSIONS.filter((n) => dims[n].active).map((n) => ({
       weight: dims[n].nominal_weight,
-      reliability: dims[n].reliability,
       score: dims[n].score as number,
     }))
   );

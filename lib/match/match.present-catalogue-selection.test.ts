@@ -113,9 +113,12 @@ describe("catalogue presentation selection", () => {
     const qi35 = result.recommendations.find(
       (item) => item.catalogue_key === "taylormade|qi35-max|2025"
     );
-    expect(adams?.catalogue_fit_score).toBeCloseTo(94.54925650557621, 8);
-    expect(wilson?.catalogue_fit_score).toBeCloseTo(93.97379912663756, 8);
-    expect(adams && wilson && adams.catalogue_fit_score! > wilson.catalogue_fit_score!).toBe(true);
+    expect(adams?.catalogue_fit_score).toBeCloseTo(94.05172413793103, 8);
+    expect(wilson?.catalogue_fit_score).toBeCloseTo(94.05172413793103, 8);
+    expect(adams?.catalogue_fit_score).toBe(wilson?.catalogue_fit_score);
+    expect(wilson!.confidence_components.equipment).toBeGreaterThan(
+      adams!.confidence_components.equipment
+    );
     expect(result.presentation_choices?.map((choice) => choice.label)).toEqual([
       "Best Match",
       "Alternative Match",
@@ -130,8 +133,10 @@ describe("catalogue presentation selection", () => {
       "PRESENTATION_EQUIVALENT_SUBSTITUTION"
     );
     expect(result.presentation_choices?.[0].substitution?.factors).toEqual(["STRONGER_EVIDENCE"]);
-    expect(result.presentation_choices?.[0].note).toMatch(/not a higher Fit score/);
-    expect(result.presentation_choices?.[1].note).toMatch(/Highest Fit score/);
+    expect(result.presentation_choices?.[0].note).toMatch(/Same assessed suitability/);
+    expect(result.presentation_choices?.[0].note).toMatch(/supporting evidence is stronger/);
+    expect(result.presentation_choices?.[1].note).toMatch(/Same assessed suitability/);
+    expect(result.presentation_choices?.[0].substitution?.equalSuitability).toBe(true);
     expect(qi35?.release_year).toBe(2025);
     expect(JSON.stringify(result.presentation_choices)).not.toMatch(/Best Value/);
 

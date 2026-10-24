@@ -1,7 +1,7 @@
 export { matchAdapterVersions } from "./versions";
 export { matchBandFromScore, confidenceFromScore } from "./bands";
 export { scoreDimensionCurve } from "./scoring/curves";
-export { aggregateFit } from "./scoring/aggregate";
+export { aggregateFit, aggregateCatalogueSuitability } from "./scoring/aggregate";
 export { guardrailForGap, applyGuardrails } from "./guardrails";
 export { aggregateConfidence } from "./confidence";
 export { speedRegion, carryRegion } from "./regions";
