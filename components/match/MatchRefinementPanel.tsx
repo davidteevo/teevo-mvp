@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
-import { RadioCards } from "@/components/listing/club-specs/RadioCards";
+import { FitQuestionSection } from "@/components/match/FitQuestionSection";
+import { FitAnswerIcon, type FitAnswerIconName } from "@/components/match/visual/FitAnswerIcon";
 import { VisualChoiceGroup } from "@/components/match/visual/VisualChoiceGroup";
 import {
   curvatureStraightOptionalVisualOptions,
@@ -134,6 +135,7 @@ function RefinementChoiceControl({
   if (question.id === "typical_trajectory") {
     return (
       <VisualChoiceGroup
+        headingLevel={3}
         label={question.prompt}
         value={(choice || "") as TrajectoryEnum | ""}
         onChange={onChange}
@@ -144,6 +146,7 @@ function RefinementChoiceControl({
   if (question.id === "typical_start_direction") {
     return (
       <VisualChoiceGroup
+        headingLevel={3}
         label={question.prompt}
         value={(choice || "") as StartDirectionEnum | ""}
         onChange={onChange}
@@ -154,6 +157,7 @@ function RefinementChoiceControl({
   if (question.id === "typical_curvature_unknown") {
     return (
       <VisualChoiceGroup
+        headingLevel={3}
         label={question.prompt}
         value={(choice || "") as CurvatureEnum | ""}
         onChange={onChange}
@@ -164,6 +168,7 @@ function RefinementChoiceControl({
   if (question.id === "typical_curvature_variable_clarify") {
     return (
       <VisualChoiceGroup
+        headingLevel={3}
         label={question.prompt}
         value={(choice || "") as CurvatureEnum | ""}
         onChange={onChange}
@@ -176,6 +181,7 @@ function RefinementChoiceControl({
   if (question.id === "typical_curvature_straight_optional") {
     return (
       <VisualChoiceGroup
+        headingLevel={3}
         label={question.prompt}
         value={
           (choice || "") as "KEEP" | "LEFT" | "RIGHT" | "UNKNOWN" | ""
@@ -185,14 +191,31 @@ function RefinementChoiceControl({
       />
     );
   }
+  const icons = iconsFor(question.id);
   return (
-    <RadioCards
+    <VisualChoiceGroup
+      tile="icon"
+      headingLevel={3}
       label={question.prompt}
       value={choice}
       onChange={onChange}
-      options={optionsFor(question)}
+      options={optionsFor(question).map((option) => ({
+        ...option,
+        diagram: <FitAnswerIcon name={icons[option.value] ?? "unsure"} />,
+      }))}
     />
   );
+}
+
+function iconsFor(id: RefinementQuestionId): Record<string, FitAnswerIconName> {
+  if (id === "primary_objective_miss_confirm") {
+    return {
+      KEEP: "keep",
+      REDUCE_RIGHT_MISS: "miss-right",
+      REDUCE_LEFT_MISS: "miss-left",
+    };
+  }
+  return {};
 }
 
 function optionsFor(q: RefinementQuestion): {
@@ -568,7 +591,7 @@ export function MatchRefinementPanel({ result, onResult, onActivity }: Props) {
   if (decision.pathway === "C") {
     return (
       <section
-        className="rounded-xl border border-par-3-punch/40 bg-white p-4 space-y-3"
+        className="rounded-xl border border-par-3-punch/40 bg-white p-4"
         aria-labelledby="match-refine-c-title"
       >
         <p className="text-[11px] font-semibold uppercase tracking-wide text-par-3-punch">
@@ -576,63 +599,83 @@ export function MatchRefinementPanel({ result, onResult, onActivity }: Props) {
         </p>
         <h2
           id="match-refine-c-title"
-          className="text-lg font-semibold text-mowing-green"
+          className="mt-1 text-lg font-semibold text-mowing-green"
         >
           A few basics before we can name drivers
         </h2>
-        <p className="text-sm text-mowing-green/80">
+        <p className="mt-1 text-sm text-mowing-green/80">
           Handedness alone is not enough. Add what you know — leave blank if
           unsure. We will not invent numbers for you.
         </p>
-        <label className="block text-sm text-mowing-green">
-          <span className="font-medium">Handicap (optional)</span>
-          <input
-            type="text"
-            inputMode="decimal"
-            className="mt-1 w-full min-h-[48px] rounded-xl border border-mowing-green/20 px-3"
-            value={cHandicap}
-            onChange={(e) => setCHandicap(e.target.value)}
-            placeholder="Leave blank if you don’t know"
-          />
-        </label>
-        <label className="block text-sm text-mowing-green">
-          <span className="font-medium">Estimated driver clubhead speed, mph (optional)</span>
-          <input
-            type="text"
-            inputMode="decimal"
-            className="mt-1 w-full min-h-[48px] rounded-xl border border-mowing-green/20 px-3"
-            value={cSpeed}
-            onChange={(e) => setCSpeed(e.target.value)}
-            placeholder="Leave blank if you don’t know"
-          />
-        </label>
+        <FitQuestionSection eyebrow="Handicap">
+          <label className="block text-mowing-green">
+            <span className="text-lg font-semibold leading-snug">Handicap (optional)</span>
+            <span className="mb-3 mt-1 block text-sm leading-snug text-mowing-green/65">
+              Leave blank if you don&apos;t know.
+            </span>
+            <input
+              type="text"
+              inputMode="decimal"
+              className="w-full min-h-[48px] rounded-xl border border-mowing-green/20 px-3"
+              value={cHandicap}
+              onChange={(e) => setCHandicap(e.target.value)}
+              placeholder="Leave blank if you don’t know"
+            />
+          </label>
+        </FitQuestionSection>
+        <FitQuestionSection eyebrow="Speed">
+          <label className="block text-mowing-green">
+            <span className="text-lg font-semibold leading-snug">
+              Estimated driver clubhead speed, mph (optional)
+            </span>
+            <span className="mb-3 mt-1 block text-sm leading-snug text-mowing-green/65">
+              Clubhead speed, not ball speed. Leave blank if you don&apos;t know.
+            </span>
+            <input
+              type="text"
+              inputMode="decimal"
+              className="w-full min-h-[48px] rounded-xl border border-mowing-green/20 px-3"
+              value={cSpeed}
+              onChange={(e) => setCSpeed(e.target.value)}
+              placeholder="Leave blank if you don’t know"
+            />
+          </label>
+        </FitQuestionSection>
         {answers.typical_trajectory === "" ? (
-          <VisualChoiceGroup
-            label="Typical ball flight (helpful)"
-            value={(cTraj || "UNKNOWN") as TrajectoryEnum}
-            onChange={(v) => setCTraj(v === "UNKNOWN" ? "" : v)}
-            options={trajectoryVisualOptions()}
-          />
+          <FitQuestionSection eyebrow="Ball flight">
+            <VisualChoiceGroup
+              headingLevel={3}
+              label="Typical ball flight (helpful)"
+              hint="The flight you see most often."
+              value={(cTraj || "UNKNOWN") as TrajectoryEnum}
+              onChange={(v) => setCTraj(v === "UNKNOWN" ? "" : v)}
+              options={trajectoryVisualOptions()}
+            />
+          </FitQuestionSection>
         ) : null}
         {answers.typical_curvature === "" ? (
-          <VisualChoiceGroup
-            label="Typical shot curve (helpful)"
-            value={(cCurve || "UNKNOWN") as CurvatureEnum}
-            onChange={(v) => setCCurve(v === "UNKNOWN" ? "" : v)}
-            options={curvatureVisualOptions(CURVATURE_PATHWAY_C_LABELS)}
-          />
+          <FitQuestionSection eyebrow="Curve">
+            <VisualChoiceGroup
+              headingLevel={3}
+              label="Typical shot curve (helpful)"
+              hint="Which way the ball bends through the air."
+              value={(cCurve || "UNKNOWN") as CurvatureEnum}
+              onChange={(v) => setCCurve(v === "UNKNOWN" ? "" : v)}
+              options={curvatureVisualOptions(CURVATURE_PATHWAY_C_LABELS)}
+            />
+          </FitQuestionSection>
         ) : null}
         {pathwayCReplacesCarry(answers.carry_distance_yards, cSpeed) ? (
-          <p className="text-sm text-mowing-green" role="status">
+          <p className="mt-4 text-sm text-mowing-green" role="status">
             {PATHWAY_C_SPEED_REPLACES_CARRY}
           </p>
         ) : null}
         {error && !canRetry ? (
-          <p className="text-sm text-red-700" role="alert">
+          <p className="mt-4 text-sm text-red-700" role="alert">
             {error}
           </p>
         ) : null}
-        <div className="flex flex-col gap-2 sm:flex-row">
+        <div className="mt-6 flex flex-col gap-2 sm:flex-row">
           <button
             type="button"
             disabled={pending}

@@ -2,8 +2,10 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { RadioCards } from "@/components/listing/club-specs/RadioCards";
+import { FitQuestionSection } from "@/components/match/FitQuestionSection";
 import { Step2Measurement } from "@/components/match/Step2Measurement";
+import { BallCurveDiagram } from "@/components/match/visual/BallCurveDiagram";
+import { FitAnswerIcon } from "@/components/match/visual/FitAnswerIcon";
 import { VisualChoiceGroup } from "@/components/match/visual/VisualChoiceGroup";
 import { curvatureVisualOptions } from "@/components/match/visual/curvatureOptions";
 import { startDirectionVisualOptions } from "@/components/match/visual/startDirectionOptions";
@@ -200,19 +202,31 @@ export function MatchQuestionnaire() {
         ))}
       </div>
 
-      <div className="space-y-4 rounded-xl border border-mowing-green/15 bg-white p-4">
+      <div className="rounded-xl border border-mowing-green/15 bg-white p-4">
         {step === 0 && (
-          <RadioCards
-            label="Which hand do you play?"
-            required
-            value={answers.handedness}
-            onChange={(v) => patch({ handedness: v })}
-            options={[
-              { value: "RIGHT", title: "Right-handed" },
-              { value: "LEFT", title: "Left-handed" },
-            ]}
-            error={error}
-          />
+          <FitQuestionSection first eyebrow="Handedness">
+            <VisualChoiceGroup
+              tile="icon"
+              label="Which hand do you play?"
+              hint="Sets the clubface view for strike location."
+              required
+              value={answers.handedness}
+              onChange={(v) => patch({ handedness: v })}
+              options={[
+                {
+                  value: "RIGHT",
+                  title: "Right-handed",
+                  diagram: <FitAnswerIcon name="hand-right" />,
+                },
+                {
+                  value: "LEFT",
+                  title: "Left-handed",
+                  diagram: <FitAnswerIcon name="hand-left" />,
+                },
+              ]}
+              error={error}
+            />
+          </FitQuestionSection>
         )}
 
         {step === 1 && (
@@ -226,147 +240,273 @@ export function MatchQuestionnaire() {
 
         {step === 2 && (
           <>
-            <VisualChoiceGroup
-              label="Typical ball flight height"
-              hint="Choose the flight you see most often — not the one you want."
-              value={answers.typical_trajectory as TrajectoryEnum | ""}
-              onChange={(v) => patch({ typical_trajectory: v })}
-              options={trajectoryVisualOptions()}
-            />
-            <VisualChoiceGroup
-              label="Typical start direction (your view)"
-              hint="Where does your ball first travel from the tee?"
-              value={answers.typical_start_direction as StartDirectionEnum | ""}
-              onChange={(v) => patch({ typical_start_direction: v })}
-              options={startDirectionVisualOptions()}
-            />
-            <VisualChoiceGroup
-              label="Typical curve"
-              hint="Which way does the ball bend through the air?"
-              value={answers.typical_curvature as CurvatureEnum | ""}
-              onChange={(v) => patch({ typical_curvature: v })}
-              options={curvatureVisualOptions()}
-            />
+            <FitQuestionSection first eyebrow="Ball flight">
+              <VisualChoiceGroup
+                label="Typical ball flight height"
+                hint="Choose the flight you see most often — not the one you want."
+                value={answers.typical_trajectory as TrajectoryEnum | ""}
+                onChange={(v) => patch({ typical_trajectory: v })}
+                options={trajectoryVisualOptions()}
+              />
+            </FitQuestionSection>
+            <FitQuestionSection eyebrow="Start direction">
+              <VisualChoiceGroup
+                label="Typical start direction (your view)"
+                hint="Where does your ball first travel from the tee?"
+                value={answers.typical_start_direction as StartDirectionEnum | ""}
+                onChange={(v) => patch({ typical_start_direction: v })}
+                options={startDirectionVisualOptions()}
+              />
+            </FitQuestionSection>
+            <FitQuestionSection eyebrow="Curve">
+              <VisualChoiceGroup
+                label="Typical curve"
+                hint="Which way does the ball bend through the air?"
+                value={answers.typical_curvature as CurvatureEnum | ""}
+                onChange={(v) => patch({ typical_curvature: v })}
+                options={curvatureVisualOptions()}
+              />
+            </FitQuestionSection>
             {answers.typical_curvature === "LEFT" ||
             answers.typical_curvature === "RIGHT" ||
             answers.typical_start_direction === "LEFT" ||
             answers.typical_start_direction === "RIGHT" ? (
-              <RadioCards
-                label="How big is the miss when it goes offline?"
-                value={answers.miss_severity}
-                onChange={(v) => patch({ miss_severity: v })}
-                options={[
-                  { value: "SMALL", title: "Small" },
-                  { value: "MODERATE", title: "Moderate" },
-                  { value: "LARGE", title: "Large" },
-                  { value: "UNKNOWN", title: "I'm not sure" },
-                ]}
-              />
+              <FitQuestionSection eyebrow="Miss size">
+                <VisualChoiceGroup
+                  tile="icon"
+                  label="How big is the miss when it goes offline?"
+                  hint="How far offline that miss usually finishes."
+                  value={answers.miss_severity}
+                  onChange={(v) => patch({ miss_severity: v })}
+                  options={[
+                    {
+                      value: "SMALL",
+                      title: "Small",
+                      diagram: <FitAnswerIcon name="miss-small" />,
+                    },
+                    {
+                      value: "MODERATE",
+                      title: "Moderate",
+                      diagram: <FitAnswerIcon name="miss-moderate" />,
+                    },
+                    {
+                      value: "LARGE",
+                      title: "Large",
+                      diagram: <FitAnswerIcon name="miss-large" />,
+                    },
+                    {
+                      value: "UNKNOWN",
+                      title: "I'm not sure",
+                      diagram: <FitAnswerIcon name="unsure" />,
+                    },
+                  ]}
+                />
+              </FitQuestionSection>
             ) : null}
           </>
         )}
 
         {step === 3 && (
           <>
-            <RadioCards
-              label="How consistent is your contact with the driver?"
-              value={answers.strike_consistency}
-              onChange={(v) => patch({ strike_consistency: v })}
-              options={[
-                { value: "HIGH", title: "Most strikes feel solid" },
-                { value: "MEDIUM", title: "Some good strikes, some poor" },
-                { value: "LOW", title: "I often struggle to make solid contact" },
-                { value: "UNKNOWN", title: "I'm not sure" },
-              ]}
-            />
-            <details className="rounded-xl border border-mowing-green/15 bg-white px-3 py-2">
-              <summary className="min-h-[44px] cursor-pointer text-sm font-semibold leading-[44px] text-mowing-green">
-                Where you usually strike the face (optional)
-              </summary>
-              <div className="pb-2">
-                <VisualChoiceGroup
-                  label="Strike location"
-                  hint="Optional. We record this and do not use it to claim one driver is better."
-                  value={answers.strike_pattern as StrikePatternEnum | ""}
-                  onChange={(v) => patch({ strike_pattern: v })}
-                  options={strikePatternVisualOptions(
-                    (answers.handedness || "RIGHT") as StrikeHandedness
-                  )}
-                />
-              </div>
-            </details>
-            <RadioCards
-              label="What do you most want from a new driver?"
-              value={
-                pendingFlightChange ||
-                answers.primary_objective === "HIGHER_FLIGHT" ||
-                answers.primary_objective === "LOWER_FLIGHT"
-                  ? "CHANGE_FLIGHT"
-                  : answers.primary_objective
-              }
-              onChange={(v) => {
-                if (v === "CHANGE_FLIGHT") {
-                  setPendingFlightChange(true);
-                  if (
-                    answers.primary_objective !== "HIGHER_FLIGHT" &&
-                    answers.primary_objective !== "LOWER_FLIGHT"
-                  ) {
-                    patch({ primary_objective: "UNKNOWN" });
-                  }
-                  return;
-                }
-                setPendingFlightChange(false);
-                patch({ primary_objective: v });
-              }}
-              options={[
-                { value: "DISTANCE", title: "More distance" },
-                { value: "FORGIVENESS", title: "More forgiveness" },
-                { value: "ACCURACY", title: "Straighter shots" },
-                { value: "CONTROL", title: "More control" },
-                { value: "CHANGE_FLIGHT", title: "Change my ball flight" },
-                { value: "UNKNOWN", title: "I'm not sure" },
-              ]}
-            />
-            {pendingFlightChange ||
-            answers.primary_objective === "HIGHER_FLIGHT" ||
-            answers.primary_objective === "LOWER_FLIGHT" ? (
-              <RadioCards
-                label="Which way do you want the flight to change?"
+            <FitQuestionSection first eyebrow="Contact">
+              <VisualChoiceGroup
+                tile="icon"
+                label="How consistent is your contact with the driver?"
+                hint="How often the strike feels centred on the face."
+                value={answers.strike_consistency}
+                onChange={(v) => patch({ strike_consistency: v })}
+                options={[
+                  {
+                    value: "HIGH",
+                    title: "Most strikes feel solid",
+                    diagram: <FitAnswerIcon name="contact-solid" />,
+                  },
+                  {
+                    value: "MEDIUM",
+                    title: "Some good strikes, some poor",
+                    diagram: <FitAnswerIcon name="contact-mixed" />,
+                  },
+                  {
+                    value: "LOW",
+                    title: "I often struggle to make solid contact",
+                    diagram: <FitAnswerIcon name="contact-poor" />,
+                  },
+                  {
+                    value: "UNKNOWN",
+                    title: "I'm not sure",
+                    diagram: <FitAnswerIcon name="unsure" />,
+                  },
+                ]}
+              />
+            </FitQuestionSection>
+            <FitQuestionSection eyebrow="Strike">
+              <details className="rounded-xl border border-mowing-green/15 bg-white px-3 py-2">
+                <summary className="flex min-h-[48px] cursor-pointer items-center text-lg font-semibold leading-snug text-mowing-green">
+                  Where you usually strike the face (optional)
+                </summary>
+                <div className="pb-2 pt-1">
+                  <VisualChoiceGroup
+                    hideLabel
+                    label="Strike location"
+                    hint="Optional. We record this and do not use it to claim one driver is better."
+                    value={answers.strike_pattern as StrikePatternEnum | ""}
+                    onChange={(v) => patch({ strike_pattern: v })}
+                    options={strikePatternVisualOptions(
+                      (answers.handedness || "RIGHT") as StrikeHandedness
+                    )}
+                  />
+                </div>
+              </details>
+            </FitQuestionSection>
+            <FitQuestionSection eyebrow="Goal">
+              <VisualChoiceGroup
+                tile="icon"
+                label="What do you most want from a new driver?"
+                hint="The main thing you want the next driver to help with."
                 value={
+                  pendingFlightChange ||
                   answers.primary_objective === "HIGHER_FLIGHT" ||
                   answers.primary_objective === "LOWER_FLIGHT"
-                    ? answers.primary_objective
-                    : ""
+                    ? "CHANGE_FLIGHT"
+                    : answers.primary_objective
                 }
                 onChange={(v) => {
+                  if (v === "CHANGE_FLIGHT") {
+                    setPendingFlightChange(true);
+                    if (
+                      answers.primary_objective !== "HIGHER_FLIGHT" &&
+                      answers.primary_objective !== "LOWER_FLIGHT"
+                    ) {
+                      patch({ primary_objective: "UNKNOWN" });
+                    }
+                    return;
+                  }
                   setPendingFlightChange(false);
                   patch({ primary_objective: v });
                 }}
                 options={[
-                  { value: "HIGHER_FLIGHT", title: "Higher" },
-                  { value: "LOWER_FLIGHT", title: "Lower" },
+                  {
+                    value: "DISTANCE",
+                    title: "More distance",
+                    diagram: <FitAnswerIcon name="goal-distance" />,
+                  },
+                  {
+                    value: "FORGIVENESS",
+                    title: "More forgiveness",
+                    diagram: <FitAnswerIcon name="goal-forgiveness" />,
+                  },
+                  {
+                    value: "ACCURACY",
+                    title: "Straighter shots",
+                    diagram: <FitAnswerIcon name="goal-accuracy" />,
+                  },
+                  {
+                    value: "CONTROL",
+                    title: "More control",
+                    diagram: <FitAnswerIcon name="goal-control" />,
+                  },
+                  {
+                    value: "CHANGE_FLIGHT",
+                    title: "Change my ball flight",
+                    diagram: <FitAnswerIcon name="goal-flight" />,
+                  },
+                  {
+                    value: "UNKNOWN",
+                    title: "I'm not sure",
+                    diagram: <FitAnswerIcon name="unsure" />,
+                  },
                 ]}
+                followUp={
+                  pendingFlightChange ||
+                  answers.primary_objective === "HIGHER_FLIGHT" ||
+                  answers.primary_objective === "LOWER_FLIGHT" ? (
+                    <VisualChoiceGroup
+                      tile="icon"
+                      headingLevel={3}
+                      label="Which way do you want the flight to change?"
+                      hint="Compared with the flight you have now."
+                      value={
+                        answers.primary_objective === "HIGHER_FLIGHT" ||
+                        answers.primary_objective === "LOWER_FLIGHT"
+                          ? answers.primary_objective
+                          : ""
+                      }
+                      onChange={(v) => {
+                        setPendingFlightChange(false);
+                        patch({ primary_objective: v });
+                      }}
+                      options={[
+                        {
+                          value: "HIGHER_FLIGHT",
+                          title: "Higher",
+                          diagram: <FitAnswerIcon name="flight-higher" />,
+                        },
+                        {
+                          value: "LOWER_FLIGHT",
+                          title: "Lower",
+                          diagram: <FitAnswerIcon name="flight-lower" />,
+                        },
+                      ]}
+                    />
+                  ) : answers.primary_objective === "ACCURACY" &&
+                    answers.typical_curvature === "UNKNOWN" ? (
+                    <VisualChoiceGroup
+                      headingLevel={3}
+                      label="Which way does the miss usually go?"
+                      hint="The side the ball usually finishes toward."
+                      value={answers.typical_curvature}
+                      onChange={(v) => patch({ typical_curvature: v })}
+                      options={[
+                        {
+                          value: "LEFT",
+                          title: "Left",
+                          diagram: (
+                            <BallCurveDiagram
+                              value="LEFT"
+                              className="h-[72px] w-[120px]"
+                            />
+                          ),
+                        },
+                        {
+                          value: "RIGHT",
+                          title: "Right",
+                          diagram: (
+                            <BallCurveDiagram
+                              value="RIGHT"
+                              className="h-[72px] w-[120px]"
+                            />
+                          ),
+                        },
+                        {
+                          value: "VARIABLE",
+                          title: "Both ways",
+                          diagram: (
+                            <BallCurveDiagram
+                              value="VARIABLE"
+                              className="h-[72px] w-[120px]"
+                            />
+                          ),
+                        },
+                        {
+                          value: "UNKNOWN",
+                          title: "I'm not sure",
+                          diagram: (
+                            <BallCurveDiagram
+                              value="UNKNOWN"
+                              className="h-[72px] w-[120px]"
+                            />
+                          ),
+                        },
+                      ]}
+                    />
+                  ) : answers.primary_objective === "DISTANCE" ? (
+                    <p className="text-sm leading-snug text-mowing-green/80">
+                      More distance is saved as your goal. It does not add a predicted yardage gain.
+                    </p>
+                  ) : null
+                }
               />
-            ) : null}
-            {answers.primary_objective === "ACCURACY" &&
-            answers.typical_curvature === "UNKNOWN" ? (
-              <RadioCards
-                label="Which way does the miss usually go?"
-                value={answers.typical_curvature}
-                onChange={(v) => patch({ typical_curvature: v })}
-                options={[
-                  { value: "LEFT", title: "Left" },
-                  { value: "RIGHT", title: "Right" },
-                  { value: "VARIABLE", title: "Both ways" },
-                  { value: "UNKNOWN", title: "I'm not sure" },
-                ]}
-              />
-            ) : null}
-            {answers.primary_objective === "DISTANCE" ? (
-              <p className="text-sm text-mowing-green/80">
-                More distance is saved as your goal. It does not add a predicted yardage gain.
-              </p>
-            ) : null}
+            </FitQuestionSection>
           </>
         )}
       </div>
