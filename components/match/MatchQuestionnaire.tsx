@@ -80,6 +80,12 @@ export function MatchQuestionnaire() {
     track("match_questionnaire_started", ADMIN_PREVIEW_PROPS);
   }, [router]);
 
+  // Each questionnaire step is a new "page": always start at the top so the
+  // user sees the start of the step and knows to scroll down.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [step]);
+
   function startAgain() {
     clearMatchQuestionnaireAnswers();
     clearStep2Draft();
