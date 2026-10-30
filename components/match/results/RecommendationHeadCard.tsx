@@ -6,9 +6,11 @@ import type { CatalogueHeadExplanation, CatalogueHeadScore } from "@/lib/match/c
 import { presentHeadCard } from "@/lib/match/app/present-head-card";
 import type { HeadChoice } from "@/lib/match/app/present-head-choices";
 import type { ListingRoleCode } from "@/lib/match/app/present-listing-labels";
+import type { PresentedShaftOptionsSection } from "@/lib/match/app/present-shaft-options";
 import type { MatchInventoryAttachedRow } from "@/lib/match/inventory/types";
 import type { NormalisedRequirements } from "@/lib/match/types";
 import { DriverSilhouette } from "@/components/match/results/DriverSilhouette";
+import { ShaftOptionsSection } from "@/components/match/results/ShaftOptionsSection";
 import {
   FULL_LISTING_ASSESSED,
   HEAD_LISTING_ABSENT,
@@ -29,6 +31,9 @@ type Props = {
   listingRoles: Map<string, ListingRoleCode[]>;
   /** page: one notice covers every head. head: this model has no listing. unchecked: stock could not be read. */
   emptyListingsMode: "page" | "head" | "unchecked";
+  shaftSection: PresentedShaftOptionsSection;
+  /** Shared page-level shaft guidance is shown once below the cards. */
+  suppressEmptyShaftGuidance: boolean;
 };
 
 function listedAs(row: MatchInventoryAttachedRow): string | null {
@@ -51,6 +56,8 @@ export function RecommendationHeadCard({
   choice,
   listingRoles,
   emptyListingsMode,
+  shaftSection,
+  suppressEmptyShaftGuidance,
 }: Props) {
   const card = presentHeadCard(score, explanation, requirements, peers);
   const details = card.details;
@@ -58,6 +65,7 @@ export function RecommendationHeadCard({
   const [open, setOpen] = useState(false);
   const detailsId = useId();
   const category = choice.label;
+  const hasNamedShafts = shaftSection.mode === "named";
 
   return (
     <article className="flex h-full min-w-0 flex-col rounded-[20px] border border-mowing-green/15 bg-white p-4">
@@ -82,7 +90,11 @@ export function RecommendationHeadCard({
           {card.releaseYear != null ? (
             <p className="mt-1 text-xs font-medium text-mowing-green/70">{card.releaseYear}</p>
           ) : null}
-          <p className="mt-1 text-xs text-mowing-green/70">Head characteristics only. Loft and shaft are not assessed.</p>
+          <p className="mt-1 text-xs text-mowing-green/70">
+            {hasNamedShafts
+              ? "Head ranking uses head characteristics. Shaft options below are separate."
+              : "Head characteristics only. Loft and shaft are not assessed in this ranking."}
+          </p>
         </div>
       </div>
       <h3 className="mt-3 text-sm font-semibold text-mowing-green">Why this fits you</h3>
@@ -130,7 +142,11 @@ export function RecommendationHeadCard({
           {open ? "Hide fit details" : "More fit details"}
         </button>
         <div id={detailsId} hidden={!open} className="mt-2 space-y-2 text-sm text-mowing-green/80">
-          <p>Shaft and loft are not included in this head recommendation.</p>
+          <p>
+            {hasNamedShafts
+              ? "Named shaft options are original manufacturer offerings assessed separately from head Fit. They are not a complete club fitting or a stock claim."
+              : "Shaft and loft are not included in this head recommendation."}
+          </p>
           {card.bandLabel ? <p>{card.bandLabel}</p> : null}
           {card.confidenceLabel ? <p>{card.confidenceLabel}</p> : null}
           {card.assessedLabel ? <p>{card.assessedLabel}</p> : null}
@@ -173,6 +189,11 @@ export function RecommendationHeadCard({
           ) : null}
         </div>
       </div>
+      <ShaftOptionsSection
+        catalogueKey={score.catalogue_key}
+        presented={shaftSection}
+        suppressEmptyGuidance={suppressEmptyShaftGuidance}
+      />
       {listings.length > 0 ? (
         <ul className="mt-3 space-y-2">
           {listings.map((row) => {

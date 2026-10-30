@@ -151,6 +151,7 @@ const ALLOWED_EVENTS = [
   "match_listing_clicked",
   "match_fit_details_opened",
   "match_model_browse_clicked",
+  "match_shaft_options_expanded",
   "match_refinement_offered",
   "match_refinement_answered",
   "match_refinement_recovered",

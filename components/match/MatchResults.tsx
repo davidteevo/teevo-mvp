@@ -18,6 +18,7 @@ import { track } from "@/lib/analytics";
 import { presentNamedHeadCards } from "@/lib/match/app/present-head-card";
 import { presentHeadChoices } from "@/lib/match/app/present-head-choices";
 import { presentAttachedListingLabels } from "@/lib/match/app/present-listing-labels";
+import { presentShaftOptionsSection } from "@/lib/match/app/present-shaft-options";
 import {
   loadInventoryLoadStatus,
   loadMatchAnswers,
@@ -25,6 +26,7 @@ import {
   type MatchInventoryLoadStatus,
 } from "@/lib/match/app/session-storage";
 import type { CatalogueRecommendResult } from "@/lib/match/catalogue-types";
+import type { OemShaftOptionAssessment } from "@/lib/match/app/select-oem-shaft-options";
 
 const ADMIN_PREVIEW_PROPS = { surface: "admin_preview" as const };
 
@@ -81,6 +83,11 @@ export function MatchResults() {
         );
         const listingLabelCount = (code: "BEST_MATCH" | "BEST_VALUE" | "BUDGET_OPTION") =>
           Array.from(roles.values()).filter((labels) => labels.includes(code)).length;
+        const shaftOptionRows = parsed.shaft_options ?? [];
+        const namedShaftCount = shaftOptionRows.reduce(
+          (n, row) => n + (row.options?.length ?? 0),
+          0
+        );
         track("match_recommendations_viewed", {
           ...ADMIN_PREVIEW_PROPS,
           mode: parsed.mode,
@@ -95,6 +102,10 @@ export function MatchResults() {
           best_match_listings: listingLabelCount("BEST_MATCH"),
           best_value_listings: listingLabelCount("BEST_VALUE"),
           budget_option_listings: listingLabelCount("BUDGET_OPTION"),
+          named_shaft_option_count: namedShaftCount,
+          heads_with_named_shafts: shaftOptionRows.filter(
+            (row) => (row.options?.length ?? 0) > 0
+          ).length,
         });
       }
     } catch {
@@ -158,6 +169,22 @@ export function MatchResults() {
   );
   const listingRoles = presentAttachedListingLabels(listingRows, budgetGbp);
   const anyListing = listingRows.length > 0;
+  const pageHasSharedShaftGuidance = Boolean(
+    result.mode === "NAMED_HEADS" || suitableExamples
+  );
+  const shaftOptionsByKey = new Map(
+    (result.shaft_options ?? []).map((row) => [row.catalogue_key, row.options ?? []])
+  );
+  const normalisedRequirements = result.normalised_requirements;
+
+  function shaftSectionFor(catalogueKey: string) {
+    return presentShaftOptionsSection({
+      options: (shaftOptionsByKey.get(catalogueKey) ??
+        []) as OemShaftOptionAssessment[],
+      requirements: normalisedRequirements,
+      pageHasSharedShaftGuidance,
+    });
+  }
 
   return (
     <div className="max-w-6xl space-y-6">
@@ -186,6 +213,8 @@ export function MatchResults() {
                         ? "head"
                         : "page"
                   }
+                  shaftSection={shaftSectionFor(rec.catalogue_key)}
+                  suppressEmptyShaftGuidance={pageHasSharedShaftGuidance}
                 />
               </li>
             ))}
@@ -220,6 +249,8 @@ export function MatchResults() {
                         ? "head"
                         : "page"
                   }
+                  shaftSection={shaftSectionFor(rec.catalogue_key)}
+                  suppressEmptyShaftGuidance={pageHasSharedShaftGuidance}
                 />
               </li>
             ))}
@@ -263,8 +294,12 @@ export function MatchResults() {
       {result.mode === "NAMED_HEADS" || suitableExamples ? (
       <section className="rounded-xl border border-mowing-green/15 bg-white p-4 space-y-2">
         <h2 className="text-lg font-semibold text-mowing-green">
-          Shaft profile guidance
+          What to look for in a shaft
         </h2>
+        <p className="text-sm text-mowing-green/80">
+          Shared guidance for every driver above. Named shaft options on a card are
+          original manufacturer offerings for that head only.
+        </p>
         {!shaft.available ? (
           <p className="text-sm text-mowing-green/70">
             Add swing speed or carry to refine flex and weight.
@@ -305,6 +340,30 @@ export function MatchResults() {
                 catalogue_key: item.head.catalogue_key,
                 reasons: item.reasons,
               })) ?? null,
+              shaft_options_audit: result.shaft_options_audit ?? null,
+              shaft_options: (result.shaft_options ?? []).map((row) => ({
+                catalogue_key: row.catalogue_key,
+                withheld_reason: row.withheld_reason,
+                options: row.options.map((option) => ({
+                  shaft_key: option.shaft_key,
+                  suitability_score: option.suitability_score,
+                  suitability_band: option.suitability_band,
+                  assessment_confidence: option.assessment_confidence,
+                  active_fitting_dimensions: option.active_fitting_dimensions,
+                  selection_reasons: option.selection_reasons,
+                  limitations: option.limitations,
+                  configuration_claim: option.configuration_claim,
+                  offering_verification_status: option.offering_verification_status,
+                  dimensions: {
+                    flex: option.dimensions.flex,
+                    weight: option.dimensions.weight,
+                    shaft_launch: option.dimensions.shaft_launch,
+                    shaft_spin: option.dimensions.shaft_spin,
+                  },
+                  diagnostics: option.diagnostics,
+                  evidence_refs: option.evidence_refs,
+                })),
+              })),
               heads: shownHeads.map((head) => ({
                 catalogue_key: head.catalogue_key,
                 fit: head.catalogue_fit_score,

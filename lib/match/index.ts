@@ -106,6 +106,14 @@ export type {
   OemShaftOptionsForHead,
   SelectOemShaftOptionsResult,
 } from "./app/select-oem-shaft-options";
+export {
+  presentShaftOptionsSection,
+  OEM_SHAFT_OFFERING_NOTE,
+} from "./app/present-shaft-options";
+export type {
+  PresentedShaftOption,
+  PresentedShaftOptionsSection,
+} from "./app/present-shaft-options";
 export { runMatchSession } from "./pipeline";
 export { validateMatchQuestionnaireInputs } from "./app/validate-inputs";
 export { runCatalogueRecommendation } from "./app/run-recommendation";
