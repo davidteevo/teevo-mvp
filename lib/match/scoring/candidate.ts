@@ -1,8 +1,4 @@
 import { matchBandFromScore, BAND_RANK } from "../bands";
-import {
-  evidenceReliability,
-  launchTendencyToNumeric,
-} from "../category";
 import { aggregateConfidence, reliabilityToEquipmentPoints } from "../confidence";
 import { applyGuardrails } from "../guardrails";
 import { loftReachable, rangeGap } from "../loft";
@@ -22,18 +18,10 @@ import {
 } from "../types";
 import { sortedSetValues } from "../util";
 import { aggregateFit } from "./aggregate";
-import {
-  scoreFlex,
-  scoreLaunch,
-  scoreLoft,
-  scoreWeight,
-} from "./curves";
+import { scoreLoft } from "./curves";
 import { activeDim, inactiveDim, numField } from "./dim-helpers";
 import { scoreHeadCharacteristicDimensions } from "./head-dimensions";
-
-function num(v: unknown): number | null {
-  return numField(v);
-}
+import { scoreShaftCharacteristicDimensions } from "./shaft-characteristics";
 
 function inactive(name: DimensionName, reason: string): DimensionTrace {
   return inactiveDim(name, reason);
@@ -175,8 +163,6 @@ export function scoreCandidate(input: {
     shaft_launch: null,
   };
 
-  dims.shaft_spin = inactive("shaft_spin", "SPIN_INACTIVE_V1");
-
   // loft
   let loftPlan: LoftPlan | null = null;
   let statedOutsideActiveTarget = false;
@@ -205,63 +191,15 @@ export function scoreCandidate(input: {
     }
   }
 
-  // flex
-  if (req.shaft_flex_min_value == null || req.shaft_flex_max_value == null) {
-    dims.flex = inactive("flex", "REQUIREMENT_UNRESOLVED");
-  } else if (shaft.match_flex_mapping_status !== "MAPPED") {
-    dims.flex = inactive("flex", "SHAFT_FLEX_UNMAPPED");
-    considerations.add("SHAFT_FLEX_UNMAPPED");
-  } else {
-    const flexVal = num(shaft.match_flex_value);
-    if (flexVal == null) {
-      dims.flex = inactive("flex", "SHAFT_FLEX_UNMAPPED");
-      considerations.add("SHAFT_FLEX_UNMAPPED");
-    } else {
-      const gap = rangeGap(flexVal, req.shaft_flex_min_value, req.shaft_flex_max_value);
-      gaps.flex = gap;
-      dims.flex = activeDim("flex", 1, scoreFlex(gap));
-    }
-  }
-
-  // weight
-  if (req.shaft_weight_min_g == null || req.shaft_weight_max_g == null) {
-    dims.weight = inactive("weight", "REQUIREMENT_UNRESOLVED");
-  } else {
-    const wt = num(shaft.actual_weight_g);
-    const wconf = String(shaft.match_weight_confidence || "");
-    const weightReliability = evidenceReliability(wconf);
-    if (
-      wt == null ||
-      wconf === "UNRESOLVED" ||
-      wconf === "NOT_APPLICABLE" ||
-      weightReliability <= 0
-    ) {
-      dims.weight = inactive("weight", "SHAFT_WEIGHT_UNKNOWN");
-      considerations.add("SHAFT_WEIGHT_UNKNOWN");
-    } else {
-      const gap = rangeGap(wt, req.shaft_weight_min_g, req.shaft_weight_max_g);
-      dims.weight = activeDim("weight", weightReliability, scoreWeight(gap));
-    }
-  }
-
-  // shaft launch
-  if (
-    req.shaft_launch_target === "UNRESOLVED" ||
-    req.shaft_launch_target_numeric == null
-  ) {
-    dims.shaft_launch = inactive("shaft_launch", "REQUIREMENT_UNRESOLVED");
-  } else if (shaft.match_launch_resolution_status !== "RESOLVED") {
-    dims.shaft_launch = inactive("shaft_launch", "SHAFT_LAUNCH_UNRESOLVED");
-  } else {
-    const val = launchTendencyToNumeric(String(shaft.launch_profile || ""));
-    const rel = evidenceReliability(String(shaft.launch_confidence || ""));
-    if (val == null || rel <= 0) {
-      dims.shaft_launch = inactive("shaft_launch", "SHAFT_LAUNCH_UNRESOLVED");
-    } else {
-      const gap = Math.abs(val - req.shaft_launch_target_numeric);
-      gaps.shaft_launch = gap;
-      dims.shaft_launch = activeDim("shaft_launch", rel, scoreLaunch(gap));
-    }
+  const shaftChars = scoreShaftCharacteristicDimensions(req, shaft);
+  dims.flex = shaftChars.dimensions.flex;
+  dims.weight = shaftChars.dimensions.weight;
+  dims.shaft_launch = shaftChars.dimensions.shaft_launch;
+  dims.shaft_spin = shaftChars.dimensions.shaft_spin;
+  gaps.flex = shaftChars.gaps.flex;
+  gaps.shaft_launch = shaftChars.gaps.shaft_launch;
+  for (const code of shaftChars.considerations) {
+    considerations.add(code);
   }
 
   for (const name of DIMENSION_NAMES) {

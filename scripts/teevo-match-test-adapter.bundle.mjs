@@ -153,11 +153,11 @@ function scoreDimensionCurve(dimension, gap) {
 
 // lib/match/scoring/aggregate.ts
 function aggregateFit(dimensions) {
-  let num2 = 0;
+  let num = 0;
   let den = 0;
   for (const d of dimensions) {
     if (!(d.reliability > 0)) continue;
-    num2 += d.score * d.weight * d.reliability;
+    num += d.score * d.weight * d.reliability;
     den += d.weight * d.reliability;
   }
   if (den === 0) {
@@ -167,7 +167,7 @@ function aggregateFit(dimensions) {
       reason: "NO_ACTIVE_FIT_DIMENSIONS"
     };
   }
-  return { score: num2 / den, scorable: true };
+  return { score: num / den, scorable: true };
 }
 
 // lib/match/guardrails.ts
@@ -1186,11 +1186,78 @@ function scoreHeadCharacteristicDimensions(req, head) {
   return { dimensions: dims, gaps };
 }
 
-// lib/match/scoring/candidate.ts
-function num(v) {
-  return numField(v);
-}
+// lib/match/scoring/shaft-characteristics.ts
 function inactive(name, reason) {
+  return inactiveDim(name, reason);
+}
+function scoreShaftCharacteristicDimensions(req, shaft) {
+  const considerations = [];
+  const gaps = {
+    flex: null,
+    shaft_launch: null
+  };
+  let flex;
+  if (req.shaft_flex_min_value == null || req.shaft_flex_max_value == null) {
+    flex = inactive("flex", "REQUIREMENT_UNRESOLVED");
+  } else if (shaft.match_flex_mapping_status !== "MAPPED") {
+    flex = inactive("flex", "SHAFT_FLEX_UNMAPPED");
+    considerations.push("SHAFT_FLEX_UNMAPPED");
+  } else {
+    const flexVal = numField(shaft.match_flex_value);
+    if (flexVal == null) {
+      flex = inactive("flex", "SHAFT_FLEX_UNMAPPED");
+      considerations.push("SHAFT_FLEX_UNMAPPED");
+    } else {
+      const gap = rangeGap(
+        flexVal,
+        req.shaft_flex_min_value,
+        req.shaft_flex_max_value
+      );
+      gaps.flex = gap;
+      flex = activeDim("flex", 1, scoreFlex(gap));
+    }
+  }
+  let weight;
+  if (req.shaft_weight_min_g == null || req.shaft_weight_max_g == null) {
+    weight = inactive("weight", "REQUIREMENT_UNRESOLVED");
+  } else {
+    const wt = numField(shaft.actual_weight_g);
+    const wconf = String(shaft.match_weight_confidence || "");
+    const weightReliability = evidenceReliability(wconf);
+    if (wt == null || wconf === "UNRESOLVED" || wconf === "NOT_APPLICABLE" || weightReliability <= 0) {
+      weight = inactive("weight", "SHAFT_WEIGHT_UNKNOWN");
+      considerations.push("SHAFT_WEIGHT_UNKNOWN");
+    } else {
+      const gap = rangeGap(wt, req.shaft_weight_min_g, req.shaft_weight_max_g);
+      weight = activeDim("weight", weightReliability, scoreWeight(gap));
+    }
+  }
+  let shaft_launch;
+  if (req.shaft_launch_target === "UNRESOLVED" || req.shaft_launch_target_numeric == null) {
+    shaft_launch = inactive("shaft_launch", "REQUIREMENT_UNRESOLVED");
+  } else if (shaft.match_launch_resolution_status !== "RESOLVED") {
+    shaft_launch = inactive("shaft_launch", "SHAFT_LAUNCH_UNRESOLVED");
+  } else {
+    const val = launchTendencyToNumeric(String(shaft.launch_profile || ""));
+    const rel = evidenceReliability(String(shaft.launch_confidence || ""));
+    if (val == null || rel <= 0) {
+      shaft_launch = inactive("shaft_launch", "SHAFT_LAUNCH_UNRESOLVED");
+    } else {
+      const gap = Math.abs(val - req.shaft_launch_target_numeric);
+      gaps.shaft_launch = gap;
+      shaft_launch = activeDim("shaft_launch", rel, scoreLaunch(gap));
+    }
+  }
+  const shaft_spin = inactive("shaft_spin", "SPIN_INACTIVE_V1");
+  return {
+    dimensions: { flex, weight, shaft_launch, shaft_spin },
+    gaps,
+    considerations
+  };
+}
+
+// lib/match/scoring/candidate.ts
+function inactive2(name, reason) {
   return inactiveDim(name, reason);
 }
 function planListingLoft(head, stated) {
@@ -1290,12 +1357,11 @@ function scoreCandidate(input) {
     head_launch: headChars.gaps.head_launch,
     shaft_launch: null
   };
-  dims.shaft_spin = inactive("shaft_spin", "SPIN_INACTIVE_V1");
   let loftPlan = null;
   let statedOutsideActiveTarget = false;
   let adjustableIntoTarget = false;
   if (req.preferred_loft_min_deg == null || req.preferred_loft_max_deg == null) {
-    dims.loft = inactive("loft", "REQUIREMENT_UNRESOLVED");
+    dims.loft = inactive2("loft", "REQUIREMENT_UNRESOLVED");
   } else {
     loftPlan = planListingLoft(head, listing.stated_loft_deg);
     const reachable = loftReachable(loftPlan);
@@ -1317,53 +1383,18 @@ function scoreCandidate(input) {
       considerations.add("LOFT_ADJUSTABLE_INTO_TARGET");
     }
   }
-  if (req.shaft_flex_min_value == null || req.shaft_flex_max_value == null) {
-    dims.flex = inactive("flex", "REQUIREMENT_UNRESOLVED");
-  } else if (shaft.match_flex_mapping_status !== "MAPPED") {
-    dims.flex = inactive("flex", "SHAFT_FLEX_UNMAPPED");
-    considerations.add("SHAFT_FLEX_UNMAPPED");
-  } else {
-    const flexVal = num(shaft.match_flex_value);
-    if (flexVal == null) {
-      dims.flex = inactive("flex", "SHAFT_FLEX_UNMAPPED");
-      considerations.add("SHAFT_FLEX_UNMAPPED");
-    } else {
-      const gap = rangeGap(flexVal, req.shaft_flex_min_value, req.shaft_flex_max_value);
-      gaps.flex = gap;
-      dims.flex = activeDim("flex", 1, scoreFlex(gap));
-    }
-  }
-  if (req.shaft_weight_min_g == null || req.shaft_weight_max_g == null) {
-    dims.weight = inactive("weight", "REQUIREMENT_UNRESOLVED");
-  } else {
-    const wt = num(shaft.actual_weight_g);
-    const wconf = String(shaft.match_weight_confidence || "");
-    const weightReliability = evidenceReliability(wconf);
-    if (wt == null || wconf === "UNRESOLVED" || wconf === "NOT_APPLICABLE" || weightReliability <= 0) {
-      dims.weight = inactive("weight", "SHAFT_WEIGHT_UNKNOWN");
-      considerations.add("SHAFT_WEIGHT_UNKNOWN");
-    } else {
-      const gap = rangeGap(wt, req.shaft_weight_min_g, req.shaft_weight_max_g);
-      dims.weight = activeDim("weight", weightReliability, scoreWeight(gap));
-    }
-  }
-  if (req.shaft_launch_target === "UNRESOLVED" || req.shaft_launch_target_numeric == null) {
-    dims.shaft_launch = inactive("shaft_launch", "REQUIREMENT_UNRESOLVED");
-  } else if (shaft.match_launch_resolution_status !== "RESOLVED") {
-    dims.shaft_launch = inactive("shaft_launch", "SHAFT_LAUNCH_UNRESOLVED");
-  } else {
-    const val = launchTendencyToNumeric(String(shaft.launch_profile || ""));
-    const rel = evidenceReliability(String(shaft.launch_confidence || ""));
-    if (val == null || rel <= 0) {
-      dims.shaft_launch = inactive("shaft_launch", "SHAFT_LAUNCH_UNRESOLVED");
-    } else {
-      const gap = Math.abs(val - req.shaft_launch_target_numeric);
-      gaps.shaft_launch = gap;
-      dims.shaft_launch = activeDim("shaft_launch", rel, scoreLaunch(gap));
-    }
+  const shaftChars = scoreShaftCharacteristicDimensions(req, shaft);
+  dims.flex = shaftChars.dimensions.flex;
+  dims.weight = shaftChars.dimensions.weight;
+  dims.shaft_launch = shaftChars.dimensions.shaft_launch;
+  dims.shaft_spin = shaftChars.dimensions.shaft_spin;
+  gaps.flex = shaftChars.gaps.flex;
+  gaps.shaft_launch = shaftChars.gaps.shaft_launch;
+  for (const code of shaftChars.considerations) {
+    considerations.add(code);
   }
   for (const name of DIMENSION_NAMES) {
-    if (!dims[name]) dims[name] = inactive(name, "INTERNAL_MISSING");
+    if (!dims[name]) dims[name] = inactive2(name, "INTERNAL_MISSING");
   }
   const agg = aggregateFit(
     DIMENSION_NAMES.filter((n) => dims[n].active).map((n) => ({

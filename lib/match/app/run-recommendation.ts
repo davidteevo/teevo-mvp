@@ -1,5 +1,6 @@
 import {
   CATALOGUE_MIN_INDEPENDENT_ACTIVE_DIMS,
+  type CatalogueHeadScore,
   type CatalogueRecommendResult,
 } from "../catalogue-types";
 import type { HeadConfigOverlayIndex } from "../head-config-overlay";
@@ -29,8 +30,17 @@ import {
 import { buildCharacteristicGuidance, explainCatalogueHead } from "./explain";
 import { attachInventoryToCatalogueRecommendations } from "./inventory-attach";
 import { matchReferenceDirectory } from "./intelligence-path";
+import {
+  selectOemShaftOptionsForHeads,
+  type SelectOemShaftOptionsResult,
+} from "./select-oem-shaft-options";
 import { buildShaftGuidance } from "./shaft-guidance";
 import { validateMatchQuestionnaireInputs } from "./validate-inputs";
+import {
+  loadOemDriverConfigsOrNull,
+  MATCH_OEM_DRIVER_CONFIGS_VERSION,
+  type OemDriverConfigsIndex,
+} from "../oem-driver-configs";
 
 function emptyAudit(
   reason: string | null,
@@ -96,6 +106,23 @@ export function runCatalogueRecommendation(input: {
       .filter((id): id is string => id != null)
   );
   const presentationBrandIds = brandIds.size > 0 ? brandIds : null;
+  const referenceDirectory =
+    input.referenceDirectory ?? matchReferenceDirectory();
+
+  let oemConfigs: OemDriverConfigsIndex | null = null;
+  let oemOverlayStatus: SelectOemShaftOptionsResult["oem_overlay_status"] =
+    "MISSING";
+  try {
+    oemConfigs = loadOemDriverConfigsOrNull(
+      referenceDirectory,
+      input.intelligence
+    );
+    oemOverlayStatus = oemConfigs ? "LOADED" : "MISSING";
+  } catch {
+    oemConfigs = null;
+    oemOverlayStatus = "INVALID";
+  }
+
   const versions = {
     ...matchAdapterVersions(),
     catalogue_pathway: "PHASE_2A_CHECKPOINT_A" as const,
@@ -103,10 +130,13 @@ export function runCatalogueRecommendation(input: {
       inventory.length > 0
         ? ("PHASE_2A_CHECKPOINT_B" as const)
         : ("NONE" as const),
+    oem_driver_configs: (oemOverlayStatus === "LOADED"
+      ? MATCH_OEM_DRIVER_CONFIGS_VERSION
+      : oemOverlayStatus === "INVALID"
+        ? "INVALID"
+        : "NONE") as "MATCH_OEM_DRIVER_CONFIGS_V1" | "NONE" | "INVALID",
+    oem_shaft_options: "PHASE_3A_CHECKPOINT_C" as const,
   };
-
-  const referenceDirectory =
-    input.referenceDirectory ?? matchReferenceDirectory();
 
   const overlay =
     input.headConfigOverlay === undefined
@@ -203,6 +233,24 @@ export function runCatalogueRecommendation(input: {
   const evidenceBackedDims = countEvidenceBackedCatalogueRequirementDims(req);
   const shaft_guidance = buildShaftGuidance(req);
   const characteristic_guidance = buildCharacteristicGuidance(req);
+
+  function shaftOptionsPayload(heads: readonly CatalogueHeadScore[]) {
+    const selected = selectOemShaftOptionsForHeads({
+      heads,
+      requirements: req,
+      intelligence: input.intelligence,
+      oemConfigs,
+      golferConfidence: golfer,
+      oemOverlayStatus,
+    });
+    return {
+      shaft_options: selected.by_head,
+      shaft_options_audit: {
+        ...selected.audit,
+        oem_overlay_status: selected.oem_overlay_status,
+      },
+    };
+  }
 
   if (evidenceBackedDims < CATALOGUE_MIN_INDEPENDENT_ACTIVE_DIMS) {
     return {
@@ -333,6 +381,7 @@ export function runCatalogueRecommendation(input: {
       golferConfidence: golfer,
     });
     const attached = inventory_attachments.reduce((n, row) => n + row.items.length, 0);
+    const shaftPayload = shaftOptionsPayload(shown);
     return {
       mode: "CHARACTERISTIC_GUIDANCE",
       recommendations: [],
@@ -347,6 +396,7 @@ export function runCatalogueRecommendation(input: {
         topTiedMinActiveDims: family_stats.top_tied_min_active_dims,
       }),
       inventory_attachments,
+      ...shaftPayload,
       normalised_requirements: req,
       session: {
         resolved_catalogue_requirement_dims: resolvedDims,
@@ -417,6 +467,8 @@ export function runCatalogueRecommendation(input: {
     )
   );
 
+  const shaftPayload = shaftOptionsPayload(recommendations);
+
   return {
     mode: "NAMED_HEADS",
     recommendations,
@@ -431,6 +483,7 @@ export function runCatalogueRecommendation(input: {
     shaft_guidance,
     characteristic_guidance,
     inventory_attachments,
+    ...shaftPayload,
     normalised_requirements: req,
     session: {
       resolved_catalogue_requirement_dims: resolvedDims,

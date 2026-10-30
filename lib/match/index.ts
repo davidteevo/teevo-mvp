@@ -96,6 +96,16 @@ export type {
   OemDriverConfigMember,
   OemDriverConfigOffering,
 } from "./oem-driver-configs";
+export { scoreShaftCharacteristicDimensions } from "./scoring/shaft-characteristics";
+export {
+  selectOemShaftOptionsForHeads,
+  OEM_SHAFT_OPTIONS_KIND,
+} from "./app/select-oem-shaft-options";
+export type {
+  OemShaftOptionAssessment,
+  OemShaftOptionsForHead,
+  SelectOemShaftOptionsResult,
+} from "./app/select-oem-shaft-options";
 export { runMatchSession } from "./pipeline";
 export { validateMatchQuestionnaireInputs } from "./app/validate-inputs";
 export { runCatalogueRecommendation } from "./app/run-recommendation";

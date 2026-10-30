@@ -140,6 +140,15 @@ export type CatalogueRecommendResult = {
    * Never mixed into CatalogueHeadScore.
    */
   inventory_attachments: CatalogueInventoryAttachment[];
+  /**
+   * Checkpoint C — named OEM shaft options keyed by displayed head.
+   * Separate from catalogue Fit and from inventory attach.
+   * Never a verified complete-driver configuration claim.
+   */
+  shaft_options?: import("./app/select-oem-shaft-options").OemShaftOptionsForHead[];
+  shaft_options_audit?: import("./app/select-oem-shaft-options").SelectOemShaftOptionsResult["audit"] & {
+    oem_overlay_status: import("./app/select-oem-shaft-options").SelectOemShaftOptionsResult["oem_overlay_status"];
+  };
   normalised_requirements: NormalisedRequirements;
   session: {
     resolved_catalogue_requirement_dims: number;
@@ -181,6 +190,11 @@ export type CatalogueRecommendResult = {
     uk_head_relevance: string;
     catalogue_pathway: "PHASE_2A_CHECKPOINT_A";
     inventory_attach: "PHASE_2A_CHECKPOINT_B" | "NONE";
+    oem_driver_configs?:
+      | "MATCH_OEM_DRIVER_CONFIGS_V1"
+      | "NONE"
+      | "INVALID";
+    oem_shaft_options?: "PHASE_3A_CHECKPOINT_C" | "NONE";
   };
   validation_errors?: string[];
 };
