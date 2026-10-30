@@ -83,6 +83,19 @@ export type {
   UkMarketStatus,
   UkMarketReviewState,
 } from "./uk-head-relevance";
+export {
+  MATCH_OEM_DRIVER_CONFIGS_VERSION,
+  loadOemDriverConfigs,
+  loadOemDriverConfigsOrNull,
+  validateOemDriverConfigs,
+  namedOemOfferingsForHead,
+} from "./oem-driver-configs";
+export type {
+  OemDriverConfigsIndex,
+  OemDriverConfigsFile,
+  OemDriverConfigMember,
+  OemDriverConfigOffering,
+} from "./oem-driver-configs";
 export { runMatchSession } from "./pipeline";
 export { validateMatchQuestionnaireInputs } from "./app/validate-inputs";
 export { runCatalogueRecommendation } from "./app/run-recommendation";
