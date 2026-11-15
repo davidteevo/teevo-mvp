@@ -1,4 +1,6 @@
 import { chatCompletionJson } from "@/lib/ai";
+import { flushPostHogLogs, logPostHogInfo } from "@/lib/posthog-logs";
+import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { ALL_CATEGORIES } from "@/lib/listing-categories";
 
@@ -56,20 +58,36 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing query" }, { status: 400 });
     }
 
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     const result = await chatCompletionJson<SearchIntentResult>(
       [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: query },
       ],
-      { model: "gpt-4o-mini" }
+      { model: "gpt-4o-mini", distinctId: user?.id }
     );
 
     if (!result || !result.filters || typeof result.filters !== "object") {
+      logPostHogInfo("AI search intent completed", {
+        endpoint: "/api/ai/search-intent",
+        outcome: "fallback",
+      });
+      await flushPostHogLogs();
       return NextResponse.json(
         { error: "Could not understand your search. Try filters below." },
         { status: 502 }
       );
     }
+
+    logPostHogInfo("AI search intent completed", {
+      endpoint: "/api/ai/search-intent",
+      outcome: "generated",
+    });
+    await flushPostHogLogs();
 
     const filters = result.filters;
     const category =

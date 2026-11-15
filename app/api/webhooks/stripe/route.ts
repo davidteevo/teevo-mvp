@@ -12,6 +12,7 @@ import { NotificationType, resolveNotifications } from "@/lib/notifications";
 import { onOrderInvalidated } from "@/lib/referral/rewards";
 import { assertStripeModeMatchesEnv } from "@/lib/stripe-env";
 import { resolveStripeSetupReminder } from "@/lib/stripe-setup-reminder";
+import { captureServerEvent } from "@/lib/posthog-server";
 
 assertStripeModeMatchesEnv();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-02-24.acacia" });
@@ -85,7 +86,14 @@ export async function POST(request: Request) {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     try {
-      await createTransactionAndSendEmails(admin, session);
+      const result = await createTransactionAndSendEmails(admin, session);
+      const buyerId = session.metadata?.buyerId;
+      if ("transactionId" in result && buyerId) {
+        await captureServerEvent(buyerId, "purchase_completed", {
+          transaction_id: result.transactionId,
+          listing_id: session.metadata?.listingId ?? null,
+        });
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Processing failed";
       console.error("Stripe webhook: checkout.session.completed failed", err);

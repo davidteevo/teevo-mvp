@@ -7,8 +7,10 @@ import {
   useState,
   useCallback,
   useMemo,
+  useRef,
 } from "react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
+import posthog from "posthog-js";
 import { createClient } from "@/lib/supabase/client";
 import type { User as AppUser, UserRole } from "@/types/database";
 
@@ -43,7 +45,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [profile, setProfile] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const identifiedUserId = useRef<string | null>(null);
   const supabase = useMemo(() => createClient(), []);
+
+  const identifyUser = useCallback((authenticatedUser: SupabaseUser) => {
+    if (identifiedUserId.current === authenticatedUser.id) return;
+
+    const previousUserId = identifiedUserId.current ?? posthog.get_property("$user_id");
+    if (previousUserId && previousUserId !== authenticatedUser.id) posthog.reset();
+
+    const firstName = authenticatedUser.user_metadata.first_name;
+    posthog.identify(authenticatedUser.id, {
+      ...(authenticatedUser.email ? { email: authenticatedUser.email } : {}),
+      ...(typeof firstName === "string" && firstName ? { first_name: firstName } : {}),
+    });
+    identifiedUserId.current = authenticatedUser.id;
+  }, []);
+
+  const resetIdentity = useCallback(() => {
+    if (!identifiedUserId.current && !posthog.get_property("$user_id")) return;
+    posthog.reset();
+    identifiedUserId.current = null;
+  }, []);
 
   const fetchProfile = useCallback(async (userId: string) => {
     try {
@@ -104,12 +127,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
+        identifyUser(session.user);
         try {
           await fetchProfile(session.user.id);
         } catch (e) {
           if ((e as Error)?.name !== "AbortError") throw e;
         }
       } else {
+        resetIdentity();
         setProfile(null);
       }
       setLoading(false);
@@ -124,10 +149,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (cancelled) return;
       setUser(u ?? null);
       if (u) {
+        identifyUser(u);
         fetchProfile(u.id).finally(() => {
           if (!cancelled) setLoading(false);
         });
       } else {
+        resetIdentity();
         setLoading(false);
       }
     }).catch((e) => {
@@ -139,7 +166,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       window.clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
-  }, [supabase, fetchProfile]);
+  }, [supabase, fetchProfile, identifyUser, resetIdentity]);
 
   // Single retry when we have user but no profile (e.g. after login). One full run to avoid token refresh burst.
   useEffect(() => {
@@ -160,6 +187,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, profile, loading, fetchProfileFromApiOnly]);
 
   const signOut = useCallback(async () => {
+    resetIdentity();
     setUser(null);
     setProfile(null);
     try {
@@ -171,7 +199,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== "undefined") {
       window.location.href = "/api/auth/signout";
     }
-  }, [supabase]);
+  }, [supabase, resetIdentity]);
 
   const updateProfile = useCallback((updates: Partial<AppUser>) => {
     setProfile((prev) => (prev ? { ...prev, ...updates } : null));
