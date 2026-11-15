@@ -1,11 +1,14 @@
+import { OpenAI as PostHogOpenAI } from "@posthog/ai/openai";
 import OpenAI from "openai";
+import { getPostHogClient } from "@/lib/posthog-server";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-function getClient(): OpenAI | null {
-  if (!OPENAI_API_KEY?.trim()) return null;
-  return new OpenAI({ apiKey: OPENAI_API_KEY });
-}
+type ChatCompletionOptions = {
+  model?: string;
+  responseFormat?: { type: "json_object" };
+  distinctId?: string;
+};
 
 export interface ChatMessage {
   role: "system" | "user" | "assistant";
@@ -18,21 +21,37 @@ export interface ChatMessage {
  */
 export async function chatCompletion(
   messages: ChatMessage[],
-  options?: { model?: string; responseFormat?: { type: "json_object" } }
+  options?: ChatCompletionOptions
 ): Promise<string | null> {
-  const client = getClient();
-  if (!client) return null;
+  if (!OPENAI_API_KEY?.trim()) return null;
+
+  const posthog = getPostHogClient();
   try {
+    if (posthog) {
+      const client = new PostHogOpenAI({ apiKey: OPENAI_API_KEY, posthog });
+      const response = await client.chat.completions.create({
+        model: options?.model ?? "gpt-4o-mini",
+        messages: messages.map((m) => ({ role: m.role, content: m.content })),
+        response_format: options?.responseFormat,
+        posthogTraceId: crypto.randomUUID(),
+        posthogProperties: { $ai_session_id: `process-${process.pid}` },
+        ...(options?.distinctId ? { posthogDistinctId: options.distinctId } : {}),
+      });
+      return response.choices[0]?.message?.content?.trim() ?? null;
+    }
+
+    const client = new OpenAI({ apiKey: OPENAI_API_KEY });
     const response = await client.chat.completions.create({
       model: options?.model ?? "gpt-4o-mini",
       messages: messages.map((m) => ({ role: m.role, content: m.content })),
       response_format: options?.responseFormat,
     });
-    const content = response.choices[0]?.message?.content?.trim();
-    return content ?? null;
+    return response.choices[0]?.message?.content?.trim() ?? null;
   } catch (err) {
     console.error("OpenAI chatCompletion error:", err);
     return null;
+  } finally {
+    await posthog?.flush().catch(() => {});
   }
 }
 
@@ -42,7 +61,7 @@ export async function chatCompletion(
  */
 export async function chatCompletionJson<T>(
   messages: ChatMessage[],
-  options?: { model?: string }
+  options?: Pick<ChatCompletionOptions, "model" | "distinctId">
 ): Promise<T | null> {
   const raw = await chatCompletion(messages, {
     ...options,

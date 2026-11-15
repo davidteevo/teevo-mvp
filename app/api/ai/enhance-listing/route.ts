@@ -1,4 +1,6 @@
 import { chatCompletionJson } from "@/lib/ai";
+import { flushPostHogLogs, logPostHogInfo } from "@/lib/posthog-logs";
+import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import {
   ALL_CATEGORIES,
@@ -230,12 +232,17 @@ export async function POST(request: Request) {
       .filter(Boolean)
       .join("\n\n");
 
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     const result = await chatCompletionJson<EnhanceResult>(
       [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      { model: "gpt-4o-mini" }
+      { model: "gpt-4o-mini", distinctId: user?.id }
     );
 
     const llmDescription = typeof result?.description === "string" ? result.description.trim() : "";
@@ -243,6 +250,12 @@ export async function POST(request: Request) {
     const llmDescNorm = llmDescription.toLowerCase().replace(/\s+/g, " ").slice(0, 200);
     const isExactEcho = inputDescNorm.length > 15 && llmDescNorm === inputDescNorm;
     const hasValidResult = result && typeof result.title === "string" && llmDescription.length > 0 && !isExactEcho;
+
+    logPostHogInfo("AI listing enhancement completed", {
+      endpoint: "/api/ai/enhance-listing",
+      outcome: hasValidResult ? "generated" : "fallback",
+    });
+    await flushPostHogLogs();
 
     if (hasValidResult) {
       const normalizedTitle = isStructured ? result!.title : normalizeListingTitleForCategory(result!.title, category);

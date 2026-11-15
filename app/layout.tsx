@@ -10,6 +10,7 @@ import { AuthProvider } from "@/lib/auth-context";
 import { WatchlistProvider } from "@/lib/watchlist-context";
 import { WatchAuthModal } from "@/components/watchlist/WatchAuthModal";
 import { WatchIntentHandler } from "@/components/watchlist/WatchIntentHandler";
+import { PostHogProvider } from "@/components/PostHogProvider";
 import { getAppEnv, isProduction, isStaging } from "@/lib/app-env";
 
 const appEnv = getAppEnv();
@@ -83,20 +84,22 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col antialiased">
-        <IosViewportScaleReset />
-        <StagingBanner />
-        <AuthProvider>
-          <WatchlistProvider>
-            <Suspense fallback={null}>
-              <WatchIntentHandler />
-            </Suspense>
-            <WatchAuthModal />
-            <TrustStrip />
-            <Header />
-            <main className="flex-1 flex flex-col min-h-0 min-w-0">{children}</main>
-            <Footer />
-          </WatchlistProvider>
-        </AuthProvider>
+        <PostHogProvider>
+          <IosViewportScaleReset />
+          <StagingBanner />
+          <AuthProvider>
+            <WatchlistProvider>
+              <Suspense fallback={null}>
+                <WatchIntentHandler />
+              </Suspense>
+              <WatchAuthModal />
+              <TrustStrip />
+              <Header />
+              <main className="flex-1 flex flex-col min-h-0 min-w-0">{children}</main>
+              <Footer />
+            </WatchlistProvider>
+          </AuthProvider>
+        </PostHogProvider>
       </body>
     </html>
   );

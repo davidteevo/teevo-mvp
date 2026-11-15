@@ -10,6 +10,11 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@opentelemetry/api-logs": "^0.223.0",
+    "@opentelemetry/exporter-logs-otlp-http": "^0.301.2",
+    "@opentelemetry/resources": "^3.1.1",
+    "@opentelemetry/sdk-logs": "^3.1.1",
+    "@posthog/ai": "^8.20.0",
     "@supabase/ssr": "^0.5.0",
     "@supabase/supabase-js": "^2.45.0",
     "browser-image-compression": "^2.0.2",
@@ -17,6 +22,8 @@
     "lucide-react": "^0.454.0",
     "next": "14.2.18",
     "openai": "^6.25.0",
+    "posthog-js": "^1.450.0",
+    "posthog-node": "^5.74.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-easy-crop": "^6.2.3",
